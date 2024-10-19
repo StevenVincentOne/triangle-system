@@ -42,16 +42,10 @@ class TriangleSystem {
                 };
                 break;
             case 'scalene':
-                const a = 210, b = 270, c = 310;
-                const s = (a + b + c) / 2;
-                const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-                const height = 2 * area / c;
-                const base = c;
-                const x = Math.sqrt(b*b - height*height);
                 this.system = {
-                    n1: { x: 0, y: height },
-                    n2: { x: -base/2, y: 0 },
-                    n3: { x: base/2, y: 0 },
+                    n1: { x: 0, y: 200 },
+                    n2: { x: -120, y: 0 },
+                    n3: { x: 180, y: 0 },
                 };
                 break;
             case 'right':
@@ -201,7 +195,6 @@ class TriangleSystem {
                 setElementValue(`#subsystem-${i}-area`, (this.calculateArea() / 3).toFixed(2));
                 setElementValue(`#subsystem-${i}-perimeter`, (this.calculatePerimeter() / 2).toFixed(2));
                 setElementValue(`#subsystem-${i}-centroid-angle`, (angles[nodeKey] / 2).toFixed(2));
-                setElementValue(`#node-${nodeKey}-angle`, angles[nodeKey].toFixed(2));
             });
 
             setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter).toFixed(2));

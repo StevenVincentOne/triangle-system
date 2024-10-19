@@ -36,10 +36,6 @@
                         <input id="node-n1-y" type="number" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label for="node-n1-angle" class="form-label">N1 Angle:</label>
-                        <input id="node-n1-angle" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
                         <label for="node-n2-x" class="form-label">N2 X:</label>
                         <input id="node-n2-x" type="number" class="form-control">
                     </div>
@@ -48,20 +44,12 @@
                         <input id="node-n2-y" type="number" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label for="node-n2-angle" class="form-label">N2 Angle:</label>
-                        <input id="node-n2-angle" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
                         <label for="node-n3-x" class="form-label">N3 X:</label>
                         <input id="node-n3-x" type="number" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label for="node-n3-y" class="form-label">N3 Y:</label>
                         <input id="node-n3-y" type="number" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label for="node-n3-angle" class="form-label">N3 Angle:</label>
-                        <input id="node-n3-angle" type="number" class="form-control" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -114,6 +102,7 @@
                         <label for="subsystem-1-centroid-angle" class="form-label">Subsystem 1 Centroid Angle:</label>
                         <input id="subsystem-1-centroid-angle" type="number" class="form-control" readonly>
                     </div>
+                    <!-- Repeat for subsystems 2 and 3 -->
                     <div class="mb-3">
                         <label for="subsystem-2-area" class="form-label">Subsystem 2 Area:</label>
                         <input id="subsystem-2-area" type="number" class="form-control" readonly>
@@ -141,6 +130,7 @@
                 </div>
             </div>
 
+            <!-- Controls Section -->
             <div class="controls d-flex flex-wrap justify-content-center gap-2 mb-3 mt-4">
                 <button id="equilateral" class="btn btn-secondary">Equilateral</button>
                 <button id="isosceles" class="btn btn-secondary">Isosceles</button>
@@ -158,7 +148,9 @@
             </div>
         </div>
 
+        <!-- Main Content Container -->
         <div id="main-content" class="d-flex gap-4">
+            <!-- Information Panel -->
             <div id="info-panel" class="bg-dark p-4 rounded">
                 <h2 class="text-center mb-3">Information Panel</h2>
                 <div class="mb-3">
@@ -201,8 +193,10 @@
                 </div>
             </div>
 
+            <!-- Canvas and Legend Container -->
             <div id="canvas-container" class="flex-grow-1">
                 <canvas id="canvas" width="800" height="600" class="bg-dark rounded"></canvas>
+                <!-- Legend Section -->
                 <div id="legend" class="bg-dark p-3 rounded mt-3">
                     <h3>Legend:</h3>
                     <ul class="list-unstyled">
