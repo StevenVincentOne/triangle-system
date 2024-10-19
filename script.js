@@ -264,7 +264,7 @@ class TriangleSystem {
     }
 
     drawNode(ctx, point, color, label, locked) {
-        ctx.fillStyle = color;
+        ctx.fillStyle = label === 'Incenter' ? 'lightblue' : color;
         ctx.beginPath();
         ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
         ctx.fill();
@@ -395,7 +395,7 @@ class TriangleSystem {
 
         return [
             calculateTangencyPoint(n2, n3),
-            calculateTangencyPoint(n1, n3),
+            calculateTangencyPoint(n3, n1),
             calculateTangencyPoint(n1, n2)
         ];
     }
