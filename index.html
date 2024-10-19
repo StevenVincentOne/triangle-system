@@ -114,7 +114,6 @@
                         <label for="subsystem-1-centroid-angle" class="form-label">Subsystem 1 Centroid Angle:</label>
                         <input id="subsystem-1-centroid-angle" type="number" class="form-control" readonly>
                     </div>
-                    <!-- Repeat for subsystems 2 and 3 -->
                     <div class="mb-3">
                         <label for="subsystem-2-area" class="form-label">Subsystem 2 Area:</label>
                         <input id="subsystem-2-area" type="number" class="form-control" readonly>
@@ -141,20 +140,26 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Controls Section -->
-            <div class="controls d-flex flex-wrap justify-content-center gap-2 mb-3 mt-4">
+        <!-- Controls Section -->
+        <div class="controls d-flex flex-wrap justify-content-center gap-2 mb-3 mt-4">
+            <div class="w-100 mb-2">
+                <button id="toggleMidpoints" class="btn btn-info">Midpoints</button>
+                <button id="toggleIncircle" class="btn btn-info">Incircle</button>
+                <button id="toggleIncenter" class="btn btn-info">Incenter</button>
+                <button id="toggleMedians" class="btn btn-info">Medians</button>
+                <button id="toggleAreas" class="btn btn-info">Areas</button>
+            </div>
+            <div class="w-100 mb-2">
                 <button id="equilateral" class="btn btn-secondary">Equilateral</button>
                 <button id="isosceles" class="btn btn-secondary">Isosceles</button>
                 <button id="scalene" class="btn btn-secondary">Scalene</button>
                 <button id="right" class="btn btn-secondary">Right</button>
                 <button id="acute" class="btn btn-secondary">Acute</button>
                 <button id="obtuse" class="btn btn-secondary">Obtuse</button>
-                <button id="toggleMidpoints" class="btn btn-info">Midpoints</button>
-                <button id="toggleIncircle" class="btn btn-info">Incircle</button>
-                <button id="toggleIncenter" class="btn btn-info">Incenter</button>
-                <button id="toggleMedians" class="btn btn-info">Medians</button>
-                <button id="toggleAreas" class="btn btn-info">Areas</button>
+            </div>
+            <div class="w-100">
                 <button id="apply-button" class="btn btn-primary">Apply</button>
                 <button id="export-data" class="btn btn-success">Export Data</button>
             </div>
