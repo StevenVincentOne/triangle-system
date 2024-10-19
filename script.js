@@ -44,8 +44,8 @@ class TriangleSystem {
             case 'scalene':
                 this.system = {
                     n1: { x: 0, y: 200 },
-                    n2: { x: -100, y: 0 },
-                    n3: { x: 150, y: 0 },
+                    n2: { x: -120, y: 0 },
+                    n3: { x: 180, y: 0 },
                 };
                 break;
             case 'right':
@@ -171,6 +171,12 @@ class TriangleSystem {
             setElementValue('#edge-nc1', lengths.l3.toFixed(2));
             setElementValue('#edge-nc2', lengths.l2.toFixed(2));
             setElementValue('#edge-nc3', lengths.l1.toFixed(2));
+
+            console.log('Side lengths:', {
+                NC1: lengths.l3.toFixed(2),
+                NC2: lengths.l2.toFixed(2),
+                NC3: lengths.l1.toFixed(2)
+            });
 
             setElementValue('#centroid-x', this.system.intelligence.x.toFixed(2));
             setElementValue('#centroid-y', this.system.intelligence.y.toFixed(2));
