@@ -24,6 +24,65 @@ class TriangleSystem {
         this.initializeSystem('equilateral');
     }
 
+    initializeEventListeners() {
+        this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        
+        // Add event listeners for preset buttons
+        const presetButtons = ['equilateral', 'isosceles', 'scalene', 'right', 'acute', 'obtuse'];
+        presetButtons.forEach(preset => {
+            const button = document.getElementById(preset);
+            if (button) {
+                button.addEventListener('click', () => this.initializeSystem(preset));
+            }
+        });
+        
+        // Add event listeners for toggle buttons
+        ['Midpoints', 'Incircle', 'Incenter', 'Medians', 'Areas'].forEach(feature => {
+            const button = document.getElementById(`toggle${feature}`);
+            if (button) {
+                button.addEventListener('click', () => {
+                    this[`show${feature.toLowerCase()}`] = !this[`show${feature.toLowerCase()}`];
+                    this.drawSystem();
+                });
+            }
+        });
+        
+        // Add event listener for apply button
+        const applyButton = document.getElementById('apply-button');
+        if (applyButton) {
+            applyButton.addEventListener('click', () => this.applyChanges());
+        }
+    }
+
+    handleMouseDown(event) {
+        const mousePos = this.getMousePosition(event);
+        for (const node of ['n1', 'n2', 'n3']) {
+            if (this.isClickOnNode(mousePos.x, mousePos.y, this.system[node])) {
+                this.isDragging = true;
+                this.draggedNode = node;
+                break;
+            }
+        }
+    }
+
+    handleMouseMove(event) {
+        if (this.isDragging && this.draggedNode) {
+            const mousePos = this.getMousePosition(event);
+            this.system[this.draggedNode] = mousePos;
+            this.adjustTriangleToOrigin();
+            this.updateDerivedPoints();
+            this.updateDashboard();
+            this.drawSystem();
+        }
+    }
+
+    handleMouseUp() {
+        this.isDragging = false;
+        this.draggedNode = null;
+    }
+
     // ... other methods ...
 
     drawAxes(ctx) {
