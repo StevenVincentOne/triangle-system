@@ -6,8 +6,13 @@ class TriangleSystem {
             return;
         }
         this.ctx = this.canvas.getContext('2d');
+        if (!this.ctx) {
+            console.error('Unable to get 2D context');
+            return;
+        }
         this.system = {};
         this.initializeEventListeners();
+        this.initializeSystem(); // Call this here to ensure the system is initialized on load
     }
 
     initializeSystem(preset = 'equilateral') {
@@ -23,21 +28,99 @@ class TriangleSystem {
                     n3: { x: side / 2, y: -height / 2 },
                 };
                 break;
-            // Add other cases for different presets here
-            default:
+            case 'isosceles':
                 this.system = {
                     n1: { x: 0, y: height / 2 },
-                    n2: { x: -side / 2, y: -height / 2 },
-                    n3: { x: side / 2, y: -height / 2 },
+                    n2: { x: -side / 3, y: -height / 2 },
+                    n3: { x: side / 3, y: -height / 2 },
                 };
+                break;
+            case 'scalene':
+                this.system = {
+                    n1: { x: 0, y: height / 2 },
+                    n2: { x: -side / 4, y: -height / 2 },
+                    n3: { x: side / 2, y: -height / 3 },
+                };
+                break;
+            case 'right':
+                this.system = {
+                    n1: { x: 0, y: side / 2 },
+                    n2: { x: 0, y: -side / 2 },
+                    n3: { x: side / 2, y: -side / 2 },
+                };
+                break;
+            case 'acute':
+                this.system = {
+                    n1: { x: 0, y: height / 2 },
+                    n2: { x: -side / 3, y: -height / 3 },
+                    n3: { x: side / 3, y: -height / 3 },
+                };
+                break;
+            case 'obtuse':
+                this.system = {
+                    n1: { x: -side / 4, y: height / 4 },
+                    n2: { x: -side / 2, y: -height / 2 },
+                    n3: { x: side / 2, y: -height / 4 },
+                };
+                break;
+            case 'rightIsosceles':
+                this.system = {
+                    n1: { x: 0, y: side / 2 },
+                    n2: { x: -side / 2, y: -side / 2 },
+                    n3: { x: side / 2, y: -side / 2 },
+                };
+                break;
+            case 'rightScalene':
+                this.system = {
+                    n1: { x: 0, y: side * 0.6 },
+                    n2: { x: 0, y: -side * 0.6 },
+                    n3: { x: side * 0.8, y: -side * 0.6 },
+                };
+                break;
+            case 'acuteIsosceles':
+                this.system = {
+                    n1: { x: 0, y: height * 0.7 },
+                    n2: { x: -side * 0.4, y: -height * 0.7 },
+                    n3: { x: side * 0.4, y: -height * 0.7 },
+                };
+                break;
+            case 'acuteScalene':
+                this.system = {
+                    n1: { x: 0, y: height * 0.6 },
+                    n2: { x: -side * 0.3, y: -height * 0.6 },
+                    n3: { x: side * 0.5, y: -height * 0.4 },
+                };
+                break;
+            case 'obtuseIsosceles':
+                this.system = {
+                    n1: { x: 0, y: height * 0.3 },
+                    n2: { x: -side * 0.7, y: -height * 0.3 },
+                    n3: { x: side * 0.7, y: -height * 0.3 },
+                };
+                break;
+            case 'obtuseScalene':
+                this.system = {
+                    n1: { x: -side * 0.1, y: height * 0.4 },
+                    n2: { x: -side * 0.6, y: -height * 0.4 },
+                    n3: { x: side * 0.7, y: -height * 0.2 },
+                };
+                break;
+            default:
+                console.error('Unknown preset:', preset);
+                return;
         }
 
+        console.log('System initialized:', this.system);
         this.updateDashboard();
         this.drawSystem();
     }
 
     drawSystem() {
         console.log('Drawing system...');
+        if (!this.ctx) {
+            console.error('Context not available for drawing');
+            return;
+        }
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -58,7 +141,7 @@ class TriangleSystem {
         ctx.stroke();
 
         ctx.restore();
-        console.log('System drawn');
+        console.log('System drawn', this.system);
     }
 
     drawAxes() {
@@ -99,6 +182,8 @@ class TriangleSystem {
             const button = document.getElementById(preset);
             if (button) {
                 button.addEventListener('click', () => this.initializeSystem(preset));
+            } else {
+                console.warn(`Button not found for preset: ${preset}`);
             }
         });
 
@@ -107,14 +192,16 @@ class TriangleSystem {
             const button = document.getElementById(preset);
             if (button) {
                 button.addEventListener('click', () => this.initializeSystem(preset));
+            } else {
+                console.warn(`Button not found for preset: ${preset}`);
             }
         });
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM content loaded, initializing TriangleSystem');
     const triangleSystem = new TriangleSystem();
-    triangleSystem.initializeSystem();
 });
 
 window.onerror = function(message, source, lineno, colno, error) {
