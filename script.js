@@ -78,7 +78,7 @@ class TriangleSystem {
         }
 
         this.updateDerivedPoints();
-        this.updateDashboard(); // Add this line
+        this.updateDashboard();
         this.drawSystem();
     }
 
@@ -114,6 +114,8 @@ class TriangleSystem {
 
         this.system.incenter = incenter;
         this.system.incircleRadius = incircleRadius;
+
+        this.system.tangencyPoints = this.calculateTangencyPoints();
     }
 
     updateDashboard() {
@@ -124,6 +126,16 @@ class TriangleSystem {
                 const element = document.querySelector(selector);
                 if (element) {
                     element.value = value;
+                    console.log(`Set ${selector} to ${value}`);
+                } else {
+                    console.warn(`Element not found: ${selector}`);
+                }
+            };
+
+            const setSpanText = (selector, value) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.textContent = value;
                     console.log(`Set ${selector} to ${value}`);
                 } else {
                     console.warn(`Element not found: ${selector}`);
@@ -145,22 +157,29 @@ class TriangleSystem {
 
             setElementValue('#centroid-x', this.system.intelligence.x.toFixed(2));
             setElementValue('#centroid-y', this.system.intelligence.y.toFixed(2));
+            setElementValue('#incenter-x', this.system.incenter.x.toFixed(2));
+            setElementValue('#incenter-y', this.system.incenter.y.toFixed(2));
 
             const angles = this.calculateAngles();
-            ['1', '2', '3'].forEach((i, index) => {
+            ['1', '2', '3'].forEach((i) => {
                 const nodeKey = `n${i}`;
                 setElementValue(`#subsystem-${i}-area`, (this.calculateArea() / 3).toFixed(2));
                 setElementValue(`#subsystem-${i}-perimeter`, (this.calculatePerimeter() / 2).toFixed(2));
                 setElementValue(`#subsystem-${i}-centroid-angle`, (angles[nodeKey] / 2).toFixed(2));
             });
 
-            setElementValue('#incenter-x', this.system.incenter.x.toFixed(2));
-            setElementValue('#incenter-y', this.system.incenter.y.toFixed(2));
+            setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter).toFixed(2));
 
-            const dCentroidIncircle = document.querySelector('#d-centroid-incircle');
-            if (dCentroidIncircle) {
-                dCentroidIncircle.textContent = this.calculateDistance(this.system.intelligence, this.system.incenter).toFixed(2);
-            }
+            const midpoints = this.system.midpoints;
+            const tangencyPoints = this.system.tangencyPoints;
+            
+            setSpanText('#d-mid-nc1', this.calculateDistance(midpoints.m1, tangencyPoints[0]).toFixed(2));
+            setSpanText('#d-mid-nc2', this.calculateDistance(midpoints.m2, tangencyPoints[1]).toFixed(2));
+            setSpanText('#d-mid-nc3', this.calculateDistance(midpoints.m3, tangencyPoints[2]).toFixed(2));
+
+            setSpanText('#r-mid-nc1', this.calculateDistance(this.system.incenter, midpoints.m1).toFixed(2));
+            setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2).toFixed(2));
+            setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3).toFixed(2));
 
             console.log('Dashboard updated successfully');
         } catch (error) {
@@ -316,6 +335,30 @@ class TriangleSystem {
             n2: Math.acos((l1*l1 + l3*l3 - l2*l2) / (2*l1*l3)) * 180 / Math.PI,
             n3: Math.acos((l1*l1 + l2*l2 - l3*l3) / (2*l1*l2)) * 180 / Math.PI
         };
+    }
+
+    calculateTangencyPoints() {
+        const { n1, n2, n3 } = this.system;
+        const { incenter, incircleRadius } = this.system;
+        
+        const calculateTangencyPoint = (p1, p2) => {
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const unitX = dx / dist;
+            const unitY = dy / dist;
+            
+            return {
+                x: incenter.x + incircleRadius * unitY,
+                y: incenter.y - incircleRadius * unitX
+            };
+        };
+
+        return [
+            calculateTangencyPoint(n2, n3),
+            calculateTangencyPoint(n1, n3),
+            calculateTangencyPoint(n1, n2)
+        ];
     }
 
     exportData() {
