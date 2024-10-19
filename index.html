@@ -24,44 +24,36 @@
                         <label for="system-area" class="form-label">Area:</label>
                         <input id="system-area" type="number" class="form-control" readonly>
                     </div>
+                    <div class="mb-3">
+                        <label for="subsystems-area" class="form-label">Subsystems Area:</label>
+                        <input id="subsystems-area" type="number" class="form-control" readonly>
+                    </div>
                 </div>
                 <div class="col-md-4">
-                    <h3 class="mb-3">Nodes</h3>
+                    <h3 class="mb-3">Subsystems</h3>
                     <div class="mb-3">
-                        <label for="node-n1-x" class="form-label">N1 X:</label>
-                        <input id="node-n1-x" type="number" class="form-control">
+                        <label for="subsystem-1-perimeter" class="form-label">SS1 Perimeter:</label>
+                        <input id="subsystem-1-perimeter" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="node-n1-y" class="form-label">N1 Y:</label>
-                        <input id="node-n1-y" type="number" class="form-control">
+                        <label for="subsystem-1-angle" class="form-label">SS1 Angle:</label>
+                        <input id="subsystem-1-angle" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="node-n1-angle" class="form-label">N1 Angle:</label>
-                        <input id="node-n1-angle" type="number" class="form-control" readonly>
+                        <label for="subsystem-2-perimeter" class="form-label">SS2 Perimeter:</label>
+                        <input id="subsystem-2-perimeter" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="node-n2-x" class="form-label">N2 X:</label>
-                        <input id="node-n2-x" type="number" class="form-control">
+                        <label for="subsystem-2-angle" class="form-label">SS2 Angle:</label>
+                        <input id="subsystem-2-angle" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="node-n2-y" class="form-label">N2 Y:</label>
-                        <input id="node-n2-y" type="number" class="form-control">
+                        <label for="subsystem-3-perimeter" class="form-label">SS3 Perimeter:</label>
+                        <input id="subsystem-3-perimeter" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="node-n2-angle" class="form-label">N2 Angle:</label>
-                        <input id="node-n2-angle" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="node-n3-x" class="form-label">N3 X:</label>
-                        <input id="node-n3-x" type="number" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label for="node-n3-y" class="form-label">N3 Y:</label>
-                        <input id="node-n3-y" type="number" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label for="node-n3-angle" class="form-label">N3 Angle:</label>
-                        <input id="node-n3-angle" type="number" class="form-control" readonly>
+                        <label for="subsystem-3-angle" class="form-label">SS3 Angle:</label>
+                        <input id="subsystem-3-angle" type="number" class="form-control" readonly>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -81,62 +73,49 @@
                 </div>
             </div>
             <div class="row mt-4">
-                <div class="col-md-6">
-                    <h3 class="mb-3">Centers</h3>
+                <div class="col-md-4">
+                    <h3 class="mb-3">Medians</h3>
                     <div class="mb-3">
-                        <label for="centroid-x" class="form-label">Centroid X:</label>
-                        <input id="centroid-x" type="number" class="form-control" readonly>
+                        <label for="median-nc1" class="form-label">NC1 Median:</label>
+                        <input id="median-nc1" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="centroid-y" class="form-label">Centroid Y:</label>
-                        <input id="centroid-y" type="number" class="form-control" readonly>
+                        <label for="median-nc2" class="form-label">NC2 Median:</label>
+                        <input id="median-nc2" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="incenter-x" class="form-label">Incenter X:</label>
-                        <input id="incenter-x" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="incenter-y" class="form-label">Incenter Y:</label>
-                        <input id="incenter-y" type="number" class="form-control" readonly>
+                        <label for="median-nc3" class="form-label">NC3 Median:</label>
+                        <input id="median-nc3" type="number" class="form-control" readonly>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <h3 class="mb-3">Subsystems</h3>
+                <div class="col-md-4">
+                    <h3 class="mb-3">Nodes</h3>
                     <div class="mb-3">
-                        <label for="subsystem-1-area" class="form-label">Subsystem 1 Area:</label>
-                        <input id="subsystem-1-area" type="number" class="form-control" readonly>
+                        <label for="node-n1-angle" class="form-label">N1 Angle:</label>
+                        <input id="node-n1-angle" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="subsystem-1-perimeter" class="form-label">Subsystem 1 Perimeter:</label>
-                        <input id="subsystem-1-perimeter" type="number" class="form-control" readonly>
+                        <label for="node-n2-angle" class="form-label">N2 Angle:</label>
+                        <input id="node-n2-angle" type="number" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="subsystem-1-centroid-angle" class="form-label">Subsystem 1 Centroid Angle:</label>
-                        <input id="subsystem-1-centroid-angle" type="number" class="form-control" readonly>
+                        <label for="node-n3-angle" class="form-label">N3 Angle:</label>
+                        <input id="node-n3-angle" type="number" class="form-control" readonly>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="mb-3">Centers</h3>
+                    <div class="mb-3">
+                        <label for="centroid-coords" class="form-label">I:</label>
+                        <input id="centroid-coords" type="text" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="subsystem-2-area" class="form-label">Subsystem 2 Area:</label>
-                        <input id="subsystem-2-area" type="number" class="form-control" readonly>
+                        <label for="incenter-coords" class="form-label">IC:</label>
+                        <input id="incenter-coords" type="text" class="form-control" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="subsystem-2-perimeter" class="form-label">Subsystem 2 Perimeter:</label>
-                        <input id="subsystem-2-perimeter" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-2-centroid-angle" class="form-label">Subsystem 2 Centroid Angle:</label>
-                        <input id="subsystem-2-centroid-angle" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-3-area" class="form-label">Subsystem 3 Area:</label>
-                        <input id="subsystem-3-area" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-3-perimeter" class="form-label">Subsystem 3 Perimeter:</label>
-                        <input id="subsystem-3-perimeter" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-3-centroid-angle" class="form-label">Subsystem 3 Centroid Angle:</label>
-                        <input id="subsystem-3-centroid-angle" type="number" class="form-control" readonly>
+                        <label for="i-to-ic" class="form-label">I to IC:</label>
+                        <input id="i-to-ic" type="number" class="form-control" readonly>
                     </div>
                 </div>
             </div>
@@ -167,50 +146,7 @@
 
         <!-- Main Content Container -->
         <div id="main-content" class="d-flex gap-4">
-            <!-- Information Panel -->
-            <div id="info-panel" class="bg-dark p-4 rounded">
-                <h2 class="text-center mb-3">Information Panel</h2>
-                <div class="mb-3">
-                    <label for="d-centroid-incircle" class="form-label">d Centroid to Incircle:</label>
-                    <span id="d-centroid-incircle" class="form-control-plaintext"></span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">d Midpoint to Tangent:</label>
-                    <div class="ms-3">
-                        <div class="mb-2">
-                            <label for="d-mid-nc1" class="form-label">NC1:</label>
-                            <span id="d-mid-nc1" class="form-control-plaintext"></span>
-                        </div>
-                        <div class="mb-2">
-                            <label for="d-mid-nc2" class="form-label">NC2:</label>
-                            <span id="d-mid-nc2" class="form-control-plaintext"></span>
-                        </div>
-                        <div class="mb-2">
-                            <label for="d-mid-nc3" class="form-label">NC3:</label>
-                            <span id="d-mid-nc3" class="form-control-plaintext"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">r Midpoint to Tangent:</label>
-                    <div class="ms-3">
-                        <div class="mb-2">
-                            <label for="r-mid-nc1" class="form-label">NC1:</label>
-                            <span id="r-mid-nc1" class="form-control-plaintext"></span>
-                        </div>
-                        <div class="mb-2">
-                            <label for="r-mid-nc2" class="form-label">NC2:</label>
-                            <span id="r-mid-nc2" class="form-control-plaintext"></span>
-                        </div>
-                        <div class="mb-2">
-                            <label for="r-mid-nc3" class="form-label">NC3:</label>
-                            <span id="r-mid-nc3" class="form-control-plaintext"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Canvas and Legend Container -->
+            <!-- Canvas Container -->
             <div id="canvas-container" class="flex-grow-1">
                 <canvas id="canvas" width="800" height="600" class="bg-dark rounded"></canvas>
                 <!-- Legend Section -->
@@ -219,7 +155,7 @@
                     <ul class="list-unstyled">
                         <li>N1, N2, N3: Main nodes of the triangle</li>
                         <li>I: Centroid of the triangle</li>
-                        <li>Incenter: Point where angle bisectors meet</li>
+                        <li>IC: Incenter of the triangle</li>
                         <li>Incircle: Circle inscribed within the triangle</li>
                         <li>NC1, NC2, NC3: Edge lengths (Node Channels)</li>
                         <li>N1-I, N2-I, N3-I: Median Channel lengths</li>
