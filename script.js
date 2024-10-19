@@ -507,12 +507,16 @@ class TriangleSystem {
         ['Midpoints', 'Incircle', 'Incenter', 'Medians', 'Areas'].forEach(feature => {
             const button = document.querySelector(`#toggle${feature}`);
             if (button) {
+                console.log(`Initializing ${feature} button`);
                 button.addEventListener('click', () => {
                     const propertyName = `show${feature.toLowerCase()}`;
                     this[propertyName] = !this[propertyName];
+                    console.log(`Toggled ${propertyName}: ${this[propertyName]}`);
                     button.classList.toggle('active', this[propertyName]);
                     this.drawSystem();
                 });
+            } else {
+                console.warn(`Button #toggle${feature} not found`);
             }
         });
 
