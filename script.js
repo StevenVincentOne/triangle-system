@@ -36,9 +36,9 @@ class TriangleSystem {
                 break;
             case 'isosceles':
                 this.system = {
-                    n1: { x: 0, y: 200 },
-                    n2: { x: -120, y: 0 },
-                    n3: { x: 120, y: 0 },
+                    n1: { x: 0, y: Math.sqrt(400*400 - 100*100) },
+                    n2: { x: -100, y: 0 },
+                    n3: { x: 100, y: 0 },
                 };
                 break;
             case 'scalene':
@@ -247,6 +247,7 @@ class TriangleSystem {
 
         if (this.showIncircle) {
             this.drawIncircle(ctx);
+            this.drawTangents(ctx);
         }
 
         this.drawNode(ctx, this.system.n1, 'red', 'N1', this.lockedNodes.n1);
@@ -331,6 +332,15 @@ class TriangleSystem {
         ctx.beginPath();
         ctx.arc(this.system.incenter.x, this.system.incenter.y, this.system.incircleRadius, 0, 2 * Math.PI);
         ctx.stroke();
+    }
+
+    drawTangents(ctx) {
+        ctx.fillStyle = 'lightblue';
+        this.system.tangencyPoints.forEach(point => {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+            ctx.fill();
+        });
     }
 
     calculatePerimeter() {
