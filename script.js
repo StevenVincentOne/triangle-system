@@ -17,6 +17,8 @@ class TriangleSystem {
         this.animationParameter = null;
         this.animationStartValue = null;
         this.animationEndValue = null;
+        this.isDragging = false;
+        this.draggedNode = null;
 
         this.initializeEventListeners();
         this.initializeSystem('equilateral');
@@ -229,69 +231,77 @@ class TriangleSystem {
     }
 
     drawSystem() {
-        const ctx = this.ctx;
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const draw = () => {
+            const ctx = this.ctx;
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        ctx.save();
-        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-        ctx.scale(1, -1);
+            ctx.save();
+            ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+            ctx.scale(1, -1);
 
-        this.drawAxes(ctx);
+            this.drawAxes(ctx);
 
-        if (this.showAreas) {
-            this.drawAreas(ctx);
-        }
+            if (this.showAreas) {
+                this.drawAreas(ctx);
+            }
 
-        ctx.lineWidth = 2;
+            ctx.lineWidth = 2;
 
-        // NC1 (N1 to N2): Red
-        ctx.beginPath();
-        ctx.strokeStyle = 'red';
-        ctx.moveTo(this.system.n1.x, this.system.n1.y);
-        ctx.lineTo(this.system.n2.x, this.system.n2.y);
-        ctx.stroke();
+            // NC1 (N1 to N2): Red
+            ctx.beginPath();
+            ctx.strokeStyle = 'red';
+            ctx.moveTo(this.system.n1.x, this.system.n1.y);
+            ctx.lineTo(this.system.n2.x, this.system.n2.y);
+            ctx.stroke();
 
-        // NC2 (N1 to N3): Blue
-        ctx.beginPath();
-        ctx.strokeStyle = 'blue';
-        ctx.moveTo(this.system.n1.x, this.system.n1.y);
-        ctx.lineTo(this.system.n3.x, this.system.n3.y);
-        ctx.stroke();
+            // NC2 (N1 to N3): Blue
+            ctx.beginPath();
+            ctx.strokeStyle = 'blue';
+            ctx.moveTo(this.system.n1.x, this.system.n1.y);
+            ctx.lineTo(this.system.n3.x, this.system.n3.y);
+            ctx.stroke();
 
-        // NC3 (N2 to N3): Green
-        ctx.beginPath();
-        ctx.strokeStyle = 'green';
-        ctx.moveTo(this.system.n2.x, this.system.n2.y);
-        ctx.lineTo(this.system.n3.x, this.system.n3.y);
-        ctx.stroke();
+            // NC3 (N2 to N3): Green
+            ctx.beginPath();
+            ctx.strokeStyle = 'green';
+            ctx.moveTo(this.system.n2.x, this.system.n2.y);
+            ctx.lineTo(this.system.n3.x, this.system.n3.y);
+            ctx.stroke();
 
-        if (this.showConnections) {
-            this.drawConnections(ctx);
-        }
+            if (this.showConnections) {
+                this.drawConnections(ctx);
+            }
 
-        if (this.showMidpoints) {
-            this.drawMidpoints(ctx);
-        }
+            if (this.showMidpoints) {
+                this.drawMidpoints(ctx);
+            }
 
-        if (this.showIncircle) {
-            this.drawIncircle(ctx);
-            this.drawTangents(ctx);
-        }
+            if (this.showIncircle) {
+                this.drawIncircle(ctx);
+                this.drawTangents(ctx);
+            }
 
-        this.drawNode(ctx, this.system.n1, 'red', 'N1', this.lockedNodes.n1);
-        this.drawNode(ctx, this.system.n2, 'green', 'N2', this.lockedNodes.n2);
-        this.drawNode(ctx, this.system.n3, 'blue', 'N3', this.lockedNodes.n3);
+            this.drawNode(ctx, this.system.n1, 'red', 'N1', this.lockedNodes.n1);
+            this.drawNode(ctx, this.system.n2, 'green', 'N2', this.lockedNodes.n2);
+            this.drawNode(ctx, this.system.n3, 'blue', 'N3', this.lockedNodes.n3);
 
-        this.drawNode(ctx, this.system.intelligence, 'white', 'I', this.centroidLocked);
+            this.drawNode(ctx, this.system.intelligence, 'white', 'I', this.centroidLocked);
 
-        if (this.showIncenter) {
-            this.drawNode(ctx, this.system.incenter, 'yellow', 'Incenter', false);
-        }
+            if (this.showIncenter) {
+                this.drawNode(ctx, this.system.incenter, 'yellow', 'Incenter', false);
+            }
 
-        this.drawAngles(ctx);
-        this.drawEdgeLengths(ctx);
+            this.drawAngles(ctx);
+            this.drawEdgeLengths(ctx);
 
-        ctx.restore();
+            ctx.restore();
+
+            if (this.isDragging) {
+                requestAnimationFrame(draw);
+            }
+        };
+
+        draw();
     }
 
     drawNode(ctx, point, color, label, locked) {
@@ -597,6 +607,11 @@ class TriangleSystem {
                 this.applyChanges();
             });
         }
+
+        this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        this.canvas.addEventListener('mouseleave', this.handleMouseUp.bind(this));
     }
 
     applyChanges() {
@@ -613,6 +628,48 @@ class TriangleSystem {
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
+    }
+
+    handleMouseDown(event) {
+        const mousePos = this.getMousePosition(event);
+        for (const node of ['n1', 'n2', 'n3']) {
+            if (this.isClickOnNode(mousePos.x, mousePos.y, this.system[node])) {
+                this.isDragging = true;
+                this.draggedNode = node;
+                break;
+            }
+        }
+    }
+
+    handleMouseMove(event) {
+        if (this.isDragging && this.draggedNode) {
+            const mousePos = this.getMousePosition(event);
+            this.system[this.draggedNode] = mousePos;
+            this.adjustTriangleToOrigin();
+            this.updateDerivedPoints();
+            this.updateDashboard();
+            this.drawSystem();
+        }
+    }
+
+    handleMouseUp() {
+        this.isDragging = false;
+        this.draggedNode = null;
+    }
+
+    getMousePosition(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        return {
+            x: (event.clientX - rect.left - this.canvas.width / 2) * scaleX,
+            y: -(event.clientY - rect.top - this.canvas.height / 2) * scaleY
+        };
+    }
+
+    isClickOnNode(x, y, node) {
+        const distance = Math.sqrt(Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2));
+        return distance <= 8; // 8 is the node radius
     }
 }
 
