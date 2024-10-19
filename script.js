@@ -362,51 +362,53 @@ class TriangleSystem {
     }
 
     exportData() {
+        const safeGetValue = (selector) => {
+            const element = document.querySelector(selector);
+            return element ? element.value || element.textContent : 'N/A';
+        };
+
         const data = {
             system: {
-                perimeter: document.querySelector('#system-perimeter').value,
-                area: document.querySelector('#system-area').value
+                perimeter: safeGetValue('#system-perimeter'),
+                area: safeGetValue('#system-area')
             },
             nodes: {
                 n1: {
-                    x: document.querySelector('#node-n1-x').value,
-                    y: document.querySelector('#node-n1-y').value,
-                    angle: document.querySelector('#node-n1-angle').value
+                    x: safeGetValue('#node-n1-x'),
+                    y: safeGetValue('#node-n1-y')
                 },
                 n2: {
-                    x: document.querySelector('#node-n2-x').value,
-                    y: document.querySelector('#node-n2-y').value,
-                    angle: document.querySelector('#node-n2-angle').value
+                    x: safeGetValue('#node-n2-x'),
+                    y: safeGetValue('#node-n2-y')
                 },
                 n3: {
-                    x: document.querySelector('#node-n3-x').value,
-                    y: document.querySelector('#node-n3-y').value,
-                    angle: document.querySelector('#node-n3-angle').value
+                    x: safeGetValue('#node-n3-x'),
+                    y: safeGetValue('#node-n3-y')
                 }
             },
             channels: {
-                nc1: document.querySelector('#edge-nc1').value,
-                nc2: document.querySelector('#edge-nc2').value,
-                nc3: document.querySelector('#edge-nc3').value
+                nc1: safeGetValue('#edge-nc1'),
+                nc2: safeGetValue('#edge-nc2'),
+                nc3: safeGetValue('#edge-nc3')
             },
             centers: {
                 centroid: {
-                    x: document.querySelector('#centroid-x').value,
-                    y: document.querySelector('#centroid-y').value
+                    x: safeGetValue('#centroid-x'),
+                    y: safeGetValue('#centroid-y')
                 },
                 incenter: {
-                    x: document.querySelector('#incenter-x').value,
-                    y: document.querySelector('#incenter-y').value
+                    x: safeGetValue('#incenter-x'),
+                    y: safeGetValue('#incenter-y')
                 }
             },
             info: {
-                dCentroidIncircle: document.querySelector('#d-centroid-incircle').textContent,
-                dMidNC1: document.querySelector('#d-mid-nc1').textContent,
-                dMidNC2: document.querySelector('#d-mid-nc2').textContent,
-                dMidNC3: document.querySelector('#d-mid-nc3').textContent,
-                rMidNC1: document.querySelector('#r-mid-nc1').textContent,
-                rMidNC2: document.querySelector('#r-mid-nc2').textContent,
-                rMidNC3: document.querySelector('#r-mid-nc3').textContent
+                dCentroidIncircle: safeGetValue('#d-centroid-incircle'),
+                dMidNC1: safeGetValue('#d-mid-nc1'),
+                dMidNC2: safeGetValue('#d-mid-nc2'),
+                dMidNC3: safeGetValue('#d-mid-nc3'),
+                rMidNC1: safeGetValue('#r-mid-nc1'),
+                rMidNC2: safeGetValue('#r-mid-nc2'),
+                rMidNC3: safeGetValue('#r-mid-nc3')
             }
         };
 
