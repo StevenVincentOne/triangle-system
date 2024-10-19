@@ -29,71 +29,58 @@ class TriangleSystem {
         switch (preset) {
             case 'equilateral':
                 this.system = {
-                    n1: { x: -side / 2, y: -height / 3 },
-                    n2: { x: side / 2, y: -height / 3 },
-                    n3: { x: 0, y: (2 * height) / 3 },
+                    n1: { x: 0, y: height },
+                    n2: { x: -side / 2, y: 0 },
+                    n3: { x: side / 2, y: 0 },
                 };
                 break;
             case 'isosceles':
                 this.system = {
-                    n1: { x: -side / 2, y: -height / 2 },
-                    n2: { x: side / 2, y: -height / 2 },
-                    n3: { x: 0, y: height },
+                    n1: { x: 0, y: height },
+                    n2: { x: -side / 2, y: 0 },
+                    n3: { x: side / 2, y: 0 },
                 };
                 break;
             case 'scalene':
                 this.system = {
-                    n1: { x: -100, y: 150 },
-                    n2: { x: 50, y: -50 },
-                    n3: { x: 150, y: 100 },
+                    n1: { x: 0, y: 200 },
+                    n2: { x: -150, y: 0 },
+                    n3: { x: 100, y: 0 },
                 };
                 break;
             case 'right':
                 this.system = {
-                    n1: { x: 0, y: 0 },
-                    n2: { x: 0, y: 200 },
-                    n3: { x: 300, y: 0 },
+                    n1: { x: 0, y: side },
+                    n2: { x: 0, y: 0 },
+                    n3: { x: side, y: 0 },
                 };
                 break;
             case 'acute':
                 this.system = {
-                    n1: { x: -100, y: 100 },
-                    n2: { x: 100, y: 150 },
-                    n3: { x: 150, y: -50 },
+                    n1: { x: 0, y: 200 },
+                    n2: { x: -120, y: 0 },
+                    n3: { x: 120, y: 0 },
                 };
                 break;
             case 'obtuse':
                 this.system = {
-                    n1: { x: -200, y: 0 },
-                    n2: { x: 0, y: 0 },
-                    n3: { x: 50, y: 200 },
+                    n1: { x: 50, y: 200 },
+                    n2: { x: -200, y: 0 },
+                    n3: { x: 100, y: 0 },
                 };
                 break;
             default:
                 this.system = {
-                    n1: { x: -side / 2, y: -height / 3 },
-                    n2: { x: side / 2, y: -height / 3 },
-                    n3: { x: 0, y: (2 * height) / 3 },
+                    n1: { x: 0, y: height },
+                    n2: { x: -side / 2, y: 0 },
+                    n3: { x: side / 2, y: 0 },
                 };
         }
 
-        this.rotateTriangleToBase();
         this.adjustTriangleToOrigin();
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
-    }
-
-    rotateTriangleToBase() {
-        const angle = Math.atan2(this.system.n3.y - this.system.n2.y, this.system.n3.x - this.system.n2.x);
-        const rotatePoint = (point) => {
-            const x = point.x * Math.cos(-angle) - point.y * Math.sin(-angle);
-            const y = point.x * Math.sin(-angle) + point.y * Math.cos(-angle);
-            return { x, y };
-        };
-        this.system.n1 = rotatePoint(this.system.n1);
-        this.system.n2 = rotatePoint(this.system.n2);
-        this.system.n3 = rotatePoint(this.system.n3);
     }
 
     adjustTriangleToOrigin() {
@@ -509,7 +496,6 @@ class TriangleSystem {
             }
         });
 
-        this.rotateTriangleToBase();
         this.adjustTriangleToOrigin();
         this.updateDerivedPoints();
         this.updateDashboard();
