@@ -46,10 +46,12 @@ class TriangleSystem {
                 const s = (a + b + c) / 2;
                 const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
                 const height = 2 * area / c;
+                const base = c;
+                const x = Math.sqrt(b*b - height*height);
                 this.system = {
                     n1: { x: 0, y: height },
-                    n2: { x: -c/2, y: 0 },
-                    n3: { x: c/2, y: 0 },
+                    n2: { x: -base/2, y: 0 },
+                    n3: { x: base/2, y: 0 },
                 };
                 break;
             case 'right':
