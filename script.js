@@ -36,9 +36,9 @@ class TriangleSystem {
                 break;
             case 'isosceles':
                 this.system = {
-                    n1: { x: 0, y: height },
-                    n2: { x: -side / 2, y: 0 },
-                    n3: { x: side / 2, y: 0 },
+                    n1: { x: 0, y: 200 },
+                    n2: { x: -120, y: 0 },
+                    n3: { x: 120, y: 0 },
                 };
                 break;
             case 'scalene':
@@ -184,6 +184,12 @@ class TriangleSystem {
             setElementValue('#incenter-y', this.system.incenter.y.toFixed(2));
 
             const angles = this.calculateAngles();
+            console.log('Vertex angles:', {
+                N1: angles.n1.toFixed(2),
+                N2: angles.n2.toFixed(2),
+                N3: angles.n3.toFixed(2)
+            });
+
             ['1', '2', '3'].forEach((i) => {
                 const nodeKey = `n${i}`;
                 setElementValue(`#subsystem-${i}-area`, (this.calculateArea() / 3).toFixed(2));
