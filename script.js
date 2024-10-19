@@ -1,324 +1,212 @@
-// Constants and Variables
-const EPSILON = 1e-6;
-let canvas, ctx, system;
-let showConnections = true;
-let showAreas = true;
-let showMidpoints = true;
-let showIncircle = true;
-let showIncenter = true;
-let draggingNode = null;
+// TriangleSystem Class: Manages the Triangle, Calculations, and Rendering
+class TriangleSystem {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.system = {};
+        this.showConnections = true;
+        this.showAreas = true;
+        this.showMidpoints = true;
+        this.showIncircle = true;
+        this.showIncenter = true;
+        this.draggingNode = null;
+        this.lockedNodes = { n1: false, n2: false, n3: false };
+        this.centroidLocked = false;
+        this.animationRequestId = null;
+        this.animationStartTime = null;
+        this.animationDuration = 2000; // 2 seconds
+        this.animationParameter = null;
+        this.animationStartValue = null;
+        this.animationEndValue = null;
 
-const lockedNodes = {
-    n1: false,
-    n2: false,
-    n3: false,
-};
+        this.initializeEventListeners();
+        this.initializeSystem('equilateral');
+    }
 
-let draggingCentroid = false;
-let centroidLocked = false;
-let lockedCentroidPosition = { x: 0, y: 0 };
+    // Initialize Triangle System based on Preset
+    initializeSystem(preset = 'equilateral') {
+        const side = 300;
+        const height = (Math.sqrt(3) / 2) * side;
 
-let animationRequestId = null;
-let animationStartTime = null;
-const animationDuration = 2000;
-let animationParameter = null;
-let animationStartValue = null;
-let animationEndValue = null;
+        switch (preset) {
+            case 'equilateral':
+                this.system = {
+                    n1: { x: -side / 2, y: -height / 3 },
+                    n2: { x: side / 2, y: -height / 3 },
+                    n3: { x: 0, y: (2 * height) / 3 },
+                };
+                break;
+            case 'isosceles':
+                this.system = {
+                    n1: { x: -side / 2, y: -height / 2 },
+                    n2: { x: side / 2, y: -height / 2 },
+                    n3: { x: 0, y: height },
+                };
+                break;
+            case 'scalene':
+                this.system = {
+                    n1: { x: -100, y: 150 },
+                    n2: { x: 50, y: -50 },
+                    n3: { x: 150, y: 100 },
+                };
+                break;
+            case 'right':
+                this.system = {
+                    n1: { x: 0, y: 0 },
+                    n2: { x: 0, y: 200 },
+                    n3: { x: 300, y: 0 },
+                };
+                break;
+            default:
+                this.system = {
+                    n1: { x: -side / 2, y: -height / 3 },
+                    n2: { x: side / 2, y: -height / 3 },
+                    n3: { x: 0, y: (2 * height) / 3 },
+                };
+        }
 
-// Helper Functions
-function calculateDistance(p1, p2) {
-    console.log("Calculating distance between points:", p1, p2);
-    return Math.hypot(p1.x - p2.x, p1.y - p2.y);
-}
+        this.updateDerivedPoints();
+        this.updateDashboard();
+        this.drawSystem();
+    }
 
-function calculateAngle(p1, p2, p3) {
-    console.log("Calculating angle for points:", p1, p2, p3);
-    const v1 = { x: p1.x - p2.x, y: p1.y - p2.y };
-    const v2 = { x: p3.x - p2.x, y: p3.y - p2.y };
-    const dot = v1.x * v2.x + v1.y * v2.y;
-    const cross = v1.x * v2.y - v1.y * v2.x;
-    let angle = Math.atan2(Math.abs(cross), dot) * (180 / Math.PI);
-    return Math.abs(angle) < EPSILON || Math.abs(180 - angle) < EPSILON ? 0 : angle;
-}
+    updateDerivedPoints() {
+        const N1 = this.system.n1;
+        const N2 = this.system.n2;
+        const N3 = this.system.n3;
 
-function calculateArea() {
-    console.log("Calculating area");
-    const { n1, n2, n3 } = system;
-    return Math.abs((n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y)) / 2);
-}
+        // Centroid (I)
+        this.system.intelligence = {
+            x: (N1.x + N2.x + N3.x) / 3,
+            y: (N1.y + N2.y + N3.y) / 3,
+        };
 
-function calculatePerimeter() {
-    console.log("Calculating perimeter");
-    const lengths = calculateLengths();
-    return lengths.l1 + lengths.l2 + lengths.l3;
-}
+        // Midpoints
+        this.system.midpoints = {
+            m1: { x: (N2.x + N3.x) / 2, y: (N2.y + N3.y) / 2 },
+            m2: { x: (N1.x + N3.x) / 2, y: (N1.y + N3.y) / 2 },
+            m3: { x: (N1.x + N2.x) / 2, y: (N1.y + N2.y) / 2 },
+        };
 
-function calculateLengths() {
-    console.log("Calculating lengths");
-    return {
-        l1: calculateDistance(system.n2, system.n3),
-        l2: calculateDistance(system.n1, system.n3),
-        l3: calculateDistance(system.n1, system.n2),
-    };
-}
+        // TODO: Add calculations for incenter and incircle
+    }
 
-function calculateIncenter() {
-    console.log("Calculating incenter");
-    const { n1, n2, n3 } = system;
-    const a = calculateDistance(n2, n3);
-    const b = calculateDistance(n1, n3);
-    const c = calculateDistance(n1, n2);
-    const perimeter = a + b + c;
-    const x = (a * n1.x + b * n2.x + c * n3.x) / perimeter;
-    const y = (a * n1.y + b * n2.y + c * n3.y) / perimeter;
-    return { x, y };
-}
+    updateDashboard() {
+        // Update System section
+        document.getElementById('system-perimeter').value = this.calculatePerimeter().toFixed(2);
+        document.getElementById('system-area').value = this.calculateArea().toFixed(2);
 
-function calculateIncircleRadius() {
-    console.log("Calculating incircle radius");
-    const area = calculateArea();
-    const perimeter = calculatePerimeter();
-    return (2 * area) / perimeter;
-}
+        // Update Nodes section
+        ['n1', 'n2', 'n3'].forEach(node => {
+            document.getElementById(`node-${node}-x`).value = this.system[node].x.toFixed(2);
+            document.getElementById(`node-${node}-y`).value = this.system[node].y.toFixed(2);
+        });
 
-function calculateIncircleTangencyPoints() {
-    console.log("Calculating incircle tangency points");
-    const { n1, n2, n3, incenter } = system;
+        // Update Channels section
+        const lengths = this.calculateLengths();
+        document.getElementById('edge-nc1').value = lengths.l3.toFixed(2);
+        document.getElementById('edge-nc2').value = lengths.l2.toFixed(2);
+        document.getElementById('edge-nc3').value = lengths.l1.toFixed(2);
 
-    function tangencyPoint(p1, p2) {
-        const a = calculateDistance(p1, p2);
-        const b = calculateDistance(incenter, p1);
-        const c = calculateDistance(incenter, p2);
+        // Update Centers section
+        document.getElementById('centroid-x').value = this.system.intelligence.x.toFixed(2);
+        document.getElementById('centroid-y').value = this.system.intelligence.y.toFixed(2);
+
+        // TODO: Add updates for other dashboard sections (Subsystems, Incenter, etc.)
+    }
+
+    drawSystem() {
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        ctx.save();
+        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+        ctx.scale(1, -1); // Invert Y-axis for mathematical coordinates
+
+        // Draw main triangle
+        ctx.beginPath();
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.n3.x, this.system.n3.y);
+        ctx.closePath();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw nodes
+        this.drawNode(ctx, this.system.n1, 'red', 'N1', this.lockedNodes.n1);
+        this.drawNode(ctx, this.system.n2, 'blue', 'N2', this.lockedNodes.n2);
+        this.drawNode(ctx, this.system.n3, 'green', 'N3', this.lockedNodes.n3);
+
+        // Draw centroid
+        this.drawNode(ctx, this.system.intelligence, 'white', 'I', this.centroidLocked);
+
+        // TODO: Add drawing for other elements (connections, areas, midpoints, incircle, etc.)
+
+        ctx.restore();
+    }
+
+    drawNode(ctx, point, color, label, locked) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.fillStyle = 'white';
+        ctx.font = '14px Arial';
+        ctx.fillText(label, point.x + 10, point.y + 5);
+
+        if (locked) {
+            ctx.fillStyle = 'gold';
+            ctx.font = '16px Arial';
+            ctx.fillText('🔒', point.x - 12, point.y + 5);
+        }
+    }
+
+    calculatePerimeter() {
+        const lengths = this.calculateLengths();
+        return lengths.l1 + lengths.l2 + lengths.l3;
+    }
+
+    calculateArea() {
+        const [a, b, c] = Object.values(this.calculateLengths());
         const s = (a + b + c) / 2;
-        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-        const h = (2 * area) / a;
+        return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+    }
 
-        const vx = p2.x - p1.x;
-        const vy = p2.y - p1.y;
-        const length = Math.sqrt(vx * vx + vy * vy);
-        const ux = vx / length;
-        const uy = vy / length;
-
+    calculateLengths() {
         return {
-            x: p1.x + ux * (a - h),
-            y: p1.y + uy * (a - h)
+            l1: this.calculateDistance(this.system.n2, this.system.n3),
+            l2: this.calculateDistance(this.system.n1, this.system.n3),
+            l3: this.calculateDistance(this.system.n1, this.system.n2),
         };
     }
 
-    return [
-        tangencyPoint(n2, n3),
-        tangencyPoint(n1, n3),
-        tangencyPoint(n1, n2)
-    ];
-}
-
-// Main Functions
-function initializeSystem(preset = 'equilateral') {
-    console.log("Initializing system with preset:", preset);
-    const side = 300;
-    const height = (Math.sqrt(3) / 2) * side;
-    const BASE_Y = -150;
-
-    switch (preset) {
-        case 'equilateral':
-            system = {
-                n1: { x: 0, y: 2 * height / 3 },
-                n2: { x: -side / 2, y: BASE_Y },
-                n3: { x: side / 2, y: BASE_Y },
-            };
-            break;
-        case 'isosceles':
-            system = {
-                n1: { x: 0, y: height / 2 },
-                n2: { x: -side / 2, y: BASE_Y },
-                n3: { x: side / 2, y: BASE_Y },
-            };
-            break;
-        default:
-            console.error("Invalid preset");
-            return;
+    calculateDistance(p1, p2) {
+        return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
     }
 
-    updateDerivedPoints();
-    updateDashboard();
-    drawSystem();
+    initializeEventListeners() {
+        // Add event listeners for preset buttons
+        const presetButtons = ['equilateral', 'isosceles', 'scalene', 'right'];
+        presetButtons.forEach(preset => {
+            const button = document.getElementById(preset);
+            if (button) {
+                button.addEventListener('click', () => this.initializeSystem(preset));
+            }
+        });
+
+        // TODO: Add event listeners for other controls (apply, animation, etc.)
+    }
 }
 
-function updateDerivedPoints() {
-    console.log("Updating derived points");
-    const { n1, n2, n3 } = system;
-    system.intelligence = {
-        x: (n1.x + n2.x + n3.x) / 3,
-        y: (n1.y + n2.y + n3.y) / 3,
-    };
-    system.midpoints = {
-        m1: { x: (n2.x + n3.x) / 2, y: n2.y },
-        m2: { x: (n1.x + n3.x) / 2, y: (n1.y + n3.y) / 2 },
-        m3: { x: (n1.x + n2.x) / 2, y: (n1.y + n2.y) / 2 },
-    };
-    system.incenter = calculateIncenter();
-    system.incircleRadius = calculateIncircleRadius();
-    system.tangencyPoints = calculateIncircleTangencyPoints();
-    system.subsystems = calculateSubsystems();
-}
-
-function calculateSubsystems() {
-    console.log("Calculating subsystems");
-    const subsystems = [];
-    
-    subsystems.push(calculateSubsystem(system.n1, system.n2, system.intelligence, 'N1', 'N2'));
-    subsystems.push(calculateSubsystem(system.n3, system.n1, system.intelligence, 'N3', 'N1'));
-    subsystems.push(calculateSubsystem(system.n2, system.n3, system.intelligence, 'N2', 'N3'));
-    
-    return subsystems;
-}
-
-function calculateSubsystem(nodeA, nodeB, centroid, labelA, labelB) {
-    const area = Math.abs((nodeA.x * (nodeB.y - centroid.y) + nodeB.x * (centroid.y - nodeA.y) + centroid.x * (nodeA.y - nodeB.y)) / 2);
-    const perimeter = calculateDistance(nodeA, nodeB) + calculateDistance(nodeB, centroid) + calculateDistance(centroid, nodeA);
-    const centroidAngle = calculateAngle(nodeA, centroid, nodeB);
-    const adjSubangleA = calculateAngle(centroid, nodeA, nodeB);
-    const adjSubangleB = calculateAngle(nodeA, nodeB, centroid);
-
-    return {
-        area,
-        perimeter,
-        centroidAngle,
-        adjSubangleA,
-        adjSubangleB,
-        labelA,
-        labelB,
-    };
-}
-
-function updateDashboard() {
-    console.log("Updating dashboard");
-    const angles = calculateAngles();
-    const lengths = calculateLengths();
-    const area = calculateArea();
-    const perimeter = calculatePerimeter();
-    
-    updateElementContent('angle-n1', angles.n1.toFixed(1));
-    updateElementContent('angle-n2', angles.n2.toFixed(1));
-    updateElementContent('angle-n3', angles.n3.toFixed(1));
-
-    updateElementContent('length-nc1', lengths.l3.toFixed(1));
-    updateElementContent('length-nc2', lengths.l2.toFixed(1));
-    updateElementContent('length-nc3', lengths.l1.toFixed(1));
-
-    updateElementContent('system-perimeter', perimeter.toFixed(1));
-    updateElementContent('system-area', area.toFixed(1));
-
-    updateElementContent('centroid-x', system.intelligence.x.toFixed(1));
-    updateElementContent('centroid-y', system.intelligence.y.toFixed(1));
-    updateElementContent('incenter-x', system.incenter.x.toFixed(1));
-    updateElementContent('incenter-y', system.incenter.y.toFixed(1));
-
-    system.subsystems.forEach((subsystem, index) => {
-        const i = index + 1;
-        updateElementContent(`subsystem${i}-area`, subsystem.area.toFixed(1));
-        updateElementContent(`subsystem${i}-perimeter`, subsystem.perimeter.toFixed(1));
-        updateElementContent(`subsystem${i}-centroid-angle`, subsystem.centroidAngle.toFixed(1));
-        updateElementContent(`subsystem${i}-adj-subangle-a`, subsystem.adjSubangleA.toFixed(1));
-        updateElementContent(`subsystem${i}-adj-subangle-b`, subsystem.adjSubangleB.toFixed(1));
-    });
-
-    updateInformationPanel();
-}
-
-function updateElementContent(id, content) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.textContent = content;
+// Initialize the TriangleSystem when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+        const triangleSystem = new TriangleSystem(canvas);
+        console.log("Initializing system...");
     } else {
-        console.warn(`Element with id '${id}' not found`);
+        console.error("Canvas element not found");
     }
-}
-
-function calculateAngles() {
-    console.log("Calculating angles");
-    return {
-        n1: calculateAngle(system.n2, system.n1, system.n3),
-        n2: calculateAngle(system.n3, system.n2, system.n1),
-        n3: calculateAngle(system.n1, system.n3, system.n2),
-    };
-}
-
-function updateInformationPanel() {
-    console.log("Updating information panel");
-    const centroidToIncenter = calculateDistance(system.intelligence, system.incenter);
-    updateElementContent('d-centroid-incenter', centroidToIncenter.toFixed(2));
-
-    const midpoints = [system.midpoints.m1, system.midpoints.m2, system.midpoints.m3];
-    const tangencyPoints = system.tangencyPoints;
-
-    for (let i = 0; i < 3; i++) {
-        const distanceToTangent = calculateDistance(midpoints[i], tangencyPoints[i]);
-        const ratio = distanceToTangent / calculateDistance(system[`n${i + 1}`], midpoints[i]);
-
-        updateElementContent(`d-midpoint-tangent-nc${i + 1}`, distanceToTangent.toFixed(2));
-        updateElementContent(`r-midpoint-tangent-nc${i + 1}`, ratio.toFixed(2));
-    }
-}
-
-function drawSystem() {
-    console.log("Drawing system");
-    if (!ctx) {
-        console.error("Canvas context is not initialized");
-        return;
-    }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.scale(1, -1);
-
-    drawAxes();
-    drawMainTriangle();
-    if (showAreas) drawSubtriangles();
-    if (showConnections) drawConnections();
-    if (showMidpoints) drawMidpoints();
-    if (showIncircle) {
-        drawIncircle();
-        drawTangencyPoints();
-    }
-    drawNodes();
-    if (showIncenter) drawIncenter();
-    displayInfo();
-
-    ctx.restore();
-}
-
-function init() {
-    console.log("Initializing application");
-    try {
-        canvas = document.getElementById('canvas');
-        if (!canvas) {
-            throw new Error("Canvas element not found");
-        }
-        console.log("Canvas element found");
-
-        ctx = canvas.getContext('2d');
-        if (!ctx) {
-            throw new Error("Unable to get canvas context");
-        }
-        console.log("Canvas context obtained");
-
-        initializeSystem();
-        console.log("System initialized");
-
-        addEventListeners();
-        console.log("Event listeners added");
-
-        console.log("Initialization complete");
-    } catch (error) {
-        console.error("Error during initialization:", error.message);
-        console.error("Stack trace:", error.stack);
-    }
-}
-
-function addEventListeners() {
-    console.log("Adding event listeners");
-    // Add your event listeners here
-}
-
-document.addEventListener('DOMContentLoaded', init);
+});
