@@ -424,22 +424,41 @@ function updateInformationPanel() {
 function init() {
     console.log("Initializing system...");
     try {
+        console.log("Getting canvas element...");
         canvas = document.getElementById('canvas');
         if (!canvas) {
             throw new Error("Canvas element not found");
         }
+        console.log("Canvas element found successfully.");
+
+        console.log("Getting canvas context...");
         ctx = canvas.getContext('2d');
         if (!ctx) {
             throw new Error("Unable to get canvas context");
         }
+        console.log("Canvas context obtained successfully.");
+
+        console.log("Initializing system...");
         initializeSystem();
-        addEventListeners();
-        updateDashboard();
-        drawSystem();
         console.log("System initialized successfully.");
+
+        console.log("Adding event listeners...");
+        addEventListeners();
+        console.log("Event listeners added successfully.");
+
+        console.log("Updating dashboard...");
+        updateDashboard();
+        console.log("Dashboard updated successfully.");
+
+        console.log("Drawing system...");
+        drawSystem();
+        console.log("System drawn successfully.");
+
+        console.log("Initialization complete.");
     } catch (error) {
         console.error("Error during initialization:", error.message);
         console.error("Stack trace:", error.stack);
+        console.error("Error details:", error);
     }
 }
 
