@@ -48,15 +48,41 @@ class TriangleSystem {
     }
 
     handleMouseDown(event) {
-        console.log('Mouse down event');
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = this.canvas.height - (event.clientY - rect.top);
+        
+        this.isDragging = true;
+        this.draggedNode = this.getNodeAtPosition(x, y);
     }
 
     handleMouseMove(event) {
-        console.log('Mouse move event');
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = this.canvas.height - (event.clientY - rect.top);
+
+        if (this.isDragging && this.draggedNode) {
+            this.system[this.draggedNode] = { x, y };
+            this.updateDashboard();
+            this.drawSystem();
+        }
     }
 
     handleMouseUp(event) {
-        console.log('Mouse up event');
+        this.isDragging = false;
+        this.draggedNode = null;
+    }
+
+    getNodeAtPosition(x, y) {
+        const nodes = ['n1', 'n2', 'n3'];
+        for (const node of nodes) {
+            const dx = this.system[node].x - x;
+            const dy = this.system[node].y - y;
+            if (Math.sqrt(dx*dx + dy*dy) < 10) {
+                return node;
+            }
+        }
+        return null;
     }
 
     applyChanges() {
@@ -167,6 +193,10 @@ class TriangleSystem {
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        ctx.save();
+        ctx.translate(0, this.canvas.height);
+        ctx.scale(1, -1);
+
         // Draw triangle
         ctx.beginPath();
         ctx.moveTo(this.system.n1.x, this.system.n1.y);
@@ -190,6 +220,8 @@ class TriangleSystem {
         }
 
         // Additional drawing methods can be added here for midpoints, incircle, etc.
+
+        ctx.restore();
     }
 
     drawNode(point, color, label) {
@@ -199,7 +231,10 @@ class TriangleSystem {
         ctx.fillStyle = color;
         ctx.fill();
         ctx.fillStyle = 'white';
-        ctx.fillText(label, point.x + 10, point.y);
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.fillText(label, point.x + 10, -point.y);
+        ctx.restore();
     }
 
     updateDashboard() {
