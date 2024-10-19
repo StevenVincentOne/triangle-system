@@ -77,20 +77,35 @@ class TriangleSystem {
                 };
         }
 
+        this.adjustTriangleToOrigin();
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
+    }
+
+    adjustTriangleToOrigin() {
+        const centroid = {
+            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+        };
+        
+        const dx = -centroid.x;
+        const dy = -centroid.y;
+        
+        this.system.n1.x += dx;
+        this.system.n1.y += dy;
+        this.system.n2.x += dx;
+        this.system.n2.y += dy;
+        this.system.n3.x += dx;
+        this.system.n3.y += dy;
+        
+        this.system.intelligence = { x: 0, y: 0 };
     }
 
     updateDerivedPoints() {
         const N1 = this.system.n1;
         const N2 = this.system.n2;
         const N3 = this.system.n3;
-
-        this.system.intelligence = {
-            x: (N1.x + N2.x + N3.x) / 3,
-            y: (N1.y + N2.y + N3.y) / 3,
-        };
 
         this.system.midpoints = {
             m1: { x: (N2.x + N3.x) / 2, y: (N2.y + N3.y) / 2 },
@@ -116,6 +131,8 @@ class TriangleSystem {
         this.system.incircleRadius = incircleRadius;
 
         this.system.tangencyPoints = this.calculateTangencyPoints();
+
+        this.adjustTriangleToOrigin();
     }
 
     updateDashboard() {
@@ -479,6 +496,7 @@ class TriangleSystem {
             }
         });
 
+        this.adjustTriangleToOrigin();
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
