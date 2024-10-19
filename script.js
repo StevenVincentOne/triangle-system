@@ -69,12 +69,137 @@ class TriangleSystem {
 
     initializeSystem(preset) {
         console.log('Initialize system with preset:', preset);
+        const canvasWidth = this.canvas.width;
+        const canvasHeight = this.canvas.height;
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
+
+        switch (preset) {
+            case 'equilateral':
+                const side = Math.min(canvasWidth, canvasHeight) * 0.4;
+                const height = side * Math.sqrt(3) / 2;
+                this.system = {
+                    n1: { x: centerX, y: centerY + height / 3 },
+                    n2: { x: centerX - side / 2, y: centerY - height * 2 / 3 },
+                    n3: { x: centerX + side / 2, y: centerY - height * 2 / 3 },
+                    intelligence: { x: centerX, y: centerY },
+                    incenter: { x: centerX, y: centerY },
+                };
+                break;
+            case 'isosceles':
+                const baseWidth = Math.min(canvasWidth, canvasHeight) * 0.4;
+                const isoHeight = baseWidth * 1.2;
+                this.system = {
+                    n1: { x: centerX, y: centerY - isoHeight / 2 },
+                    n2: { x: centerX - baseWidth / 2, y: centerY + isoHeight / 2 },
+                    n3: { x: centerX + baseWidth / 2, y: centerY + isoHeight / 2 },
+                    intelligence: { x: centerX, y: centerY },
+                    incenter: { x: centerX, y: centerY },
+                };
+                break;
+            case 'scalene':
+                const scaleWidth = Math.min(canvasWidth, canvasHeight) * 0.4;
+                const scaleHeight = scaleWidth * 0.8;
+                this.system = {
+                    n1: { x: centerX - scaleWidth / 2, y: centerY + scaleHeight / 2 },
+                    n2: { x: centerX + scaleWidth / 2, y: centerY + scaleHeight / 2 },
+                    n3: { x: centerX + scaleWidth / 4, y: centerY - scaleHeight / 2 },
+                    intelligence: { x: centerX, y: centerY },
+                    incenter: { x: centerX, y: centerY },
+                };
+                break;
+            case 'right':
+                const rightSide = Math.min(canvasWidth, canvasHeight) * 0.4;
+                this.system = {
+                    n1: { x: centerX - rightSide / 2, y: centerY + rightSide / 2 },
+                    n2: { x: centerX - rightSide / 2, y: centerY - rightSide / 2 },
+                    n3: { x: centerX + rightSide / 2, y: centerY + rightSide / 2 },
+                    intelligence: { x: centerX, y: centerY },
+                    incenter: { x: centerX, y: centerY },
+                };
+                break;
+            case 'acute':
+                const acuteBase = Math.min(canvasWidth, canvasHeight) * 0.4;
+                const acuteHeight = acuteBase * 0.8;
+                this.system = {
+                    n1: { x: centerX, y: centerY - acuteHeight / 2 },
+                    n2: { x: centerX - acuteBase / 2, y: centerY + acuteHeight / 2 },
+                    n3: { x: centerX + acuteBase / 2, y: centerY + acuteHeight / 2 },
+                    intelligence: { x: centerX, y: centerY },
+                    incenter: { x: centerX, y: centerY },
+                };
+                break;
+            case 'obtuse':
+                const obtuseBase = Math.min(canvasWidth, canvasHeight) * 0.4;
+                const obtuseHeight = obtuseBase * 0.3;
+                this.system = {
+                    n1: { x: centerX - obtuseBase / 2, y: centerY },
+                    n2: { x: centerX + obtuseBase / 2, y: centerY },
+                    n3: { x: centerX - obtuseBase / 4, y: centerY - obtuseHeight },
+                    intelligence: { x: centerX, y: centerY },
+                    incenter: { x: centerX, y: centerY },
+                };
+                break;
+            default:
+                console.error('Invalid preset');
+                return;
+        }
+
+        this.calculateIncenter();
         this.updateDashboard();
         this.drawSystem();
     }
 
+    calculateIncenter() {
+        const { n1, n2, n3 } = this.system;
+        const a = this.calculateDistance(n2, n3);
+        const b = this.calculateDistance(n1, n3);
+        const c = this.calculateDistance(n1, n2);
+        const perimeter = a + b + c;
+        
+        this.system.incenter = {
+            x: (a * n1.x + b * n2.x + c * n3.x) / perimeter,
+            y: (a * n1.y + b * n2.y + c * n3.y) / perimeter
+        };
+    }
+
     drawSystem() {
-        console.log('Draw system');
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw triangle
+        ctx.beginPath();
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.n3.x, this.system.n3.y);
+        ctx.closePath();
+        ctx.strokeStyle = 'white';
+        ctx.stroke();
+
+        // Draw nodes
+        this.drawNode(this.system.n1, 'red', 'N1');
+        this.drawNode(this.system.n2, 'green', 'N2');
+        this.drawNode(this.system.n3, 'blue', 'N3');
+
+        // Draw centroid (intelligence)
+        this.drawNode(this.system.intelligence, 'yellow', 'I');
+
+        // Draw incenter
+        if (this.showIncenter) {
+            this.drawNode(this.system.incenter, 'cyan', 'IC');
+        }
+
+        // Additional drawing methods can be added here for midpoints, incircle, etc.
+    }
+
+    drawNode(point, color, label) {
+        const ctx = this.ctx;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.fillText(label, point.x + 10, point.y);
     }
 
     updateDashboard() {
@@ -185,23 +310,41 @@ class TriangleSystem {
     }
 
     calculatePerimeter() {
-        return 0;
+        const lengths = this.calculateLengths();
+        return lengths.l1 + lengths.l2 + lengths.l3;
     }
 
     calculateArea() {
-        return 0;
+        const { n1, n2, n3 } = this.system;
+        return Math.abs((n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y)) / 2);
     }
 
     calculateLengths() {
-        return { l1: 0, l2: 0, l3: 0 };
+        return {
+            l1: this.calculateDistance(this.system.n2, this.system.n3),
+            l2: this.calculateDistance(this.system.n1, this.system.n3),
+            l3: this.calculateDistance(this.system.n1, this.system.n2)
+        };
     }
 
     calculateAngles() {
-        return { n1: 0, n2: 0, n3: 0 };
+        const { n1, n2, n3 } = this.system;
+        const v1 = this.vectorSubtract(n2, n1);
+        const v2 = this.vectorSubtract(n3, n1);
+        const v3 = this.vectorSubtract(n1, n2);
+        const v4 = this.vectorSubtract(n3, n2);
+        const v5 = this.vectorSubtract(n1, n3);
+        const v6 = this.vectorSubtract(n2, n3);
+
+        return {
+            n1: this.calculateAngleBetweenVectors(v1, v2),
+            n2: this.calculateAngleBetweenVectors(v3, v4),
+            n3: this.calculateAngleBetweenVectors(v5, v6)
+        };
     }
 
     calculateDistance(point1, point2) {
-        return 0;
+        return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
     }
 }
 
