@@ -365,6 +365,46 @@ class TriangleSystem {
         draw();
     }
 
+    calculateLengths() {
+        const { n1, n2, n3 } = this.system;
+        return {
+            l1: this.calculateDistance(n2, n3),
+            l2: this.calculateDistance(n1, n3),
+            l3: this.calculateDistance(n1, n2)
+        };
+    }
+
+    calculateAngles() {
+        const { n1, n2, n3 } = this.system;
+        const lengths = this.calculateLengths();
+        const { l1, l2, l3 } = lengths;
+
+        const calculateAngle = (a, b, c) => {
+            return Math.acos((a*a + b*b - c*c) / (2*a*b)) * 180 / Math.PI;
+        };
+
+        return {
+            n1: calculateAngle(l2, l3, l1),
+            n2: calculateAngle(l1, l3, l2),
+            n3: calculateAngle(l1, l2, l3)
+        };
+    }
+
+    calculatePerimeter() {
+        const lengths = this.calculateLengths();
+        return lengths.l1 + lengths.l2 + lengths.l3;
+    }
+
+    calculateArea() {
+        const { l1, l2, l3 } = this.calculateLengths();
+        const s = (l1 + l2 + l3) / 2;
+        return Math.sqrt(s * (s - l1) * (s - l2) * (s - l3));
+    }
+
+    calculateDistance(point1, point2) {
+        return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
+    }
+
     validateTriangleParameters(angles, lengths) {
         const angleSum = angles.reduce((sum, angle) => sum + angle, 0);
         if (Math.abs(angleSum - 180) > 0.01) {
