@@ -44,8 +44,8 @@ class TriangleSystem {
             case 'scalene':
                 this.system = {
                     n1: { x: 0, y: 200 },
-                    n2: { x: -150, y: 0 },
-                    n3: { x: 100, y: 0 },
+                    n2: { x: -100, y: 0 },
+                    n3: { x: 150, y: 0 },
                 };
                 break;
             case 'right':
