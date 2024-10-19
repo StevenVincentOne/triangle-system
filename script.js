@@ -77,10 +77,23 @@ class TriangleSystem {
                 };
         }
 
+        this.rotateTriangleToBase();
         this.adjustTriangleToOrigin();
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
+    }
+
+    rotateTriangleToBase() {
+        const angle = Math.atan2(this.system.n3.y - this.system.n2.y, this.system.n3.x - this.system.n2.x);
+        const rotatePoint = (point) => {
+            const x = point.x * Math.cos(-angle) - point.y * Math.sin(-angle);
+            const y = point.x * Math.sin(-angle) + point.y * Math.cos(-angle);
+            return { x, y };
+        };
+        this.system.n1 = rotatePoint(this.system.n1);
+        this.system.n2 = rotatePoint(this.system.n2);
+        this.system.n3 = rotatePoint(this.system.n3);
     }
 
     adjustTriangleToOrigin() {
@@ -496,6 +509,7 @@ class TriangleSystem {
             }
         });
 
+        this.rotateTriangleToBase();
         this.adjustTriangleToOrigin();
         this.updateDerivedPoints();
         this.updateDashboard();
