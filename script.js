@@ -24,6 +24,77 @@ class TriangleSystem {
         this.initializeSystem('equilateral');
     }
 
+    initializeEventListeners() {
+        this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        
+        const presetButtons = ['equilateral', 'isosceles', 'scalene', 'right', 'acute', 'obtuse'];
+        presetButtons.forEach(preset => {
+            const button = document.querySelector(`#${preset}`);
+            if (button) {
+                button.addEventListener('click', () => this.initializeSystem(preset));
+            }
+        });
+        
+        ['Midpoints', 'Incircle', 'Incenter', 'Medians', 'Areas'].forEach(feature => {
+            const button = document.querySelector(`#toggle${feature}`);
+            if (button) {
+                button.addEventListener('click', () => {
+                    this[`show${feature}`] = !this[`show${feature}`];
+                    this.drawSystem();
+                });
+            }
+        });
+        
+        const applyButton = document.querySelector('#apply-button');
+        if (applyButton) {
+            applyButton.addEventListener('click', () => this.applyChanges());
+        }
+    }
+
+    handleMouseDown(event) {
+        const mousePos = this.getMousePosition(event);
+        for (const node of ['n1', 'n2', 'n3']) {
+            if (this.isClickOnNode(mousePos.x, mousePos.y, this.system[node])) {
+                this.isDragging = true;
+                this.draggedNode = node;
+                break;
+            }
+        }
+    }
+
+    handleMouseMove(event) {
+        if (this.isDragging && this.draggedNode) {
+            const mousePos = this.getMousePosition(event);
+            this.system[this.draggedNode] = mousePos;
+            this.adjustTriangleToOrigin();
+            this.updateDerivedPoints();
+            this.updateDashboard();
+            this.drawSystem();
+        }
+    }
+
+    handleMouseUp() {
+        this.isDragging = false;
+        this.draggedNode = null;
+    }
+
+    getMousePosition(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        return {
+            x: (event.clientX - rect.left - this.canvas.width / 2) * scaleX,
+            y: -(event.clientY - rect.top - this.canvas.height / 2) * scaleY
+        };
+    }
+
+    isClickOnNode(x, y, node) {
+        const distance = Math.sqrt(Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2));
+        return distance <= 8;
+    }
+
     initializeSystem(preset = 'equilateral') {
         const side = 300;
         const height = (Math.sqrt(3) / 2) * side;
@@ -210,7 +281,6 @@ class TriangleSystem {
             setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2).toFixed(2));
             setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3).toFixed(2));
 
-            // Update new input fields for angles and edge lengths
             setElementValue('#n1-angle', angles.n1.toFixed(2));
             setElementValue('#n2-angle', angles.n2.toFixed(2));
             setElementValue('#n3-angle', angles.n3.toFixed(2));
@@ -241,21 +311,18 @@ class TriangleSystem {
 
             ctx.lineWidth = 2;
 
-            // NC1 (N1 to N2): Red
             ctx.beginPath();
             ctx.strokeStyle = 'red';
             ctx.moveTo(this.system.n1.x, this.system.n1.y);
             ctx.lineTo(this.system.n2.x, this.system.n2.y);
             ctx.stroke();
 
-            // NC2 (N1 to N3): Blue
             ctx.beginPath();
             ctx.strokeStyle = 'blue';
             ctx.moveTo(this.system.n1.x, this.system.n1.y);
             ctx.lineTo(this.system.n3.x, this.system.n3.y);
             ctx.stroke();
 
-            // NC3 (N2 to N3): Green
             ctx.beginPath();
             ctx.strokeStyle = 'green';
             ctx.moveTo(this.system.n2.x, this.system.n2.y);
@@ -358,35 +425,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (canvas) {
         window.triangleSystem = new TriangleSystem(canvas);
         console.log("Initializing system...");
-
-        const applyButton = document.querySelector('#apply-button');
-        if (applyButton) {
-            applyButton.addEventListener('click', () => {
-                window.triangleSystem.applyChanges();
-            });
-        }
-
-        const presetButtons = ['equilateral', 'isosceles', 'scalene', 'right', 'acute', 'obtuse'];
-        presetButtons.forEach(preset => {
-            const button = document.querySelector(`#${preset}`);
-            if (button) {
-                button.addEventListener('click', () => {
-                    window.triangleSystem.initializeSystem(preset);
-                });
-            }
-        });
-
-        ['Midpoints', 'Incircle', 'Incenter', 'Medians', 'Areas'].forEach(feature => {
-            const button = document.querySelector(`#toggle${feature}`);
-            if (button) {
-                button.addEventListener('click', () => {
-                    window.triangleSystem[`show${feature}`] = !window.triangleSystem[`show${feature}`];
-                    window.triangleSystem.drawSystem();
-                });
-            }
-        });
-
-        window.triangleSystem.initializeSystem('equilateral');
     } else {
         console.error("Canvas element not found");
     }
