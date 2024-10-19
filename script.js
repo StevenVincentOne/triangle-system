@@ -78,7 +78,7 @@ class TriangleSystem {
         }
 
         this.updateDerivedPoints();
-        this.updateDashboard();
+        this.updateDashboard(); // Add this line
         this.drawSystem();
     }
 
@@ -117,34 +117,55 @@ class TriangleSystem {
     }
 
     updateDashboard() {
-        document.getElementById('system-perimeter').value = this.calculatePerimeter().toFixed(2);
-        document.getElementById('system-area').value = this.calculateArea().toFixed(2);
+        try {
+            console.log('Updating dashboard...');
+            
+            const setElementValue = (selector, value) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.value = value;
+                    console.log(`Set ${selector} to ${value}`);
+                } else {
+                    console.warn(`Element not found: ${selector}`);
+                }
+            };
 
-        ['n1', 'n2', 'n3'].forEach(node => {
-            document.getElementById(`node-${node}-x`).value = this.system[node].x.toFixed(2);
-            document.getElementById(`node-${node}-y`).value = this.system[node].y.toFixed(2);
-        });
+            setElementValue('#system-perimeter', this.calculatePerimeter().toFixed(2));
+            setElementValue('#system-area', this.calculateArea().toFixed(2));
 
-        const lengths = this.calculateLengths();
-        document.getElementById('edge-nc1').value = lengths.l3.toFixed(2);
-        document.getElementById('edge-nc2').value = lengths.l2.toFixed(2);
-        document.getElementById('edge-nc3').value = lengths.l1.toFixed(2);
+            ['n1', 'n2', 'n3'].forEach(node => {
+                setElementValue(`#node-${node}-x`, this.system[node].x.toFixed(2));
+                setElementValue(`#node-${node}-y`, this.system[node].y.toFixed(2));
+            });
 
-        document.getElementById('centroid-x').value = this.system.intelligence.x.toFixed(2);
-        document.getElementById('centroid-y').value = this.system.intelligence.y.toFixed(2);
+            const lengths = this.calculateLengths();
+            setElementValue('#edge-nc1', lengths.l3.toFixed(2));
+            setElementValue('#edge-nc2', lengths.l2.toFixed(2));
+            setElementValue('#edge-nc3', lengths.l1.toFixed(2));
 
-        const angles = this.calculateAngles();
-        ['1', '2', '3'].forEach((i, index) => {
-            const nodeKey = `n${i}`;
-            document.getElementById(`subsystem-${i}-area`).value = (this.calculateArea() / 3).toFixed(2);
-            document.getElementById(`subsystem-${i}-perimeter`).value = (this.calculatePerimeter() / 2).toFixed(2);
-            document.getElementById(`subsystem-${i}-centroid-angle`).value = (angles[nodeKey] / 2).toFixed(2);
-        });
+            setElementValue('#centroid-x', this.system.intelligence.x.toFixed(2));
+            setElementValue('#centroid-y', this.system.intelligence.y.toFixed(2));
 
-        document.getElementById('incenter-x').value = this.system.incenter.x.toFixed(2);
-        document.getElementById('incenter-y').value = this.system.incenter.y.toFixed(2);
+            const angles = this.calculateAngles();
+            ['1', '2', '3'].forEach((i, index) => {
+                const nodeKey = `n${i}`;
+                setElementValue(`#subsystem-${i}-area`, (this.calculateArea() / 3).toFixed(2));
+                setElementValue(`#subsystem-${i}-perimeter`, (this.calculatePerimeter() / 2).toFixed(2));
+                setElementValue(`#subsystem-${i}-centroid-angle`, (angles[nodeKey] / 2).toFixed(2));
+            });
 
-        document.getElementById('d-centroid-incircle').textContent = this.calculateDistance(this.system.intelligence, this.system.incenter).toFixed(2);
+            setElementValue('#incenter-x', this.system.incenter.x.toFixed(2));
+            setElementValue('#incenter-y', this.system.incenter.y.toFixed(2));
+
+            const dCentroidIncircle = document.querySelector('#d-centroid-incircle');
+            if (dCentroidIncircle) {
+                dCentroidIncircle.textContent = this.calculateDistance(this.system.intelligence, this.system.incenter).toFixed(2);
+            }
+
+            console.log('Dashboard updated successfully');
+        } catch (error) {
+            console.error('Error updating dashboard:', error);
+        }
     }
 
     drawSystem() {
@@ -300,49 +321,49 @@ class TriangleSystem {
     exportData() {
         const data = {
             system: {
-                perimeter: document.getElementById('system-perimeter').value,
-                area: document.getElementById('system-area').value
+                perimeter: document.querySelector('#system-perimeter').value,
+                area: document.querySelector('#system-area').value
             },
             nodes: {
                 n1: {
-                    x: document.getElementById('node-n1-x').value,
-                    y: document.getElementById('node-n1-y').value,
-                    angle: document.getElementById('node-n1-angle').value
+                    x: document.querySelector('#node-n1-x').value,
+                    y: document.querySelector('#node-n1-y').value,
+                    angle: document.querySelector('#node-n1-angle').value
                 },
                 n2: {
-                    x: document.getElementById('node-n2-x').value,
-                    y: document.getElementById('node-n2-y').value,
-                    angle: document.getElementById('node-n2-angle').value
+                    x: document.querySelector('#node-n2-x').value,
+                    y: document.querySelector('#node-n2-y').value,
+                    angle: document.querySelector('#node-n2-angle').value
                 },
                 n3: {
-                    x: document.getElementById('node-n3-x').value,
-                    y: document.getElementById('node-n3-y').value,
-                    angle: document.getElementById('node-n3-angle').value
+                    x: document.querySelector('#node-n3-x').value,
+                    y: document.querySelector('#node-n3-y').value,
+                    angle: document.querySelector('#node-n3-angle').value
                 }
             },
             channels: {
-                nc1: document.getElementById('edge-nc1').value,
-                nc2: document.getElementById('edge-nc2').value,
-                nc3: document.getElementById('edge-nc3').value
+                nc1: document.querySelector('#edge-nc1').value,
+                nc2: document.querySelector('#edge-nc2').value,
+                nc3: document.querySelector('#edge-nc3').value
             },
             centers: {
                 centroid: {
-                    x: document.getElementById('centroid-x').value,
-                    y: document.getElementById('centroid-y').value
+                    x: document.querySelector('#centroid-x').value,
+                    y: document.querySelector('#centroid-y').value
                 },
                 incenter: {
-                    x: document.getElementById('incenter-x').value,
-                    y: document.getElementById('incenter-y').value
+                    x: document.querySelector('#incenter-x').value,
+                    y: document.querySelector('#incenter-y').value
                 }
             },
             info: {
-                dCentroidIncircle: document.getElementById('d-centroid-incircle').textContent,
-                dMidNC1: document.getElementById('d-mid-nc1').textContent,
-                dMidNC2: document.getElementById('d-mid-nc2').textContent,
-                dMidNC3: document.getElementById('d-mid-nc3').textContent,
-                rMidNC1: document.getElementById('r-mid-nc1').textContent,
-                rMidNC2: document.getElementById('r-mid-nc2').textContent,
-                rMidNC3: document.getElementById('r-mid-nc3').textContent
+                dCentroidIncircle: document.querySelector('#d-centroid-incircle').textContent,
+                dMidNC1: document.querySelector('#d-mid-nc1').textContent,
+                dMidNC2: document.querySelector('#d-mid-nc2').textContent,
+                dMidNC3: document.querySelector('#d-mid-nc3').textContent,
+                rMidNC1: document.querySelector('#r-mid-nc1').textContent,
+                rMidNC2: document.querySelector('#r-mid-nc2').textContent,
+                rMidNC3: document.querySelector('#r-mid-nc3').textContent
             }
         };
 
@@ -374,19 +395,19 @@ class TriangleSystem {
     initializeEventListeners() {
         const presetButtons = ['equilateral', 'isosceles', 'scalene', 'right', 'acute', 'obtuse'];
         presetButtons.forEach(preset => {
-            const button = document.getElementById(preset);
+            const button = document.querySelector(`#${preset}`);
             if (button) {
                 button.addEventListener('click', () => this.initializeSystem(preset));
             }
         });
 
-        const exportButton = document.getElementById('export-data');
+        const exportButton = document.querySelector('#export-data');
         if (exportButton) {
             exportButton.addEventListener('click', () => this.exportData());
         }
 
         ['Midpoints', 'Incircle', 'Incenter', 'Medians', 'Areas'].forEach(feature => {
-            const button = document.getElementById(`toggle${feature}`);
+            const button = document.querySelector(`#toggle${feature}`);
             if (button) {
                 button.addEventListener('click', () => {
                     this[`show${feature}`] = !this[`show${feature}`];
@@ -395,7 +416,7 @@ class TriangleSystem {
             }
         });
 
-        const applyButton = document.getElementById('apply-button');
+        const applyButton = document.querySelector('#apply-button');
         if (applyButton) {
             applyButton.addEventListener('click', () => {
                 this.applyChanges();
@@ -405,8 +426,12 @@ class TriangleSystem {
 
     applyChanges() {
         ['n1', 'n2', 'n3'].forEach(node => {
-            this.system[node].x = parseFloat(document.getElementById(`node-${node}-x`).value);
-            this.system[node].y = parseFloat(document.getElementById(`node-${node}-y`).value);
+            const xElement = document.querySelector(`#node-${node}-x`);
+            const yElement = document.querySelector(`#node-${node}-y`);
+            if (xElement && yElement) {
+                this.system[node].x = parseFloat(xElement.value);
+                this.system[node].y = parseFloat(yElement.value);
+            }
         });
 
         this.updateDerivedPoints();
@@ -416,7 +441,7 @@ class TriangleSystem {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('canvas');
+    const canvas = document.querySelector('#canvas');
     if (canvas) {
         window.triangleSystem = new TriangleSystem(canvas);
         console.log("Initializing system...");
