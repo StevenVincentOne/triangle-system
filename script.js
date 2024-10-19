@@ -508,7 +508,9 @@ class TriangleSystem {
             const button = document.querySelector(`#toggle${feature}`);
             if (button) {
                 button.addEventListener('click', () => {
-                    this[`show${feature.toLowerCase()}`] = !this[`show${feature.toLowerCase()}`];
+                    const propertyName = `show${feature.toLowerCase()}`;
+                    this[propertyName] = !this[propertyName];
+                    button.classList.toggle('active', this[propertyName]);
                     this.drawSystem();
                 });
             }
@@ -521,7 +523,6 @@ class TriangleSystem {
             });
         }
 
-        // Add event listeners for canvas interactions
         this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
@@ -562,7 +563,7 @@ class TriangleSystem {
     isPointInNode(x, y, node) {
         const dx = x - node.x;
         const dy = y - node.y;
-        return dx * dx + dy * dy <= 64; // 8^2, where 8 is the node radius
+        return dx * dx + dy * dy <= 64;
     }
 
     applyChanges() {
