@@ -234,7 +234,7 @@ class TriangleSystem {
 
         ctx.save();
         ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-        ctx.scale(1, 1);
+        ctx.scale(1, -1);
 
         this.drawAxes(ctx);
 
@@ -317,7 +317,7 @@ class TriangleSystem {
         ctx.fillStyle = 'white';
         ctx.font = '12px Arial';
         ctx.fillText('X', this.canvas.width / 2 - 20, -10);
-        ctx.fillText('Y', 10, this.canvas.height / 2 - 20);
+        ctx.fillText('Y', 10, -this.canvas.height / 2 + 20);
     }
 
     drawAreas(ctx) {
