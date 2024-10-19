@@ -29,7 +29,6 @@ class TriangleSystem {
         this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
         
-        // Add event listeners for preset buttons
         const presetButtons = ['equilateral', 'isosceles', 'scalene', 'right', 'acute', 'obtuse'];
         presetButtons.forEach(preset => {
             const button = document.getElementById(preset);
@@ -38,7 +37,6 @@ class TriangleSystem {
             }
         });
         
-        // Add event listeners for toggle buttons
         ['Midpoints', 'Incircle', 'Incenter', 'Medians', 'Areas'].forEach(feature => {
             const button = document.getElementById(`toggle${feature}`);
             if (button) {
@@ -49,11 +47,83 @@ class TriangleSystem {
             }
         });
         
-        // Add event listener for apply button
         const applyButton = document.getElementById('apply-button');
         if (applyButton) {
             applyButton.addEventListener('click', () => this.applyChanges());
         }
+    }
+
+    initializeSystem(preset) {
+        // Reset the system
+        this.system = {};
+
+        const side = 200; // Base side length for calculations
+
+        // Set up the nodes based on the preset
+        switch(preset) {
+            case 'equilateral':
+                const height = side * Math.sqrt(3) / 2;
+                this.system = {
+                    n1: { x: 0, y: height * 2/3 },
+                    n2: { x: -side / 2, y: -height / 3 },
+                    n3: { x: side / 2, y: -height / 3 }
+                };
+                break;
+            case 'isosceles':
+                this.system = {
+                    n1: { x: 0, y: side * 0.8 },
+                    n2: { x: -side / 2, y: 0 },
+                    n3: { x: side / 2, y: 0 }
+                };
+                break;
+            case 'scalene':
+                this.system = {
+                    n1: { x: 0, y: side * 0.9 },
+                    n2: { x: -side * 0.6, y: 0 },
+                    n3: { x: side * 0.4, y: 0 }
+                };
+                break;
+            case 'right':
+                this.system = {
+                    n1: { x: 0, y: side },
+                    n2: { x: 0, y: 0 },
+                    n3: { x: side, y: 0 }
+                };
+                break;
+            case 'acute':
+                const acuteHeight = side * Math.sqrt(3) / 2 * 0.8;
+                this.system = {
+                    n1: { x: 0, y: acuteHeight },
+                    n2: { x: -side * 0.4, y: 0 },
+                    n3: { x: side * 0.4, y: 0 }
+                };
+                break;
+            case 'obtuse':
+                this.system = {
+                    n1: { x: side * 0.1, y: side * 0.8 },
+                    n2: { x: -side, y: 0 },
+                    n3: { x: side * 0.5, y: 0 }
+                };
+                break;
+            default:
+                // Set up a default equilateral triangle
+                const defaultHeight = side * Math.sqrt(3) / 2;
+                this.system = {
+                    n1: { x: 0, y: defaultHeight * 2/3 },
+                    n2: { x: -side / 2, y: -defaultHeight / 3 },
+                    n3: { x: side / 2, y: -defaultHeight / 3 }
+                };
+        }
+
+        // Calculate and set the centroid (intelligence)
+        const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
+        const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
+        this.system.intelligence = { x: centroidX, y: centroidY };
+
+        // Update derived points and dashboard
+        this.updateDerivedPoints();
+        this.updateDashboard();
+        this.drawSystem();
     }
 
     handleMouseDown(event) {
@@ -82,8 +152,6 @@ class TriangleSystem {
         this.isDragging = false;
         this.draggedNode = null;
     }
-
-    // ... other methods ...
 
     drawAxes(ctx) {
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
@@ -179,7 +247,40 @@ class TriangleSystem {
         draw();
     }
 
-    // ... rest of the class implementation ...
+    // Add other necessary methods here (e.g., drawNode, drawConnections, drawMidpoints, etc.)
+
+    updateDerivedPoints() {
+        // Implement the logic to update derived points (e.g., midpoints, incenter, etc.)
+    }
+
+    updateDashboard() {
+        // Implement the logic to update the dashboard with current triangle data
+    }
+
+    adjustTriangleToOrigin() {
+        // Implement the logic to adjust the triangle to the origin if needed
+    }
+
+    getMousePosition(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        return {
+            x: (event.clientX - rect.left - this.canvas.width / 2) * scaleX,
+            y: -(event.clientY - rect.top - this.canvas.height / 2) * scaleY
+        };
+    }
+
+    isClickOnNode(x, y, node) {
+        const distance = Math.sqrt(Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2));
+        return distance <= 10; // Adjust this value to change the click area size
+    }
+
+    applyChanges() {
+        // Implement the logic to apply changes from the dashboard inputs
+    }
+
+    // Add any other necessary methods here
 }
 
 document.addEventListener('DOMContentLoaded', () => {
