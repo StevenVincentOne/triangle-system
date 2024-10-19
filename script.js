@@ -183,6 +183,26 @@ class TriangleSystem {
         this.system.intelligence = { x: 0, y: 0 };
     }
 
+    calculateTangencyPoints() {
+        const { n1, n2, n3 } = this.system;
+        const { incenter, incircleRadius } = this.system;
+        
+        const calculateTangencyPoint = (p1, p2) => {
+            const d = this.calculateDistance(p1, p2);
+            const t = incircleRadius / d;
+            return {
+                x: p1.x + t * (p2.x - p1.x),
+                y: p1.y + t * (p2.y - p1.y)
+            };
+        };
+
+        return [
+            calculateTangencyPoint(n2, n3),
+            calculateTangencyPoint(n1, n3),
+            calculateTangencyPoint(n1, n2)
+        ];
+    }
+
     updateDerivedPoints() {
         const N1 = this.system.n1;
         const N2 = this.system.n2;
