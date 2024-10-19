@@ -252,13 +252,8 @@ function displayInfo() {
 function calculateSubsystems() {
     const subsystems = [];
     
-    // Subsystem 1: N1, N2, I
     subsystems.push(calculateSubsystem(system.n1, system.n2, system.intelligence, 'N1', 'N2'));
-    
-    // Subsystem 2: N3, N1, I
     subsystems.push(calculateSubsystem(system.n3, system.n1, system.intelligence, 'N3', 'N1'));
-    
-    // Subsystem 3: N2, N3, I
     subsystems.push(calculateSubsystem(system.n2, system.n3, system.intelligence, 'N2', 'N3'));
     
     return subsystems;
@@ -304,7 +299,6 @@ function updateDashboard() {
     updateElementContent('incenter-x', system.incenter.x.toFixed(1));
     updateElementContent('incenter-y', system.incenter.y.toFixed(1));
 
-    // Update subsystems information
     system.subsystems.forEach((subsystem, index) => {
         const i = index + 1;
         updateElementContent(`subsystem${i}-area`, subsystem.area.toFixed(1));
@@ -444,7 +438,8 @@ function init() {
         drawSystem();
         console.log("System initialized successfully.");
     } catch (error) {
-        console.error("Error during initialization:", error);
+        console.error("Error during initialization:", error.message);
+        console.error("Stack trace:", error.stack);
     }
 }
 
