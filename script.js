@@ -25,7 +25,6 @@ let animationParameter = null;
 let animationStartValue = null;
 let animationEndValue = null;
 
-// Initialization Function
 function initializeSystem(preset = 'equilateral') {
     const side = 300;
     const height = (Math.sqrt(3) / 2) * side;
@@ -46,7 +45,6 @@ function initializeSystem(preset = 'equilateral') {
                 n3: { x: side / 2, y: BASE_Y },
             };
             break;
-        // Add other cases for different presets
     }
 
     updateDerivedPoints();
@@ -54,7 +52,6 @@ function initializeSystem(preset = 'equilateral') {
     drawSystem();
 }
 
-// Derived Points Calculation
 function updateDerivedPoints() {
     const { n1, n2, n3 } = system;
     system.intelligence = {
@@ -71,7 +68,6 @@ function updateDerivedPoints() {
     system.tangencyPoints = calculateIncircleTangencyPoints();
 }
 
-// Drawing Functions
 function drawSystem() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
@@ -245,7 +241,6 @@ function displayInfo() {
     ctx.restore();
 }
 
-// Angle and Length Calculations
 function calculateAngles() {
     return {
         n1: calculateAngle(system.n2, system.n1, system.n3),
@@ -269,13 +264,12 @@ function calculateDistance(p1, p2) {
 
 function calculateLengths() {
     return {
-        l1: calculateDistance(system.n2, system.n3), // NC3 (N2-N3)
-        l2: calculateDistance(system.n1, system.n3), // NC2 (N1-N3)
-        l3: calculateDistance(system.n1, system.n2), // NC1 (N1-N2)
+        l1: calculateDistance(system.n2, system.n3),
+        l2: calculateDistance(system.n1, system.n3),
+        l3: calculateDistance(system.n1, system.n2),
     };
 }
 
-// Incenter and Incircle Calculations
 function calculateIncenter() {
     const a = calculateDistance(system.n2, system.n3);
     const b = calculateDistance(system.n1, system.n3);
@@ -290,8 +284,8 @@ function calculateIncircleRadius() {
     const a = calculateDistance(system.n2, system.n3);
     const b = calculateDistance(system.n1, system.n3);
     const c = calculateDistance(system.n1, system.n2);
-    const s = (a + b + c) / 2; // semi-perimeter
-    const area = Math.sqrt(s * (s - a) * (s - b) * (s - c)); // area using Heron's formula
+    const s = (a + b + c) / 2;
+    const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
     return (2 * area) / (a + b + c);
 }
 
@@ -325,12 +319,10 @@ function calculateIncircleTangencyPoints() {
     ];
 }
 
-// Event Listeners and UI Interactions
 function addEventListeners() {
     canvas.addEventListener('mousedown', handleMouseDown);
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mouseup', handleMouseUp);
-    // Add other event listeners for buttons and controls
 }
 
 function handleMouseDown(event) {
@@ -385,7 +377,6 @@ function isPointNearNode(x, y, node) {
     return distance < 10;
 }
 
-// Animation Functions
 function startAnimation() {
     if (animationRequestId) {
         cancelAnimationFrame(animationRequestId);
@@ -420,22 +411,29 @@ function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Dashboard Update Function
 function updateDashboard() {
     const angles = calculateAngles();
     const lengths = calculateLengths();
+    const area = calculateArea();
+    const perimeter = calculatePerimeter();
     
-    // Update angle displays
     updateElementContent('angle-n1', angles.n1.toFixed(1));
     updateElementContent('angle-n2', angles.n2.toFixed(1));
     updateElementContent('angle-n3', angles.n3.toFixed(1));
 
-    // Update length displays
     updateElementContent('length-nc1', lengths.l3.toFixed(1));
     updateElementContent('length-nc2', lengths.l2.toFixed(1));
     updateElementContent('length-nc3', lengths.l1.toFixed(1));
 
-    // Update other dashboard elements as needed
+    updateElementContent('system-perimeter', perimeter.toFixed(1));
+    updateElementContent('system-area', area.toFixed(1));
+
+    updateElementContent('centroid-x', system.intelligence.x.toFixed(1));
+    updateElementContent('centroid-y', system.intelligence.y.toFixed(1));
+    updateElementContent('incenter-x', system.incenter.x.toFixed(1));
+    updateElementContent('incenter-y', system.incenter.y.toFixed(1));
+
+    updateInformationPanel();
 }
 
 function updateElementContent(id, content) {
@@ -447,7 +445,32 @@ function updateElementContent(id, content) {
     }
 }
 
-// Initialization
+function calculateArea() {
+    const { n1, n2, n3 } = system;
+    return Math.abs((n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y)) / 2);
+}
+
+function calculatePerimeter() {
+    const lengths = calculateLengths();
+    return lengths.l1 + lengths.l2 + lengths.l3;
+}
+
+function updateInformationPanel() {
+    const centroidToIncenter = calculateDistance(system.intelligence, system.incenter);
+    updateElementContent('d-centroid-incenter', centroidToIncenter.toFixed(2));
+
+    const midpoints = [system.midpoints.m1, system.midpoints.m2, system.midpoints.m3];
+    const tangencyPoints = system.tangencyPoints;
+
+    for (let i = 0; i < 3; i++) {
+        const distanceToTangent = calculateDistance(midpoints[i], tangencyPoints[i]);
+        const ratio = distanceToTangent / calculateDistance(system[`n${i + 1}`], midpoints[i]);
+
+        updateElementContent(`d-midpoint-tangent-nc${i + 1}`, distanceToTangent.toFixed(2));
+        updateElementContent(`r-midpoint-tangent-nc${i + 1}`, ratio.toFixed(2));
+    }
+}
+
 function init() {
     console.log("Initializing system...");
     try {
@@ -463,6 +486,4 @@ function init() {
     }
 }
 
-// Start the application
-console.log("Starting application...");
 document.addEventListener('DOMContentLoaded', init);

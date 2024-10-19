@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,73 +8,117 @@
     <link href="styles.css" rel="stylesheet">
 </head>
 <body>
-    <h1 class="text-center text-white mt-4">Intelligent System Model with Animation</h1>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Intelligent System Model with Animation</h1>
 
-    <div id="dashboard" class="container-fluid mb-3">
-        <!-- System Section -->
-        <div id="system-section" class="dashboard-section">
-            <h2>System</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <span>Perimeter:</span>
-                    <span id="system-perimeter" class="editable" data-system="perimeter"></span>
+        <div id="dashboard" class="row g-4 mb-4">
+            <!-- System Section -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">System</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <p>Perimeter: <span id="system-perimeter" class="editable" data-system="perimeter"></span></p>
+                            </div>
+                            <div class="col-6">
+                                <p>Area: <span id="system-area" class="editable" data-area="system"></span></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <span>Area:</span>
-                    <span id="system-area" class="editable" data-area="system"></span>
+            </div>
+
+            <!-- Channels Section -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Channels</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p>NC1 (N1-N2): <span id="length-nc1" class="editable" data-edge="nc1"></span></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p>NC2 (N1-N3): <span id="length-nc2" class="editable" data-edge="nc2"></span></p>
+                            </div>
+                            <div class="col-md-4">
+                                <p>NC3 (N2-N3): <span id="length-nc3" class="editable" data-edge="nc3"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nodes Section -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Nodes</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p>N1 Angle: <span id="angle-n1" class="editable" data-node="n1" data-coord="angle"></span>°</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p>N2 Angle: <span id="angle-n2" class="editable" data-node="n2" data-coord="angle"></span>°</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p>N3 Angle: <span id="angle-n3" class="editable" data-node="n3" data-coord="angle"></span>°</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Centers Section -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Centers</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p>Centroid I: (<span id="centroid-x"></span>, <span id="centroid-y"></span>)</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p>Incenter: (<span id="incenter-x"></span>, <span id="incenter-y"></span>)</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Channels Section -->
-        <div id="channels-section" class="dashboard-section">
-            <h2>Channels</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <span>NC1 (N1-N2):</span>
-                    <span id="length-nc1" class="editable" data-edge="nc1"></span>
-                </div>
-                <div class="col-md-4">
-                    <span>NC2 (N1-N3):</span>
-                    <span id="length-nc2" class="editable" data-edge="nc2"></span>
-                </div>
-                <div class="col-md-4">
-                    <span>NC3 (N2-N3):</span>
-                    <span id="length-nc3" class="editable" data-edge="nc3"></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Nodes Section -->
-        <div id="nodes-section" class="dashboard-section">
-            <h2>Nodes</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <span>N1 Angle:</span>
-                    <span id="angle-n1" class="editable" data-node="n1" data-coord="angle"></span>°
-                </div>
-                <div class="col-md-4">
-                    <span>N2 Angle:</span>
-                    <span id="angle-n2" class="editable" data-node="n2" data-coord="angle"></span>°
-                </div>
-                <div class="col-md-4">
-                    <span>N3 Angle:</span>
-                    <span id="angle-n3" class="editable" data-node="n3" data-coord="angle"></span>°
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="main-content container-fluid">
         <div class="row">
             <div class="col-md-4">
-                <div id="information-panel">
-                    <h2>Information Panel</h2>
-                    <!-- Add information panel content here -->
+                <div id="information-panel" class="card">
+                    <div class="card-header">
+                        <h2 class="card-title h5 mb-0">Information Panel</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="h6">Distances</h3>
+                        <p>d Centroid to Incenter: <span id="d-centroid-incenter">0</span></p>
+                        <h4 class="h6">d Midpoint to Tangent</h4>
+                        <p>NC1: <span id="d-midpoint-tangent-nc1">0</span></p>
+                        <p>NC2: <span id="d-midpoint-tangent-nc2">0</span></p>
+                        <p>NC3: <span id="d-midpoint-tangent-nc3">0</span></p>
+                        
+                        <h3 class="h6 mt-3">Ratios</h3>
+                        <h4 class="h6">r Midpoint to Tangent</h4>
+                        <p>NC1: <span id="r-midpoint-tangent-nc1">0</span></p>
+                        <p>NC2: <span id="r-midpoint-tangent-nc2">0</span></p>
+                        <p>NC3: <span id="r-midpoint-tangent-nc3">0</span></p>
+                    </div>
                 </div>
             </div>
             <div class="col-md-8">
-                <canvas id="canvas" width="1000" height="800"></canvas>
+                <canvas id="canvas" width="1000" height="800" class="img-fluid"></canvas>
             </div>
         </div>
     </div>
