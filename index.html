@@ -5,115 +5,114 @@
     <title>Intelligent System Model with Animation</title>
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <style>
-        /* Add any custom styles here if necessary */
+        .form-control {
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            max-width: 100px;
+        }
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        h3 {
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center my-4">Intelligent System Model with Animation</h1>
+    <div class="container-fluid">
+        <h1 class="text-center my-3">Intelligent System Model with Animation</h1>
 
-        <div id="dashboard" class="bg-dark p-4 rounded mb-4">
-            <div class="row">
-                <div class="col-md-4">
-                    <h3 class="mb-3">System</h3>
-                    <div class="mb-3">
+        <div id="dashboard" class="bg-dark p-3 rounded mb-3">
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <h3 class="mb-2">System</h3>
+                    <div class="mb-2">
                         <label for="system-perimeter" class="form-label">Perimeter:</label>
                         <input id="system-perimeter" type="number" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="system-area" class="form-label">Area:</label>
                         <input id="system-area" type="number" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="subsystems-area" class="form-label">Subsystems Area:</label>
                         <input id="subsystems-area" type="number" class="form-control" readonly>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <h3 class="mb-3">Subsystems</h3>
-                    <div class="mb-3">
-                        <label for="subsystem-1-perimeter" class="form-label">SS1 Perimeter:</label>
-                        <input id="subsystem-1-perimeter" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-1-angle" class="form-label">SS1 Angle:</label>
-                        <input id="subsystem-1-angle" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-2-perimeter" class="form-label">SS2 Perimeter:</label>
-                        <input id="subsystem-2-perimeter" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-2-angle" class="form-label">SS2 Angle:</label>
-                        <input id="subsystem-2-angle" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-3-perimeter" class="form-label">SS3 Perimeter:</label>
-                        <input id="subsystem-3-perimeter" type="number" class="form-control" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-3-angle" class="form-label">SS3 Angle:</label>
-                        <input id="subsystem-3-angle" type="number" class="form-control" readonly>
+                <div class="col-md-2">
+                    <h3 class="mb-2">Subsystems</h3>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label">Perimeter</label>
+                            <input id="subsystem-1-perimeter" type="number" class="form-control mb-1" readonly>
+                            <input id="subsystem-2-perimeter" type="number" class="form-control mb-1" readonly>
+                            <input id="subsystem-3-perimeter" type="number" class="form-control" readonly>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Angle</label>
+                            <input id="subsystem-1-angle" type="number" class="form-control mb-1" readonly>
+                            <input id="subsystem-2-angle" type="number" class="form-control mb-1" readonly>
+                            <input id="subsystem-3-angle" type="number" class="form-control" readonly>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <h3 class="mb-3">Channels</h3>
-                    <div class="mb-3">
+                <div class="col-md-2">
+                    <h3 class="mb-2">Channels</h3>
+                    <div class="mb-2">
                         <label for="edge-nc1" class="form-label">NC1:</label>
                         <input id="edge-nc1" type="number" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="edge-nc2" class="form-label">NC2:</label>
                         <input id="edge-nc2" type="number" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="edge-nc3" class="form-label">NC3:</label>
                         <input id="edge-nc3" type="number" class="form-control" readonly>
                     </div>
                 </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-md-4">
-                    <h3 class="mb-3">Medians</h3>
-                    <div class="mb-3">
+                <div class="col-md-2">
+                    <h3 class="mb-2">Medians</h3>
+                    <div class="mb-2">
                         <label for="median-nc1" class="form-label">NC1 Median:</label>
                         <input id="median-nc1" type="number" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="median-nc2" class="form-label">NC2 Median:</label>
                         <input id="median-nc2" type="number" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="median-nc3" class="form-label">NC3 Median:</label>
                         <input id="median-nc3" type="number" class="form-control" readonly>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <h3 class="mb-3">Nodes</h3>
-                    <div class="mb-3">
+                <div class="col-md-2">
+                    <h3 class="mb-2">Nodes</h3>
+                    <div class="mb-2">
                         <label for="node-n1-angle" class="form-label">N1 Angle:</label>
                         <input id="node-n1-angle" type="number" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="node-n2-angle" class="form-label">N2 Angle:</label>
                         <input id="node-n2-angle" type="number" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="node-n3-angle" class="form-label">N3 Angle:</label>
                         <input id="node-n3-angle" type="number" class="form-control" readonly>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <h3 class="mb-3">Centers</h3>
-                    <div class="mb-3">
+                <div class="col-md-2">
+                    <h3 class="mb-2">Centers</h3>
+                    <div class="mb-2">
                         <label for="centroid-coords" class="form-label">I:</label>
                         <input id="centroid-coords" type="text" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="incenter-coords" class="form-label">IC:</label>
                         <input id="incenter-coords" type="text" class="form-control" readonly>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="i-to-ic" class="form-label">I to IC:</label>
                         <input id="i-to-ic" type="number" class="form-control" readonly>
                     </div>
@@ -122,37 +121,37 @@
         </div>
 
         <!-- Controls Section -->
-        <div class="controls d-flex flex-wrap justify-content-center gap-2 mb-3 mt-4">
+        <div class="controls d-flex flex-wrap justify-content-center gap-2 mb-3">
             <div class="w-100 mb-2">
-                <button id="toggleMidpoints" class="btn btn-info">Midpoints</button>
-                <button id="toggleIncircle" class="btn btn-info">Incircle</button>
-                <button id="toggleIncenter" class="btn btn-info">Incenter</button>
-                <button id="toggleMedians" class="btn btn-info">Medians</button>
-                <button id="toggleAreas" class="btn btn-info">Areas</button>
+                <button id="toggleMidpoints" class="btn btn-info btn-sm">Midpoints</button>
+                <button id="toggleIncircle" class="btn btn-info btn-sm">Incircle</button>
+                <button id="toggleIncenter" class="btn btn-info btn-sm">Incenter</button>
+                <button id="toggleMedians" class="btn btn-info btn-sm">Medians</button>
+                <button id="toggleAreas" class="btn btn-info btn-sm">Areas</button>
             </div>
             <div class="w-100 mb-2">
-                <button id="equilateral" class="btn btn-secondary">Equilateral</button>
-                <button id="isosceles" class="btn btn-secondary">Isosceles</button>
-                <button id="scalene" class="btn btn-secondary">Scalene</button>
-                <button id="right" class="btn btn-secondary">Right</button>
-                <button id="acute" class="btn btn-secondary">Acute</button>
-                <button id="obtuse" class="btn btn-secondary">Obtuse</button>
+                <button id="equilateral" class="btn btn-secondary btn-sm">Equilateral</button>
+                <button id="isosceles" class="btn btn-secondary btn-sm">Isosceles</button>
+                <button id="scalene" class="btn btn-secondary btn-sm">Scalene</button>
+                <button id="right" class="btn btn-secondary btn-sm">Right</button>
+                <button id="acute" class="btn btn-secondary btn-sm">Acute</button>
+                <button id="obtuse" class="btn btn-secondary btn-sm">Obtuse</button>
             </div>
             <div class="w-100">
-                <button id="apply-button" class="btn btn-primary">Apply</button>
-                <button id="export-data" class="btn btn-success">Export Data</button>
+                <button id="apply-button" class="btn btn-primary btn-sm">Apply</button>
+                <button id="export-data" class="btn btn-success btn-sm">Export Data</button>
             </div>
         </div>
 
         <!-- Main Content Container -->
-        <div id="main-content" class="d-flex gap-4">
+        <div id="main-content" class="d-flex gap-3">
             <!-- Canvas Container -->
             <div id="canvas-container" class="flex-grow-1">
                 <canvas id="canvas" width="800" height="600" class="bg-dark rounded"></canvas>
                 <!-- Legend Section -->
-                <div id="legend" class="bg-dark p-3 rounded mt-3">
+                <div id="legend" class="bg-dark p-2 rounded mt-2">
                     <h3>Legend:</h3>
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled small">
                         <li>N1, N2, N3: Main nodes of the triangle</li>
                         <li>I: Centroid of the triangle</li>
                         <li>IC: Incenter of the triangle</li>
