@@ -56,10 +56,18 @@ class TriangleSystem {
                 };
                 break;
             case 'acute':
+                const scale = 300;
+                const a = scale * Math.sin(45 * Math.PI / 180) / Math.sin(75 * Math.PI / 180);
+                const b = scale * Math.sin(60 * Math.PI / 180) / Math.sin(75 * Math.PI / 180);
+                const c = scale;
+
+                const x3 = b * Math.cos(75 * Math.PI / 180);
+                const y3 = b * Math.sin(75 * Math.PI / 180);
+
                 this.system = {
-                    n1: { x: 0, y: 200 },
-                    n2: { x: -120, y: 0 },
-                    n3: { x: 120, y: 0 },
+                    n1: { x: 0, y: 0 },
+                    n2: { x: c, y: 0 },
+                    n3: { x: x3, y: y3 },
                 };
                 break;
             case 'obtuse':
