@@ -242,13 +242,27 @@ class TriangleSystem {
             this.drawAreas(ctx);
         }
 
+        ctx.lineWidth = 2;
+
+        // NC1 (N1 to N2): Red
         ctx.beginPath();
+        ctx.strokeStyle = 'red';
         ctx.moveTo(this.system.n1.x, this.system.n1.y);
         ctx.lineTo(this.system.n2.x, this.system.n2.y);
+        ctx.stroke();
+
+        // NC2 (N1 to N3): Blue
+        ctx.beginPath();
+        ctx.strokeStyle = 'blue';
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
         ctx.lineTo(this.system.n3.x, this.system.n3.y);
-        ctx.closePath();
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // NC3 (N2 to N3): Green
+        ctx.beginPath();
+        ctx.strokeStyle = 'green';
+        ctx.moveTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.n3.x, this.system.n3.y);
         ctx.stroke();
 
         if (this.showConnections) {
@@ -265,8 +279,8 @@ class TriangleSystem {
         }
 
         this.drawNode(ctx, this.system.n1, 'red', 'N1', this.lockedNodes.n1);
-        this.drawNode(ctx, this.system.n2, 'blue', 'N2', this.lockedNodes.n2);
-        this.drawNode(ctx, this.system.n3, 'green', 'N3', this.lockedNodes.n3);
+        this.drawNode(ctx, this.system.n2, 'green', 'N2', this.lockedNodes.n2);
+        this.drawNode(ctx, this.system.n3, 'blue', 'N3', this.lockedNodes.n3);
 
         this.drawNode(ctx, this.system.intelligence, 'white', 'I', this.centroidLocked);
 
