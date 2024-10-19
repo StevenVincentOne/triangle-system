@@ -23,69 +23,71 @@ class TriangleSystem {
     }
 
     initializeSystem(preset = 'equilateral') {
-        const side = 300;
-        const height = (Math.sqrt(3) / 2) * side;
-
         switch (preset) {
             case 'equilateral':
                 this.system = {
-                    n1: { x: 0, y: height },
-                    n2: { x: -side / 2, y: 0 },
-                    n3: { x: side / 2, y: 0 },
+                    n1: { x: 0, y: 173.2 },
+                    n2: { x: -150, y: -86.6 },
+                    n3: { x: 150, y: -86.6 },
                 };
                 break;
             case 'isosceles':
                 this.system = {
-                    n1: { x: 0, y: Math.sqrt(400*400 - 100*100) },
+                    n1: { x: 0, y: 200 },
                     n2: { x: -100, y: 0 },
                     n3: { x: 100, y: 0 },
                 };
                 break;
             case 'scalene':
-                this.system = {
-                    n1: { x: 0, y: 200 },
-                    n2: { x: -120, y: 0 },
-                    n3: { x: 180, y: 0 },
-                };
-                break;
-            case 'right':
-                this.system = {
-                    n1: { x: 0, y: side },
-                    n2: { x: 0, y: 0 },
-                    n3: { x: side, y: 0 },
-                };
-                break;
-            case 'acute':
-                const scale = 300;
-                const a = scale * Math.sin(45 * Math.PI / 180) / Math.sin(75 * Math.PI / 180);
-                const b = scale * Math.sin(60 * Math.PI / 180) / Math.sin(75 * Math.PI / 180);
-                const c = scale;
+                const a = 210; // NC1
+                const b = 270; // NC2
+                const c = 310; // NC3
 
-                const x3 = b * Math.cos(75 * Math.PI / 180);
-                const y3 = b * Math.sin(75 * Math.PI / 180);
+                const cosA = (b*b + c*c - a*a) / (2*b*c);
+                const sinA = Math.sqrt(1 - cosA*cosA);
 
                 this.system = {
                     n1: { x: 0, y: 0 },
                     n2: { x: c, y: 0 },
-                    n3: { x: x3, y: y3 },
+                    n3: { x: b * cosA, y: b * sinA },
+                };
+                break;
+            case 'right':
+                this.system = {
+                    n1: { x: 0, y: 150 },
+                    n2: { x: -150, y: 0 },
+                    n3: { x: 150, y: 0 },
+                };
+                break;
+            case 'acute':
+                const scale = 300;
+                const aAcute = scale * Math.sin(45 * Math.PI / 180) / Math.sin(75 * Math.PI / 180);
+                const bAcute = scale * Math.sin(60 * Math.PI / 180) / Math.sin(75 * Math.PI / 180);
+                const cAcute = scale;
+
+                const x3Acute = bAcute * Math.cos(75 * Math.PI / 180);
+                const y3Acute = bAcute * Math.sin(75 * Math.PI / 180);
+
+                this.system = {
+                    n1: { x: 0, y: 0 },
+                    n2: { x: cAcute, y: 0 },
+                    n3: { x: x3Acute, y: y3Acute },
                 };
                 break;
             case 'obtuse':
                 this.system = {
-                    n1: { x: 50, y: 200 },
+                    n1: { x: 0, y: 100 },
                     n2: { x: -200, y: 0 },
-                    n3: { x: 100, y: 0 },
+                    n3: { x: 50, y: 0 },
                 };
                 break;
-            default:
-                this.system = {
-                    n1: { x: 0, y: height },
-                    n2: { x: -side / 2, y: 0 },
-                    n3: { x: side / 2, y: 0 },
-                };
         }
 
-        this.adjustTriangleToOrigin();
+        this.system.intelligence = {
+            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3,
+        };
+
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
@@ -506,7 +508,7 @@ class TriangleSystem {
             const button = document.querySelector(`#toggle${feature}`);
             if (button) {
                 button.addEventListener('click', () => {
-                    this[`show${feature}`] = !this[`show${feature}`];
+                    this[`show${feature.toLowerCase()}`] = !this[`show${feature.toLowerCase()}`];
                     this.drawSystem();
                 });
             }
@@ -518,6 +520,49 @@ class TriangleSystem {
                 this.applyChanges();
             });
         }
+
+        // Add event listeners for canvas interactions
+        this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        this.canvas.addEventListener('mouseleave', this.handleMouseUp.bind(this));
+    }
+
+    handleMouseDown(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const transformedY = this.canvas.height - y;
+
+        for (const node of ['n1', 'n2', 'n3']) {
+            if (!this.lockedNodes[node] && this.isPointInNode(x - this.canvas.width / 2, transformedY - this.canvas.height / 2, this.system[node])) {
+                this.draggingNode = node;
+                break;
+            }
+        }
+    }
+
+    handleMouseMove(event) {
+        if (this.draggingNode) {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left - this.canvas.width / 2;
+            const y = this.canvas.height - (event.clientY - rect.top) - this.canvas.height / 2;
+
+            this.system[this.draggingNode] = { x, y };
+            this.updateDerivedPoints();
+            this.updateDashboard();
+            this.drawSystem();
+        }
+    }
+
+    handleMouseUp() {
+        this.draggingNode = null;
+    }
+
+    isPointInNode(x, y, node) {
+        const dx = x - node.x;
+        const dy = y - node.y;
+        return dx * dx + dy * dy <= 64; // 8^2, where 8 is the node radius
     }
 
     applyChanges() {
@@ -530,7 +575,6 @@ class TriangleSystem {
             }
         });
 
-        this.adjustTriangleToOrigin();
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
