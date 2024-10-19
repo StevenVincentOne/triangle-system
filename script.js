@@ -274,6 +274,9 @@ class TriangleSystem {
             this.drawNode(ctx, this.system.incenter, 'yellow', 'Incenter', false);
         }
 
+        this.drawAngles(ctx);
+        this.drawEdgeLengths(ctx);
+
         ctx.restore();
     }
 
@@ -287,7 +290,11 @@ class TriangleSystem {
         ctx.font = '14px Arial';
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText(label, point.x + 10, -point.y - 5);
+        if (label === 'N2') {
+            ctx.fillText(label, point.x - 30, -point.y - 5);
+        } else {
+            ctx.fillText(label === 'Incenter' ? 'IC' : label, point.x + 10, -point.y - 5);
+        }
         ctx.restore();
 
         if (locked) {
@@ -381,6 +388,36 @@ class TriangleSystem {
             ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
             ctx.fill();
         });
+    }
+
+    drawAngles(ctx) {
+        const angles = this.calculateAngles();
+        ['n1', 'n2', 'n3'].forEach((node, index) => {
+            const point = this.system[node];
+            const angle = angles[node].toFixed(1) + '°';
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.save();
+            ctx.scale(1, -1);
+            let xOffset = 20, yOffset = -20;
+            if (node === 'n2') xOffset = -40;
+            if (node === 'n3') xOffset = 30;
+            ctx.fillText(angle, point.x + xOffset, -point.y + yOffset);
+            ctx.restore();
+        });
+    }
+
+    drawEdgeLengths(ctx) {
+        const lengths = this.calculateLengths();
+        const midpoints = this.system.midpoints;
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.fillText(lengths.l1.toFixed(0), midpoints.m1.x, -midpoints.m1.y - 10);
+        ctx.fillText(lengths.l2.toFixed(0), midpoints.m2.x + 10, -midpoints.m2.y + 20);
+        ctx.fillText(lengths.l3.toFixed(0), midpoints.m3.x - 30, -midpoints.m3.y + 20);
+        ctx.restore();
     }
 
     calculatePerimeter() {
