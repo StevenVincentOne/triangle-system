@@ -17,75 +17,54 @@
             <div class="row">
                 <div class="col-md-6">
                     <span>Perimeter:</span>
-                    <span class="editable" data-system="perimeter"></span>
+                    <span id="system-perimeter" class="editable" data-system="perimeter"></span>
                 </div>
                 <div class="col-md-6">
                     <span>Area:</span>
-                    <span class="editable" data-area="system"></span>
+                    <span id="system-area" class="editable" data-area="system"></span>
                 </div>
             </div>
-        </div>
-
-        <!-- Subsystems Section -->
-        <div id="subsystems-section" class="dashboard-section">
-            <h2>Subsystems</h2>
-            <div class="row">
-                <div class="col-md-4">Subsystem 1</div>
-                <div class="col-md-4">Subsystem 2</div>
-                <div class="col-md-4">Subsystem 3</div>
-            </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <span>Area:</span>
-                    <span class="editable" data-subsystem="1" data-property="area"></span>
-                </div>
-                <div class="col-md-4">
-                    <span>Area:</span>
-                    <span class="editable" data-subsystem="2" data-property="area"></span>
-                </div>
-                <div class="col-md-4">
-                    <span>Area:</span>
-                    <span class="editable" data-subsystem="3" data-property="area"></span>
-                </div>
-            </div>
-            <!-- Add more rows for Perimeter, Centroid Angle, Adjacent Subangles -->
         </div>
 
         <!-- Channels Section -->
         <div id="channels-section" class="dashboard-section">
             <h2>Channels</h2>
-            <!-- Add channel information here -->
+            <div class="row">
+                <div class="col-md-4">
+                    <span>NC1 (N1-N2):</span>
+                    <span id="length-nc1" class="editable" data-edge="nc1"></span>
+                </div>
+                <div class="col-md-4">
+                    <span>NC2 (N1-N3):</span>
+                    <span id="length-nc2" class="editable" data-edge="nc2"></span>
+                </div>
+                <div class="col-md-4">
+                    <span>NC3 (N2-N3):</span>
+                    <span id="length-nc3" class="editable" data-edge="nc3"></span>
+                </div>
+            </div>
         </div>
 
         <!-- Nodes Section -->
         <div id="nodes-section" class="dashboard-section">
             <h2>Nodes</h2>
-            <!-- Add node information here -->
+            <div class="row">
+                <div class="col-md-4">
+                    <span>N1 Angle:</span>
+                    <span id="angle-n1" class="editable" data-node="n1" data-coord="angle"></span>°
+                </div>
+                <div class="col-md-4">
+                    <span>N2 Angle:</span>
+                    <span id="angle-n2" class="editable" data-node="n2" data-coord="angle"></span>°
+                </div>
+                <div class="col-md-4">
+                    <span>N3 Angle:</span>
+                    <span id="angle-n3" class="editable" data-node="n3" data-coord="angle"></span>°
+                </div>
+            </div>
         </div>
-
-        <!-- Centers Section -->
-        <div id="centers-section" class="dashboard-section">
-            <h2>Centers</h2>
-            <!-- Add center information here -->
-        </div>
     </div>
 
-    <!-- Lock Controls -->
-    <div class="lock-controls container-fluid mb-3">
-        <!-- Add lock controls here -->
-    </div>
-
-    <!-- Controls -->
-    <div class="controls container-fluid mb-3">
-        <!-- Add control buttons here -->
-    </div>
-
-    <!-- Animation Controls -->
-    <div class="animation-controls container-fluid mb-3">
-        <!-- Add animation controls here -->
-    </div>
-
-    <!-- Main Content: Information Panel and Canvas -->
     <div class="main-content container-fluid">
         <div class="row">
             <div class="col-md-4">
@@ -98,11 +77,6 @@
                 <canvas id="canvas" width="1000" height="800"></canvas>
             </div>
         </div>
-    </div>
-
-    <div id="legend" class="container-fluid mb-3">
-        <h3>Legend:</h3>
-        <!-- Add legend content here -->
     </div>
 
     <script src="script.js"></script>
