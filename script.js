@@ -190,6 +190,10 @@ class TriangleSystem {
                 N3: angles.n3.toFixed(2)
             });
 
+            setElementValue('#node-n1-angle', angles.n1.toFixed(2));
+            setElementValue('#node-n2-angle', angles.n2.toFixed(2));
+            setElementValue('#node-n3-angle', angles.n3.toFixed(2));
+
             ['1', '2', '3'].forEach((i) => {
                 const nodeKey = `n${i}`;
                 setElementValue(`#subsystem-${i}-area`, (this.calculateArea() / 3).toFixed(2));
