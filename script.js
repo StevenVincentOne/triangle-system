@@ -66,6 +66,7 @@ function updateDerivedPoints() {
     system.incenter = calculateIncenter();
     system.incircleRadius = calculateIncircleRadius();
     system.tangencyPoints = calculateIncircleTangencyPoints();
+    system.subsystems = calculateSubsystems();
 }
 
 function drawSystem() {
@@ -90,325 +91,39 @@ function drawSystem() {
     ctx.restore();
 }
 
-function drawAxes() {
-    ctx.strokeStyle = 'gray';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(-canvas.width / 2, 0);
-    ctx.lineTo(canvas.width / 2, 0);
-    ctx.moveTo(0, -canvas.height / 2);
-    ctx.lineTo(0, canvas.height / 2);
-    ctx.stroke();
+// ... (keep all other drawing functions as they are)
+
+function calculateSubsystems() {
+    const subsystems = [];
+    
+    // Subsystem 1: N1, N2, I
+    subsystems.push(calculateSubsystem(system.n1, system.n2, system.intelligence, 'N1', 'N2'));
+    
+    // Subsystem 2: N3, N1, I
+    subsystems.push(calculateSubsystem(system.n3, system.n1, system.intelligence, 'N3', 'N1'));
+    
+    // Subsystem 3: N2, N3, I
+    subsystems.push(calculateSubsystem(system.n2, system.n3, system.intelligence, 'N2', 'N3'));
+    
+    return subsystems;
 }
 
-function drawMainTriangle() {
-    ctx.beginPath();
-    ctx.moveTo(system.n1.x, system.n1.y);
-    ctx.lineTo(system.n2.x, system.n2.y);
-    ctx.lineTo(system.n3.x, system.n3.y);
-    ctx.closePath();
-    ctx.strokeStyle = 'white';
-    ctx.stroke();
-}
+function calculateSubsystem(nodeA, nodeB, centroid, labelA, labelB) {
+    const area = Math.abs((nodeA.x * (nodeB.y - centroid.y) + nodeB.x * (centroid.y - nodeA.y) + centroid.x * (nodeA.y - nodeB.y)) / 2);
+    const perimeter = calculateDistance(nodeA, nodeB) + calculateDistance(nodeB, centroid) + calculateDistance(centroid, nodeA);
+    const centroidAngle = calculateAngle(nodeA, centroid, nodeB);
+    const adjSubangleA = calculateAngle(centroid, nodeA, nodeB);
+    const adjSubangleB = calculateAngle(nodeA, nodeB, centroid);
 
-function drawSubtriangles() {
-    const subtriangles = [
-        { points: [system.n1, system.n2, system.intelligence], color: 'rgba(255, 0, 0, 0.3)' },
-        { points: [system.n3, system.n1, system.intelligence], color: 'rgba(0, 255, 0, 0.3)' },
-        { points: [system.n2, system.n3, system.intelligence], color: 'rgba(0, 0, 255, 0.3)' },
-    ];
-
-    subtriangles.forEach((tri) => {
-        ctx.beginPath();
-        ctx.moveTo(tri.points[0].x, tri.points[0].y);
-        ctx.lineTo(tri.points[1].x, tri.points[1].y);
-        ctx.lineTo(tri.points[2].x, tri.points[2].y);
-        ctx.closePath();
-        ctx.fillStyle = tri.color;
-        ctx.fill();
-    });
-}
-
-function drawConnections() {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(system.n1.x, system.n1.y);
-    ctx.lineTo(system.intelligence.x, system.intelligence.y);
-    ctx.moveTo(system.n2.x, system.n2.y);
-    ctx.lineTo(system.intelligence.x, system.intelligence.y);
-    ctx.moveTo(system.n3.x, system.n3.y);
-    ctx.lineTo(system.intelligence.x, system.intelligence.y);
-    ctx.stroke();
-}
-
-function drawMidpoints() {
-    ctx.fillStyle = 'yellow';
-    ctx.strokeStyle = 'yellow';
-    ctx.setLineDash([5, 5]);
-
-    for (let key of ['m1', 'm2', 'm3']) {
-        const midpoint = system.midpoints[key];
-        ctx.beginPath();
-        ctx.arc(midpoint.x, midpoint.y, 5, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(system.intelligence.x, system.intelligence.y);
-        ctx.lineTo(midpoint.x, midpoint.y);
-        ctx.stroke();
-    }
-
-    ctx.setLineDash([]);
-}
-
-function drawIncircle() {
-    ctx.strokeStyle = 'cyan';
-    ctx.beginPath();
-    ctx.arc(system.incenter.x, system.incenter.y, system.incircleRadius, 0, 2 * Math.PI);
-    ctx.stroke();
-}
-
-function drawTangencyPoints() {
-    ctx.fillStyle = 'lightblue';
-    system.tangencyPoints.forEach(point => {
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
-        ctx.fill();
-    });
-}
-
-function drawNodes() {
-    drawNode(system.n1, 'red', 'N1');
-    drawNode(system.n2, 'blue', 'N2');
-    drawNode(system.n3, 'green', 'N3');
-    drawNode(system.intelligence, 'white', 'I');
-}
-
-function drawNode(point, color, label) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = 'white';
-    ctx.font = '12px Arial';
-    ctx.fillText(label, point.x + 8, point.y + 8);
-}
-
-function drawIncenter() {
-    drawNode(system.incenter, 'cyan', 'Incenter');
-}
-
-function displayInfo() {
-    const angles = calculateAngles();
-    const lengths = calculateLengths();
-
-    ctx.save();
-    ctx.scale(1, -1);
-    ctx.fillStyle = 'white';
-    ctx.font = '14px Arial';
-
-    ctx.fillText('N1', system.n1.x - 10, -system.n1.y - 25);
-    ctx.fillText(`${angles.n1.toFixed(1)}°`, system.n1.x - 10, -system.n1.y - 10);
-
-    ctx.fillText('N2', system.n2.x - 50, -system.n2.y + 5);
-    ctx.fillText(`${angles.n2.toFixed(1)}°`, system.n2.x - 50, -system.n2.y + 20);
-
-    ctx.fillText('N3', system.n3.x + 10, -system.n3.y + 5);
-    ctx.fillText(`${angles.n3.toFixed(1)}°`, system.n3.x + 10, -system.n3.y + 20);
-
-    const midPointNC1 = {
-        x: (system.n1.x + system.n2.x) / 2,
-        y: (system.n1.y + system.n2.y) / 2,
-    };
-    ctx.fillText(`NC1`, midPointNC1.x - 40, -midPointNC1.y + 20);
-    ctx.fillText(`${lengths.l3.toFixed(1)}`, midPointNC1.x - 40, -midPointNC1.y + 35);
-
-    const midPointNC2 = {
-        x: (system.n1.x + system.n3.x) / 2,
-        y: (system.n1.y + system.n3.y) / 2,
-    };
-    ctx.fillText(`NC2`, midPointNC2.x + 10, -midPointNC2.y - 10);
-    ctx.fillText(`${lengths.l2.toFixed(1)}`, midPointNC2.x + 10, -midPointNC2.y + 5);
-
-    const midPointNC3 = {
-        x: (system.n2.x + system.n3.x) / 2,
-        y: (system.n2.y + system.n3.y) / 2,
-    };
-    ctx.fillText(`NC3`, midPointNC3.x - 50, -midPointNC3.y + 20);
-    ctx.fillText(`${lengths.l1.toFixed(1)}`, midPointNC3.x - 50, -midPointNC3.y + 35);
-
-    ctx.restore();
-}
-
-function calculateAngles() {
     return {
-        n1: calculateAngle(system.n2, system.n1, system.n3),
-        n2: calculateAngle(system.n3, system.n2, system.n1),
-        n3: calculateAngle(system.n1, system.n3, system.n2),
+        area,
+        perimeter,
+        centroidAngle,
+        adjSubangleA,
+        adjSubangleB,
+        labelA,
+        labelB,
     };
-}
-
-function calculateAngle(p1, p2, p3) {
-    const v1 = { x: p1.x - p2.x, y: p1.y - p2.y };
-    const v2 = { x: p3.x - p2.x, y: p3.y - p2.y };
-    const dot = v1.x * v2.x + v1.y * v2.y;
-    const cross = v1.x * v2.y - v1.y * v2.x;
-    let angle = Math.atan2(Math.abs(cross), dot) * (180 / Math.PI);
-    return Math.abs(angle) < EPSILON || Math.abs(180 - angle) < EPSILON ? 0 : angle;
-}
-
-function calculateDistance(p1, p2) {
-    return Math.hypot(p1.x - p2.x, p1.y - p2.y);
-}
-
-function calculateLengths() {
-    return {
-        l1: calculateDistance(system.n2, system.n3),
-        l2: calculateDistance(system.n1, system.n3),
-        l3: calculateDistance(system.n1, system.n2),
-    };
-}
-
-function calculateIncenter() {
-    const a = calculateDistance(system.n2, system.n3);
-    const b = calculateDistance(system.n1, system.n3);
-    const c = calculateDistance(system.n1, system.n2);
-    const perimeter = a + b + c;
-    const x = (a * system.n1.x + b * system.n2.x + c * system.n3.x) / perimeter;
-    const y = (a * system.n1.y + b * system.n2.y + c * system.n3.y) / perimeter;
-    return { x, y };
-}
-
-function calculateIncircleRadius() {
-    const a = calculateDistance(system.n2, system.n3);
-    const b = calculateDistance(system.n1, system.n3);
-    const c = calculateDistance(system.n1, system.n2);
-    const s = (a + b + c) / 2;
-    const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-    return (2 * area) / (a + b + c);
-}
-
-function calculateIncircleTangencyPoints() {
-    const { n1, n2, n3, incenter } = system;
-
-    function tangencyPoint(p1, p2) {
-        const a = calculateDistance(p1, p2);
-        const b = calculateDistance(incenter, p1);
-        const c = calculateDistance(incenter, p2);
-        const s = (a + b + c) / 2;
-        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-        const h = (2 * area) / a;
-
-        const vx = p2.x - p1.x;
-        const vy = p2.y - p1.y;
-        const length = Math.sqrt(vx * vx + vy * vy);
-        const ux = vx / length;
-        const uy = vy / length;
-
-        return {
-            x: p1.x + ux * (a - h),
-            y: p1.y + uy * (a - h)
-        };
-    }
-
-    return [
-        tangencyPoint(n2, n3),
-        tangencyPoint(n1, n3),
-        tangencyPoint(n1, n2)
-    ];
-}
-
-function addEventListeners() {
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
-}
-
-function handleMouseDown(event) {
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left - canvas.width / 2;
-    const y = canvas.height / 2 - (event.clientY - rect.top);
-
-    for (let node of ['n1', 'n2', 'n3']) {
-        if (isPointNearNode(x, y, system[node]) && !lockedNodes[node]) {
-            draggingNode = node;
-            return;
-        }
-    }
-
-    if (isPointNearNode(x, y, system.intelligence) && !centroidLocked) {
-        draggingCentroid = true;
-    }
-}
-
-function handleMouseMove(event) {
-    if (!draggingNode && !draggingCentroid) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left - canvas.width / 2;
-    const y = canvas.height / 2 - (event.clientY - rect.top);
-
-    if (draggingNode) {
-        system[draggingNode] = { x, y };
-    } else if (draggingCentroid) {
-        const dx = x - system.intelligence.x;
-        const dy = y - system.intelligence.y;
-        for (let node of ['n1', 'n2', 'n3']) {
-            if (!lockedNodes[node]) {
-                system[node].x += dx;
-                system[node].y += dy;
-            }
-        }
-    }
-
-    updateDerivedPoints();
-    updateDashboard();
-    drawSystem();
-}
-
-function handleMouseUp() {
-    draggingNode = null;
-    draggingCentroid = false;
-}
-
-function isPointNearNode(x, y, node) {
-    const distance = Math.hypot(x - node.x, y - node.y);
-    return distance < 10;
-}
-
-function startAnimation() {
-    if (animationRequestId) {
-        cancelAnimationFrame(animationRequestId);
-    }
-    animationStartTime = null;
-    animate();
-}
-
-function animate(timestamp) {
-    if (!animationStartTime) animationStartTime = timestamp;
-    const progress = (timestamp - animationStartTime) / animationDuration;
-
-    if (progress < 1) {
-        const t = easeInOutCubic(progress);
-        const value = animationStartValue + (animationEndValue - animationStartValue) * t;
-        system[animationParameter] = value;
-
-        updateDerivedPoints();
-        updateDashboard();
-        drawSystem();
-
-        animationRequestId = requestAnimationFrame(animate);
-    } else {
-        system[animationParameter] = animationEndValue;
-        updateDerivedPoints();
-        updateDashboard();
-        drawSystem();
-    }
-}
-
-function easeInOutCubic(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
 function updateDashboard() {
@@ -433,43 +148,20 @@ function updateDashboard() {
     updateElementContent('incenter-x', system.incenter.x.toFixed(1));
     updateElementContent('incenter-y', system.incenter.y.toFixed(1));
 
+    // Update subsystems information
+    system.subsystems.forEach((subsystem, index) => {
+        const i = index + 1;
+        updateElementContent(`subsystem${i}-area`, subsystem.area.toFixed(1));
+        updateElementContent(`subsystem${i}-perimeter`, subsystem.perimeter.toFixed(1));
+        updateElementContent(`subsystem${i}-centroid-angle`, subsystem.centroidAngle.toFixed(1));
+        updateElementContent(`subsystem${i}-adj-subangle-a`, subsystem.adjSubangleA.toFixed(1));
+        updateElementContent(`subsystem${i}-adj-subangle-b`, subsystem.adjSubangleB.toFixed(1));
+    });
+
     updateInformationPanel();
 }
 
-function updateElementContent(id, content) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.textContent = content;
-    } else {
-        console.warn(`Element with id '${id}' not found`);
-    }
-}
-
-function calculateArea() {
-    const { n1, n2, n3 } = system;
-    return Math.abs((n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y)) / 2);
-}
-
-function calculatePerimeter() {
-    const lengths = calculateLengths();
-    return lengths.l1 + lengths.l2 + lengths.l3;
-}
-
-function updateInformationPanel() {
-    const centroidToIncenter = calculateDistance(system.intelligence, system.incenter);
-    updateElementContent('d-centroid-incenter', centroidToIncenter.toFixed(2));
-
-    const midpoints = [system.midpoints.m1, system.midpoints.m2, system.midpoints.m3];
-    const tangencyPoints = system.tangencyPoints;
-
-    for (let i = 0; i < 3; i++) {
-        const distanceToTangent = calculateDistance(midpoints[i], tangencyPoints[i]);
-        const ratio = distanceToTangent / calculateDistance(system[`n${i + 1}`], midpoints[i]);
-
-        updateElementContent(`d-midpoint-tangent-nc${i + 1}`, distanceToTangent.toFixed(2));
-        updateElementContent(`r-midpoint-tangent-nc${i + 1}`, ratio.toFixed(2));
-    }
-}
+// ... (keep all other functions as they are)
 
 function init() {
     console.log("Initializing system...");
