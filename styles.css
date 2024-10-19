@@ -1,0 +1,77 @@
+body {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    font-family: Arial, sans-serif;
+}
+
+#dashboard {
+    background-color: var(--bs-gray-800);
+}
+
+.dashboard-section {
+    background-color: var(--bs-gray-700);
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.dashboard-section h2 {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.editable {
+    background-color: var(--bs-gray-600);
+    border: 1px solid var(--bs-gray-500);
+    color: var(--bs-light);
+    padding: 2px 5px;
+    margin: 0 5px;
+    width: 60px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+canvas {
+    background-color: var(--bs-dark);
+    margin-bottom: 20px;
+    cursor: default;
+}
+
+.preset-button {
+    background-color: var(--bs-yellow);
+    color: var(--bs-dark);
+}
+
+#legend {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 800px;
+}
+
+#information-panel {
+    background-color: var(--bs-gray-700);
+    padding: 20px;
+    border-radius: 5px;
+    max-height: 800px;
+    overflow-y: auto;
+}
+
+#information-panel h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+#information-panel .info-section {
+    margin-bottom: 20px;
+}
+
+#information-panel h3,
+#information-panel h4 {
+    margin-bottom: 10px;
+}
+
+#information-panel p {
+    margin: 5px 0;
+    font-size: 14px;
+}

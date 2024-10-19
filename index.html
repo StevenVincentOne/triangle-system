@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent System Model with Animation</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <h1 class="text-center text-white mt-4">Intelligent System Model with Animation</h1>
+
+    <div id="dashboard" class="container-fluid mb-3">
+        <!-- System Section -->
+        <div id="system-section" class="dashboard-section">
+            <h2>System</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <span>Perimeter:</span>
+                    <span class="editable" data-system="perimeter"></span>
+                </div>
+                <div class="col-md-6">
+                    <span>Area:</span>
+                    <span class="editable" data-area="system"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subsystems Section -->
+        <div id="subsystems-section" class="dashboard-section">
+            <h2>Subsystems</h2>
+            <div class="row">
+                <div class="col-md-4">Subsystem 1</div>
+                <div class="col-md-4">Subsystem 2</div>
+                <div class="col-md-4">Subsystem 3</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <span>Area:</span>
+                    <span class="editable" data-subsystem="1" data-property="area"></span>
+                </div>
+                <div class="col-md-4">
+                    <span>Area:</span>
+                    <span class="editable" data-subsystem="2" data-property="area"></span>
+                </div>
+                <div class="col-md-4">
+                    <span>Area:</span>
+                    <span class="editable" data-subsystem="3" data-property="area"></span>
+                </div>
+            </div>
+            <!-- Add more rows for Perimeter, Centroid Angle, Adjacent Subangles -->
+        </div>
+
+        <!-- Channels Section -->
+        <div id="channels-section" class="dashboard-section">
+            <h2>Channels</h2>
+            <!-- Add channel information here -->
+        </div>
+
+        <!-- Nodes Section -->
+        <div id="nodes-section" class="dashboard-section">
+            <h2>Nodes</h2>
+            <!-- Add node information here -->
+        </div>
+
+        <!-- Centers Section -->
+        <div id="centers-section" class="dashboard-section">
+            <h2>Centers</h2>
+            <!-- Add center information here -->
+        </div>
+    </div>
+
+    <!-- Lock Controls -->
+    <div class="lock-controls container-fluid mb-3">
+        <!-- Add lock controls here -->
+    </div>
+
+    <!-- Controls -->
+    <div class="controls container-fluid mb-3">
+        <!-- Add control buttons here -->
+    </div>
+
+    <!-- Animation Controls -->
+    <div class="animation-controls container-fluid mb-3">
+        <!-- Add animation controls here -->
+    </div>
+
+    <!-- Main Content: Information Panel and Canvas -->
+    <div class="main-content container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <div id="information-panel">
+                    <h2>Information Panel</h2>
+                    <!-- Add information panel content here -->
+                </div>
+            </div>
+            <div class="col-md-8">
+                <canvas id="canvas" width="1000" height="800"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div id="legend" class="container-fluid mb-3">
+        <h3>Legend:</h3>
+        <!-- Add legend content here -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
