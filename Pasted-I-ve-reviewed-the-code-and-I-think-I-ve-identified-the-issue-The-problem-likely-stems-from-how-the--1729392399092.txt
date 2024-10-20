@@ -1,0 +1,58 @@
+I've reviewed the code and I think I've identified the issue. The problem likely stems from how the input fields are being set up and styled. Let's look at a few key areas:
+
+HTML Setup:
+In the index.html file, the input fields are set up with a size attribute of 12:
+
+<input id="system-perimeter" type="text" class="form-control" size="12" readonly>
+This is correct, but it might be overridden by CSS.
+
+CSS Styling:
+The Bootstrap CSS (which you're using based on the form-control class) might be overriding the size attribute. Bootstrap typically sets input widths to 100% of their container.
+
+JavaScript Validation:
+In the script.js file, there's a function that checks the input fields:
+
+function checkInputFields() {
+    const inputFields = document.querySelectorAll('input[type="text"]');
+    inputFields.forEach(field => {
+        if (field.size !== 12 || !field.readOnly) {
+            console.warn(`Input field ${field.id} has incorrect attributes. Size: ${field.size}, ReadOnly: ${field.readOnly}`);
+        }
+    });
+}
+This function is correctly checking for a size of 12, but it's only logging a warning if the size is incorrect.
+
+To fix this issue:
+
+Ensure all input fields in the HTML have size="12" and readonly attributes.
+
+Override Bootstrap's CSS for these specific inputs. Add this to your CSS:
+
+input[type="text"].form-control {
+    width: auto;
+    display: inline-block;
+}
+Modify the checkInputFields function to actually set the size if it's incorrect:
+
+function checkInputFields() {
+    const inputFields = document.querySelectorAll('input[type="text"]');
+    inputFields.forEach(field => {
+        if (field.size !== 12 || !field.readOnly) {
+            console.warn(`Correcting input field ${field.id}. Old Size: ${field.size}, ReadOnly: ${field.readOnly}`);
+            field.size = 12;
+            field.readOnly = true;
+        }
+    });
+}
+Make sure the checkInputFields function is being called after the DOM is loaded:
+
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.querySelector('#canvas');
+    if (canvas) {
+        window.triangleSystem = new TriangleSystem(canvas);
+        checkInputFields();
+    } else {
+        console.error("Canvas element not found");
+    }
+});
+These changes should ensure that all text input fields in your dashboard are set to 12 characters in length and are readonly. The CSS change will override Bootstrap's default styling, and the modified JavaScript will correct any fields that don't meet these criteria.

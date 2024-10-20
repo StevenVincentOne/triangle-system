@@ -649,7 +649,9 @@ function checkInputFields() {
     const inputFields = document.querySelectorAll('input[type="text"]');
     inputFields.forEach(field => {
         if (field.size !== 12 || !field.readOnly) {
-            console.warn(`Input field ${field.id} has incorrect attributes. Size: ${field.size}, ReadOnly: ${field.readOnly}`);
+            console.warn(`Correcting input field ${field.id}. Old Size: ${field.size}, ReadOnly: ${field.readOnly}`);
+            field.size = 12;
+            field.readOnly = true;
         }
     });
 }
