@@ -137,48 +137,84 @@ class TriangleSystem {
     }
 
     updateDashboard() {
+        const setElementValue = (selector, value, label = '') => {
+            const element = document.querySelector(selector);
+            if (element) {
+                const formattedValue = this.formatValue(value);
+                element.value = formattedValue;
+                element.style.width = `${formattedValue.length + 2}ch`;
+                if (label) {
+                    const labelElement = element.previousElementSibling;
+                    if (labelElement) {
+                        labelElement.textContent = label;
+                        labelElement.classList.add('text-center');
+                    }
+                }
+                console.log(`Set ${selector} to ${formattedValue}`);
+            } else {
+                console.warn(`Element not found: ${selector}`);
+            }
+        };
+
+        const setSpanText = (selector, value, label = '') => {
+            const element = document.querySelector(selector);
+            if (element) {
+                const formattedValue = this.formatValue(value);
+                element.textContent = formattedValue;
+                if (label) {
+                    const labelElement = element.previousElementSibling;
+                    if (labelElement) {
+                        labelElement.textContent = label;
+                    }
+                }
+                console.log(`Set ${selector} to ${formattedValue}`);
+            } else {
+                console.warn(`Element not found: ${selector}`);
+            }
+        };
+
         const totalArea = this.calculateArea();
         const subsystemArea = totalArea / 3;
 
-        this.setElementValue('#system-perimeter', this.calculatePerimeter(), 'P:');
-        this.setElementValue('#system-area', totalArea, 'A:');
-        this.setElementValue('#subsystems-area', subsystemArea, 'Subsystems A:');
+        setElementValue('#system-perimeter', this.calculatePerimeter(), 'P:');
+        setElementValue('#system-area', totalArea, 'A:');
+        setElementValue('#subsystems-area', subsystemArea, 'Subsystems A:');
 
         ['n1', 'n2', 'n3'].forEach(node => {
-            this.setElementValue(`#node-${node}-x`, this.system[node].x, `${node.toUpperCase()} X:`);
-            this.setElementValue(`#node-${node}-y`, this.system[node].y, `${node.toUpperCase()} Y:`);
-            this.setElementValue(`#node-${node}-angle`, this.calculateAngles()[node], `${node.toUpperCase()} ∠:`);
+            setElementValue(`#node-${node}-x`, this.system[node].x, `${node.toUpperCase()} X:`);
+            setElementValue(`#node-${node}-y`, this.system[node].y, `${node.toUpperCase()} Y:`);
+            setElementValue(`#node-${node}-angle`, this.calculateAngles()[node], `${node.toUpperCase()} ∠:`);
         });
 
         const lengths = this.calculateLengths();
-        this.setElementValue('#edge-nc1', lengths.l1, 'NC1:');
-        this.setElementValue('#edge-nc2', lengths.l2, 'NC2:');
-        this.setElementValue('#edge-nc3', lengths.l3, 'NC3:');
+        setElementValue('#edge-nc1', lengths.l1, 'NC1:');
+        setElementValue('#edge-nc2', lengths.l2, 'NC2:');
+        setElementValue('#edge-nc3', lengths.l3, 'NC3:');
 
-        this.setElementValue('#centroid-x', this.system.intelligence.x, 'Centroid X:');
-        this.setElementValue('#centroid-y', this.system.intelligence.y, 'Centroid Y:');
-        this.setElementValue('#incenter-x', this.system.incenter.x, 'Incenter X:');
-        this.setElementValue('#incenter-y', this.system.incenter.y, 'Incenter Y:');
+        setElementValue('#centroid-x', this.system.intelligence.x, 'Centroid X:');
+        setElementValue('#centroid-y', this.system.intelligence.y, 'Centroid Y:');
+        setElementValue('#incenter-x', this.system.incenter.x, 'Incenter X:');
+        setElementValue('#incenter-y', this.system.incenter.y, 'Incenter Y:');
 
         const angles = this.calculateAngles();
         ['1', '2', '3'].forEach((i) => {
-            this.setElementValue(`#subsystem-${i}-area`, subsystemArea);
-            this.setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2, 'P:');
-            this.setElementValue(`#subsystem-${i}-angle`, angles[`n${i}`] / 2, '∠:');
+            setElementValue(`#subsystem-${i}-area`, subsystemArea);
+            setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2, 'P:');
+            setElementValue(`#subsystem-${i}-angle`, angles[`n${i}`] / 2, '∠:');
         });
 
-        this.setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter), 'd Centroid to Incircle:');
+        setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter), 'd Centroid to Incircle:');
 
         const midpoints = this.system.midpoints;
         const tangencyPoints = this.system.tangencyPoints;
         
-        this.setSpanText('#d-mid-nc1', this.calculateDistance(midpoints.m1, tangencyPoints[0]), 'NC1:');
-        this.setSpanText('#d-mid-nc2', this.calculateDistance(midpoints.m2, tangencyPoints[1]), 'NC2:');
-        this.setSpanText('#d-mid-nc3', this.calculateDistance(midpoints.m3, tangencyPoints[2]), 'NC3:');
+        setSpanText('#d-mid-nc1', this.calculateDistance(midpoints.m1, tangencyPoints[0]), 'NC1:');
+        setSpanText('#d-mid-nc2', this.calculateDistance(midpoints.m2, tangencyPoints[1]), 'NC2:');
+        setSpanText('#d-mid-nc3', this.calculateDistance(midpoints.m3, tangencyPoints[2]), 'NC3:');
 
-        this.setSpanText('#r-mid-nc1', this.calculateDistance(this.system.incenter, midpoints.m1), 'NC1:');
-        this.setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2), 'NC2:');
-        this.setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3), 'NC3:');
+        setSpanText('#r-mid-nc1', this.calculateDistance(this.system.incenter, midpoints.m1), 'NC1:');
+        setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2), 'NC2:');
+        setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3), 'NC3:');
     }
 
     formatValue(value) {
@@ -187,52 +223,13 @@ class TriangleSystem {
                 return value.toExponential(5).substring(0, 11);
             } else {
                 const formattedValue = value.toFixed(2);
-                if (document.activeElement && document.activeElement.classList.contains('angle-input')) {
+                if (document.querySelector('.angle-input') && document.querySelector('.angle-input').id === event.target.id) {
                     return `${formattedValue}°`;
                 }
                 return formattedValue;
             }
         }
         return value.toString().substring(0, 11);
-    }
-
-    setElementValue(selector, value, label = '') {
-        const element = document.querySelector(selector);
-        if (element) {
-            const formattedValue = this.formatValue(value);
-            element.value = formattedValue;
-            element.style.width = `${formattedValue.length + 2}ch`;
-            if (label) {
-                const labelElement = element.previousElementSibling;
-                if (labelElement) {
-                    labelElement.textContent = label;
-                }
-            }
-            const headerElement = element.closest('.dashboard-panel').querySelector('h3');
-            if (headerElement) {
-                headerElement.classList.add('text-center');
-            }
-            console.log(`Set ${selector} to ${formattedValue}`);
-        } else {
-            console.warn(`Element not found: ${selector}`);
-        }
-    }
-
-    setSpanText(selector, value, label = '') {
-        const element = document.querySelector(selector);
-        if (element) {
-            const formattedValue = this.formatValue(value);
-            element.textContent = formattedValue;
-            if (label) {
-                const labelElement = element.previousElementSibling;
-                if (labelElement) {
-                    labelElement.textContent = label;
-                }
-            }
-            console.log(`Set ${selector} to ${formattedValue}`);
-        } else {
-            console.warn(`Element not found: ${selector}`);
-        }
     }
 
     drawSystem() {
