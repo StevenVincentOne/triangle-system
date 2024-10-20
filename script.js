@@ -16,6 +16,10 @@ class TriangleSystem {
         this.initializeSystem('equilateral');
     }
 
+    roundToZero(value, epsilon = 1e-10) {
+        return Math.abs(value) < epsilon ? 0 : value;
+    }
+
     initializeSystem(preset = 'equilateral') {
         const side = 300;
         const height = (Math.sqrt(3) / 2) * side;
@@ -146,7 +150,7 @@ class TriangleSystem {
                 if (label) {
                     const labelElement = element.previousElementSibling;
                     if (labelElement) {
-                        labelElement.textContent = label.replace(':', ''); // Remove colon if present
+                        labelElement.textContent = label.replace(':', '');
                     }
                 }
                 console.log(`Set ${selector} to ${formattedValue}`);
@@ -183,10 +187,13 @@ class TriangleSystem {
             setElementValue(`#node-${node}-angle`, `${angles[node].toFixed(2)}°`, `${node.toUpperCase()} ∠:`);
         });
 
-        setElementValue('#centroid-coords', `${this.formatValue(this.system.intelligence.x)}, ${this.formatValue(this.system.intelligence.y)}`, 'I x, y');
-        setElementValue('#incenter-coords', `${this.formatValue(this.system.incenter.x)}, ${this.formatValue(this.system.incenter.y)}`, 'IC x, y');
+        setElementValue('#centroid-coords', `${this.formatValue(this.roundToZero(this.system.intelligence.x))}, ${this.formatValue(this.roundToZero(this.system.intelligence.y))}`, 'I x,y');
+        setElementValue('#incenter-coords', `${this.formatValue(this.roundToZero(this.system.incenter.x))}, ${this.formatValue(this.roundToZero(this.system.incenter.y))}`, 'IC x,y');
 
-        const iToIcDistance = this.calculateDistance(this.system.intelligence, this.system.incenter);
+        const iToIcDistance = this.calculateDistance(
+            {x: this.roundToZero(this.system.intelligence.x), y: this.roundToZero(this.system.intelligence.y)},
+            {x: this.roundToZero(this.system.incenter.x), y: this.roundToZero(this.system.incenter.y)}
+        );
         setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC)');
     }
 
@@ -441,7 +448,9 @@ class TriangleSystem {
     }
 
     calculateDistance(p1, p2) {
-        return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+        const dx = this.roundToZero(p2.x - p1.x);
+        const dy = this.roundToZero(p2.y - p1.y);
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     calculateAngles() {
@@ -643,11 +652,12 @@ class TriangleSystem {
         return distance <= 8;
     }
 }
+
 function checkInputFields() {
     const inputFields = document.querySelectorAll('input[type="text"]');
     inputFields.forEach(field => {
         const contentLength = field.value.length;
-        const newSize = Math.max(contentLength, 6); // No added padding, minimum size of 6
+        const newSize = Math.max(contentLength, 6);
         if (field.size !== newSize || !field.readOnly) {
             console.warn(`Adjusting input field ${field.id}. Old Size: ${field.size}, New Size: ${newSize}, ReadOnly: ${field.readOnly}`);
             field.size = newSize;
