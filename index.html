@@ -111,36 +111,24 @@
                 <div class="col-md-3 dashboard-panel">
                     <h3 class="mb-3">Nodes</h3>
                     <div class="mb-2 label-value-pair">
-                        <label for="node-n1-x" class="form-label me-2">N1 X:</label>
-                        <input id="node-n1-x" type="text" class="form-control" size="11" readonly>
-                    </div>
-                    <div class="mb-2 label-value-pair">
-                        <label for="node-n1-y" class="form-label me-2">N1 Y:</label>
-                        <input id="node-n1-y" type="text" class="form-control" size="11" readonly>
+                        <label for="node-n1-coords" class="form-label me-2">N1 (x, y):</label>
+                        <input id="node-n1-coords" type="text" class="form-control" size="11" readonly>
                     </div>
                     <div class="mb-2 label-value-pair">
                         <label for="node-n1-angle" class="form-label me-2">N1 ∠:</label>
                         <input id="node-n1-angle" type="text" class="form-control angle-input" size="11" readonly>
                     </div>
                     <div class="mb-2 label-value-pair">
-                        <label for="node-n2-x" class="form-label me-2">N2 X:</label>
-                        <input id="node-n2-x" type="text" class="form-control" size="11" readonly>
-                    </div>
-                    <div class="mb-2 label-value-pair">
-                        <label for="node-n2-y" class="form-label me-2">N2 Y:</label>
-                        <input id="node-n2-y" type="text" class="form-control" size="11" readonly>
+                        <label for="node-n2-coords" class="form-label me-2">N2 (x, y):</label>
+                        <input id="node-n2-coords" type="text" class="form-control" size="11" readonly>
                     </div>
                     <div class="mb-2 label-value-pair">
                         <label for="node-n2-angle" class="form-label me-2">N2 ∠:</label>
                         <input id="node-n2-angle" type="text" class="form-control angle-input" size="11" readonly>
                     </div>
                     <div class="mb-2 label-value-pair">
-                        <label for="node-n3-x" class="form-label me-2">N3 X:</label>
-                        <input id="node-n3-x" type="text" class="form-control" size="11" readonly>
-                    </div>
-                    <div class="mb-2 label-value-pair">
-                        <label for="node-n3-y" class="form-label me-2">N3 Y:</label>
-                        <input id="node-n3-y" type="text" class="form-control" size="11" readonly>
+                        <label for="node-n3-coords" class="form-label me-2">N3 (x, y):</label>
+                        <input id="node-n3-coords" type="text" class="form-control" size="11" readonly>
                     </div>
                     <div class="mb-2 label-value-pair">
                         <label for="node-n3-angle" class="form-label me-2">N3 ∠:</label>
@@ -245,6 +233,25 @@
 
         <div id="canvas-container" class="bg-dark p-4 rounded mb-4">
             <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+
+        <!-- Legends Panel -->
+        <div class="bg-dark p-4 rounded mb-4">
+            <h3 class="mb-3">Legends</h3>
+            <div class="row">
+                <div class="col-md-3">
+                    <p>P: Perimeter</p>
+                </div>
+                <div class="col-md-3">
+                    <p>A: Area</p>
+                </div>
+                <div class="col-md-3">
+                    <p>SS: Subsystem</p>
+                </div>
+                <div class="col-md-3">
+                    <p>∠: Angle</p>
+                </div>
+            </div>
         </div>
     </div>
 

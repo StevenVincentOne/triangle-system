@@ -177,11 +177,10 @@ class TriangleSystem {
 
         setElementValue('#system-perimeter', this.calculatePerimeter(), 'P:');
         setElementValue('#system-area', totalArea, 'A:');
-        setElementValue('#subsystems-area', subsystemArea, 'Subsystems A:');
+        setElementValue('#subsystems-area', subsystemArea, 'SS A:');
 
         ['n1', 'n2', 'n3'].forEach(node => {
-            setElementValue(`#node-${node}-x`, this.system[node].x, `${node.toUpperCase()} X:`);
-            setElementValue(`#node-${node}-y`, this.system[node].y, `${node.toUpperCase()} Y:`);
+            setElementValue(`#node-${node}-coords`, `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`, `${node.toUpperCase()} (x, y):`);
             setElementValue(`#node-${node}-angle`, this.calculateAngles()[node], `${node.toUpperCase()} ∠:`);
         });
 
@@ -504,18 +503,15 @@ class TriangleSystem {
             },
             nodes: {
                 n1: {
-                    x: safeGetValue('#node-n1-x'),
-                    y: safeGetValue('#node-n1-y'),
+                    coords: safeGetValue('#node-n1-coords'),
                     angle: safeGetValue('#node-n1-angle')
                 },
                 n2: {
-                    x: safeGetValue('#node-n2-x'),
-                    y: safeGetValue('#node-n2-y'),
+                    coords: safeGetValue('#node-n2-coords'),
                     angle: safeGetValue('#node-n2-angle')
                 },
                 n3: {
-                    x: safeGetValue('#node-n3-x'),
-                    y: safeGetValue('#node-n3-y'),
+                    coords: safeGetValue('#node-n3-coords'),
                     angle: safeGetValue('#node-n3-angle')
                 }
             },
@@ -525,14 +521,8 @@ class TriangleSystem {
                 nc3: safeGetValue('#edge-nc3')
             },
             centers: {
-                centroid: {
-                    x: safeGetValue('#centroid-x'),
-                    y: safeGetValue('#centroid-y')
-                },
-                incenter: {
-                    x: safeGetValue('#incenter-x'),
-                    y: safeGetValue('#incenter-y')
-                }
+                centroid: safeGetValue('#centroid-coords'),
+                incenter: safeGetValue('#incenter-coords')
             },
             subsystems: {
                 subsystem1: {
