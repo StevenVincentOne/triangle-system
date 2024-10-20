@@ -137,19 +137,6 @@ class TriangleSystem {
         this.adjustTriangleToOrigin();
     }
 
-    formatValue(value) {
-        if (typeof value === 'number') {
-            if (Math.abs(value) < 1e-10) {
-                return '0.00';
-            } else if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
-                return value.toExponential(2);
-            } else {
-                return value.toFixed(2);
-            }
-        }
-        return value.toString();
-    }
-
     updateDashboard() {
         const setElementValue = (selector, value, label = '') => {
             const element = document.querySelector(selector);
@@ -159,7 +146,7 @@ class TriangleSystem {
                 if (label) {
                     const labelElement = element.previousElementSibling;
                     if (labelElement) {
-                        labelElement.textContent = label.replace(':', '');
+                        labelElement.textContent = label.replace(':', ''); // Remove colon if present
                     }
                 }
                 console.log(`Set ${selector} to ${formattedValue}`);
@@ -196,11 +183,22 @@ class TriangleSystem {
             setElementValue(`#node-${node}-angle`, `${angles[node].toFixed(2)}°`, `${node.toUpperCase()} ∠:`);
         });
 
-        setElementValue('#centroid-coords', `${this.formatValue(this.system.intelligence.x)}, ${this.formatValue(this.system.intelligence.y)}`, 'I x,y');
-        setElementValue('#incenter-coords', `${this.formatValue(this.system.incenter.x)}, ${this.formatValue(this.system.incenter.y)}`, 'IC x,y');
+        setElementValue('#centroid-coords', `${this.formatValue(this.system.intelligence.x)}, ${this.formatValue(this.system.intelligence.y)}`, 'I x, y');
+        setElementValue('#incenter-coords', `${this.formatValue(this.system.incenter.x)}, ${this.formatValue(this.system.incenter.y)}`, 'IC x, y');
 
         const iToIcDistance = this.calculateDistance(this.system.intelligence, this.system.incenter);
         setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC)');
+    }
+
+    formatValue(value) {
+        if (typeof value === 'number') {
+            if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
+                return value.toExponential(2);
+            } else {
+                return value.toFixed(2);
+            }
+        }
+        return value.toString();
     }
 
     drawSystem() {
@@ -645,12 +643,11 @@ class TriangleSystem {
         return distance <= 8;
     }
 }
-
 function checkInputFields() {
     const inputFields = document.querySelectorAll('input[type="text"]');
     inputFields.forEach(field => {
         const contentLength = field.value.length;
-        const newSize = Math.max(contentLength, 6);
+        const newSize = Math.max(contentLength, 6); // No added padding, minimum size of 6
         if (field.size !== newSize || !field.readOnly) {
             console.warn(`Adjusting input field ${field.id}. Old Size: ${field.size}, New Size: ${newSize}, ReadOnly: ${field.readOnly}`);
             field.size = newSize;
