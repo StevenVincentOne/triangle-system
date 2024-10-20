@@ -191,10 +191,11 @@ class TriangleSystem {
         setElementValue('#edge-nc2', lengths.l2, 'NC2:');
         setElementValue('#edge-nc3', lengths.l3, 'NC3:');
 
-        setElementValue('#centroid-x', this.system.intelligence.x, 'Centroid X:');
-        setElementValue('#centroid-y', this.system.intelligence.y, 'Centroid Y:');
-        setElementValue('#incenter-x', this.system.incenter.x, 'Incenter X:');
-        setElementValue('#incenter-y', this.system.incenter.y, 'Incenter Y:');
+        setElementValue('#centroid-coords', `(${this.formatValue(this.system.intelligence.x)}, ${this.formatValue(this.system.intelligence.y)})`, 'I (x, y):');
+        setElementValue('#incenter-coords', `(${this.formatValue(this.system.incenter.x)}, ${this.formatValue(this.system.incenter.y)})`, 'IC (x, y):');
+
+        const iToIcDistance = this.calculateDistance(this.system.intelligence, this.system.incenter);
+        setElementValue('#i-to-ic-distance', iToIcDistance, 'I to IC:');
 
         const angles = this.calculateAngles();
         ['1', '2', '3'].forEach((i) => {
