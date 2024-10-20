@@ -164,9 +164,9 @@ class TriangleSystem {
         });
 
         const lengths = this.calculateLengths();
-        setElementValue('#edge-nc1', lengths.l3.toFixed(2));
+        setElementValue('#edge-nc1', lengths.l1.toFixed(2));
         setElementValue('#edge-nc2', lengths.l2.toFixed(2));
-        setElementValue('#edge-nc3', lengths.l1.toFixed(2));
+        setElementValue('#edge-nc3', lengths.l3.toFixed(2));
 
         setElementValue('#centroid-x', this.system.intelligence.x.toFixed(2));
         setElementValue('#centroid-y', this.system.intelligence.y.toFixed(2));
