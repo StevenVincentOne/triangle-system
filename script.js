@@ -209,12 +209,12 @@ class TriangleSystem {
     formatValue(value) {
         if (typeof value === 'number') {
             if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
-                return value.toExponential(5).substring(0, 12);
+                return value.toExponential(5).substring(0, 11);
             } else {
-                return value.toFixed(2).substring(0, 12);
+                return value.toFixed(2).substring(0, 11);
             }
         }
-        return value.toString().substring(0, 12);
+        return value.toString().substring(0, 11);
     }
 
     drawSystem() {
@@ -648,9 +648,9 @@ class TriangleSystem {
 function checkInputFields() {
     const inputFields = document.querySelectorAll('input[type="text"]');
     inputFields.forEach(field => {
-        if (field.size !== 12 || !field.readOnly) {
+        if (field.size !== 11 || !field.readOnly) {
             console.warn(`Correcting input field ${field.id}. Old Size: ${field.size}, ReadOnly: ${field.readOnly}`);
-            field.size = 12;
+            field.size = 11;
             field.readOnly = true;
         }
     });
