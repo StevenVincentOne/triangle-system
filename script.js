@@ -142,6 +142,7 @@ class TriangleSystem {
             if (element) {
                 const formattedValue = this.formatValue(value);
                 element.value = formattedValue;
+                element.style.width = `${formattedValue.length + 2}ch`;
                 if (label) {
                     const labelElement = element.previousElementSibling;
                     if (labelElement) {
@@ -220,7 +221,11 @@ class TriangleSystem {
             if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
                 return value.toExponential(5).substring(0, 11);
             } else {
-                return value.toFixed(2).substring(0, 11);
+                const formattedValue = value.toFixed(2);
+                if (document.querySelector('.angle-input')) {
+                    return `${formattedValue}°`;
+                }
+                return formattedValue;
             }
         }
         return value.toString().substring(0, 11);
@@ -402,7 +407,7 @@ class TriangleSystem {
         const angles = this.calculateAngles();
         ['n1', 'n2', 'n3'].forEach((node, index) => {
             const point = this.system[node];
-            const angle = angles[node].toFixed(1) + '°';
+            const angle = `${angles[node].toFixed(1)}°`;
             ctx.fillStyle = 'white';
             ctx.font = '12px Arial';
             ctx.save();
