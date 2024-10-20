@@ -10,7 +10,8 @@
         }
         .panel-header {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
         }
         .label-value-pair {
             display: flex;
@@ -20,6 +21,16 @@
         }
         .label-value-pair label {
             margin-right: 5px;
+        }
+        .subsystems-table {
+            width: 100%;
+        }
+        .subsystems-table th, .subsystems-table td {
+            text-align: center;
+            padding: 0.25rem;
+        }
+        .subsystems-table th {
+            font-weight: normal;
         }
     </style>
 </head>
@@ -47,23 +58,32 @@
                 </div>
                 
                 <!-- Subsystems Panel -->
-                <div class="col-md-2 dashboard-panel">
+                <div class="col-md-3 dashboard-panel">
                     <h3 class="panel-header">Subsystems</h3>
-                    <div class="label-value-pair">
-                        <label>SS1:</label>
-                        <input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly>
-                        <input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>SS2:</label>
-                        <input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly>
-                        <input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>SS3:</label>
-                        <input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly>
-                        <input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly>
-                    </div>
+                    <table class="subsystems-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>SS1</th>
+                                <th>SS2</th>
+                                <th>SS3</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>P<br>(px)</th>
+                                <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="6" readonly></td>
+                                <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="6" readonly></td>
+                                <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="6" readonly></td>
+                            </tr>
+                            <tr>
+                                <th>∠<br>(angle)</th>
+                                <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="6" readonly></td>
+                                <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="6" readonly></td>
+                                <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="6" readonly></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 
                 <!-- Channels Panel -->
@@ -132,6 +152,22 @@
                         <label for="i-to-ic-distance">d (I, IC):</label>
                         <input id="i-to-ic-distance" type="text" class="form-control" size="8" readonly>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Panel -->
+        <div id="information-panel" class="bg-dark p-4 rounded mb-4">
+            <h3 class="panel-header">Information Panel</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <p>Placeholder for future calculations 1</p>
+                </div>
+                <div class="col-md-4">
+                    <p>Placeholder for future calculations 2</p>
+                </div>
+                <div class="col-md-4">
+                    <p>Placeholder for future calculations 3</p>
                 </div>
             </div>
         </div>
