@@ -142,7 +142,6 @@ class TriangleSystem {
             if (element) {
                 const formattedValue = this.formatValue(value);
                 element.value = formattedValue;
-                element.style.width = `${formattedValue.length + 2}ch`;
                 if (label) {
                     const labelElement = element.previousElementSibling;
                     if (labelElement) {
@@ -665,7 +664,7 @@ function checkInputFields() {
     const inputFields = document.querySelectorAll('input[type="text"]');
     inputFields.forEach(field => {
         if (field.size !== 11 || !field.readOnly) {
-            console.warn(`Correcting input field ${field.id}. Old Size: ${field.size}, ReadOnly: ${field.readOnly}`);
+            console.warn(`Input field ${field.id} has incorrect attributes. Size: ${field.size}, ReadOnly: ${field.readOnly}`);
             field.size = 11;
             field.readOnly = true;
         }
