@@ -143,6 +143,8 @@ class TriangleSystem {
                 const formattedValue = this.formatValue(value);
                 element.value = formattedValue;
                 console.log(`Set ${selector} to ${formattedValue}`);
+            } else {
+                console.warn(`Element not found: ${selector}`);
             }
         };
 
@@ -152,6 +154,8 @@ class TriangleSystem {
                 const formattedValue = this.formatValue(value);
                 element.textContent = formattedValue;
                 console.log(`Set ${selector} to ${formattedValue}`);
+            } else {
+                console.warn(`Element not found: ${selector}`);
             }
         };
 
@@ -641,10 +645,20 @@ class TriangleSystem {
     }
 }
 
+function checkInputFields() {
+    const inputFields = document.querySelectorAll('input[type="text"]');
+    inputFields.forEach(field => {
+        if (field.size !== 12 || !field.readOnly) {
+            console.warn(`Input field ${field.id} has incorrect attributes. Size: ${field.size}, ReadOnly: ${field.readOnly}`);
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('#canvas');
     if (canvas) {
         window.triangleSystem = new TriangleSystem(canvas);
+        checkInputFields();
     } else {
         console.error("Canvas element not found");
     }
