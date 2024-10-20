@@ -9,6 +9,13 @@
             width: auto;
             display: inline-block;
         }
+        .subsystems-table {
+            width: 100%;
+        }
+        .subsystems-table th, .subsystems-table td {
+            padding: 5px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -34,30 +41,32 @@
                 </div>
                 <div class="col-md-3">
                     <h3 class="mb-3">Subsystems</h3>
-                    <div class="mb-3">
-                        <label for="subsystem-1-perimeter" class="form-label">SS 1 Perimeter:</label>
-                        <input id="subsystem-1-perimeter" type="text" class="form-control" size="12" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-1-centroid-angle" class="form-label">SS 1 Centroid Angle:</label>
-                        <input id="subsystem-1-centroid-angle" type="text" class="form-control" size="12" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-2-perimeter" class="form-label">SS 2 Perimeter:</label>
-                        <input id="subsystem-2-perimeter" type="text" class="form-control" size="12" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-2-centroid-angle" class="form-label">SS 2 Centroid Angle:</label>
-                        <input id="subsystem-2-centroid-angle" type="text" class="form-control" size="12" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-3-perimeter" class="form-label">SS 3 Perimeter:</label>
-                        <input id="subsystem-3-perimeter" type="text" class="form-control" size="12" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="subsystem-3-centroid-angle" class="form-label">SS 3 Centroid Angle:</label>
-                        <input id="subsystem-3-centroid-angle" type="text" class="form-control" size="12" readonly>
-                    </div>
+                    <table class="subsystems-table">
+                        <thead>
+                            <tr>
+                                <th>SS</th>
+                                <th>perimeter</th>
+                                <th>angle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SS1:</td>
+                                <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="12" readonly></td>
+                                <td><input id="subsystem-1-angle" type="text" class="form-control" size="12" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>SS2:</td>
+                                <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="12" readonly></td>
+                                <td><input id="subsystem-2-angle" type="text" class="form-control" size="12" readonly></td>
+                            </tr>
+                            <tr>
+                                <td>SS3:</td>
+                                <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="12" readonly></td>
+                                <td><input id="subsystem-3-angle" type="text" class="form-control" size="12" readonly></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="col-md-3">
                     <h3 class="mb-3">Channels</h3>
