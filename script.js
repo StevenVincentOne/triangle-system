@@ -661,6 +661,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (canvas) {
         window.triangleSystem = new TriangleSystem(canvas);
         checkInputFields();
+        
+        window.triangleSystem.initializeSystem('equilateral');
     } else {
         console.error("Canvas element not found");
     }
