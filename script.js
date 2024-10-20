@@ -137,22 +137,34 @@ class TriangleSystem {
     }
 
     updateDashboard() {
-        const setElementValue = (selector, value) => {
+        const setElementValue = (selector, value, label = '') => {
             const element = document.querySelector(selector);
             if (element) {
                 const formattedValue = this.formatValue(value);
                 element.value = formattedValue;
+                if (label) {
+                    const labelElement = element.previousElementSibling;
+                    if (labelElement) {
+                        labelElement.textContent = label;
+                    }
+                }
                 console.log(`Set ${selector} to ${formattedValue}`);
             } else {
                 console.warn(`Element not found: ${selector}`);
             }
         };
 
-        const setSpanText = (selector, value) => {
+        const setSpanText = (selector, value, label = '') => {
             const element = document.querySelector(selector);
             if (element) {
                 const formattedValue = this.formatValue(value);
                 element.textContent = formattedValue;
+                if (label) {
+                    const labelElement = element.previousElementSibling;
+                    if (labelElement) {
+                        labelElement.textContent = label;
+                    }
+                }
                 console.log(`Set ${selector} to ${formattedValue}`);
             } else {
                 console.warn(`Element not found: ${selector}`);
@@ -162,48 +174,45 @@ class TriangleSystem {
         const totalArea = this.calculateArea();
         const subsystemArea = totalArea / 3;
 
-        setElementValue('#system-perimeter', this.calculatePerimeter());
-        setElementValue('#system-area', totalArea);
-        setElementValue('#subsystems-area', subsystemArea);
+        setElementValue('#system-perimeter', this.calculatePerimeter(), 'P:');
+        setElementValue('#system-area', totalArea, 'A:');
+        setElementValue('#subsystems-area', subsystemArea, 'Subsystems A:');
 
         ['n1', 'n2', 'n3'].forEach(node => {
-            setElementValue(`#node-${node}-x`, this.system[node].x);
-            setElementValue(`#node-${node}-y`, this.system[node].y);
+            setElementValue(`#node-${node}-x`, this.system[node].x, `${node.toUpperCase()} X:`);
+            setElementValue(`#node-${node}-y`, this.system[node].y, `${node.toUpperCase()} Y:`);
+            setElementValue(`#node-${node}-angle`, this.calculateAngles()[node], `${node.toUpperCase()} ∠:`);
         });
 
         const lengths = this.calculateLengths();
-        setElementValue('#edge-nc1', lengths.l1);
-        setElementValue('#edge-nc2', lengths.l2);
-        setElementValue('#edge-nc3', lengths.l3);
+        setElementValue('#edge-nc1', lengths.l1, 'NC1:');
+        setElementValue('#edge-nc2', lengths.l2, 'NC2:');
+        setElementValue('#edge-nc3', lengths.l3, 'NC3:');
 
-        setElementValue('#centroid-x', this.system.intelligence.x);
-        setElementValue('#centroid-y', this.system.intelligence.y);
-        setElementValue('#incenter-x', this.system.incenter.x);
-        setElementValue('#incenter-y', this.system.incenter.y);
+        setElementValue('#centroid-x', this.system.intelligence.x, 'Centroid X:');
+        setElementValue('#centroid-y', this.system.intelligence.y, 'Centroid Y:');
+        setElementValue('#incenter-x', this.system.incenter.x, 'Incenter X:');
+        setElementValue('#incenter-y', this.system.incenter.y, 'Incenter Y:');
 
         const angles = this.calculateAngles();
-        setElementValue('#node-n1-angle', angles.n1);
-        setElementValue('#node-n2-angle', angles.n2);
-        setElementValue('#node-n3-angle', angles.n3);
-
         ['1', '2', '3'].forEach((i) => {
             setElementValue(`#subsystem-${i}-area`, subsystemArea);
-            setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2);
-            setElementValue(`#subsystem-${i}-angle`, angles[`n${i}`] / 2);
+            setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2, 'P:');
+            setElementValue(`#subsystem-${i}-angle`, angles[`n${i}`] / 2, '∠:');
         });
 
-        setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter));
+        setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter), 'd Centroid to Incircle:');
 
         const midpoints = this.system.midpoints;
         const tangencyPoints = this.system.tangencyPoints;
         
-        setSpanText('#d-mid-nc1', this.calculateDistance(midpoints.m1, tangencyPoints[0]));
-        setSpanText('#d-mid-nc2', this.calculateDistance(midpoints.m2, tangencyPoints[1]));
-        setSpanText('#d-mid-nc3', this.calculateDistance(midpoints.m3, tangencyPoints[2]));
+        setSpanText('#d-mid-nc1', this.calculateDistance(midpoints.m1, tangencyPoints[0]), 'NC1:');
+        setSpanText('#d-mid-nc2', this.calculateDistance(midpoints.m2, tangencyPoints[1]), 'NC2:');
+        setSpanText('#d-mid-nc3', this.calculateDistance(midpoints.m3, tangencyPoints[2]), 'NC3:');
 
-        setSpanText('#r-mid-nc1', this.calculateDistance(this.system.incenter, midpoints.m1));
-        setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2));
-        setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3));
+        setSpanText('#r-mid-nc1', this.calculateDistance(this.system.incenter, midpoints.m1), 'NC1:');
+        setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2), 'NC2:');
+        setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3), 'NC3:');
     }
 
     formatValue(value) {
