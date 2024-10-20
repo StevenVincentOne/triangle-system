@@ -8,6 +8,7 @@ class TriangleSystem {
         this.showMidpoints = false;
         this.showIncircle = false;
         this.showIncenter = false;
+        this.showMedians = false;
         this.isDragging = false;
         this.draggedNode = null;
 
@@ -146,24 +147,6 @@ class TriangleSystem {
                     const labelElement = element.previousElementSibling;
                     if (labelElement) {
                         labelElement.textContent = label;
-                        labelElement.classList.add('text-center');
-                    }
-                }
-                console.log(`Set ${selector} to ${formattedValue}`);
-            } else {
-                console.warn(`Element not found: ${selector}`);
-            }
-        };
-
-        const setSpanText = (selector, value, label = '') => {
-            const element = document.querySelector(selector);
-            if (element) {
-                const formattedValue = this.formatValue(value);
-                element.textContent = formattedValue;
-                if (label) {
-                    const labelElement = element.previousElementSibling;
-                    if (labelElement) {
-                        labelElement.textContent = label;
                     }
                 }
                 console.log(`Set ${selector} to ${formattedValue}`);
@@ -179,9 +162,10 @@ class TriangleSystem {
         setElementValue('#system-area', totalArea, 'A:');
         setElementValue('#subsystems-area', subsystemArea, 'SS A:');
 
-        ['n1', 'n2', 'n3'].forEach(node => {
-            setElementValue(`#node-${node}-coords`, `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`, `${node.toUpperCase()} (x, y):`);
-            setElementValue(`#node-${node}-angle`, this.calculateAngles()[node], `${node.toUpperCase()} ∠:`);
+        const angles = this.calculateAngles();
+        ['1', '2', '3'].forEach((i) => {
+            setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2, 'P:');
+            setElementValue(`#subsystem-${i}-angle`, `${(angles[`n${i}`] / 2).toFixed(2)}°`, '∠:');
         });
 
         const lengths = this.calculateLengths();
@@ -189,46 +173,32 @@ class TriangleSystem {
         setElementValue('#edge-nc2', lengths.l2, 'NC2:');
         setElementValue('#edge-nc3', lengths.l3, 'NC3:');
 
+        const medians = this.calculateMedians();
+        setElementValue('#median-n1', medians.n1, 'N1:');
+        setElementValue('#median-n2', medians.n2, 'N2:');
+        setElementValue('#median-n3', medians.n3, 'N3:');
+
+        ['n1', 'n2', 'n3'].forEach(node => {
+            setElementValue(`#node-${node}-coords`, `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`, `${node.toUpperCase()} (x, y):`);
+            setElementValue(`#node-${node}-angle`, `${angles[node].toFixed(2)}°`, `${node.toUpperCase()} ∠:`);
+        });
+
         setElementValue('#centroid-coords', `(${this.formatValue(this.system.intelligence.x)}, ${this.formatValue(this.system.intelligence.y)})`, 'I (x, y):');
         setElementValue('#incenter-coords', `(${this.formatValue(this.system.incenter.x)}, ${this.formatValue(this.system.incenter.y)})`, 'IC (x, y):');
 
         const iToIcDistance = this.calculateDistance(this.system.intelligence, this.system.incenter);
-        setElementValue('#i-to-ic-distance', iToIcDistance, 'I to IC:');
-
-        const angles = this.calculateAngles();
-        ['1', '2', '3'].forEach((i) => {
-            setElementValue(`#subsystem-${i}-area`, subsystemArea);
-            setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2, 'P:');
-            setElementValue(`#subsystem-${i}-angle`, angles[`n${i}`] / 2, '∠:');
-        });
-
-        setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter), 'd Centroid to Incircle:');
-
-        const midpoints = this.system.midpoints;
-        const tangencyPoints = this.system.tangencyPoints;
-        
-        setSpanText('#d-mid-nc1', this.calculateDistance(midpoints.m1, tangencyPoints[0]), 'NC1:');
-        setSpanText('#d-mid-nc2', this.calculateDistance(midpoints.m2, tangencyPoints[1]), 'NC2:');
-        setSpanText('#d-mid-nc3', this.calculateDistance(midpoints.m3, tangencyPoints[2]), 'NC3:');
-
-        setSpanText('#r-mid-nc1', this.calculateDistance(this.system.incenter, midpoints.m1), 'NC1:');
-        setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2), 'NC2:');
-        setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3), 'NC3:');
+        setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC):');
     }
 
     formatValue(value) {
         if (typeof value === 'number') {
             if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
-                return value.toExponential(5).substring(0, 11);
+                return value.toExponential(2);
             } else {
-                const formattedValue = value.toFixed(2);
-                if (document.querySelector('.angle-input') && document.querySelector('.angle-input').id === event.target.id) {
-                    return `${formattedValue}°`;
-                }
-                return formattedValue;
+                return value.toFixed(2);
             }
         }
-        return value.toString().substring(0, 11);
+        return value.toString();
     }
 
     drawSystem() {
@@ -277,6 +247,10 @@ class TriangleSystem {
             if (this.showIncircle) {
                 this.drawIncircle(ctx);
                 this.drawTangents(ctx);
+            }
+
+            if (this.showMedians) {
+                this.drawMedians(ctx);
             }
 
             this.drawNode(ctx, this.system.n1, 'red', 'N1');
@@ -403,6 +377,20 @@ class TriangleSystem {
         });
     }
 
+    drawMedians(ctx) {
+        ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(this.system.midpoints.m1.x, this.system.midpoints.m1.y);
+        ctx.moveTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.midpoints.m2.x, this.system.midpoints.m2.y);
+        ctx.moveTo(this.system.n3.x, this.system.n3.y);
+        ctx.lineTo(this.system.midpoints.m3.x, this.system.midpoints.m3.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
     drawAngles(ctx) {
         const angles = this.calculateAngles();
         ['n1', 'n2', 'n3'].forEach((node, index) => {
@@ -490,6 +478,15 @@ class TriangleSystem {
         ];
     }
 
+    calculateMedians() {
+        const midpoints = this.system.midpoints;
+        return {
+            n1: this.calculateDistance(this.system.n1, midpoints.m1),
+            n2: this.calculateDistance(this.system.n2, midpoints.m2),
+            n3: this.calculateDistance(this.system.n3, midpoints.m3)
+        };
+    }
+
     exportData() {
         const safeGetValue = (selector) => {
             const element = document.querySelector(selector);
@@ -542,13 +539,10 @@ class TriangleSystem {
                 }
             },
             info: {
-                dCentroidIncircle: safeGetValue('#d-centroid-incircle'),
-                dMidNC1: safeGetValue('#d-mid-nc1'),
-                dMidNC2: safeGetValue('#d-mid-nc2'),
-                dMidNC3: safeGetValue('#d-mid-nc3'),
-                rMidNC1: safeGetValue('#r-mid-nc1'),
-                rMidNC2: safeGetValue('#r-mid-nc2'),
-                rMidNC3: safeGetValue('#r-mid-nc3')
+                dCentroidIncircle: safeGetValue('#i-to-ic-distance'),
+                medianN1: safeGetValue('#median-n1'),
+                medianN2: safeGetValue('#median-n2'),
+                medianN3: safeGetValue('#median-n3')
             }
         };
 
@@ -653,9 +647,9 @@ class TriangleSystem {
 function checkInputFields() {
     const inputFields = document.querySelectorAll('input[type="text"]');
     inputFields.forEach(field => {
-        if (field.size !== 11 || !field.readOnly) {
-            console.warn(`Input field ${field.id} has incorrect attributes. Size: ${field.size}, ReadOnly: ${field.readOnly}`);
-            field.size = 11;
+        if (field.size !== 8 || !field.readOnly) {
+            console.warn(`Correcting input field ${field.id}. Old Size: ${field.size}, ReadOnly: ${field.readOnly}`);
+            field.size = 8;
             field.readOnly = true;
         }
     });
