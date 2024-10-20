@@ -167,12 +167,20 @@ class TriangleSystem {
         setElementValue('#subsystems-area', subsystemArea, 'SS A:');
 
         const angles = this.calculateAngles();
+        const lengths = this.calculateLengths();
+        const I = this.system.intelligence;
+
+        const subsystemPerimeters = {
+            ss1: this.calculateDistance(I, this.system.n1) + this.calculateDistance(I, this.system.n2) + lengths.l1,
+            ss2: this.calculateDistance(I, this.system.n2) + this.calculateDistance(I, this.system.n3) + lengths.l2,
+            ss3: this.calculateDistance(I, this.system.n3) + this.calculateDistance(I, this.system.n1) + lengths.l3
+        };
+
         ['1', '2', '3'].forEach((i) => {
-            setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2, 'P:');
+            setElementValue(`#subsystem-${i}-perimeter`, subsystemPerimeters[`ss${i}`], 'P:');
             setElementValue(`#subsystem-${i}-angle`, `${(angles[`n${i}`] / 2).toFixed(2)}°`, '∠:');
         });
 
-        const lengths = this.calculateLengths();
         setElementValue('#edge-nc1', lengths.l1, 'NC1:');
         setElementValue('#edge-nc2', lengths.l2, 'NC2:');
         setElementValue('#edge-nc3', lengths.l3, 'NC3:');
