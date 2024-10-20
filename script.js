@@ -147,6 +147,7 @@ class TriangleSystem {
                     const labelElement = element.previousElementSibling;
                     if (labelElement) {
                         labelElement.textContent = label;
+                        labelElement.classList.add('text-center');
                     }
                 }
                 console.log(`Set ${selector} to ${formattedValue}`);
@@ -222,7 +223,7 @@ class TriangleSystem {
                 return value.toExponential(5).substring(0, 11);
             } else {
                 const formattedValue = value.toFixed(2);
-                if (document.querySelector('.angle-input')) {
+                if (document.querySelector('.angle-input') && document.querySelector('.angle-input').id === event.target.id) {
                     return `${formattedValue}°`;
                 }
                 return formattedValue;
