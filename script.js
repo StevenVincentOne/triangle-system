@@ -140,62 +140,73 @@ class TriangleSystem {
         const setElementValue = (selector, value) => {
             const element = document.querySelector(selector);
             if (element) {
-                element.value = value;
+                element.value = this.formatValue(value);
             }
         };
 
         const setSpanText = (selector, value) => {
             const element = document.querySelector(selector);
             if (element) {
-                element.textContent = value;
+                element.textContent = this.formatValue(value);
             }
         };
 
         const totalArea = this.calculateArea();
         const subsystemArea = totalArea / 3;
 
-        setElementValue('#system-perimeter', this.calculatePerimeter().toFixed(2));
-        setElementValue('#system-area', totalArea.toFixed(2));
-        setElementValue('#subsystems-area', subsystemArea.toFixed(2));
+        setElementValue('#system-perimeter', this.calculatePerimeter());
+        setElementValue('#system-area', totalArea);
+        setElementValue('#subsystems-area', subsystemArea);
 
         ['n1', 'n2', 'n3'].forEach(node => {
-            setElementValue(`#node-${node}-x`, this.system[node].x.toFixed(2));
-            setElementValue(`#node-${node}-y`, this.system[node].y.toFixed(2));
+            setElementValue(`#node-${node}-x`, this.system[node].x);
+            setElementValue(`#node-${node}-y`, this.system[node].y);
         });
 
         const lengths = this.calculateLengths();
-        setElementValue('#edge-nc1', lengths.l1.toFixed(2));
-        setElementValue('#edge-nc2', lengths.l2.toFixed(2));
-        setElementValue('#edge-nc3', lengths.l3.toFixed(2));
+        setElementValue('#edge-nc1', lengths.l1);
+        setElementValue('#edge-nc2', lengths.l2);
+        setElementValue('#edge-nc3', lengths.l3);
 
-        setElementValue('#centroid-x', this.system.intelligence.x.toFixed(2));
-        setElementValue('#centroid-y', this.system.intelligence.y.toFixed(2));
-        setElementValue('#incenter-x', this.system.incenter.x.toFixed(2));
-        setElementValue('#incenter-y', this.system.incenter.y.toFixed(2));
+        setElementValue('#centroid-x', this.system.intelligence.x);
+        setElementValue('#centroid-y', this.system.intelligence.y);
+        setElementValue('#incenter-x', this.system.incenter.x);
+        setElementValue('#incenter-y', this.system.incenter.y);
 
         const angles = this.calculateAngles();
-        setElementValue('#node-n1-angle', angles.n1.toFixed(2));
-        setElementValue('#node-n2-angle', angles.n2.toFixed(2));
-        setElementValue('#node-n3-angle', angles.n3.toFixed(2));
+        setElementValue('#node-n1-angle', angles.n1);
+        setElementValue('#node-n2-angle', angles.n2);
+        setElementValue('#node-n3-angle', angles.n3);
 
         ['1', '2', '3'].forEach((i) => {
-            setElementValue(`#subsystem-${i}-area`, subsystemArea.toFixed(2));
-            setElementValue(`#subsystem-${i}-perimeter`, (this.calculatePerimeter() / 2).toFixed(2));
-            setElementValue(`#subsystem-${i}-centroid-angle`, (angles[`n${i}`] / 2).toFixed(2));
+            setElementValue(`#subsystem-${i}-area`, subsystemArea);
+            setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2);
+            setElementValue(`#subsystem-${i}-centroid-angle`, angles[`n${i}`] / 2);
         });
 
-        setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter).toFixed(2));
+        setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter));
 
         const midpoints = this.system.midpoints;
         const tangencyPoints = this.system.tangencyPoints;
         
-        setSpanText('#d-mid-nc1', this.calculateDistance(midpoints.m1, tangencyPoints[0]).toFixed(2));
-        setSpanText('#d-mid-nc2', this.calculateDistance(midpoints.m2, tangencyPoints[1]).toFixed(2));
-        setSpanText('#d-mid-nc3', this.calculateDistance(midpoints.m3, tangencyPoints[2]).toFixed(2));
+        setSpanText('#d-mid-nc1', this.calculateDistance(midpoints.m1, tangencyPoints[0]));
+        setSpanText('#d-mid-nc2', this.calculateDistance(midpoints.m2, tangencyPoints[1]));
+        setSpanText('#d-mid-nc3', this.calculateDistance(midpoints.m3, tangencyPoints[2]));
 
-        setSpanText('#r-mid-nc1', this.calculateDistance(this.system.incenter, midpoints.m1).toFixed(2));
-        setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2).toFixed(2));
-        setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3).toFixed(2));
+        setSpanText('#r-mid-nc1', this.calculateDistance(this.system.incenter, midpoints.m1));
+        setSpanText('#r-mid-nc2', this.calculateDistance(this.system.incenter, midpoints.m2));
+        setSpanText('#r-mid-nc3', this.calculateDistance(this.system.incenter, midpoints.m3));
+    }
+
+    formatValue(value) {
+        if (typeof value === 'number') {
+            if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
+                return value.toExponential(5);
+            } else {
+                return value.toFixed(2);
+            }
+        }
+        return value.toString().substring(0, 12);
     }
 
     drawSystem() {
@@ -215,21 +226,18 @@ class TriangleSystem {
 
             ctx.lineWidth = 2;
 
-            // NC1 (N1 to N2): Red
             ctx.beginPath();
             ctx.strokeStyle = 'red';
             ctx.moveTo(this.system.n1.x, this.system.n1.y);
             ctx.lineTo(this.system.n2.x, this.system.n2.y);
             ctx.stroke();
 
-            // NC2 (N1 to N3): Blue
             ctx.beginPath();
             ctx.strokeStyle = 'blue';
             ctx.moveTo(this.system.n1.x, this.system.n1.y);
             ctx.lineTo(this.system.n3.x, this.system.n3.y);
             ctx.stroke();
 
-            // NC3 (N2 to N3): Green
             ctx.beginPath();
             ctx.strokeStyle = 'green';
             ctx.moveTo(this.system.n2.x, this.system.n2.y);
@@ -625,7 +633,7 @@ class TriangleSystem {
 
     isClickOnNode(x, y, node) {
         const distance = Math.sqrt(Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2));
-        return distance <= 8; // 8 is the node radius
+        return distance <= 8;
     }
 }
 
