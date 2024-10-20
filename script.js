@@ -186,10 +186,14 @@ class TriangleSystem {
         setElementValue('#node-n2-angle', angles.n2);
         setElementValue('#node-n3-angle', angles.n3);
 
+        // Update subsystem angles (half of the node angles)
+        setElementValue('#subsystem-1-angle', angles.n1 / 2);
+        setElementValue('#subsystem-2-angle', angles.n2 / 2);
+        setElementValue('#subsystem-3-angle', angles.n3 / 2);
+
         ['1', '2', '3'].forEach((i) => {
             setElementValue(`#subsystem-${i}-area`, subsystemArea);
             setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2);
-            setElementValue(`#subsystem-${i}-centroid-angle`, angles[`n${i}`] / 2);
         });
 
         setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter));
@@ -523,17 +527,17 @@ class TriangleSystem {
                 subsystem1: {
                     area: safeGetValue('#subsystem-1-area'),
                     perimeter: safeGetValue('#subsystem-1-perimeter'),
-                    centroidAngle: safeGetValue('#subsystem-1-centroid-angle')
+                    angle: safeGetValue('#subsystem-1-angle')
                 },
                 subsystem2: {
                     area: safeGetValue('#subsystem-2-area'),
                     perimeter: safeGetValue('#subsystem-2-perimeter'),
-                    centroidAngle: safeGetValue('#subsystem-2-centroid-angle')
+                    angle: safeGetValue('#subsystem-2-angle')
                 },
                 subsystem3: {
                     area: safeGetValue('#subsystem-3-area'),
                     perimeter: safeGetValue('#subsystem-3-perimeter'),
-                    centroidAngle: safeGetValue('#subsystem-3-centroid-angle')
+                    angle: safeGetValue('#subsystem-3-angle')
                 }
             },
             info: {
