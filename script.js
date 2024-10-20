@@ -140,14 +140,18 @@ class TriangleSystem {
         const setElementValue = (selector, value) => {
             const element = document.querySelector(selector);
             if (element) {
-                element.value = this.formatValue(value);
+                const formattedValue = this.formatValue(value);
+                element.value = formattedValue;
+                console.log(`Set ${selector} to ${formattedValue}`);
             }
         };
 
         const setSpanText = (selector, value) => {
             const element = document.querySelector(selector);
             if (element) {
-                element.textContent = this.formatValue(value);
+                const formattedValue = this.formatValue(value);
+                element.textContent = formattedValue;
+                console.log(`Set ${selector} to ${formattedValue}`);
             }
         };
 
@@ -201,9 +205,9 @@ class TriangleSystem {
     formatValue(value) {
         if (typeof value === 'number') {
             if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
-                return value.toExponential(5);
+                return value.toExponential(5).substring(0, 12);
             } else {
-                return value.toFixed(2);
+                return value.toFixed(2).substring(0, 12);
             }
         }
         return value.toString().substring(0, 12);
