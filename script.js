@@ -1,6 +1,57 @@
 class TriangleSystem {
     // ... (previous code remains unchanged)
 
+    initializeSystem(preset = 'equilateral') {
+        // ... (existing code for setting up the system)
+
+        this.adjustTriangleToOrigin();
+        this.updateDerivedPoints();
+        this.updateDashboard();
+        this.drawSystem();
+    }
+
+    drawSystem() {
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        ctx.save();
+        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+        ctx.scale(1, -1);
+
+        // Draw triangle
+        ctx.beginPath();
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.n3.x, this.system.n3.y);
+        ctx.closePath();
+        ctx.strokeStyle = 'white';
+        ctx.stroke();
+
+        // Draw nodes
+        this.drawNode(ctx, this.system.n1, 'red', 'N1');
+        this.drawNode(ctx, this.system.n2, 'green', 'N2');
+        this.drawNode(ctx, this.system.n3, 'blue', 'N3');
+
+        // Draw centroid
+        this.drawNode(ctx, this.system.intelligence, 'white', 'I');
+
+        ctx.restore();
+    }
+
+    drawNode(ctx, point, color, label) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.fillText(label, point.x + 10, -point.y - 10);
+        ctx.restore();
+    }
+
     updateDashboard() {
         // ... (previous code remains unchanged)
 
