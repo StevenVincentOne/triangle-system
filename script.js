@@ -136,20 +136,6 @@ class TriangleSystem {
         this.adjustTriangleToOrigin();
     }
 
-    calculateMedianLength(node1, node2) {
-        const midpoint = {
-            x: (node1.x + node2.x) / 2,
-            y: (node1.y + node2.y) / 2
-        };
-        return this.calculateDistance(this.system.intelligence, midpoint);
-    }
-
-    calculateSubsystemPerimeter(node1, node2, edgeLength) {
-        const median1 = this.calculateMedianLength(node1, node2);
-        const median2 = this.calculateMedianLength(node1, this.system.intelligence);
-        return median1 + median2 + edgeLength;
-    }
-
     updateDashboard() {
         const setElementValue = (selector, value) => {
             const element = document.querySelector(selector);
@@ -200,21 +186,11 @@ class TriangleSystem {
         setElementValue('#node-n2-angle', angles.n2);
         setElementValue('#node-n3-angle', angles.n3);
 
-        const ss1Perimeter = this.calculateSubsystemPerimeter(this.system.n2, this.system.n3, lengths.l1);
-        const ss2Perimeter = this.calculateSubsystemPerimeter(this.system.n1, this.system.n3, lengths.l2);
-        const ss3Perimeter = this.calculateSubsystemPerimeter(this.system.n1, this.system.n2, lengths.l3);
-
-        setElementValue('#subsystem-1-area', subsystemArea);
-        setElementValue('#subsystem-1-perimeter', ss1Perimeter);
-        setElementValue('#subsystem-1-angle', angles.n1 / 2);
-
-        setElementValue('#subsystem-2-area', subsystemArea);
-        setElementValue('#subsystem-2-perimeter', ss2Perimeter);
-        setElementValue('#subsystem-2-angle', angles.n2 / 2);
-
-        setElementValue('#subsystem-3-area', subsystemArea);
-        setElementValue('#subsystem-3-perimeter', ss3Perimeter);
-        setElementValue('#subsystem-3-angle', angles.n3 / 2);
+        ['1', '2', '3'].forEach((i) => {
+            setElementValue(`#subsystem-${i}-area`, subsystemArea);
+            setElementValue(`#subsystem-${i}-perimeter`, this.calculatePerimeter() / 2);
+            setElementValue(`#subsystem-${i}-angle`, angles[`n${i}`] / 2);
+        });
 
         setSpanText('#d-centroid-incircle', this.calculateDistance(this.system.intelligence, this.system.incenter));
 
