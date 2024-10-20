@@ -151,8 +151,12 @@ class TriangleSystem {
             }
         };
 
+        const totalArea = this.calculateArea();
+        const subsystemArea = totalArea / 3;
+
         setElementValue('#system-perimeter', this.calculatePerimeter().toFixed(2));
-        setElementValue('#system-area', this.calculateArea().toFixed(2));
+        setElementValue('#system-area', totalArea.toFixed(2));
+        setElementValue('#subsystems-area', subsystemArea.toFixed(2));
 
         ['n1', 'n2', 'n3'].forEach(node => {
             setElementValue(`#node-${node}-x`, this.system[node].x.toFixed(2));
@@ -175,7 +179,7 @@ class TriangleSystem {
         setElementValue('#node-n3-angle', angles.n3.toFixed(2));
 
         ['1', '2', '3'].forEach((i) => {
-            setElementValue(`#subsystem-${i}-area`, (this.calculateArea() / 3).toFixed(2));
+            setElementValue(`#subsystem-${i}-area`, subsystemArea.toFixed(2));
             setElementValue(`#subsystem-${i}-perimeter`, (this.calculatePerimeter() / 2).toFixed(2));
             setElementValue(`#subsystem-${i}-centroid-angle`, (angles[`n${i}`] / 2).toFixed(2));
         });
