@@ -16,6 +16,10 @@ class TriangleSystem {
         this.initializeSystem('equilateral');
     }
 
+    roundToZero(value, epsilon = 1e-10) {
+        return Math.abs(value) < epsilon ? 0 : value;
+    }
+
     initializeSystem(preset = 'equilateral') {
         const side = 300;
         const height = (Math.sqrt(3) / 2) * side;
@@ -80,34 +84,61 @@ class TriangleSystem {
         }
 
         this.adjustTriangleToOrigin();
-        this.calculateIncenter();
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
     }
 
     adjustTriangleToOrigin() {
-        const centerX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
-        const centerY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
-        this.system.n1.x -= centerX;
-        this.system.n1.y -= centerY;
-        this.system.n2.x -= centerX;
-        this.system.n2.y -= centerY;
-        this.system.n3.x -= centerX;
-        this.system.n3.y -= centerY;
+        const centroid = {
+            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+        };
+        
+        const dx = -centroid.x;
+        const dy = -centroid.y;
+        
+        this.system.n1.x += dx;
+        this.system.n1.y += dy;
+        this.system.n2.x += dx;
+        this.system.n2.y += dy;
+        this.system.n3.x += dx;
+        this.system.n3.y += dy;
+        
+        this.system.intelligence = { x: 0, y: 0 };
     }
 
     updateDerivedPoints() {
-        this.calculateIncenter();
-    }
+        const N1 = this.system.n1;
+        const N2 = this.system.n2;
+        const N3 = this.system.n3;
 
-    calculateIncenter() {
-        const a = this.calculateDistance(this.system.n2, this.system.n3);
-        const b = this.calculateDistance(this.system.n1, this.system.n3);
-        const c = this.calculateDistance(this.system.n1, this.system.n2);
-        const x = (a * this.system.n1.x + b * this.system.n2.x + c * this.system.n3.x) / (a + b + c);
-        const y = (a * this.system.n1.y + b * this.system.n2.y + c * this.system.n3.y) / (a + b + c);
-        this.system.incenter = { x, y };
+        this.system.midpoints = {
+            m1: { x: (N2.x + N3.x) / 2, y: (N2.y + N3.y) / 2 },
+            m2: { x: (N1.x + N3.x) / 2, y: (N1.y + N3.y) / 2 },
+            m3: { x: (N1.x + N2.x) / 2, y: (N1.y + N2.y) / 2 },
+        };
+
+        const angles = this.calculateAngles();
+        const a = angles.n1 * Math.PI / 180;
+        const b = angles.n2 * Math.PI / 180;
+        const c = angles.n3 * Math.PI / 180;
+        
+        const incenter = {
+            x: (N1.x * Math.sin(a) + N2.x * Math.sin(b) + N3.x * Math.sin(c)) / (Math.sin(a) + Math.sin(b) + Math.sin(c)),
+            y: (N1.y * Math.sin(a) + N2.y * Math.sin(b) + N3.y * Math.sin(c)) / (Math.sin(a) + Math.sin(b) + Math.sin(c))
+        };
+
+        const semiperimeter = this.calculatePerimeter() / 2;
+        const area = this.calculateArea();
+        const incircleRadius = area / semiperimeter;
+
+        this.system.incenter = incenter;
+        this.system.incircleRadius = incircleRadius;
+
+        this.system.tangencyPoints = this.calculateTangencyPoints();
+
+        this.adjustTriangleToOrigin();
     }
 
     updateDashboard() {
@@ -137,19 +168,12 @@ class TriangleSystem {
 
         const angles = this.calculateAngles();
         const lengths = this.calculateLengths();
-
-        const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
-        const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
-        const centroid = { x: centroidX, y: centroidY };
-
-        if (!this.system.incenter) {
-            this.calculateIncenter();
-        }
+        const I = this.system.intelligence;
 
         const subsystemPerimeters = {
-            ss1: this.calculateDistance(centroid, this.system.n1) + this.calculateDistance(centroid, this.system.n2) + lengths.l1,
-            ss2: this.calculateDistance(centroid, this.system.n2) + this.calculateDistance(centroid, this.system.n3) + lengths.l2,
-            ss3: this.calculateDistance(centroid, this.system.n3) + this.calculateDistance(centroid, this.system.n1) + lengths.l3
+            ss1: this.calculateDistance(I, this.system.n1) + this.calculateDistance(I, this.system.n2) + lengths.l1,
+            ss2: this.calculateDistance(I, this.system.n2) + this.calculateDistance(I, this.system.n3) + lengths.l2,
+            ss3: this.calculateDistance(I, this.system.n3) + this.calculateDistance(I, this.system.n1) + lengths.l3
         };
 
         ['1', '2', '3'].forEach((i) => {
@@ -167,59 +191,249 @@ class TriangleSystem {
         setElementValue('#median-n3', medians.n3, 'N3:');
 
         ['n1', 'n2', 'n3'].forEach(node => {
+            setElementValue(`#node-${node}-coords`, `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`, `${node.toUpperCase()} (x, y):`);
             setElementValue(`#node-${node}-angle`, `${angles[node].toFixed(2)}°`, `${node.toUpperCase()} ∠:`);
         });
 
-        setElementValue('#centroid-coords', `${this.formatValue(centroidX)}, ${this.formatValue(centroidY)}`, 'I (x,y)');
-        
-        if (this.system.incenter) {
-            setElementValue('#incenter-coords', `${this.formatValue(this.system.incenter.x)}, ${this.formatValue(this.system.incenter.y)}`, 'IC (x,y)');
-            const iToIcDistance = this.calculateDistance(centroid, this.system.incenter);
-            setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC)');
-        }
+        setElementValue('#centroid-coords', `${this.formatValue(this.roundToZero(this.system.intelligence.x))}, ${this.formatValue(this.roundToZero(this.system.intelligence.y))}`, 'I x,y');
+        setElementValue('#incenter-coords', `${this.formatValue(this.roundToZero(this.system.incenter.x))}, ${this.formatValue(this.roundToZero(this.system.incenter.y))}`, 'IC x,y');
 
-        this.updateInformationPanel();
-        this.drawSystem();
+        const iToIcDistance = this.calculateDistance(
+            {x: this.roundToZero(this.system.intelligence.x), y: this.roundToZero(this.system.intelligence.y)},
+            {x: this.roundToZero(this.system.incenter.x), y: this.roundToZero(this.system.incenter.y)}
+        );
+        setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC)');
     }
 
-    updateInformationPanel() {
-        const setElementValue = (selector, value) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.value = this.formatValue(value);
+    formatValue(value) {
+        if (typeof value === 'number') {
+            if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
+                return value.toExponential(2);
+            } else {
+                return value.toFixed(2);
+            }
+        }
+        return value.toString();
+    }
+
+    drawSystem() {
+        const draw = () => {
+            const ctx = this.ctx;
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            ctx.save();
+            ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+            ctx.scale(1, -1);
+
+            this.drawAxes(ctx);
+
+            if (this.showAreas) {
+                this.drawAreas(ctx);
+            }
+
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.strokeStyle = 'red';
+            ctx.moveTo(this.system.n1.x, this.system.n1.y);
+            ctx.lineTo(this.system.n2.x, this.system.n2.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.strokeStyle = 'blue';
+            ctx.moveTo(this.system.n1.x, this.system.n1.y);
+            ctx.lineTo(this.system.n3.x, this.system.n3.y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.strokeStyle = 'green';
+            ctx.moveTo(this.system.n2.x, this.system.n2.y);
+            ctx.lineTo(this.system.n3.x, this.system.n3.y);
+            ctx.stroke();
+
+            if (this.showConnections) {
+                this.drawConnections(ctx);
+            }
+
+            if (this.showMidpoints) {
+                this.drawMidpoints(ctx);
+            }
+
+            if (this.showIncircle) {
+                this.drawIncircle(ctx);
+                this.drawTangents(ctx);
+            }
+
+            if (this.showMedians) {
+                this.drawMedians(ctx);
+            }
+
+            this.drawNode(ctx, this.system.n1, 'red', 'N1');
+            this.drawNode(ctx, this.system.n2, 'green', 'N2');
+            this.drawNode(ctx, this.system.n3, 'blue', 'N3');
+
+            this.drawNode(ctx, this.system.intelligence, 'white', 'I');
+
+            if (this.showIncenter) {
+                this.drawNode(ctx, this.system.incenter, 'yellow', 'Incenter');
+            }
+
+            this.drawAngles(ctx);
+            this.drawEdgeLengths(ctx);
+
+            ctx.restore();
+
+            if (this.isDragging) {
+                requestAnimationFrame(draw);
             }
         };
 
-        const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
-        const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
-        const dIIC = this.calculateDistance({x: centroidX, y: centroidY}, this.system.incenter);
-        setElementValue('#d-i-ic', dIIC);
+        draw();
+    }
 
-        const rIIC = dIIC / this.calculatePerimeter();
-        setElementValue('#r-i-ic', rIIC);
+    drawNode(ctx, point, color, label) {
+        ctx.fillStyle = label === 'Incenter' ? 'lightblue' : color;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
+        ctx.fill();
 
-        ['n1', 'n2', 'n3'].forEach((node, index) => {
-            const nextNode = ['n2', 'n3', 'n1'][index];
-            const midpoint = {
-                x: (this.system[node].x + this.system[nextNode].x) / 2,
-                y: (this.system[node].y + this.system[nextNode].y) / 2
-            };
-            const dMT = this.calculateDistance(midpoint, this.system.incenter);
-            const rMT = dMT / this.calculatePerimeter();
-            setElementValue(`#d-m-t-${node}`, dMT);
-            setElementValue(`#r-m-t-${node}`, rMT);
+        ctx.fillStyle = 'white';
+        ctx.font = '14px Arial';
+        ctx.save();
+        ctx.scale(1, -1);
+        if (label === 'N2') {
+            ctx.fillText(label, point.x - 30, -point.y - 5);
+        } else {
+            ctx.fillText(label === 'Incenter' ? 'IC' : label, point.x + 10, -point.y - 5);
+        }
+        ctx.restore();
+    }
+
+    drawAxes(ctx) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 1;
+        
+        ctx.beginPath();
+        ctx.moveTo(-this.canvas.width / 2, 0);
+        ctx.lineTo(this.canvas.width / 2, 0);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(0, -this.canvas.height / 2);
+        ctx.lineTo(0, this.canvas.height / 2);
+        ctx.stroke();
+        
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.fillText('X', this.canvas.width / 2 - 20, -10);
+        ctx.fillText('Y', 10, -this.canvas.height / 2 + 20);
+    }
+
+    drawAreas(ctx) {
+        const areas = [
+            { points: [this.system.n1, this.system.n2, this.system.intelligence], color: 'rgba(255, 0, 0, 0.2)' },
+            { points: [this.system.n2, this.system.n3, this.system.intelligence], color: 'rgba(0, 255, 0, 0.2)' },
+            { points: [this.system.n3, this.system.n1, this.system.intelligence], color: 'rgba(0, 0, 255, 0.2)' }
+        ];
+
+        areas.forEach(area => {
+            ctx.beginPath();
+            ctx.moveTo(area.points[0].x, area.points[0].y);
+            ctx.lineTo(area.points[1].x, area.points[1].y);
+            ctx.lineTo(area.points[2].x, area.points[2].y);
+            ctx.closePath();
+            ctx.fillStyle = area.color;
+            ctx.fill();
         });
     }
 
-    calculateDistance(point1, point2) {
-        if (!point1 || !point2 || typeof point1.x === 'undefined' || typeof point1.y === 'undefined' || 
-            typeof point2.x === 'undefined' || typeof point2.y === 'undefined') {
-            console.error('Invalid points provided to calculateDistance:', point1, point2);
-            return 0;
-        }
-        const dx = point2.x - point1.x;
-        const dy = point2.y - point1.y;
-        return Math.sqrt(dx * dx + dy * dy);
+    drawConnections(ctx) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(this.system.intelligence.x, this.system.intelligence.y);
+        ctx.moveTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.intelligence.x, this.system.intelligence.y);
+        ctx.moveTo(this.system.n3.x, this.system.n3.y);
+        ctx.lineTo(this.system.intelligence.x, this.system.intelligence.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    drawMidpoints(ctx) {
+        const midpoints = [
+            { x: (this.system.n1.x + this.system.n2.x) / 2, y: (this.system.n1.y + this.system.n2.y) / 2 },
+            { x: (this.system.n2.x + this.system.n3.x) / 2, y: (this.system.n2.y + this.system.n3.y) / 2 },
+            { x: (this.system.n3.x + this.system.n1.x) / 2, y: (this.system.n3.y + this.system.n1.y) / 2 }
+        ];
+
+        ctx.fillStyle = 'yellow';
+        midpoints.forEach(point => {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+            ctx.fill();
+        });
+    }
+
+    drawIncircle(ctx) {
+        ctx.strokeStyle = 'cyan';
+        ctx.beginPath();
+        ctx.arc(this.system.incenter.x, this.system.incenter.y, this.system.incircleRadius, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+
+    drawTangents(ctx) {
+        ctx.fillStyle = 'lightblue';
+        this.system.tangencyPoints.forEach(point => {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+            ctx.fill();
+        });
+    }
+
+    drawMedians(ctx) {
+        ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(this.system.midpoints.m1.x, this.system.midpoints.m1.y);
+        ctx.moveTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.midpoints.m2.x, this.system.midpoints.m2.y);
+        ctx.moveTo(this.system.n3.x, this.system.n3.y);
+        ctx.lineTo(this.system.midpoints.m3.x, this.system.midpoints.m3.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    drawAngles(ctx) {
+        const angles = this.calculateAngles();
+        ['n1', 'n2', 'n3'].forEach((node, index) => {
+            const point = this.system[node];
+            const angle = `${angles[node].toFixed(1)}°`;
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.save();
+            ctx.scale(1, -1);
+            let xOffset = 20, yOffset = -20;
+            if (node === 'n2') xOffset = -40;
+            if (node === 'n3') xOffset = 30;
+            ctx.fillText(angle, point.x + xOffset, -point.y + yOffset);
+            ctx.restore();
+        });
+    }
+
+    drawEdgeLengths(ctx) {
+        const lengths = this.calculateLengths();
+        const midpoints = this.system.midpoints;
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.fillText(lengths.l1.toFixed(0), midpoints.m1.x, -midpoints.m1.y - 10);
+        ctx.fillText(lengths.l2.toFixed(0), midpoints.m2.x + 10, -midpoints.m2.y + 20);
+        ctx.fillText(lengths.l3.toFixed(0), midpoints.m3.x - 30, -midpoints.m3.y + 20);
+        ctx.restore();
     }
 
     calculatePerimeter() {
@@ -241,6 +455,12 @@ class TriangleSystem {
         };
     }
 
+    calculateDistance(p1, p2) {
+        const dx = this.roundToZero(p2.x - p1.x);
+        const dy = this.roundToZero(p2.y - p1.y);
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
     calculateAngles() {
         const lengths = this.calculateLengths();
         const { l1, l2, l3 } = lengths;
@@ -251,12 +471,32 @@ class TriangleSystem {
         };
     }
 
-    calculateMedians() {
-        const midpoints = {
-            m1: { x: (this.system.n2.x + this.system.n3.x) / 2, y: (this.system.n2.y + this.system.n3.y) / 2 },
-            m2: { x: (this.system.n1.x + this.system.n3.x) / 2, y: (this.system.n1.y + this.system.n3.y) / 2 },
-            m3: { x: (this.system.n1.x + this.system.n2.x) / 2, y: (this.system.n1.y + this.system.n2.y) / 2 }
+    calculateTangencyPoints() {
+        const { n1, n2, n3 } = this.system;
+        const { incenter, incircleRadius } = this.system;
+        
+        const calculateTangencyPoint = (p1, p2) => {
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const unitX = dx / dist;
+            const unitY = dy / dist;
+            
+            return {
+                x: incenter.x + incircleRadius * unitY,
+                y: incenter.y - incircleRadius * unitX
+            };
         };
+
+        return [
+            calculateTangencyPoint(n2, n3),
+            calculateTangencyPoint(n3, n1),
+            calculateTangencyPoint(n1, n2)
+        ];
+    }
+
+    calculateMedians() {
+        const midpoints = this.system.midpoints;
         return {
             n1: this.calculateDistance(this.system.n1, midpoints.m1),
             n2: this.calculateDistance(this.system.n2, midpoints.m2),
@@ -264,222 +504,88 @@ class TriangleSystem {
         };
     }
 
-    roundToZero(value, epsilon = 1e-10) {
-        return Math.abs(value) < epsilon ? 0 : value;
-    }
-
-    formatValue(value) {
-        if (typeof value === 'number') {
-            if (Math.abs(value) < 1e-10) {
-                return '0.00';
-            } else if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
-                return value.toExponential(2);
-            } else {
-                return value.toFixed(2);
-            }
-        }
-        return value.toString();
-    }
-
-    calculateIncircleRadius() {
-        const a = this.calculateDistance(this.system.n2, this.system.n3);
-        const b = this.calculateDistance(this.system.n1, this.system.n3);
-        const c = this.calculateDistance(this.system.n1, this.system.n2);
-        const s = (a + b + c) / 2;
-        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-        return area / s;
-    }
-
-    calculateTangentPoints() {
-        const radius = this.calculateIncircleRadius();
-        const tangentPoints = [];
-        ['n1', 'n2', 'n3'].forEach((node, index) => {
-            const nextNode = ['n2', 'n3', 'n1'][index];
-            const dx = this.system[nextNode].x - this.system[node].x;
-            const dy = this.system[nextNode].y - this.system[node].y;
-            const length = Math.sqrt(dx * dx + dy * dy);
-            const t = (length / 2 - radius) / length;
-            tangentPoints.push({
-                x: this.system[node].x + t * dx,
-                y: this.system[node].y + t * dy
-            });
-        });
-        return tangentPoints;
-    }
-
-    drawSystem() {
-        const ctx = this.ctx;
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        ctx.save();
-        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-        ctx.scale(1, -1);
-
-        this.drawTriangle(ctx);
-        this.drawNodes(ctx);
-
-        if (this.system.incenter) {
-            const radius = this.calculateIncircleRadius();
-            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
-            ctx.beginPath();
-            ctx.arc(this.system.incenter.x, this.system.incenter.y, radius, 0, 2 * Math.PI);
-            ctx.stroke();
-
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
-            ctx.beginPath();
-            ctx.arc(this.system.incenter.x, this.system.incenter.y, 6, 0, 2 * Math.PI);
-            ctx.fill();
-
-            const tangentPoints = this.calculateTangentPoints();
-            tangentPoints.forEach(point => {
-                ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
-                ctx.beginPath();
-                ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
-                ctx.fill();
-            });
-        }
-
-        if (this.showConnections) this.drawConnections(ctx);
-        if (this.showAreas) this.drawAreas(ctx);
-        if (this.showMidpoints) this.drawMidpoints(ctx);
-        if (this.showMedians) this.drawMedians(ctx);
-
-        this.drawAngles(ctx);
-        this.drawEdgeLengths(ctx);
-
-        ctx.restore();
-    }
-
-    drawTriangle(ctx) {
-        ctx.beginPath();
-        ctx.moveTo(this.system.n1.x, this.system.n1.y);
-        ctx.lineTo(this.system.n2.x, this.system.n2.y);
-        ctx.lineTo(this.system.n3.x, this.system.n3.y);
-        ctx.closePath();
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-
-    drawConnections(ctx) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.moveTo(this.system.n1.x, this.system.n1.y);
-        ctx.lineTo(0, 0);
-        ctx.moveTo(this.system.n2.x, this.system.n2.y);
-        ctx.lineTo(0, 0);
-        ctx.moveTo(this.system.n3.x, this.system.n3.y);
-        ctx.lineTo(0, 0);
-        ctx.stroke();
-        ctx.setLineDash([]);
-    }
-
-    drawAreas(ctx) {
-        const areas = [
-            { points: [this.system.n1, this.system.n2, {x: 0, y: 0}], color: 'rgba(255, 0, 0, 0.2)' },
-            { points: [this.system.n2, this.system.n3, {x: 0, y: 0}], color: 'rgba(0, 255, 0, 0.2)' },
-            { points: [this.system.n3, this.system.n1, {x: 0, y: 0}], color: 'rgba(0, 0, 255, 0.2)' }
-        ];
-
-        areas.forEach(area => {
-            ctx.beginPath();
-            ctx.moveTo(area.points[0].x, area.points[0].y);
-            ctx.lineTo(area.points[1].x, area.points[1].y);
-            ctx.lineTo(area.points[2].x, area.points[2].y);
-            ctx.closePath();
-            ctx.fillStyle = area.color;
-            ctx.fill();
-        });
-    }
-
-    drawMidpoints(ctx) {
-        const midpoints = [
-            { x: (this.system.n1.x + this.system.n2.x) / 2, y: (this.system.n1.y + this.system.n2.y) / 2 },
-            { x: (this.system.n2.x + this.system.n3.x) / 2, y: (this.system.n2.y + this.system.n3.y) / 2 },
-            { x: (this.system.n3.x + this.system.n1.x) / 2, y: (this.system.n3.y + this.system.n1.y) / 2 }
-        ];
-
-        ctx.fillStyle = 'yellow';
-        midpoints.forEach(point => {
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
-            ctx.fill();
-        });
-    }
-
-    drawMedians(ctx) {
-        const midpoints = [
-            { x: (this.system.n2.x + this.system.n3.x) / 2, y: (this.system.n2.y + this.system.n3.y) / 2 },
-            { x: (this.system.n1.x + this.system.n3.x) / 2, y: (this.system.n1.y + this.system.n3.y) / 2 },
-            { x: (this.system.n1.x + this.system.n2.x) / 2, y: (this.system.n1.y + this.system.n2.y) / 2 }
-        ];
-
-        ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.moveTo(this.system.n1.x, this.system.n1.y);
-        ctx.lineTo(midpoints[0].x, midpoints[0].y);
-        ctx.moveTo(this.system.n2.x, this.system.n2.y);
-        ctx.lineTo(midpoints[1].x, midpoints[1].y);
-        ctx.moveTo(this.system.n3.x, this.system.n3.y);
-        ctx.lineTo(midpoints[2].x, midpoints[2].y);
-        ctx.stroke();
-        ctx.setLineDash([]);
-    }
-
-    drawNodes(ctx) {
-        const drawNode = (point, color, label) => {
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, 6, 0, 2 * Math.PI);
-            ctx.fill();
-
-            ctx.fillStyle = 'white';
-            ctx.font = '12px Arial';
-            ctx.save();
-            ctx.scale(1, -1);
-            ctx.fillText(label, point.x + 10, -point.y - 10);
-            ctx.restore();
+    exportData() {
+        const safeGetValue = (selector) => {
+            const element = document.querySelector(selector);
+            return element ? element.value || element.textContent : 'N/A';
         };
 
-        drawNode(this.system.n1, 'red', 'N1');
-        drawNode(this.system.n2, 'green', 'N2');
-        drawNode(this.system.n3, 'blue', 'N3');
-        drawNode({x: 0, y: 0}, 'white', 'I');
-    }
+        const data = {
+            system: {
+                perimeter: safeGetValue('#system-perimeter'),
+                area: safeGetValue('#system-area')
+            },
+            nodes: {
+                n1: {
+                    coords: safeGetValue('#node-n1-coords'),
+                    angle: safeGetValue('#node-n1-angle')
+                },
+                n2: {
+                    coords: safeGetValue('#node-n2-coords'),
+                    angle: safeGetValue('#node-n2-angle')
+                },
+                n3: {
+                    coords: safeGetValue('#node-n3-coords'),
+                    angle: safeGetValue('#node-n3-angle')
+                }
+            },
+            channels: {
+                nc1: safeGetValue('#edge-nc1'),
+                nc2: safeGetValue('#edge-nc2'),
+                nc3: safeGetValue('#edge-nc3')
+            },
+            centers: {
+                centroid: safeGetValue('#centroid-coords'),
+                incenter: safeGetValue('#incenter-coords')
+            },
+            subsystems: {
+                subsystem1: {
+                    area: safeGetValue('#subsystem-1-area'),
+                    perimeter: safeGetValue('#subsystem-1-perimeter'),
+                    angle: safeGetValue('#subsystem-1-angle')
+                },
+                subsystem2: {
+                    area: safeGetValue('#subsystem-2-area'),
+                    perimeter: safeGetValue('#subsystem-2-perimeter'),
+                    angle: safeGetValue('#subsystem-2-angle')
+                },
+                subsystem3: {
+                    area: safeGetValue('#subsystem-3-area'),
+                    perimeter: safeGetValue('#subsystem-3-perimeter'),
+                    angle: safeGetValue('#subsystem-3-angle')
+                }
+            },
+            info: {
+                dCentroidIncircle: safeGetValue('#i-to-ic-distance'),
+                medianN1: safeGetValue('#median-n1'),
+                medianN2: safeGetValue('#median-n2'),
+                medianN3: safeGetValue('#median-n3')
+            }
+        };
 
-    drawAngles(ctx) {
-        const angles = this.calculateAngles();
-        ['n1', 'n2', 'n3'].forEach((node, index) => {
-            const point = this.system[node];
-            const angle = `${angles[node].toFixed(1)}°`;
-            ctx.fillStyle = 'white';
-            ctx.font = '12px Arial';
-            ctx.save();
-            ctx.scale(1, -1);
-            let xOffset = 20, yOffset = 20;
-            if (index === 1) xOffset = -40;
-            if (index === 2) yOffset = -20;
-            ctx.fillText(angle, point.x + xOffset, -point.y + yOffset);
-            ctx.restore();
-        });
-    }
+        let csv = 'Category,Property,Value\n';
+        for (const [category, properties] of Object.entries(data)) {
+            for (const [property, value] of Object.entries(properties)) {
+                if (typeof value === 'object') {
+                    for (const [subProperty, subValue] of Object.entries(value)) {
+                        csv += `${category},${property}_${subProperty},${subValue}\n`;
+                    }
+                } else {
+                    csv += `${category},${property},${value}\n`;
+                }
+            }
+        }
 
-    drawEdgeLengths(ctx) {
-        const lengths = this.calculateLengths();
-        const midpoints = [
-            { x: (this.system.n2.x + this.system.n3.x) / 2, y: (this.system.n2.y + this.system.n3.y) / 2 },
-            { x: (this.system.n1.x + this.system.n3.x) / 2, y: (this.system.n1.y + this.system.n3.y) / 2 },
-            { x: (this.system.n1.x + this.system.n2.x) / 2, y: (this.system.n1.y + this.system.n2.y) / 2 }
-        ];
-        ctx.fillStyle = 'white';
-        ctx.font = '12px Arial';
-        ctx.save();
-        ctx.scale(1, -1);
-        ctx.fillText(lengths.l1.toFixed(0), midpoints[0].x, -midpoints[0].y - 10);
-        ctx.fillText(lengths.l2.toFixed(0), midpoints[1].x + 10, -midpoints[1].y + 20);
-        ctx.fillText(lengths.l3.toFixed(0), midpoints[2].x - 30, -midpoints[2].y + 20);
-        ctx.restore();
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'triangle_system_data.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
 
     initializeEventListeners() {
@@ -490,6 +596,11 @@ class TriangleSystem {
                 button.addEventListener('click', () => this.initializeSystem(preset));
             }
         });
+
+        const exportButton = document.querySelector('#export-data');
+        if (exportButton) {
+            exportButton.addEventListener('click', () => this.exportData());
+        }
 
         ['Midpoints', 'Incircle', 'Incenter', 'Medians', 'Areas'].forEach(feature => {
             const button = document.querySelector(`#toggle${feature}`);
@@ -510,7 +621,7 @@ class TriangleSystem {
     handleMouseDown(event) {
         const mousePos = this.getMousePosition(event);
         for (const node of ['n1', 'n2', 'n3']) {
-            if (this.isClickOnNode(mousePos, this.system[node])) {
+            if (this.isClickOnNode(mousePos.x, mousePos.y, this.system[node])) {
                 this.isDragging = true;
                 this.draggedNode = node;
                 break;
@@ -544,16 +655,32 @@ class TriangleSystem {
         };
     }
 
-    isClickOnNode(mousePos, node) {
-        const distance = Math.sqrt(Math.pow(mousePos.x - node.x, 2) + Math.pow(mousePos.y - node.y, 2));
-        return distance <= 6;
+    isClickOnNode(x, y, node) {
+        const distance = Math.sqrt(Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2));
+        return distance <= 8;
     }
+}
+
+function checkInputFields() {
+    const inputFields = document.querySelectorAll('input[type="text"]');
+    inputFields.forEach(field => {
+        const contentLength = field.value.length;
+        const newSize = Math.max(contentLength, 6);
+        if (field.size !== newSize || !field.readOnly) {
+            console.warn(`Adjusting input field ${field.id}. Old Size: ${field.size}, New Size: ${newSize}, ReadOnly: ${field.readOnly}`);
+            field.size = newSize;
+            field.readOnly = true;
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('#canvas');
     if (canvas) {
         window.triangleSystem = new TriangleSystem(canvas);
+        checkInputFields();
+        
+        window.triangleSystem.initializeSystem('equilateral');
     } else {
         console.error("Canvas element not found");
     }
