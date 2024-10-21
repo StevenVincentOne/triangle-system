@@ -118,6 +118,18 @@ class TriangleSystem {
         this.drawSystem();
     }
 
+    adjustTriangleToOrigin() {
+        const centroid = {
+            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+        };
+
+        ['n1', 'n2', 'n3'].forEach(node => {
+            this.system[node].x -= centroid.x;
+            this.system[node].y -= centroid.y;
+        });
+    }
+
     drawSystem() {
         console.log("Drawing system");
         const draw = () => {
