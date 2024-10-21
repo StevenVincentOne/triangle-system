@@ -1,0 +1,101 @@
+Strange readings for centroid and incircle positions:
+The very small values (like 9.47e-15) are essentially zero, but due to floating-point arithmetic, they're not exactly zero. Let's adjust our formatValue method to round these tiny values to zero:
+formatValue(value) {
+    if (typeof value === 'number') {
+        if (Math.abs(value) < 1e-10) {
+            return '0.00';
+        } else if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
+            return value.toExponential(2);
+        } else {
+            return value.toFixed(2);
+        }
+    }
+    return value.toString();
+}
+Missing incircle tangent dots and incorrect incenter color:
+Let's update the drawSystem method to ensure we're drawing these elements correctly:
+drawSystem() {
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.save();
+    ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+    ctx.scale(1, -1); // Flip the y-axis
+    // Draw the triangle
+    ctx.beginPath();
+    ctx.moveTo(this.system.n1.x, this.system.n1.y);
+    ctx.lineTo(this.system.n2.x, this.system.n2.y);
+    ctx.lineTo(this.system.n3.x, this.system.n3.y);
+    ctx.closePath();
+    ctx.stroke();
+    // Draw nodes
+    this.drawNode(ctx, this.system.n1, 'N1');
+    this.drawNode(ctx, this.system.n2, 'N2');
+    this.drawNode(ctx, this.system.n3, 'N3');
+    // Draw incircle and incenter
+    if (this.system.incenter) {
+        const radius = this.calculateIncircleRadius();
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+        ctx.beginPath();
+        ctx.arc(this.system.incenter.x, this.system.incenter.y, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        // Draw incenter
+        ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+        ctx.beginPath();
+        ctx.arc(this.system.incenter.x, this.system.incenter.y, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        // Draw tangent points
+        const tangentPoints = this.calculateTangentPoints();
+        tangentPoints.forEach(point => {
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+            ctx.fill();
+        });
+    }
+    ctx.restore();
+}
+calculateTangentPoints() {
+    const radius = this.calculateIncircleRadius();
+    const tangentPoints = [];
+    ['n1', 'n2', 'n3'].forEach((node, index) => {
+        const nextNode = ['n2', 'n3', 'n1'][index];
+        const dx = this.system[nextNode].x - this.system[node].x;
+        const dy = this.system[nextNode].y - this.system[node].y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const ux = dx / length;
+        const uy = dy / length;
+        tangentPoints.push({
+            x: this.system.incenter.x - radius * uy,
+            y: this.system.incenter.y + radius * ux
+        });
+    });
+    return tangentPoints;
+}
+calculateIncircleRadius() {
+    const a = this.calculateDistance(this.system.n2, this.system.n3);
+    const b = this.calculateDistance(this.system.n1, this.system.n3);
+    const c = this.calculateDistance(this.system.n1, this.system.n2);
+    const s = (a + b + c) / 2; // Semi-perimeter
+    const area = Math.sqrt(s * (s - a) * (s - b) * (s - c)); // Heron's formula
+    return area / s;
+}
+Ensure the calculateIncenter method is correct:
+calculateIncenter() {
+    const a = this.calculateDistance(this.system.n2, this.system.n3);
+    const b = this.calculateDistance(this.system.n1, this.system.n3);
+    const c = this.calculateDistance(this.system.n1, this.system.n2);
+    const x = (a * this.system.n1.x + b * this.system.n2.x + c * this.system.n3.x) / (a + b + c);
+    const y = (a * this.system.n1.y + b * this.system.n2.y + c * this.system.n3.y) / (a + b + c);
+    this.system.incenter = { x, y };
+}
+Make sure to call drawSystem after updating the dashboard:
+updateDashboard() {
+    // ... existing code ...
+    this.updateInformationPanel();
+    this.drawSystem(); // Add this line
+}
+These changes should address the issues you've mentioned:
+
+The strange readings should now be properly formatted.
+The incenter and tangent points should be visible and in pale blue.
+The calculations for the incenter and incircle should be correct.

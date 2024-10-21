@@ -80,7 +80,7 @@ class TriangleSystem {
         }
 
         this.adjustTriangleToOrigin();
-        this.calculateIncenter(); // Add this line
+        this.calculateIncenter();
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
@@ -181,6 +181,7 @@ class TriangleSystem {
         }
 
         this.updateInformationPanel();
+        this.drawSystem(); // Add this line
     }
 
     updateInformationPanel() {
@@ -274,7 +275,9 @@ class TriangleSystem {
 
     formatValue(value) {
         if (typeof value === 'number') {
-            if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
+            if (Math.abs(value) < 1e-10) {
+                return '0.00';
+            } else if (Math.abs(value) >= 1e5 || (Math.abs(value) < 1e-5 && value !== 0)) {
                 return value.toExponential(2);
             } else {
                 return value.toFixed(2);
@@ -284,34 +287,52 @@ class TriangleSystem {
     }
 
     drawSystem() {
-        const draw = () => {
-            const ctx = this.ctx;
-            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.save();
+        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+        ctx.scale(1, -1); // Flip the y-axis
 
-            ctx.save();
-            ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-            ctx.scale(1, -1);
+        // Draw the triangle
+        this.drawTriangle(ctx);
 
-            this.drawTriangle(ctx);
-            if (this.showConnections) this.drawConnections(ctx);
-            if (this.showAreas) this.drawAreas(ctx);
-            if (this.showMidpoints) this.drawMidpoints(ctx);
-            if (this.showIncircle) this.drawIncircle(ctx);
-            if (this.showIncenter) this.drawIncenter(ctx);
-            if (this.showMedians) this.drawMedians(ctx);
+        // Draw nodes
+        this.drawNodes(ctx);
 
-            this.drawNodes(ctx);
-            this.drawAngles(ctx);
-            this.drawEdgeLengths(ctx);
+        // Draw incircle, incenter, and tangent points
+        if (this.system.incenter) {
+            const radius = this.calculateIncircleRadius();
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+            ctx.beginPath();
+            ctx.arc(this.system.incenter.x, this.system.incenter.y, radius, 0, 2 * Math.PI);
+            ctx.stroke();
 
-            ctx.restore();
+            // Draw incenter
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+            ctx.beginPath();
+            ctx.arc(this.system.incenter.x, this.system.incenter.y, 3, 0, 2 * Math.PI);
+            ctx.fill();
 
-            if (this.isDragging) {
-                requestAnimationFrame(draw);
-            }
-        };
+            // Draw tangent points
+            const tangentPoints = this.calculateTangentPoints();
+            tangentPoints.forEach(point => {
+                ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
 
-        draw();
+        // Draw other elements (connections, areas, midpoints, medians, etc.)
+        if (this.showConnections) this.drawConnections(ctx);
+        if (this.showAreas) this.drawAreas(ctx);
+        if (this.showMidpoints) this.drawMidpoints(ctx);
+        if (this.showMedians) this.drawMedians(ctx);
+
+        this.drawAngles(ctx);
+        this.drawEdgeLengths(ctx);
+
+        ctx.restore();
     }
 
     drawTriangle(ctx) {
@@ -372,27 +393,31 @@ class TriangleSystem {
         });
     }
 
-    drawIncircle(ctx) {
-        if (!this.system.incenter) return;
-        const radius = this.calculateIncircleRadius();
-        ctx.strokeStyle = 'cyan';
-        ctx.beginPath();
-        ctx.arc(this.system.incenter.x, this.system.incenter.y, radius, 0, 2 * Math.PI);
-        ctx.stroke();
-    }
-
     calculateIncircleRadius() {
-        const area = this.calculateArea();
-        const semiPerimeter = this.calculatePerimeter() / 2;
-        return area / semiPerimeter;
+        const a = this.calculateDistance(this.system.n2, this.system.n3);
+        const b = this.calculateDistance(this.system.n1, this.system.n3);
+        const c = this.calculateDistance(this.system.n1, this.system.n2);
+        const s = (a + b + c) / 2; // Semi-perimeter
+        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c)); // Heron's formula
+        return area / s;
     }
 
-    drawIncenter(ctx) {
-        if (!this.system.incenter) return;
-        ctx.fillStyle = 'yellow';
-        ctx.beginPath();
-        ctx.arc(this.system.incenter.x, this.system.incenter.y, 4, 0, 2 * Math.PI);
-        ctx.fill();
+    calculateTangentPoints() {
+        const radius = this.calculateIncircleRadius();
+        const tangentPoints = [];
+        ['n1', 'n2', 'n3'].forEach((node, index) => {
+            const nextNode = ['n2', 'n3', 'n1'][index];
+            const dx = this.system[nextNode].x - this.system[node].x;
+            const dy = this.system[nextNode].y - this.system[node].y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const ux = dx / length;
+            const uy = dy / length;
+            tangentPoints.push({
+                x: this.system.incenter.x - radius * uy,
+                y: this.system.incenter.y + radius * ux
+            });
+        });
+        return tangentPoints;
     }
 
     drawMedians(ctx) {
