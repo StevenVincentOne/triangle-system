@@ -4,12 +4,11 @@ class TriangleSystem {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.system = {};
-        this.showConnections = true;
-        this.showAreas = false;
         this.showMidpoints = false;
         this.showIncircle = false;
         this.showIncenter = false;
         this.showMedians = false;
+        this.showAreas = false;
         this.isDragging = false;
         this.draggedNode = null;
 
@@ -115,16 +114,25 @@ class TriangleSystem {
                 break;
         }
 
+        // Calculate the current centroid
+        const centroid = {
+            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+        };
+
+        // Adjust all coordinates to move the centroid to (0, 0)
+        for (const node of ['n1', 'n2', 'n3']) {
+            this.system[node].x -= centroid.x;
+            this.system[node].y -= centroid.y;
+        }
+
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
     }
 
     updateDerivedPoints() {
-        this.system.intelligence = {
-            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
-            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
-        };
+        this.system.intelligence = { x: 0, y: 0 }; // Centroid is always at (0, 0) now
 
         const a = this.calculateDistance(this.system.n2, this.system.n3);
         const b = this.calculateDistance(this.system.n1, this.system.n3);
@@ -171,8 +179,21 @@ class TriangleSystem {
         // Draw centroid (intelligence)
         this.drawNode(ctx, this.system.intelligence, 'white', 'I');
 
+        // Draw additional features based on toggle states
+        if (this.showMidpoints) {
+            this.drawMidpoints(ctx);
+        }
+        if (this.showIncircle) {
+            this.drawIncircle(ctx);
+        }
         if (this.showIncenter) {
             this.drawNode(ctx, this.system.incenter, 'yellow', 'IC');
+        }
+        if (this.showMedians) {
+            this.drawMedians(ctx);
+        }
+        if (this.showAreas) {
+            this.drawAreas(ctx);
         }
 
         ctx.restore();
@@ -209,6 +230,49 @@ class TriangleSystem {
         ctx.save();
         ctx.scale(1, -1);
         ctx.fillText(label, point.x + 10, -point.y - 10);
+        ctx.restore();
+    }
+
+    drawMidpoints(ctx) {
+        const midpoints = this.system.tangencyPoints;
+        ctx.fillStyle = 'orange';
+        for (const point of midpoints) {
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    }
+
+    drawIncircle(ctx) {
+        const incenter = this.system.incenter;
+        const radius = this.calculateIncircleRadius();
+        ctx.beginPath();
+        ctx.arc(incenter.x, incenter.y, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'yellow';
+        ctx.stroke();
+    }
+
+    drawMedians(ctx) {
+        ctx.beginPath();
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(0, 0);
+        ctx.moveTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(0, 0);
+        ctx.moveTo(this.system.n3.x, this.system.n3.y);
+        ctx.lineTo(0, 0);
+        ctx.strokeStyle = 'purple';
+        ctx.stroke();
+    }
+
+    drawAreas(ctx) {
+        const area = this.calculateArea();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.font = '14px Arial';
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.fillText(`Area: ${this.formatValue(area)}`, 10, -10);
         ctx.restore();
     }
 
@@ -344,6 +408,15 @@ class TriangleSystem {
         return this.calculateArea() / 3;
     }
 
+    calculateIncircleRadius() {
+        const a = this.calculateDistance(this.system.n2, this.system.n3);
+        const b = this.calculateDistance(this.system.n1, this.system.n3);
+        const c = this.calculateDistance(this.system.n1, this.system.n2);
+        const s = (a + b + c) / 2;
+        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+        return area / s;
+    }
+
     formatValue(value) {
         if (typeof value === 'number') {
             return Number(value.toFixed(2)).toString();
@@ -429,13 +502,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Add event listeners for toggle buttons
-        const toggleButtons = ['toggleMidpoints', 'toggleIncircle', 'toggleIncenter', 'toggleMedians', 'toggleAreas'];
-        toggleButtons.forEach(buttonId => {
+        const toggleButtons = {
+            'toggleMidpoints': 'showMidpoints',
+            'toggleIncircle': 'showIncircle',
+            'toggleIncenter': 'showIncenter',
+            'toggleMedians': 'showMedians',
+            'toggleAreas': 'showAreas'
+        };
+
+        Object.entries(toggleButtons).forEach(([buttonId, propertyName]) => {
             const button = document.getElementById(buttonId);
             if (button) {
                 button.addEventListener('click', () => {
                     console.log(`${buttonId} clicked`);
-                    window.triangleSystem[buttonId.replace('toggle', 'show')] = !window.triangleSystem[buttonId.replace('toggle', 'show')];
+                    window.triangleSystem[propertyName] = !window.triangleSystem[propertyName];
                     window.triangleSystem.drawSystem();
                 });
             } else {
