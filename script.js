@@ -34,7 +34,7 @@ class TriangleSystem {
                 break;
             case 'isosceles':
                 this.system = {
-                    n1: { x: 0, y: Math.sqrt(400*400 - 100*100) },
+                    n1: { x: 0, y: Math.sqrt(400 * 400 - 100 * 100) },
                     n2: { x: -100, y: 0 },
                     n3: { x: 100, y: 0 },
                 };
@@ -145,23 +145,18 @@ class TriangleSystem {
         const setElementValue = (selector, value, label = '') => {
             const element = document.querySelector(selector);
             if (element) {
-                const formattedValue = this.formatValue(value);
-                element.value = formattedValue;
+                element.value = this.formatValue(value);
                 if (label) {
                     const labelElement = element.previousElementSibling;
                     if (labelElement) {
                         labelElement.textContent = label.replace(':', '');
                     }
                 }
-                console.log(`Set ${selector} to ${formattedValue}`);
-            } else {
-                console.warn(`Element not found: ${selector}`);
             }
         };
 
         const totalArea = this.calculateArea();
         const subsystemArea = totalArea / 3;
-
         setElementValue('#system-perimeter', this.calculatePerimeter(), 'P:');
         setElementValue('#system-area', totalArea, 'A:');
         setElementValue('#subsystems-area', subsystemArea, 'SS A:');
@@ -190,19 +185,59 @@ class TriangleSystem {
         setElementValue('#median-n2', medians.n2, 'N2:');
         setElementValue('#median-n3', medians.n3, 'N3:');
 
-        ['n1', 'n2', 'n3'].forEach(node => {
-            setElementValue(`#node-${node}-coords`, `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`, `${node.toUpperCase()} (x, y):`);
-            setElementValue(`#node-${node}-angle`, `${angles[node].toFixed(2)}°`, `${node.toUpperCase()} ∠:`);
+        // Call the separate method
+        this.updateInformationPanel();
+    }
+
+    updateInformationPanel() {
+        const setElementValue = (selector, value) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.value = this.formatValue(value);
+            }
+        };
+
+        // Calculate centroid
+        const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
+        const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
+        const dIIC = this.calculateDistance({ x: centroidX, y: centroidY }, this.system.incenter);
+
+        // Round very small values to zero
+        const roundToZero = (value, epsilon = 1e-10) => Math.abs(value) < epsilon ? 0 : value;
+
+        const dIICRounded = roundToZero(dIIC);
+        setElementValue('#d-i-ic', dIICRounded);
+
+        const perimeter = this.calculatePerimeter();
+        const rIIC = roundToZero(dIICRounded / perimeter);
+        setElementValue('#r-i-ic', rIIC);
+
+        const midpoints = this.calculateMidpoints();
+        const tangentPoints = this.calculateTangentPoints();
+
+        ['n1', 'n2', 'n3'].forEach((node, index) => {
+            const midpoint = midpoints[`m${index + 1}`];
+            const tangentPoint = tangentPoints[index];
+            const dMT = this.calculateDistance(midpoint, tangentPoint);
+            const rMT = dMT / perimeter;
+            setElementValue(`#d-m-t-${node}`, roundToZero(dMT));
+            setElementValue(`#r-m-t-${node}`, roundToZero(rMT));
         });
 
-        setElementValue('#centroid-coords', `${this.formatValue(this.roundToZero(this.system.intelligence.x))}, ${this.formatValue(this.roundToZero(this.system.intelligence.y))}`, 'I x,y');
-        setElementValue('#incenter-coords', `${this.formatValue(this.roundToZero(this.system.incenter.x))}, ${this.formatValue(this.roundToZero(this.system.incenter.y))}`, 'IC x,y');
+        // Additional Information Panel Updates
+        ['n1', 'n2', 'n3'].forEach(node => {
+            setElementValue(`#node-${node}-coords`, `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`);
+            setElementValue(`#node-${node}-angle`, `${this.calculateAngles()[node].toFixed(2)}°`);
+        });
+
+        setElementValue('#centroid-coords', `${this.formatValue(this.roundToZero(centroidX))}, ${this.formatValue(this.roundToZero(centroidY))}`);
+        setElementValue('#incenter-coords', `${this.formatValue(this.roundToZero(this.system.incenter.x))}, ${this.formatValue(this.roundToZero(this.system.incenter.y))}`);
 
         const iToIcDistance = this.calculateDistance(
-            {x: this.roundToZero(this.system.intelligence.x), y: this.roundToZero(this.system.intelligence.y)},
-            {x: this.roundToZero(this.system.incenter.x), y: this.roundToZero(this.system.incenter.y)}
+            { x: this.roundToZero(this.system.intelligence.x), y: this.roundToZero(this.system.intelligence.y) },
+            { x: this.roundToZero(this.system.incenter.x), y: this.roundToZero(this.system.incenter.y) }
         );
-        setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC)');
+        setElementValue('#i-to-ic-distance', iToIcDistance);
     }
 
     formatValue(value) {
@@ -442,9 +477,9 @@ class TriangleSystem {
     }
 
     calculateArea() {
-        const [a, b, c] = Object.values(this.calculateLengths());
-        const s = (a + b + c) / 2;
-        return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+        const { l1, l2, l3 } = this.calculateLengths();
+        const s = (l1 + l2 + l3) / 2;
+        return Math.sqrt(s * (s - l1) * (s - l2) * (s - l3));
     }
 
     calculateLengths() {
@@ -461,13 +496,43 @@ class TriangleSystem {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
+    calculateMidpoints() {
+        return {
+            m1: { x: (this.system.n2.x + this.system.n3.x) / 2, y: (this.system.n2.y + this.system.n3.y) / 2 },
+            m2: { x: (this.system.n1.x + this.system.n3.x) / 2, y: (this.system.n1.y + this.system.n3.y) / 2 },
+            m3: { x: (this.system.n1.x + this.system.n2.x) / 2, y: (this.system.n1.y + this.system.n2.y) / 2 }
+        };
+    }
+
+    calculateTangentPoints() {
+        const a = this.calculateDistance(this.system.n2, this.system.n3);
+        const b = this.calculateDistance(this.system.n1, this.system.n3);
+        const c = this.calculateDistance(this.system.n1, this.system.n2);
+        const s = (a + b + c) / 2;
+        return [
+            this.calculateTangentPoint(this.system.n2, this.system.n3, s - a),
+            this.calculateTangentPoint(this.system.n1, this.system.n3, s - b),
+            this.calculateTangentPoint(this.system.n1, this.system.n2, s - c)
+        ];
+    }
+
+    calculateTangentPoint(p1, p2, t) {
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        return {
+            x: p1.x + (dx * t) / dist,
+            y: p1.y + (dy * t) / dist
+        };
+    }
+
     calculateAngles() {
         const lengths = this.calculateLengths();
         const { l1, l2, l3 } = lengths;
         return {
-            n1: Math.acos((l2*l2 + l3*l3 - l1*l1) / (2*l2*l3)) * 180 / Math.PI,
-            n2: Math.acos((l1*l1 + l3*l3 - l2*l2) / (2*l1*l3)) * 180 / Math.PI,
-            n3: Math.acos((l1*l1 + l2*l2 - l3*l3) / (2*l1*l2)) * 180 / Math.PI
+            n1: Math.acos((l2 * l2 + l3 * l3 - l1 * l1) / (2 * l2 * l3)) * 180 / Math.PI,
+            n2: Math.acos((l1 * l1 + l3 * l3 - l2 * l2) / (2 * l1 * l3)) * 180 / Math.PI,
+            n3: Math.acos((l1 * l1 + l2 * l2 - l3 * l3) / (2 * l1 * l2)) * 180 / Math.PI
         };
     }
 
