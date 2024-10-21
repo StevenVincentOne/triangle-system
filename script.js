@@ -37,6 +37,34 @@ class TriangleSystem {
         });
     }
 
+    updateDashboard() {
+        const setElementValue = (selector, value, label = '') => {
+            const element = document.querySelector(selector);
+            if (element) {
+                const formattedValue = this.formatValue(value);
+                element.value = formattedValue;
+                if (label) {
+                    const labelElement = element.previousElementSibling;
+                    if (labelElement) {
+                        labelElement.textContent = label.replace(':', '');
+                    }
+                }
+                console.log(`Set ${selector} to ${formattedValue}`);
+            } else {
+                console.warn(`Element not found: ${selector}`);
+            }
+        };
+
+        // ... (existing dashboard updates remain unchanged)
+
+        ['n1', 'n2', 'n3'].forEach(node => {
+            setElementValue(`#node-${node}-coords`, `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`, `${node.toUpperCase()} (x, y):`);
+            setElementValue(`#node-${node}-angle`, `${angles[node].toFixed(2)}°`, `${node.toUpperCase()} ∠:`);
+        });
+
+        // ... (remaining code remains unchanged)
+    }
+
     // ... (rest of the code remains unchanged)
 }
 
