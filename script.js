@@ -65,6 +65,67 @@ class TriangleSystem {
         return distance <= 8;
     }
 
+    initializeSystem(shape = 'equilateral') {
+        const side = 200;
+        const height = side * Math.sqrt(3) / 2;
+        
+        this.system = {
+            n1: { x: -side / 2, y: -height / 3 },
+            n2: { x: side / 2, y: -height / 3 },
+            n3: { x: 0, y: 2 * height / 3 }
+        };
+        
+        switch (shape) {
+            case 'isosceles':
+                this.system.n2.x = -this.system.n2.x;
+                this.system.n3.x = 0;
+                this.system.n3.y = height / 2;
+                break;
+            case 'scalene':
+                this.system.n1.x *= 0.8;
+                this.system.n2.x *= 1.2;
+                this.system.n3.y *= 0.9;
+                break;
+            case 'right':
+                this.system.n1 = { x: -side / 2, y: -height / 2 };
+                this.system.n2 = { x: side / 2, y: -height / 2 };
+                this.system.n3 = { x: -side / 2, y: height / 2 };
+                break;
+        }
+        
+        this.updateDerivedPoints();
+        this.updateDashboard();
+        this.drawSystem();
+    }
+
+    updateDerivedPoints() {
+        const { n1, n2, n3 } = this.system;
+        
+        this.system.intelligence = {
+            x: (n1.x + n2.x + n3.x) / 3,
+            y: (n1.y + n2.y + n3.y) / 3
+        };
+        
+        const a = this.calculateDistance(n2, n3);
+        const b = this.calculateDistance(n1, n3);
+        const c = this.calculateDistance(n1, n2);
+        const perimeterHalf = (a + b + c) / 2;
+        
+        this.system.incenter = {
+            x: (a * n1.x + b * n2.x + c * n3.x) / (a + b + c),
+            y: (a * n1.y + b * n2.y + c * n3.y) / (a + b + c)
+        };
+        
+        const area = Math.sqrt(perimeterHalf * (perimeterHalf - a) * (perimeterHalf - b) * (perimeterHalf - c));
+        this.system.incircleRadius = area / perimeterHalf;
+        
+        this.system.midpoints = {
+            m1: { x: (n2.x + n3.x) / 2, y: (n2.y + n3.y) / 2 },
+            m2: { x: (n1.x + n3.x) / 2, y: (n1.y + n3.y) / 2 },
+            m3: { x: (n1.x + n2.x) / 2, y: (n1.y + n2.y) / 2 }
+        };
+    }
+
     drawSystem() {
         const draw = () => {
             const ctx = this.ctx;
