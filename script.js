@@ -192,6 +192,21 @@ class TriangleSystem {
         }
     }
 
+    drawConnections(ctx) {
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(this.system.intelligence.x, this.system.intelligence.y);
+        ctx.moveTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.intelligence.x, this.system.intelligence.y);
+        ctx.moveTo(this.system.n3.x, this.system.n3.y);
+        ctx.lineTo(this.system.intelligence.x, this.system.intelligence.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
     formatValue(value) {
         return typeof value === 'number' ? value.toFixed(2) : value;
     }
