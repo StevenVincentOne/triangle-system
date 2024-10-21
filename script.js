@@ -80,6 +80,7 @@ class TriangleSystem {
         }
 
         this.adjustTriangleToOrigin();
+        this.calculateIncenter(); // Add this line
         this.updateDerivedPoints();
         this.updateDashboard();
         this.drawSystem();
@@ -136,12 +137,21 @@ class TriangleSystem {
 
         const angles = this.calculateAngles();
         const lengths = this.calculateLengths();
-        const I = this.system.intelligence;
+
+        // Ensure centroid is calculated
+        const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
+        const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
+        const centroid = { x: centroidX, y: centroidY };
+
+        // Ensure incenter is calculated
+        if (!this.system.incenter) {
+            this.calculateIncenter();
+        }
 
         const subsystemPerimeters = {
-            ss1: this.calculateDistance(I, this.system.n1) + this.calculateDistance(I, this.system.n2) + lengths.l1,
-            ss2: this.calculateDistance(I, this.system.n2) + this.calculateDistance(I, this.system.n3) + lengths.l2,
-            ss3: this.calculateDistance(I, this.system.n3) + this.calculateDistance(I, this.system.n1) + lengths.l3
+            ss1: this.calculateDistance(centroid, this.system.n1) + this.calculateDistance(centroid, this.system.n2) + lengths.l1,
+            ss2: this.calculateDistance(centroid, this.system.n2) + this.calculateDistance(centroid, this.system.n3) + lengths.l2,
+            ss3: this.calculateDistance(centroid, this.system.n3) + this.calculateDistance(centroid, this.system.n1) + lengths.l3
         };
 
         ['1', '2', '3'].forEach((i) => {
@@ -162,14 +172,13 @@ class TriangleSystem {
             setElementValue(`#node-${node}-angle`, `${angles[node].toFixed(2)}°`, `${node.toUpperCase()} ∠:`);
         });
 
-        setElementValue('#centroid-coords', `${this.formatValue(this.roundToZero(this.system.intelligence.x))}, ${this.formatValue(this.roundToZero(this.system.intelligence.y))}`, 'I x,y');
-        setElementValue('#incenter-coords', `${this.formatValue(this.roundToZero(this.system.incenter.x))}, ${this.formatValue(this.roundToZero(this.system.incenter.y))}`, 'IC x,y');
-
-        const iToIcDistance = this.calculateDistance(
-            {x: this.roundToZero(this.system.intelligence.x), y: this.roundToZero(this.system.intelligence.y)},
-            {x: this.roundToZero(this.system.incenter.x), y: this.roundToZero(this.system.incenter.y)}
-        );
-        setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC)');
+        setElementValue('#centroid-coords', `${this.formatValue(centroidX)}, ${this.formatValue(centroidY)}`, 'I (x,y)');
+        
+        if (this.system.incenter) {
+            setElementValue('#incenter-coords', `${this.formatValue(this.system.incenter.x)}, ${this.formatValue(this.system.incenter.y)}`, 'IC (x,y)');
+            const iToIcDistance = this.calculateDistance(centroid, this.system.incenter);
+            setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC)');
+        }
 
         this.updateInformationPanel();
     }
@@ -207,6 +216,11 @@ class TriangleSystem {
     }
 
     calculateDistance(point1, point2) {
+        if (!point1 || !point2 || typeof point1.x === 'undefined' || typeof point1.y === 'undefined' || 
+            typeof point2.x === 'undefined' || typeof point2.y === 'undefined') {
+            console.error('Invalid points provided to calculateDistance:', point1, point2);
+            return 0; // Return a default value to prevent further errors
+        }
         const dx = point2.x - point1.x;
         const dy = point2.y - point1.y;
         return Math.sqrt(dx * dx + dy * dy);
