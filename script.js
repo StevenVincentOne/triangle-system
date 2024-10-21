@@ -138,12 +138,10 @@ class TriangleSystem {
         const angles = this.calculateAngles();
         const lengths = this.calculateLengths();
 
-        // Ensure centroid is calculated
         const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
         const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
         const centroid = { x: centroidX, y: centroidY };
 
-        // Ensure incenter is calculated
         if (!this.system.incenter) {
             this.calculateIncenter();
         }
@@ -181,7 +179,7 @@ class TriangleSystem {
         }
 
         this.updateInformationPanel();
-        this.drawSystem(); // Add this line
+        this.drawSystem();
     }
 
     updateInformationPanel() {
@@ -192,17 +190,14 @@ class TriangleSystem {
             }
         };
 
-        // Calculate d(I, IC)
         const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
         const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
         const dIIC = this.calculateDistance({x: centroidX, y: centroidY}, this.system.incenter);
         setElementValue('#d-i-ic', dIIC);
 
-        // Calculate r(I, IC)
         const rIIC = dIIC / this.calculatePerimeter();
         setElementValue('#r-i-ic', rIIC);
 
-        // Calculate d(M, T) and r(M, T) for each node
         ['n1', 'n2', 'n3'].forEach((node, index) => {
             const nextNode = ['n2', 'n3', 'n1'][index];
             const midpoint = {
@@ -220,7 +215,7 @@ class TriangleSystem {
         if (!point1 || !point2 || typeof point1.x === 'undefined' || typeof point1.y === 'undefined' || 
             typeof point2.x === 'undefined' || typeof point2.y === 'undefined') {
             console.error('Invalid points provided to calculateDistance:', point1, point2);
-            return 0; // Return a default value to prevent further errors
+            return 0;
         }
         const dx = point2.x - point1.x;
         const dy = point2.y - point1.y;
@@ -286,44 +281,63 @@ class TriangleSystem {
         return value.toString();
     }
 
+    calculateIncircleRadius() {
+        const a = this.calculateDistance(this.system.n2, this.system.n3);
+        const b = this.calculateDistance(this.system.n1, this.system.n3);
+        const c = this.calculateDistance(this.system.n1, this.system.n2);
+        const s = (a + b + c) / 2;
+        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+        return area / s;
+    }
+
+    calculateTangentPoints() {
+        const radius = this.calculateIncircleRadius();
+        const tangentPoints = [];
+        ['n1', 'n2', 'n3'].forEach((node, index) => {
+            const nextNode = ['n2', 'n3', 'n1'][index];
+            const dx = this.system[nextNode].x - this.system[node].x;
+            const dy = this.system[nextNode].y - this.system[node].y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const t = (length / 2 - radius) / length;
+            tangentPoints.push({
+                x: this.system[node].x + t * dx,
+                y: this.system[node].y + t * dy
+            });
+        });
+        return tangentPoints;
+    }
+
     drawSystem() {
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.save();
         ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-        ctx.scale(1, -1); // Flip the y-axis
+        ctx.scale(1, -1);
 
-        // Draw the triangle
         this.drawTriangle(ctx);
-
-        // Draw nodes
         this.drawNodes(ctx);
 
-        // Draw incircle, incenter, and tangent points
         if (this.system.incenter) {
             const radius = this.calculateIncircleRadius();
-            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
             ctx.beginPath();
             ctx.arc(this.system.incenter.x, this.system.incenter.y, radius, 0, 2 * Math.PI);
             ctx.stroke();
 
-            // Draw incenter
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
             ctx.beginPath();
-            ctx.arc(this.system.incenter.x, this.system.incenter.y, 3, 0, 2 * Math.PI);
+            ctx.arc(this.system.incenter.x, this.system.incenter.y, 6, 0, 2 * Math.PI);
             ctx.fill();
 
-            // Draw tangent points
             const tangentPoints = this.calculateTangentPoints();
             tangentPoints.forEach(point => {
-                ctx.fillStyle = 'rgba(0, 255, 255, 0.5)'; // Pale blue
+                ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
                 ctx.beginPath();
-                ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+                ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
                 ctx.fill();
             });
         }
 
-        // Draw other elements (connections, areas, midpoints, medians, etc.)
         if (this.showConnections) this.drawConnections(ctx);
         if (this.showAreas) this.drawAreas(ctx);
         if (this.showMidpoints) this.drawMidpoints(ctx);
@@ -391,33 +405,6 @@ class TriangleSystem {
             ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
             ctx.fill();
         });
-    }
-
-    calculateIncircleRadius() {
-        const a = this.calculateDistance(this.system.n2, this.system.n3);
-        const b = this.calculateDistance(this.system.n1, this.system.n3);
-        const c = this.calculateDistance(this.system.n1, this.system.n2);
-        const s = (a + b + c) / 2; // Semi-perimeter
-        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c)); // Heron's formula
-        return area / s;
-    }
-
-    calculateTangentPoints() {
-        const radius = this.calculateIncircleRadius();
-        const tangentPoints = [];
-        ['n1', 'n2', 'n3'].forEach((node, index) => {
-            const nextNode = ['n2', 'n3', 'n1'][index];
-            const dx = this.system[nextNode].x - this.system[node].x;
-            const dy = this.system[nextNode].y - this.system[node].y;
-            const length = Math.sqrt(dx * dx + dy * dy);
-            const ux = dx / length;
-            const uy = dy / length;
-            tangentPoints.push({
-                x: this.system.incenter.x - radius * uy,
-                y: this.system.incenter.y + radius * ux
-            });
-        });
-        return tangentPoints;
     }
 
     drawMedians(ctx) {
