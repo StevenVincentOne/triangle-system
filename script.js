@@ -98,6 +98,12 @@ class TriangleSystem {
         this.drawSystem();
     }
 
+    calculateDistance(point1, point2) {
+        const dx = point2.x - point1.x;
+        const dy = point2.y - point1.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
     updateDerivedPoints() {
         const { n1, n2, n3 } = this.system;
         
@@ -127,68 +133,67 @@ class TriangleSystem {
     }
 
     drawSystem() {
-        const draw = () => {
-            const ctx = this.ctx;
-            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-            ctx.save();
-            ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-            ctx.scale(1, -1);
+        ctx.save();
+        ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+        ctx.scale(1, -1);
 
-            this.drawAxes(ctx);
+        if (this.showAreas) {
+            this.drawAreas(ctx);
+        }
 
-            if (this.showAreas) {
-                this.drawAreas(ctx);
-            }
+        ctx.lineWidth = 2;
 
-            ctx.lineWidth = 2;
+        // Draw the triangle
+        ctx.beginPath();
+        ctx.strokeStyle = 'red';
+        ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        ctx.lineTo(this.system.n2.x, this.system.n2.y);
+        ctx.lineTo(this.system.n3.x, this.system.n3.y);
+        ctx.closePath();
+        ctx.stroke();
 
-            ctx.beginPath();
-            ctx.strokeStyle = 'red';
-            ctx.moveTo(this.system.n1.x, this.system.n1.y);
-            ctx.lineTo(this.system.n2.x, this.system.n2.y);
-            ctx.lineTo(this.system.n3.x, this.system.n3.y);
-            ctx.closePath();
-            ctx.stroke();
+        if (this.showConnections) {
+            this.drawConnections(ctx);
+        }
 
-            if (this.showConnections) {
-                this.drawConnections(ctx);
-            }
+        if (this.showMidpoints) {
+            this.drawMidpoints(ctx);
+        }
 
-            if (this.showMidpoints) {
-                this.drawMidpoints(ctx);
-            }
+        if (this.showIncircle) {
+            this.drawIncircle(ctx);
+            this.drawTangents(ctx);
+        }
 
-            if (this.showIncircle) {
-                this.drawIncircle(ctx);
-                this.drawTangents(ctx);
-            }
+        if (this.showMedians) {
+            this.drawMedians(ctx);
+        }
 
-            if (this.showMedians) {
-                this.drawMedians(ctx);
-            }
+        this.drawNode(ctx, this.system.n1, 'red', 'N1');
+        this.drawNode(ctx, this.system.n2, 'green', 'N2');
+        this.drawNode(ctx, this.system.n3, 'blue', 'N3');
 
-            this.drawNode(ctx, this.system.n1, 'red', 'N1');
-            this.drawNode(ctx, this.system.n2, 'green', 'N2');
-            this.drawNode(ctx, this.system.n3, 'blue', 'N3');
+        this.drawNode(ctx, this.system.intelligence, 'white', 'I');
 
-            this.drawNode(ctx, this.system.intelligence, 'white', 'I');
+        if (this.showIncenter) {
+            this.drawNode(ctx, this.system.incenter, 'yellow', 'Incenter');
+        }
 
-            if (this.showIncenter) {
-                this.drawNode(ctx, this.system.incenter, 'yellow', 'Incenter');
-            }
+        this.drawAngles(ctx);
+        this.drawEdgeLengths(ctx);
 
-            this.drawAngles(ctx);
-            this.drawEdgeLengths(ctx);
+        ctx.restore();
 
-            ctx.restore();
+        if (this.isDragging) {
+            requestAnimationFrame(() => this.drawSystem());
+        }
+    }
 
-            if (this.isDragging) {
-                requestAnimationFrame(draw);
-            }
-        };
-
-        draw();
+    formatValue(value) {
+        return typeof value === 'number' ? value.toFixed(2) : value;
     }
 
     updateDashboard() {
@@ -290,6 +295,110 @@ class TriangleSystem {
             const rMT = dMT / perimeter;
             setElementValue(`#d-m-t-${node}`, dMT);
             setElementValue(`#r-m-t-${node}`, rMT);
+        });
+    }
+
+    calculateArea() {
+        const { n1, n2, n3 } = this.system;
+        return Math.abs((n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y)) / 2);
+    }
+
+    calculatePerimeter() {
+        const { n1, n2, n3 } = this.system;
+        return this.calculateDistance(n1, n2) + this.calculateDistance(n2, n3) + this.calculateDistance(n3, n1);
+    }
+
+    calculateAngles() {
+        const { n1, n2, n3 } = this.system;
+        const a = this.calculateDistance(n2, n3);
+        const b = this.calculateDistance(n1, n3);
+        const c = this.calculateDistance(n1, n2);
+
+        const angleA = Math.acos((b*b + c*c - a*a) / (2*b*c)) * (180 / Math.PI);
+        const angleB = Math.acos((a*a + c*c - b*b) / (2*a*c)) * (180 / Math.PI);
+        const angleC = 180 - angleA - angleB;
+
+        return { n1: angleA, n2: angleB, n3: angleC };
+    }
+
+    calculateLengths() {
+        const { n1, n2, n3 } = this.system;
+        return {
+            l1: this.calculateDistance(n2, n3),
+            l2: this.calculateDistance(n1, n3),
+            l3: this.calculateDistance(n1, n2)
+        };
+    }
+
+    calculateMedians() {
+        const { n1, n2, n3 } = this.system;
+        const midpoints = this.calculateMidpoints();
+        return {
+            n1: this.calculateDistance(n1, midpoints.m1),
+            n2: this.calculateDistance(n2, midpoints.m2),
+            n3: this.calculateDistance(n3, midpoints.m3)
+        };
+    }
+
+    calculateMidpoints() {
+        const { n1, n2, n3 } = this.system;
+        return {
+            m1: { x: (n2.x + n3.x) / 2, y: (n2.y + n3.y) / 2 },
+            m2: { x: (n1.x + n3.x) / 2, y: (n1.y + n3.y) / 2 },
+            m3: { x: (n1.x + n2.x) / 2, y: (n1.y + n2.y) / 2 }
+        };
+    }
+
+    calculateTangencyPoints() {
+        const { n1, n2, n3 } = this.system;
+        const { incenter, incircleRadius } = this.system;
+        const points = [];
+
+        [n1, n2, n3].forEach((node, i, arr) => {
+            const nextNode = arr[(i + 1) % 3];
+            const dx = nextNode.x - node.x;
+            const dy = nextNode.y - node.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const unitX = dx / length;
+            const unitY = dy / length;
+
+            points.push({
+                x: incenter.x - incircleRadius * unitY,
+                y: incenter.y + incircleRadius * unitX
+            });
+        });
+
+        return points;
+    }
+
+    drawNode(ctx, node, color, label) {
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.fillText(label, node.x + 10, node.y - 10);
+    }
+
+    drawAngles(ctx) {
+        const angles = this.calculateAngles();
+        ['n1', 'n2', 'n3'].forEach((node, index) => {
+            const angle = angles[node];
+            const x = this.system[node].x;
+            const y = this.system[node].y;
+            ctx.fillStyle = 'white';
+            ctx.fillText(`${angle.toFixed(1)}°`, x + 20, y + 20);
+        });
+    }
+
+    drawEdgeLengths(ctx) {
+        const lengths = this.calculateLengths();
+        Object.entries(lengths).forEach(([edge, length], index) => {
+            const [node1, node2] = [`n${index + 1}`, `n${(index + 1) % 3 + 1}`];
+            const midX = (this.system[node1].x + this.system[node2].x) / 2;
+            const midY = (this.system[node1].y + this.system[node2].y) / 2;
+            ctx.fillStyle = 'white';
+            ctx.fillText(`${length.toFixed(1)}`, midX, midY);
         });
     }
 }
