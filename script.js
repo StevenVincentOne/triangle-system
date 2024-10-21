@@ -297,11 +297,11 @@ class TriangleSystem {
             const nextNode = ['n2', 'n3', 'n1'][index];
             const dx = this.system[nextNode].x - this.system[node].x;
             const dy = this.system[nextNode].y - this.system[node].y;
-            const length = Math.sqrt(dx * dx + dy * dy);
-            const t = (length / 2 - radius) / length;
+            const edgeLength = Math.sqrt(dx * dx + dy * dy);
+            const distanceFromNode = (edgeLength * radius) / (edgeLength - radius);
             tangentPoints.push({
-                x: this.system[node].x + t * dx,
-                y: this.system[node].y + t * dy
+                x: this.system[node].x + (dx * distanceFromNode) / edgeLength,
+                y: this.system[node].y + (dy * distanceFromNode) / edgeLength
             });
         });
         return tangentPoints;
@@ -353,9 +353,21 @@ class TriangleSystem {
         ctx.beginPath();
         ctx.moveTo(this.system.n1.x, this.system.n1.y);
         ctx.lineTo(this.system.n2.x, this.system.n2.y);
+        ctx.strokeStyle = 'green'; // NC3
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(this.system.n2.x, this.system.n2.y);
         ctx.lineTo(this.system.n3.x, this.system.n3.y);
-        ctx.closePath();
-        ctx.strokeStyle = 'white';
+        ctx.strokeStyle = 'red'; // NC1
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(this.system.n3.x, this.system.n3.y);
+        ctx.lineTo(this.system.n1.x, this.system.n1.y);
+        ctx.strokeStyle = 'blue'; // NC2
         ctx.lineWidth = 2;
         ctx.stroke();
     }
