@@ -16,6 +16,55 @@ class TriangleSystem {
         this.initializeSystem('equilateral');
     }
 
+    initializeEventListeners() {
+        this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        this.canvas.addEventListener('mouseleave', this.handleMouseUp.bind(this));
+    }
+
+    handleMouseDown(event) {
+        const mousePos = this.getMousePosition(event);
+        for (const node of ['n1', 'n2', 'n3']) {
+            if (this.isClickOnNode(mousePos, this.system[node])) {
+                this.isDragging = true;
+                this.draggedNode = node;
+                break;
+            }
+        }
+    }
+
+    handleMouseMove(event) {
+        if (this.isDragging && this.draggedNode) {
+            const mousePos = this.getMousePosition(event);
+            this.system[this.draggedNode] = mousePos;
+            this.adjustTriangleToOrigin();
+            this.updateDerivedPoints();
+            this.updateDashboard();
+            this.drawSystem();
+        }
+    }
+
+    handleMouseUp() {
+        this.isDragging = false;
+        this.draggedNode = null;
+    }
+
+    getMousePosition(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        return {
+            x: (event.clientX - rect.left - this.canvas.width / 2) * scaleX,
+            y: -(event.clientY - rect.top - this.canvas.height / 2) * scaleY
+        };
+    }
+
+    isClickOnNode(mousePos, node) {
+        const distance = Math.sqrt(Math.pow(mousePos.x - node.x, 2) + Math.pow(mousePos.y - node.y, 2));
+        return distance <= 8;
+    }
+
     drawSystem() {
         const draw = () => {
             const ctx = this.ctx;
@@ -33,7 +82,6 @@ class TriangleSystem {
 
             ctx.lineWidth = 2;
 
-            // Draw triangle edges
             ctx.beginPath();
             ctx.strokeStyle = 'red';
             ctx.moveTo(this.system.n1.x, this.system.n1.y);
@@ -128,17 +176,14 @@ class TriangleSystem {
         setElementValue('#median-n2', medians.n2, 'N2:');
         setElementValue('#median-n3', medians.n3, 'N3:');
 
-        // Update node coordinates
         setElementValue('#node-n1-coords', `${this.formatValue(this.system.n1.x)}, ${this.formatValue(this.system.n1.y)}`, 'N1 x,y:');
         setElementValue('#node-n2-coords', `${this.formatValue(this.system.n2.x)}, ${this.formatValue(this.system.n2.y)}`, 'N2 x,y:');
         setElementValue('#node-n3-coords', `${this.formatValue(this.system.n3.x)}, ${this.formatValue(this.system.n3.y)}`, 'N3 x,y:');
 
-        // Update node angles
         setElementValue('#node-n1-angle', `${angles.n1.toFixed(2)}°`, 'N1 ∠:');
         setElementValue('#node-n2-angle', `${angles.n2.toFixed(2)}°`, 'N2 ∠:');
         setElementValue('#node-n3-angle', `${angles.n3.toFixed(2)}°`, 'N3 ∠:');
 
-        // Update centers
         const centroid = {
             x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
             y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
@@ -149,7 +194,6 @@ class TriangleSystem {
         const iToIcDistance = this.calculateDistance(centroid, this.system.incenter);
         setElementValue('#i-to-ic-distance', iToIcDistance, 'd (I, IC):');
 
-        // Call the separate method to update the Information Panel
         this.updateInformationPanel();
     }
 
@@ -163,7 +207,6 @@ class TriangleSystem {
             }
         };
 
-        // Calculate centroid
         const centroid = {
             x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
             y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
@@ -190,7 +233,6 @@ class TriangleSystem {
     }
 }
 
-// Initialize the TriangleSystem when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('#canvas');
     if (canvas) {
