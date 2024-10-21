@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Intelligent System Model with Animation</title>
-    <!-- Updated Bootstrap CSS Link -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <style>
         .dashboard {
             display: flex;
@@ -15,6 +14,9 @@
             border-radius: 8px;
         }
         .dashboard-panel {
+            flex: 0 1 auto;
+            min-width: min-content;
+            width: fit-content;
             background-color: #333;
             border: 1px solid #444;
             border-radius: 4px;
@@ -31,24 +33,24 @@
         }
         .label-value-pair {
             display: flex;
+            justify-content: flex-start;
             align-items: center;
             margin-bottom: 0.25rem;
         }
         .label-value-pair label {
-            margin-right: 10px;
+            margin-right: 5px;
             white-space: nowrap;
-            min-width: 120px;
+            min-width: 40px;
             color: #bbb;
         }
         input[type="text"].form-control {
-            /* Remove conflicting width settings */
-            /* width: auto; */
-            /* min-width: 60px; */
-            /* Instead, use Bootstrap's grid system */
+            width: auto;
+            min-width: 60px;
             box-sizing: border-box;
             padding: 2px 4px;
             font-size: 14px;
             text-align: center;
+            margin: 0;
             background-color: #2c2c2c;
             color: #fff;
             border: 1px solid #555;
@@ -69,48 +71,42 @@
             background-color: #2c2c2c;
             color: #ddd;
         }
+        .subsystems-table input[type="text"].form-control {
+            width: 100%;
+            min-width: 0;
+        }
         .separator {
             height: 1px;
             background-color: #444;
             margin: 1rem 0;
         }
-        /* Information Panel Specific Styles */
-        #information-panel .label-value-pair {
-            margin-bottom: 0.5rem;
-        }
-        /* Responsive Adjustments */
-        @media (max-width: 767.98px) {
-            .label-value-pair label {
-                min-width: 100px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center my-4 text-white">Intelligent System Model</h1>
+        <h1 class="text-center my-4">Intelligent System Model</h1>
 
         <div id="dashboard" class="dashboard bg-dark p-4 rounded">
-            <div class="row w-100">
+            <div class="row">
                 <!-- System Panel -->
-                <div class="col-md-2 dashboard-panel">
+                <div class="dashboard-panel">
                     <h3 class="panel-header">System</h3>
                     <div class="label-value-pair">
-                        <label for="system-perimeter">P (Perimeter):</label>
-                        <input id="system-perimeter" type="text" class="form-control" readonly>
+                        <label for="system-perimeter">P</label>
+                        <input id="system-perimeter" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="system-area">A (Area):</label>
-                        <input id="system-area" type="text" class="form-control" readonly>
+                        <label for="system-area">A</label>
+                        <input id="system-area" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="subsystems-area">SS A (Subsystems Area):</label>
-                        <input id="subsystems-area" type="text" class="form-control" readonly>
+                        <label for="subsystems-area">SS A</label>
+                        <input id="subsystems-area" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
-
+                
                 <!-- Subsystems Panel -->
-                <div class="col-md-2 dashboard-panel">
+                <div class="col-md-3 dashboard-panel">
                     <h3 class="panel-header">Subsystems</h3>
                     <table class="subsystems-table">
                         <thead>
@@ -124,97 +120,97 @@
                         <tbody>
                             <tr>
                                 <th>P</th>
-                                <td><input id="subsystem-1-perimeter" type="text" class="form-control" readonly></td>
-                                <td><input id="subsystem-2-perimeter" type="text" class="form-control" readonly></td>
-                                <td><input id="subsystem-3-perimeter" type="text" class="form-control" readonly></td>
+                                <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
                             </tr>
                             <tr>
                                 <th>∠</th>
-                                <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" readonly></td>
-                                <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" readonly></td>
-                                <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" readonly></td>
+                                <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
+                
                 <!-- Channels Panel -->
                 <div class="col-md-2 dashboard-panel">
                     <h3 class="panel-header">Channels</h3>
                     <div class="label-value-pair">
-                        <label for="edge-nc1">NC1:</label>
-                        <input id="edge-nc1" type="text" class="form-control" readonly>
+                        <label for="edge-nc1">NC1</label>
+                        <input id="edge-nc1" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="edge-nc2">NC2:</label>
-                        <input id="edge-nc2" type="text" class="form-control" readonly>
+                        <label for="edge-nc2">NC2</label>
+                        <input id="edge-nc2" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="edge-nc3">NC3:</label>
-                        <input id="edge-nc3" type="text" class="form-control" readonly>
+                        <label for="edge-nc3">NC3</label>
+                        <input id="edge-nc3" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
-
+                
                 <!-- Medians Panel -->
                 <div class="col-md-2 dashboard-panel">
                     <h3 class="panel-header">Medians</h3>
                     <div class="label-value-pair">
-                        <label for="median-n1">N1:</label>
-                        <input id="median-n1" type="text" class="form-control" readonly>
+                        <label for="median-n1">N1</label>
+                        <input id="median-n1" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="median-n2">N2:</label>
-                        <input id="median-n2" type="text" class="form-control" readonly>
+                        <label for="median-n2">N2</label>
+                        <input id="median-n2" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="median-n3">N3:</label>
-                        <input id="median-n3" type="text" class="form-control" readonly>
+                        <label for="median-n3">N3</label>
+                        <input id="median-n3" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
-
+                
                 <!-- Nodes Panel -->
                 <div class="col-md-2 dashboard-panel">
                     <h3 class="panel-header">Nodes</h3>
                     <div class="label-value-pair">
-                        <label for="node-n1-coords">N1 x,y:</label>
-                        <input id="node-n1-coords" type="text" class="form-control" readonly>
+                        <label for="node-n1-coords">N1 x,y</label>
+                        <input id="node-n1-coords" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="node-n1-angle">N1 ∠:</label>
-                        <input id="node-n1-angle" type="text" class="form-control angle-input" readonly>
+                        <label for="node-n2-coords">N2 x,y</label>
+                        <input id="node-n2-coords" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="node-n2-coords">N2 x,y:</label>
-                        <input id="node-n2-coords" type="text" class="form-control" readonly>
+                        <label for="node-n3-coords">N3 x,y</label>
+                        <input id="node-n3-coords" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="node-n2-angle">N2 ∠:</label>
-                        <input id="node-n2-angle" type="text" class="form-control angle-input" readonly>
+                        <label for="node-n1-angle">N1 ∠</label>
+                        <input id="node-n1-angle" type="text" class="form-control angle-input" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="node-n3-coords">N3 x,y:</label>
-                        <input id="node-n3-coords" type="text" class="form-control" readonly>
+                        <label for="node-n2-angle">N2 ∠</label>
+                        <input id="node-n2-angle" type="text" class="form-control angle-input" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="node-n3-angle">N3 ∠:</label>
-                        <input id="node-n3-angle" type="text" class="form-control angle-input" readonly>
+                        <label for="node-n3-angle">N3 ∠</label>
+                        <input id="node-n3-angle" type="text" class="form-control angle-input" size="8" readonly>
                     </div>
                 </div>
-
+                
                 <!-- Centers Panel -->
                 <div class="col-md-2 dashboard-panel">
                     <h3 class="panel-header">Centers</h3>
                     <div class="label-value-pair">
-                        <label for="centroid-coords">I x,y:</label>
-                        <input id="centroid-coords" type="text" class="form-control" readonly>
+                        <label for="centroid-coords">I x,y</label>
+                        <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="incenter-coords">IC x,y:</label>
-                        <input id="incenter-coords" type="text" class="form-control" readonly>
+                        <label for="incenter-coords">IC x,y</label>
+                        <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="i-to-ic-distance">d (I, IC):</label>
-                        <input id="i-to-ic-distance" type="text" class="form-control" readonly>
+                        <label for="i-to-ic-distance">d (I, IC)</label>
+                        <input id="i-to-ic-distance" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
             </div>
@@ -222,122 +218,67 @@
 
         <div class="separator"></div>
 
-        <!-- Information Panel -->
         <div id="information-panel" class="bg-dark p-4 rounded">
             <h3 class="panel-header">Information Panel</h3>
             <div class="row">
-                <div class="col-md-4 dashboard-panel">
+                <div class="col-md-4">
                     <div class="label-value-pair">
                         <label for="d-i-ic">d (I, IC):</label>
-                        <input id="d-i-ic" type="text" class="form-control" readonly>
+                        <input id="d-i-ic" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
                         <label for="r-i-ic">r (I, IC):</label>
-                        <input id="r-i-ic" type="text" class="form-control" readonly>
+                        <input id="r-i-ic" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
-                <div class="col-md-4 dashboard-panel">
+                <div class="col-md-4">
                     <div class="label-value-pair">
                         <label for="d-m-t-n1">d (M, T) N1:</label>
-                        <input id="d-m-t-n1" type="text" class="form-control" readonly>
+                        <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
                         <label for="r-m-t-n1">r (M, T) N1:</label>
-                        <input id="r-m-t-n1" type="text" class="form-control" readonly>
+                        <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
                     </div>
-                </div>
-                <div class="col-md-4 dashboard-panel">
                     <div class="label-value-pair">
                         <label for="d-m-t-n2">d (M, T) N2:</label>
-                        <input id="d-m-t-n2" type="text" class="form-control" readonly>
+                        <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
                         <label for="r-m-t-n2">r (M, T) N2:</label>
-                        <input id="r-m-t-n2" type="text" class="form-control" readonly>
+                        <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
                     </div>
+                </div>
+                <div class="col-md-4">
                     <div class="label-value-pair">
                         <label for="d-m-t-n3">d (M, T) N3:</label>
-                        <input id="d-m-t-n3" type="text" class="form-control" readonly>
+                        <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
                         <label for="r-m-t-n3">r (M, T) N3:</label>
-                        <input id="r-m-t-n3" type="text" class="form-control" readonly>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-md-4 dashboard-panel">
-                    <div class="label-value-pair">
-                        <label for="node-n1-coords">N1 Coordinates:</label>
-                        <input id="node-n1-coords" type="text" class="form-control" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="node-n1-angle">N1 Angle:</label>
-                        <input id="node-n1-angle" type="text" class="form-control angle-input" readonly>
-                    </div>
-                </div>
-                <div class="col-md-4 dashboard-panel">
-                    <div class="label-value-pair">
-                        <label for="node-n2-coords">N2 Coordinates:</label>
-                        <input id="node-n2-coords" type="text" class="form-control" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="node-n2-angle">N2 Angle:</label>
-                        <input id="node-n2-angle" type="text" class="form-control angle-input" readonly>
-                    </div>
-                </div>
-                <div class="col-md-4 dashboard-panel">
-                    <div class="label-value-pair">
-                        <label for="node-n3-coords">N3 Coordinates:</label>
-                        <input id="node-n3-coords" type="text" class="form-control" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="node-n3-angle">N3 Angle:</label>
-                        <input id="node-n3-angle" type="text" class="form-control angle-input" readonly>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-md-4 dashboard-panel">
-                    <div class="label-value-pair">
-                        <label for="centroid-coords">Centroid Coordinates:</label>
-                        <input id="centroid-coords" type="text" class="form-control" readonly>
-                    </div>
-                </div>
-                <div class="col-md-4 dashboard-panel">
-                    <div class="label-value-pair">
-                        <label for="incenter-coords">Incenter Coordinates:</label>
-                        <input id="incenter-coords" type="text" class="form-control" readonly>
-                    </div>
-                </div>
-                <div class="col-md-4 dashboard-panel">
-                    <div class="label-value-pair">
-                        <label for="i-to-ic-distance">Distance (I, IC):</label>
-                        <input id="i-to-ic-distance" type="text" class="form-control" readonly>
+                        <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="separator"></div>
-
         <div class="controls d-flex flex-wrap justify-content-center gap-2 mb-3 mt-4">
-            <div class="w-100 mb-2 text-center">
-                <button id="toggleMidpoints" class="btn btn-info me-2">Midpoints</button>
-                <button id="toggleIncircle" class="btn btn-info me-2">Incircle</button>
-                <button id="toggleIncenter" class="btn btn-info me-2">Incenter</button>
-                <button id="toggleMedians" class="btn btn-info me-2">Medians</button>
+            <div class="w-100 mb-2">
+                <button id="toggleMidpoints" class="btn btn-info">Midpoints</button>
+                <button id="toggleIncircle" class="btn btn-info">Incircle</button>
+                <button id="toggleIncenter" class="btn btn-info">Incenter</button>
+                <button id="toggleMedians" class="btn btn-info">Medians</button>
                 <button id="toggleAreas" class="btn btn-info">Areas</button>
             </div>
-            <div class="w-100 mb-2 text-center">
-                <button id="equilateral" class="btn btn-secondary me-2">Equilateral</button>
-                <button id="isosceles" class="btn btn-secondary me-2">Isosceles</button>
-                <button id="scalene" class="btn btn-secondary me-2">Scalene</button>
-                <button id="right" class="btn btn-secondary me-2">Right</button>
-                <button id="acute" class="btn btn-secondary me-2">Acute</button>
+            <div class="w-100 mb-2">
+                <button id="equilateral" class="btn btn-secondary">Equilateral</button>
+                <button id="isosceles" class="btn btn-secondary">Isosceles</button>
+                <button id="scalene" class="btn btn-secondary">Scalene</button>
+                <button id="right" class="btn btn-secondary">Right</button>
+                <button id="acute" class="btn btn-secondary">Acute</button>
                 <button id="obtuse" class="btn btn-secondary">Obtuse</button>
             </div>
-            <div class="w-100 text-center">
+            <div class="w-100">
                 <button id="export-data" class="btn btn-success">Export Data</button>
             </div>
         </div>
@@ -351,24 +292,21 @@
             <h3 class="panel-header">Legends</h3>
             <div class="row">
                 <div class="col-md-3">
-                    <p class="text-white">P: Perimeter</p>
+                    <p>P: Perimeter</p>
                 </div>
                 <div class="col-md-3">
-                    <p class="text-white">A: Area</p>
+                    <p>A: Area</p>
                 </div>
                 <div class="col-md-3">
-                    <p class="text-white">SS: Subsystem</p>
+                    <p>SS: Subsystem</p>
                 </div>
                 <div class="col-md-3">
-                    <p class="text-white">∠: Angle</p>
+                    <p>∠: Angle</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS (Optional, for interactive components) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-    <!-- Your Custom Script -->
     <script src="script.js" defer></script>
 </body>
 </html>
