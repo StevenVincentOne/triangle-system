@@ -151,6 +151,10 @@ class TriangleSystem {
         ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
         ctx.scale(1, -1);
 
+        // Draw axes
+        this.drawAxes(ctx);
+
+        // Draw triangle
         ctx.beginPath();
         ctx.moveTo(this.system.n1.x, this.system.n1.y);
         ctx.lineTo(this.system.n2.x, this.system.n2.y);
@@ -159,16 +163,38 @@ class TriangleSystem {
         ctx.strokeStyle = 'white';
         ctx.stroke();
 
+        // Draw nodes
         this.drawNode(ctx, this.system.n1, 'red', 'N1');
         this.drawNode(ctx, this.system.n2, 'green', 'N2');
         this.drawNode(ctx, this.system.n3, 'blue', 'N3');
 
+        // Draw centroid (intelligence)
         this.drawNode(ctx, this.system.intelligence, 'white', 'I');
 
         if (this.showIncenter) {
             this.drawNode(ctx, this.system.incenter, 'yellow', 'IC');
         }
 
+        ctx.restore();
+    }
+
+    drawAxes(ctx) {
+        const axisLength = Math.max(this.canvas.width, this.canvas.height) / 2;
+        ctx.beginPath();
+        ctx.moveTo(-axisLength, 0);
+        ctx.lineTo(axisLength, 0);
+        ctx.moveTo(0, -axisLength);
+        ctx.lineTo(0, axisLength);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.stroke();
+
+        // Draw axis labels
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.font = '12px Arial';
+        ctx.fillText('X', axisLength - 20, 20);
+        ctx.fillText('Y', 10, -axisLength + 20);
         ctx.restore();
     }
 
@@ -237,6 +263,27 @@ class TriangleSystem {
         setElementValue('#centroid-coords', `${this.formatValue(this.system.intelligence.x)}, ${this.formatValue(this.system.intelligence.y)}`);
         setElementValue('#incenter-coords', `${this.formatValue(this.system.incenter.x)}, ${this.formatValue(this.system.incenter.y)}`);
         setElementValue('#i-to-ic-distance', iToIcDistance);
+
+        // Update subsystems
+        const subsystemPerimeters = this.calculateSubsystemPerimeters();
+        setElementValue('#subsystem-1-perimeter', subsystemPerimeters.ss1);
+        setElementValue('#subsystem-2-perimeter', subsystemPerimeters.ss2);
+        setElementValue('#subsystem-3-perimeter', subsystemPerimeters.ss3);
+
+        const subsystemAngles = this.calculateSubsystemAngles();
+        setElementValue('#subsystem-1-angle', subsystemAngles.ss1);
+        setElementValue('#subsystem-2-angle', subsystemAngles.ss2);
+        setElementValue('#subsystem-3-angle', subsystemAngles.ss3);
+
+        // Update medians
+        const medians = this.calculateMedians();
+        setElementValue('#median-n1', medians.n1);
+        setElementValue('#median-n2', medians.n2);
+        setElementValue('#median-n3', medians.n3);
+
+        // Update subsystems area
+        const subsystemsArea = this.calculateSubsystemsArea();
+        setElementValue('#subsystems-area', subsystemsArea);
     }
 
     calculatePerimeter() {
@@ -268,6 +315,33 @@ class TriangleSystem {
         const dx = point2.x - point1.x;
         const dy = point2.y - point1.y;
         return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    calculateSubsystemPerimeters() {
+        const ss1 = this.calculateDistance(this.system.n1, this.system.intelligence) * 2;
+        const ss2 = this.calculateDistance(this.system.n2, this.system.intelligence) * 2;
+        const ss3 = this.calculateDistance(this.system.n3, this.system.intelligence) * 2;
+        return { ss1, ss2, ss3 };
+    }
+
+    calculateSubsystemAngles() {
+        const angles = this.calculateAngles();
+        return {
+            ss1: angles.n1 / 2,
+            ss2: angles.n2 / 2,
+            ss3: angles.n3 / 2
+        };
+    }
+
+    calculateMedians() {
+        const n1 = this.calculateDistance(this.system.n1, this.system.intelligence) * 3 / 2;
+        const n2 = this.calculateDistance(this.system.n2, this.system.intelligence) * 3 / 2;
+        const n3 = this.calculateDistance(this.system.n3, this.system.intelligence) * 3 / 2;
+        return { n1, n2, n3 };
+    }
+
+    calculateSubsystemsArea() {
+        return this.calculateArea() / 3;
     }
 
     formatValue(value) {
@@ -338,14 +412,36 @@ document.addEventListener('DOMContentLoaded', () => {
         presetButtons.forEach(preset => {
             const button = document.getElementById(preset);
             if (button) {
-                button.addEventListener('click', () => window.triangleSystem.initializeSystem(preset));
+                button.addEventListener('click', () => {
+                    console.log(`${preset} button clicked`);
+                    window.triangleSystem.initializeSystem(preset);
+                });
+            } else {
+                console.warn(`Button not found: ${preset}`);
             }
         });
 
         const exportButton = document.getElementById('export-data');
         if (exportButton) {
             exportButton.addEventListener('click', () => window.triangleSystem.exportData());
+        } else {
+            console.warn("Export button not found");
         }
+
+        // Add event listeners for toggle buttons
+        const toggleButtons = ['toggleMidpoints', 'toggleIncircle', 'toggleIncenter', 'toggleMedians', 'toggleAreas'];
+        toggleButtons.forEach(buttonId => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('click', () => {
+                    console.log(`${buttonId} clicked`);
+                    window.triangleSystem[buttonId.replace('toggle', 'show')] = !window.triangleSystem[buttonId.replace('toggle', 'show')];
+                    window.triangleSystem.drawSystem();
+                });
+            } else {
+                console.warn(`Toggle button not found: ${buttonId}`);
+            }
+        });
     } else {
         console.error("Canvas element not found");
     }
