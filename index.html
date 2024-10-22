@@ -80,6 +80,33 @@
             background-color: #444;
             margin: 1rem 0;
         }
+      .info-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+      }
+
+      .info-column {
+          flex: 1;
+          min-width: 200px;
+      }
+
+      .label-value-pair {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.5rem;
+      }
+
+      .label-value-pair label {
+          flex: 1;
+          margin-right: 0.5rem;
+          white-space: nowrap;
+      }
+
+      .label-value-pair input {
+          flex: 0 0 100px;
+          width: 100px;
+      }
     </style>
 </head>
 <body>
@@ -172,18 +199,6 @@
                 <div class="col-md-2 dashboard-panel">
                     <h3 class="panel-header">Nodes</h3>
                     <div class="label-value-pair">
-                        <label for="node-n1-coords">N1 x,y</label>
-                        <input id="node-n1-coords" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="node-n2-coords">N2 x,y</label>
-                        <input id="node-n2-coords" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="node-n3-coords">N3 x,y</label>
-                        <input id="node-n3-coords" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
                         <label for="node-n1-angle">N1 ∠</label>
                         <input id="node-n1-angle" type="text" class="form-control angle-input" size="8" readonly>
                     </div>
@@ -201,11 +216,11 @@
                 <div class="col-md-2 dashboard-panel">
                     <h3 class="panel-header">Centers</h3>
                     <div class="label-value-pair">
-                        <label for="centroid-coords">I x,y</label>
+                        <label for="centroid-coords">I (x,y)</label>
                         <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label for="incenter-coords">IC x,y</label>
+                        <label for="incenter-coords">IC (x,y)</label>
                         <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
@@ -218,49 +233,47 @@
 
         <div class="separator"></div>
 
-        <div id="information-panel" class="bg-dark p-4 rounded">
-            <h3 class="panel-header">Information Panel</h3>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="label-value-pair">
-                        <label for="d-i-ic">d (I, IC):</label>
-                        <input id="d-i-ic" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="r-i-ic">r (I, IC):</label>
-                        <input id="r-i-ic" type="text" class="form-control" size="8" readonly>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="label-value-pair">
-                        <label for="d-m-t-n1">d (M, T) N1:</label>
-                        <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="r-m-t-n1">r (M, T) N1:</label>
-                        <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="d-m-t-n2">d (M, T) N2:</label>
-                        <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="r-m-t-n2">r (M, T) N2:</label>
-                        <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="label-value-pair">
-                        <label for="d-m-t-n3">d (M, T) N3:</label>
-                        <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label for="r-m-t-n3">r (M, T) N3:</label>
-                        <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div id="information-panel" class="bg-dark p-4 rounded">
+          <h3 class="panel-header">Information Panel</h3>
+          <div class="info-container">
+              <div class="info-column">
+                  <div class="label-value-pair">
+                      <label for="d-i-ic">d(I, IC)</label>
+                      <input id="d-i-ic" type="text" class="form-control" size="8" readonly>
+                  </div>
+                  <div class="label-value-pair">
+                      <label for="d-m-t-n1">d(M,T) N1</label>
+                      <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
+                  </div>
+                  <div class="label-value-pair">
+                      <label for="d-m-t-n2">d(M,T) N2</label>
+                      <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
+                  </div>
+                  <div class="label-value-pair">
+                      <label for="d-m-t-n3">d(M,T) N3</label>
+                      <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
+                  </div>
+              </div>
+              <div class="info-column">
+                  <div class="label-value-pair">
+                      <label for="r-i-ic">r(I, IC)</label>
+                      <input id="r-i-ic" type="text" class="form-control" size="8" readonly>
+                  </div>
+                  <div class="label-value-pair">
+                      <label for="r-m-t-n1">r(M,T) N1</label>
+                      <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
+                  </div>
+                  <div class="label-value-pair">
+                      <label for="r-m-t-n2">r(M,T) N2</label>
+                      <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
+                  </div>
+                  <div class="label-value-pair">
+                      <label for="r-m-t-n3">r(M,T) N3</label>
+                      <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
+                  </div>
+              </div>
+          </div>
+      </div>
 
         <div class="controls d-flex flex-wrap justify-content-center gap-2 mb-3 mt-4">
             <div class="w-100 mb-2">
