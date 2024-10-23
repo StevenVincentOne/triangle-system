@@ -161,6 +161,68 @@
         .legends-panel p {
             margin: 0.5rem 0;
         }
+
+        /* Add to your existing styles */
+        .manual-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .manual-input-group label {
+            color: #bbb;
+            white-space: nowrap;
+        }
+
+        .manual-input-group input {
+            width: 60px;
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #555;
+            text-align: right;
+            padding-right: 4px;
+        }
+
+        /* Update the manual controls styles */
+        #manual-controls {
+            width: fit-content;
+            min-width: min-content;
+            background-color: #333;
+            border: 1px solid #444;
+        }
+
+        .manual-controls-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .manual-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .manual-input-group label {
+            color: #bbb;
+            white-space: nowrap;
+            min-width: 35px;
+        }
+
+        .manual-input-group input.manual-input {
+            width: 80px;  /* Width for 8 characters */
+            text-align: center;
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 2px 4px;
+            font-family: monospace;  /* For better alignment of numbers */
+        }
+
+        #apply-manual {
+            margin-left: 0.5rem;
+            padding: 2px 12px;
+        }
     </style>
 </head>
 <body>
@@ -203,6 +265,26 @@
                 <!-- Move Canvas Container to top -->
                 <div id="canvas-container" class="bg-dark p-4 rounded mb-4">
                     <canvas id="canvas" width="800" height="600"></canvas>
+                </div>
+
+                <!-- Add this right after the canvas-container div -->
+                <div id="manual-controls" class="bg-dark p-3 rounded mb-4">
+                    <h3 class="panel-header mb-2">Manual Configuration</h3>
+                    <div class="manual-controls-container">
+                        <div class="manual-input-group">
+                            <label for="manual-nc1">NC1</label>
+                            <input id="manual-nc1" type="text" class="form-control manual-input" size="8">
+                        </div>
+                        <div class="manual-input-group">
+                            <label for="manual-nc2">NC2</label>
+                            <input id="manual-nc2" type="text" class="form-control manual-input" size="8">
+                        </div>
+                        <div class="manual-input-group">
+                            <label for="manual-nc3">NC3</label>
+                            <input id="manual-nc3" type="text" class="form-control manual-input" size="8">
+                        </div>
+                        <button id="apply-manual" class="btn btn-info">Apply</button>
+                    </div>
                 </div>
 
                 <!-- Dashboard -->
