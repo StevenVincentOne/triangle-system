@@ -637,18 +637,16 @@ class TriangleSystem {
      * @param {CanvasRenderingContext2D} ctx 
      */
     drawTangents(ctx) {
-        // Remove the dependency on showIncircle
-        if (!this.showTangents) return;
-
-        const tangentPoints = this.calculateTangents();
+        if (!this.system.incenter || !this.system.TangencyPoints) return;
+        
         const { incenter } = this.system;
-
-        // Match incircle color
-        ctx.strokeStyle = 'cyan';
-        ctx.fillStyle = 'cyan';
-        ctx.lineWidth = 2;
+        const tangentPoints = this.system.TangencyPoints;
+        
+        // Set line style to match medians
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';  // Using white with 0.5 opacity
         ctx.setLineDash([5, 5]);
-
+        ctx.lineWidth = 1;  // Ensure line width is thin
+        
         // Draw lines from incenter to tangent points
         tangentPoints.forEach(point => {
             ctx.beginPath();
