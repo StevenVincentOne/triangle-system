@@ -590,6 +590,47 @@ class TriangleSystem {
         
         // Always draw angles
         this.drawAngles(this.ctx);
+
+        // Draw edge length labels
+        this.ctx.save();  // Save current context state
+        
+        // Reset text orientation and scale for labels
+        this.ctx.scale(1, -1);  // Flip back for text
+        
+        this.ctx.font = '14px Arial';
+        this.ctx.fillStyle = 'white';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+
+        // Calculate edge midpoints
+        const nc1Mid = this.calculateMidpoint(this.system.n1, this.system.n3);
+        const nc2Mid = this.calculateMidpoint(this.system.n1, this.system.n2);
+        const nc3Mid = this.calculateMidpoint(this.system.n2, this.system.n3);
+
+        // Calculate edge lengths
+        const nc1Length = this.calculateDistance(this.system.n1, this.system.n3).toFixed(2);
+        const nc2Length = this.calculateDistance(this.system.n1, this.system.n2).toFixed(2);
+        const nc3Length = this.calculateDistance(this.system.n2, this.system.n3).toFixed(2);
+
+        // Calculate offset directions for each edge
+        const offset = 25; // Adjust this value to position labels further or closer
+
+        // NC1 label (left edge)
+        const nc1Angle = Math.atan2(this.system.n1.y - this.system.n3.y, this.system.n1.x - this.system.n3.x);
+        const nc1OffsetX = -offset * Math.sin(nc1Angle);
+        const nc1OffsetY = offset * Math.cos(nc1Angle);
+        this.ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
+
+        // NC2 label (right edge)
+        const nc2Angle = Math.atan2(this.system.n1.y - this.system.n2.y, this.system.n1.x - this.system.n2.x);
+        const nc2OffsetX = offset * Math.sin(nc2Angle);
+        const nc2OffsetY = -offset * Math.cos(nc2Angle);
+        this.ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
+
+        // NC3 label (bottom edge)
+        this.ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
+
+        this.ctx.restore();  // Restore context state
     }
 
     drawNode(ctx, node, color, label) {
@@ -1198,6 +1239,14 @@ class TriangleSystem {
         this.system.n2.y -= center.y;
         this.system.n3.x -= center.x;
         this.system.n3.y -= center.y;
+    }
+
+    // Add this helper method to calculate midpoint of a line
+    calculateMidpoint(point1, point2) {
+        return {
+            x: (point1.x + point2.x) / 2,
+            y: (point1.y + point2.y) / 2
+        };
     }
 }
 
