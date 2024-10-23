@@ -25,6 +25,7 @@ class TriangleSystem {
         this.draggedNode = null;
 
         this.initializeEventListeners();
+        this.initializeManualControls();
     }
 
     // Method to initialize all event listeners
@@ -1062,6 +1063,8 @@ class TriangleSystem {
     }
 
     initializeManualControls() {
+        console.log('Initializing manual controls');
+        
         // Get all manual input fields
         const manualInputs = document.querySelectorAll('.manual-input');
         
@@ -1082,6 +1085,23 @@ class TriangleSystem {
                 this.setSelectionRange(this.value.length, this.value.length);
             });
         });
+
+        // Get the apply button
+        const applyButton = document.getElementById('apply-manual');
+        if (!applyButton) {
+            console.error('Apply button not found');
+            return;
+        }
+
+        // Add click event listener to the apply button
+        applyButton.addEventListener('click', () => {
+            console.log('Apply button clicked');
+            const nc1 = document.getElementById('manual-nc1').value;
+            const nc2 = document.getElementById('manual-nc2').value;
+            const nc3 = document.getElementById('manual-nc3').value;
+            console.log('Current input values:', { nc1, nc2, nc3 });
+            this.handleManualUpdate();
+        });
     }
 
     updateManualFields() {
@@ -1100,6 +1120,84 @@ class TriangleSystem {
                 input.readOnly = false;  // Ensure it remains editable
             }
         });
+    }
+
+    handleManualUpdate() {
+        console.log('Handling manual update');
+        // Get values from manual input fields
+        const nc1 = parseFloat(document.getElementById('manual-nc1').value);
+        const nc2 = parseFloat(document.getElementById('manual-nc2').value);
+        const nc3 = parseFloat(document.getElementById('manual-nc3').value);
+
+        console.log('Manual input values:', { nc1, nc2, nc3 });
+
+        // Validate inputs are numbers
+        if (isNaN(nc1) || isNaN(nc2) || isNaN(nc3)) {
+            alert('Please enter valid numbers for all edges');
+            return;
+        }
+
+        // Validate positive numbers
+        if (nc1 <= 0 || nc2 <= 0 || nc3 <= 0) {
+            alert('Edge lengths must be positive numbers');
+            return;
+        }
+
+        // Check triangle inequality
+        if (!this.validateTriangleInequality(nc1, nc2, nc3)) {
+            alert('The sum of any two sides must be greater than the third side');
+            return;
+        }
+
+        // Update triangle with new edge lengths
+        this.updateTriangleFromEdges(nc1, nc2, nc3);
+    }
+
+    validateTriangleInequality(a, b, c) {
+        return (
+            a + b > c &&
+            b + c > a &&
+            a + c > b
+        );
+    }
+
+    updateTriangleFromEdges(nc1, nc2, nc3) {
+        console.log('Updating triangle from edges:', { nc1, nc2, nc3 });
+        
+        // Place n3 at origin (0,0)
+        // Place n2 on x-axis at distance nc3
+        // Calculate n1 position using cosine law
+        
+        const x = (nc1 * nc1 - nc2 * nc2 + nc3 * nc3) / (2 * nc3);
+        const y = Math.sqrt(nc1 * nc1 - x * x);
+
+        // Update system coordinates
+        this.system.n3 = { x: 0, y: 0 };
+        this.system.n2 = { x: nc3, y: 0 };
+        this.system.n1 = { x: x, y: y };
+
+        // Center the triangle
+        this.centerTriangle();
+
+        // Update rendering and dashboard
+        this.drawSystem(); // Changed from this.render() to this.drawSystem()
+        this.updateDashboard();
+    }
+
+    centerTriangle() {
+        // Calculate the center of the triangle
+        const center = {
+            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+        };
+
+        // Subtract the center coordinates from each point to center the triangle
+        this.system.n1.x -= center.x;
+        this.system.n1.y -= center.y;
+        this.system.n2.x -= center.x;
+        this.system.n2.y -= center.y;
+        this.system.n3.x -= center.x;
+        this.system.n3.y -= center.y;
     }
 }
 
