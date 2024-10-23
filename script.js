@@ -698,16 +698,18 @@ class TriangleSystem {
         const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
         const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
 
-        ctx.fillStyle = 'orange';
+        // Changed color from orange to white
+        ctx.fillStyle = 'white';
         ctx.beginPath();
         ctx.arc(centroidX, centroidY, 6, 0, 2 * Math.PI);
         ctx.fill();
 
+        // Label remains white and changed from 'Centroid' to 'I'
         ctx.fillStyle = 'white';
         ctx.font = '12px Arial';
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText('Centroid', centroidX + 10, -centroidY - 10);
+        ctx.fillText('I', centroidX + 10, -centroidY);  // Changed label text
         ctx.restore();
     }
 
@@ -1015,3 +1017,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Canvas element not found");
     }
 });
+
