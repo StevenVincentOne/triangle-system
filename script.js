@@ -186,11 +186,24 @@ class TriangleSystem {
             };
         }
         else if (preset === 'acute') {
-            const height = side * Math.sin(75 * Math.PI/180);
+            // Base length for scaling
+            const baseLength = side * 0.9;  // Slightly smaller than equilateral
+            
+            // First, place N2 and N3 on the base
+            const n2x = baseLength/2;
+            const n2y = 0;
+            const n3x = -baseLength/2;
+            const n3y = 0;
+            
+            // Calculate N1 position to create 35° angle at N2 and 85° angle at N3
+            const angleN2 = 35 * Math.PI/180;  // Convert 35° to radians
+            const height = baseLength * Math.sin(angleN2);
+            const offset = -baseLength * 0.2;  // Shift left to make angles asymmetric
+            
             rawTriangle = {
-                n1: { x: 0, y: height },
-                n2: { x: side/2, y: 0 },
-                n3: { x: -side/2, y: 0 }
+                n1: { x: offset, y: height },    // Top vertex (should give us 60°)
+                n2: { x: n2x, y: n2y },          // Right vertex (35°)
+                n3: { x: n3x, y: n3y }           // Left vertex (85°)
             };
         }
         else if (preset === 'obtuse') {
