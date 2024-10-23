@@ -437,6 +437,8 @@ class TriangleSystem {
         setElementValue('#r-m-t-n1', rMT.n1);
         setElementValue('#r-m-t-n2', rMT.n2);
         setElementValue('#r-m-t-n3', rMT.n3);
+
+        this.updateManualFields();
     }
 
     calculateSubsystemAngles() {
@@ -1058,18 +1060,54 @@ class TriangleSystem {
         ctx.fillText('IC', this.system.incenter.x + 10, -this.system.incenter.y);
         ctx.restore();
     }
+
+    initializeManualControls() {
+        // Get all manual input fields
+        const manualInputs = document.querySelectorAll('.manual-input');
+        
+        manualInputs.forEach(input => {
+            // Ensure the field is editable
+            input.readOnly = false;
+            
+            // When field is clicked, move cursor to end
+            input.addEventListener('click', function(e) {
+                this.readOnly = false;  // Ensure it's editable
+                // Move cursor to end of input
+                this.setSelectionRange(this.value.length, this.value.length);
+            });
+
+            // Also handle focus via tab key
+            input.addEventListener('focus', function(e) {
+                this.readOnly = false;  // Ensure it's editable
+                this.setSelectionRange(this.value.length, this.value.length);
+            });
+        });
+    }
+
+    updateManualFields() {
+        // Update edge length fields with current values
+        const manualInputs = {
+            'manual-nc1': this.calculateDistance(this.system.n1, this.system.n3),
+            'manual-nc2': this.calculateDistance(this.system.n1, this.system.n2),
+            'manual-nc3': this.calculateDistance(this.system.n2, this.system.n3)
+        };
+
+        // Update each field while preserving editability
+        Object.entries(manualInputs).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input && !input.matches(':focus')) {  // Only update if not being edited
+                input.value = value.toFixed(2);
+                input.readOnly = false;  // Ensure it remains editable
+            }
+        });
+    }
 }
 
 function checkInputFields() {
-    const inputFields = document.querySelectorAll('input[type="text"]');
+    // If this exists, modify it to exclude manual inputs
+    const inputFields = document.querySelectorAll('input[type="text"]:not(.manual-input)');
     inputFields.forEach(field => {
-        const contentLength = field.value.length;
-        const newSize = Math.max(contentLength, 6);
-        if (field.size !== newSize || !field.readOnly) {
-            console.warn(`Adjusting input field ${field.id}. Old Size: ${field.size}, New Size: ${newSize}, ReadOnly: ${field.readOnly}`);
-            field.size = newSize;
-            field.readOnly = true;
-        }
+        field.readOnly = true;
     });
 }
 
