@@ -131,7 +131,7 @@ class TriangleSystem {
 
     initializeSystem(preset) {
         let rawTriangle;
-        const side = 200;  // Base size for all presets
+        const side = 300;  // Base size
 
         if (preset === 'equilateral') {
             const height = side * Math.sin(60 * Math.PI/180);
@@ -142,11 +142,19 @@ class TriangleSystem {
             };
         }
         else if (preset === 'isosceles') {
-            const height = side * Math.sin(70 * Math.PI/180);
+            // For 70-70-40 triangle
+            const baseAngle = 70 * Math.PI/180;  // Base angles (70 degrees)
+            const topAngle = 40 * Math.PI/180;   // Top angle (40 degrees)
+            const baseLength = side * 0.9;        // Base reduced by 10%
+            
+            // Calculate height using trigonometry
+            const height = (baseLength/2) * Math.tan(baseAngle);
+            
+            // Scale all coordinates by 0.9 to reduce size while maintaining angles
             rawTriangle = {
-                n1: { x: 0, y: height },
-                n2: { x: side/2, y: 0 },
-                n3: { x: -side/2, y: 0 }
+                n1: { x: 0, y: height * 0.9 },           // Top vertex (40° angle)
+                n2: { x: baseLength/2 * 0.9, y: 0 },     // Right vertex (70° angle)
+                n3: { x: -baseLength/2 * 0.9, y: 0 }     // Left vertex (70° angle)
             };
         }
         else if (preset === 'scalene') {
