@@ -496,8 +496,6 @@ class TriangleSystem {
     }
 
     drawSystem() {
-        console.log('Drawing system...'); // Debug log
-        
         // Clear canvas
         this.ctx.clearRect(-this.canvas.width/2, -this.canvas.height/2, this.canvas.width, this.canvas.height);
         
@@ -505,12 +503,9 @@ class TriangleSystem {
         this.drawAxes(this.ctx);
         
         // Draw edges first
-        console.log('Drawing edges...'); // Debug log
         this.drawEdges(this.ctx);
         
         // Draw nodes on top
-        console.log('Drawing nodes...'); // Debug log
-        console.log('System state:', this.system); // Debug log
         this.drawNodes(this.ctx);
         
         // Draw features
@@ -518,6 +513,7 @@ class TriangleSystem {
         if (this.showMidpoints) this.drawMidpoints(this.ctx);
         if (this.showMedians) this.drawMedians(this.ctx);
         if (this.showIncircle) this.drawIncircle(this.ctx);
+        if (this.showIncenter) this.drawIncenterPoint(this.ctx);  // New separate method for incenter
         if (this.showTangents) this.drawTangents(this.ctx);
         if (this.showCentroid) this.drawCentroid(this.ctx);
         
@@ -940,10 +936,7 @@ class TriangleSystem {
         this.drawNode(ctx, this.system.n2, 'blue', 'N2');
         this.drawNode(ctx, this.system.n3, 'green', 'N3');
         
-        // Draw incenter if enabled
-        if (this.showIncircle || this.showTangents) {
-            this.drawNode(ctx, this.system.incenter, 'cyan', 'IC');
-        }
+        // Remove incenter from here since it's now handled separately
     }
 
     centerSystem() {
@@ -986,6 +979,24 @@ class TriangleSystem {
         this.updateDashboard();
         this.drawSystem();
     }
+
+    // Add new method for drawing just the incenter point
+    drawIncenterPoint(ctx) {
+        if (!this.system.incenter) return;
+        
+        ctx.fillStyle = 'cyan';
+        ctx.beginPath();
+        ctx.arc(this.system.incenter.x, this.system.incenter.y, 6, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Add label
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.fillText('IC', this.system.incenter.x + 10, -this.system.incenter.y);
+        ctx.restore();
+    }
 }
 
 function checkInputFields() {
@@ -1013,4 +1024,3 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Canvas element not found");
     }
 });
-
