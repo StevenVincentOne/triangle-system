@@ -127,8 +127,13 @@
         #sidebar button {
             font-size: 0.8rem;
             padding: 0.25rem 0.5rem;
-            margin: 0.25rem;
+            margin: 0.1rem;  /* Reduce from 0.25rem to 0.1rem */
             width: 100%;
+        }
+
+        /* And/or adjust the flex column gap */
+        #sidebar .d-flex.flex-column {
+            gap: 0.1rem;  /* Add this if not already present, or reduce if it exists */
         }
 
         /* Layout Styles */
