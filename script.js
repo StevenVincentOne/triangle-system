@@ -642,10 +642,10 @@ class TriangleSystem {
         const { incenter } = this.system;
         const tangentPoints = this.system.TangencyPoints;
         
-        // Set line style to match medians
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';  // Using white with 0.5 opacity
+        // Set line style to match incircle color
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';  // cyan with 0.5 opacity
         ctx.setLineDash([5, 5]);
-        ctx.lineWidth = 1;  // Ensure line width is thin
+        ctx.lineWidth = 1;
         
         // Draw lines from incenter to tangent points
         tangentPoints.forEach(point => {
@@ -654,7 +654,8 @@ class TriangleSystem {
             ctx.lineTo(point.x, point.y);
             ctx.stroke();
             
-            // Draw tangent points
+            // Draw tangent points in cyan
+            ctx.fillStyle = 'cyan';
             ctx.beginPath();
             ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
             ctx.fill();
@@ -975,6 +976,7 @@ class TriangleSystem {
     drawIncenterPoint(ctx) {
         if (!this.system.incenter) return;
         
+        // Match incircle color
         ctx.fillStyle = 'cyan';
         ctx.beginPath();
         ctx.arc(this.system.incenter.x, this.system.incenter.y, 6, 0, 2 * Math.PI);
