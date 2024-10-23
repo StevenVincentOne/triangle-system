@@ -158,10 +158,24 @@ class TriangleSystem {
             };
         }
         else if (preset === 'scalene') {
+            // Base length for scaling
+            const baseLength = side * 0.9;  // Slightly smaller than equilateral
+            
+            // First, place N2 and N3 on the base
+            const n2x = baseLength/2;
+            const n2y = 0;
+            const n3x = -baseLength/2;
+            const n3y = 0;
+            
+            // Calculate N1 position to create 44° angle at N2 and 76° angle at N3
+            const angleN2 = 44 * Math.PI/180;  // Convert 44° to radians
+            const height = baseLength * Math.sin(angleN2);
+            const offset = -baseLength * 0.2;  // Shift left to make angles asymmetric
+            
             rawTriangle = {
-                n1: { x: 0, y: 200 },
-                n2: { x: 150, y: 0 },
-                n3: { x: -100, y: 0 }
+                n1: { x: offset, y: height },    // Top vertex (should give us 60°)
+                n2: { x: n2x, y: n2y },          // Right vertex (44°)
+                n3: { x: n3x, y: n3y }           // Left vertex (76°)
             };
         }
         else if (preset === 'right') {
