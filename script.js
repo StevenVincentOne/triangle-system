@@ -207,12 +207,45 @@ class TriangleSystem {
             };
         }
         else if (preset === 'obtuse') {
-            const height = side * Math.sin(45 * Math.PI/180);
+            // Define exact edge lengths
+            const nc1 = 270;  // Red line (N1-N3)
+            const nc2 = 215;  // Blue line (N1-N2)
+            const nc3 = 400;  // Green line (N2-N3)
+            
+            // Place N3 at origin
+            const n3x = 0;
+            const n3y = 0;
+            
+            // Place N2 relative to N3 along x-axis
+            const n2x = nc3;  // Length of N2-N3
+            const n2y = 0;
+            
+            // Calculate N1 position using triangulation
+            // We can use the law of cosines to find the angle at N3
+            const cosN3 = (nc1*nc1 + nc3*nc3 - nc2*nc2) / (2*nc1*nc3);
+            const angleN3 = Math.acos(cosN3);
+            
+            // Now we can find N1's position
+            const n1x = nc1 * Math.cos(angleN3);
+            const n1y = nc1 * Math.sin(angleN3);
+            
+            // Create the triangle with these coordinates
             rawTriangle = {
-                n1: { x: -100, y: height },
-                n2: { x: side/2, y: 0 },
-                n3: { x: -side/2, y: 0 }
+                n1: { x: n1x, y: n1y },
+                n2: { x: n2x, y: n2y },
+                n3: { x: n3x, y: n3y }
             };
+            
+            // Center the triangle by calculating centroid and offsetting
+            const centroidX = (n1x + n2x + n3x) / 3;
+            const centroidY = (n1y + n2y + n3y) / 3;
+            
+            rawTriangle.n1.x -= centroidX;
+            rawTriangle.n1.y -= centroidY;
+            rawTriangle.n2.x -= centroidX;
+            rawTriangle.n2.y -= centroidY;
+            rawTriangle.n3.x -= centroidX;
+            rawTriangle.n3.y -= centroidY;
         }
 
         // Calculate centroid of raw triangle
