@@ -521,27 +521,18 @@ class TriangleSystem {
         this.drawAngles(this.ctx);
     }
 
-    drawNode(ctx, point, color, label) {
-        // Draw node circle
+    drawNode(ctx, node, color, label) {
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
+        ctx.arc(node.x, node.y, 6, 0, 2 * Math.PI);  // Changed from 8 to 6 to match incenter/centroid
         ctx.fill();
 
-        // Draw node label
+        // Draw label
         ctx.fillStyle = 'white';
-        ctx.font = '14px Arial';
+        ctx.font = '12px Arial';
         ctx.save();
-        ctx.scale(1, -1);  // Flip text right-side up
-        if (label === 'N2') {
-            ctx.fillText(label, point.x + 10, -point.y - 5);  // Bottom Right
-        } else if (label === 'N3') {
-            ctx.fillText(label, point.x - 25, -point.y - 5);  // Bottom Left
-        } else if (label === 'IC') {
-            ctx.fillText(label, point.x + 10, -point.y);      // Incenter
-        } else {
-            ctx.fillText(label, point.x - 10, -point.y - 15); // N1 (top)
-        }
+        ctx.scale(1, -1);
+        ctx.fillText(label, node.x + 10, -node.y);
         ctx.restore();
     }
 
