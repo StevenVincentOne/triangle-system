@@ -223,6 +223,34 @@
             margin-left: 0.5rem;
             padding: 2px 12px;
         }
+
+        .animation-input {
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            border-radius: 4px;
+            width: 100px;
+        }
+
+        .animation-input:focus {
+            outline: none;
+            border-color: #0dcaf0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25);
+        }
+
+        #animate-button {
+            background-color: #0dcaf0;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #animate-button:hover {
+            background-color: #0bb5d7;
+        }
     </style>
 </head>
 <body>
@@ -284,6 +312,26 @@
                             <input id="manual-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
                         </div>
                         <button id="apply-manual" class="btn btn-info">Apply</button>
+                    </div>
+                </div>
+
+                <!-- Animation Controls -->
+                <div id="animation-controls" class="bg-dark p-3 rounded mb-4">
+                    <h3 class="panel-header mb-2">Animation Configuration</h3>
+                    <div class="manual-controls-container">
+                        <div class="manual-input-group">
+                            <label for="animation-nc1">Target NC1</label>
+                            <input id="animation-nc1" type="text" class="form-control manual-input" size="8" readonly="false">
+                        </div>
+                        <div class="manual-input-group">
+                            <label for="animation-nc2">Target NC2</label>
+                            <input id="animation-nc2" type="text" class="form-control manual-input" size="8" readonly="false">
+                        </div>
+                        <div class="manual-input-group">
+                            <label for="animation-nc3">Target NC3</label>
+                            <input id="animation-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
+                        </div>
+                        <button id="animate-button" class="btn btn-info">Animate</button>
                     </div>
                 </div>
 
@@ -401,6 +449,30 @@
                             <div class="label-value-pair">
                                 <label for="i-to-ic-distance">d (I, IC)</label>
                                 <input id="i-to-ic-distance" type="text" class="form-control" size="8" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add the new Animation Controls section here -->
+                    <div class="dashboard-section">
+                        <h2>Animation Controls</h2>
+                        <div class="dashboard-row">
+                            <div class="dashboard-item">
+                                <span>Target NC1 (N1-N2):</span>
+                                <input type="number" id="target-nc1" class="animation-input" step="0.01" required readonly="false">
+                            </div>
+                            <div class="dashboard-item">
+                                <span>Target NC2 (N1-N3):</span>
+                                <input type="number" id="target-nc2" class="animation-input" step="0.01" required readonly="false">
+                            </div>
+                            <div class="dashboard-item">
+                                <span>Target NC3 (N2-N3):</span>
+                                <input type="number" id="target-nc3" class="animation-input" step="0.01" required readonly="false">
+                            </div>
+                        </div>
+                        <div class="dashboard-row">
+                            <div class="dashboard-item">
+                                <button id="animate-button" class="btn btn-primary">Animate</button>
                             </div>
                         </div>
                     </div>
