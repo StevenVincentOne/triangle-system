@@ -1229,8 +1229,11 @@ class TriangleSystem {
         // Center the triangle
         this.centerTriangle();
 
+        // Update all derived points and features
+        this.updateDerivedPoints();  // Add this line to update all features
+
         // Update rendering and dashboard
-        this.drawSystem(); // Changed from this.render() to this.drawSystem()
+        this.drawSystem();
         this.updateDashboard();
     }
 
@@ -1433,55 +1436,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Canvas element not found");
     }
 });
-
-// Add this near your other event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Add export button listener
-    const exportButton = document.getElementById('exportData');
-    if (exportButton) {
-        exportButton.addEventListener('click', exportToCSV);
-    }
-});
-
-// Add this function to handle the export
-function exportToCSV() {
-    const data = {};
-    
-    // Get all input elements from dashboard and information panel
-    const inputs = document.querySelectorAll('.dashboard input, #information-panel input');
-    
-    // Collect data from all inputs
-    inputs.forEach(input => {
-        // Use the input's ID or label as the key
-        let key = input.id;
-        if (!key) {
-            // If no ID, try to get label text
-            const label = input.previousElementSibling;
-            if (label && label.tagName === 'LABEL') {
-                key = label.textContent.trim();
-            }
-        }
-        if (key) {
-            data[key] = input.value;
-        }
-    });
-
-    // Convert to CSV
-    const csvRows = ['Key,Value'];  // Add header row
-    for (const [key, value] of Object.entries(data)) {
-        csvRows.push(`${key},${value}`);
-    }
-    const csvContent = csvRows.join('\n');
-
-    // Create and trigger download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'triangle_data.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
 
