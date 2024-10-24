@@ -359,52 +359,134 @@
             margin-top: 0.25rem !important;    /* Minimal top margin */
             padding: 0.5rem !important;        /* Reduced padding */
         }
+
+        .visualization-container {
+            margin-bottom: 1rem !important;
+        }
+
+        .controls-container {
+            margin-bottom: 1rem !important;
+        }
+
+        .controls-container {
+            background-color: #1a1a1a !important;
+        }
+
+        /* Adjust internal spacing */
+        .controls-container > div {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .controls-container > div:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        #animation-controls {
+            width: fit-content !important;
+            min-width: min-content !important;
+        }
+
+        /* If needed, also add these to ensure consistent styling */
+        #animation-controls .manual-controls-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            gap: 1rem;
+            width: fit-content;
+        }
+
+        /* Remove bottom margins from children since they're side by side */
+        .controls-group > div {
+            margin-bottom: 0 !important;
+        }
+
+        .container {
+            padding-left: 0.5rem !important;    /* Minimal left buffer */
+            padding-right: 0.5rem !important;   /* Minimal right buffer */
+            margin-left: 0 !important;          /* Remove default left margin */
+            margin-right: 0 !important;         /* Remove default right margin */
+            max-width: none !important;         /* Allow container to use full width */
+        }
+
+        /* Style for both control groups */
+        #manual-controls, #animation-controls {
+            background-color: #1a1e2c !important;  /* Dark blue background */
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;  /* Subtle border for bezel */
+            border-radius: 6px !important;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2) !important;  /* Inner shadow for depth */
+        }
+
+        /* Fix background color for the lower container */
+        .controls-container {
+            background-color: #1a1e2c !important;  /* Match the dark blue */
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Ensure consistent header styling */
+        #manual-controls h3, #animation-controls h3 {
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="title text-center mb-2">Intelligent System Model</h1>
 
-        <div class="d-flex">
-            <!-- Sidebar -->
-            <div id="sidebar" class="bg-dark p-3 rounded me-3">
-                <!-- First group: Features -->
-                <div class="mb-3">
-                    <h5>Features</h5>
-                    <div class="d-flex flex-column">
-                        <button id="toggleCentroid" class="btn btn-info m-1">Centroid</button>
-                        <button id="toggleIncenter" class="btn btn-info m-1">Incenter</button>
-                        <button id="toggleMidpoints" class="btn btn-info m-1">Midpoints</button>
-                        <button id="toggleTangents" class="btn btn-info m-1">Tangents</button>
-                        <button id="toggleIncircle" class="btn btn-info m-1">Incircle</button>
-                        <button id="toggleMedians" class="btn btn-info m-1">Medians</button>
-                        <button id="toggleSubsystems" class="btn btn-info m-1">Subsystems</button>
+        <!-- First container: Buttons and Canvas -->
+        <div class="visualization-container bg-dark p-2 rounded mb-2">
+            <div class="d-flex">
+                <!-- Sidebar with buttons -->
+                <div id="sidebar" class="bg-dark p-3 rounded me-3">
+                    <!-- First group: Features -->
+                    <div class="mb-3">
+                        <h5>Features</h5>
+                        <div class="d-flex flex-column">
+                            <button id="toggleCentroid" class="btn btn-info m-1">Centroid</button>
+                            <button id="toggleIncenter" class="btn btn-info m-1">Incenter</button>
+                            <button id="toggleMidpoints" class="btn btn-info m-1">Midpoints</button>
+                            <button id="toggleTangents" class="btn btn-info m-1">Tangents</button>
+                            <button id="toggleIncircle" class="btn btn-info m-1">Incircle</button>
+                            <button id="toggleMedians" class="btn btn-info m-1">Medians</button>
+                            <button id="toggleSubsystems" class="btn btn-info m-1">Subsystems</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Second group: Presets -->
+                    <div>
+                        <h5>Presets</h5>
+                        <div class="d-flex flex-column">
+                            <button id="equilateral" class="btn btn-secondary m-1">Equilateral</button>
+                            <button id="isosceles" class="btn btn-secondary m-1">Isosceles</button>
+                            <button id="scalene" class="btn btn-secondary m-1">Scalene</button>
+                            <button id="right" class="btn btn-secondary m-1">Right</button>
+                            <button id="acute" class="btn btn-secondary m-1">Acute</button>
+                            <button id="obtuse" class="btn btn-secondary m-1">Obtuse</button>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Second group: Presets -->
-                <div>
-                    <h5>Presets</h5>
-                    <div class="d-flex flex-column">
-                        <button id="equilateral" class="btn btn-secondary m-1">Equilateral</button>
-                        <button id="isosceles" class="btn btn-secondary m-1">Isosceles</button>
-                        <button id="scalene" class="btn btn-secondary m-1">Scalene</button>
-                        <button id="right" class="btn btn-secondary m-1">Right</button>
-                        <button id="acute" class="btn btn-secondary m-1">Acute</button>
-                        <button id="obtuse" class="btn btn-secondary m-1">Obtuse</button>
+
+                <!-- Canvas -->
+                <div class="main-content">
+                    <div id="canvas-container" class="bg-dark p-2 rounded">
+                        <canvas id="canvas"></canvas>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Main Content -->
-            <div class="main-content">
-                <!-- Move Canvas Container to top -->
-                <div id="canvas-container" class="bg-dark p-2 rounded mb-2">
-                    <canvas id="canvas"></canvas>
-                </div>
-
-                <!-- Add this right after the canvas-container div -->
-                <div id="manual-controls" class="bg-dark p-3 rounded mb-4">
+        <!-- Second container: Controls and Panels -->
+        <div class="controls-container bg-dark p-2 rounded">
+            <!-- Parent container for both control sets -->
+            <div class="controls-group bg-dark p-2 rounded mb-2">
+                <!-- Manual Controls -->
+                <div id="manual-controls" class="bg-dark p-2 rounded">
                     <h3 class="panel-header mb-2">Set Manual / Animation Start</h3>
                     <div class="manual-controls-container">
                         <div class="manual-input-group">
@@ -424,218 +506,210 @@
                 </div>
 
                 <!-- Animation Controls -->
-                <div id="animation-controls" class="bg-dark p-3 rounded mb-4">
+                <div id="animation-controls" class="bg-dark p-2 rounded">
                     <h3 class="panel-header mb-2">Set Animation End</h3>
                     <div class="manual-controls-container">
                         <div class="manual-input-group">
-                            <label for="animation-nc1">Target NC1</label>
+                            <label for="animation-nc1">NC1</label>
                             <input id="animation-nc1" type="text" class="form-control manual-input" size="8" readonly="false">
                         </div>
                         <div class="manual-input-group">
-                            <label for="animation-nc2">Target NC2</label>
+                            <label for="animation-nc2">NC2</label>
                             <input id="animation-nc2" type="text" class="form-control manual-input" size="8" readonly="false">
                         </div>
                         <div class="manual-input-group">
-                            <label for="animation-nc3">Target NC3</label>
+                            <label for="animation-nc3">NC3</label>
                             <input id="animation-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
                         </div>
                         <button id="animate-button" class="btn btn-info">Animate</button>
                     </div>
                 </div>
+            </div>
 
-                <!-- Dashboard -->
-                <div id="dashboard" class="dashboard bg-dark p-4 rounded mb-4">
-                    <div class="row">
-                        <!-- System Panel -->
-                        <div class="dashboard-panel">
-                            <h3 class="panel-header">System</h3>
-                            <div class="label-value-pair">
-                                <label for="system-perimeter">P</label>
-                                <input id="system-perimeter" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="system-area">A</label>
-                                <input id="system-area" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="subsystems-area">SS A</label>
-                                <input id="subsystems-area" type="text" class="form-control" size="8" readonly>
-                            </div>
+            <!-- Dashboard -->
+            <div id="dashboard" class="dashboard bg-dark p-2 rounded mb-2">
+                <div class="row">
+                    <!-- System Panel -->
+                    <div class="dashboard-panel">
+                        <h3 class="panel-header">System</h3>
+                        <div class="label-value-pair">
+                            <label for="system-perimeter">P</label>
+                            <input id="system-perimeter" type="text" class="form-control" size="8" readonly>
                         </div>
-                        
-                        <!-- Subsystems Panel -->
-                        <div class="col-md-3 dashboard-panel">
-                            <h3 class="panel-header">Subsystems</h3>
-                            <table class="subsystems-table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>SS1</th>
-                                        <th>SS2</th>
-                                        <th>SS3</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th>P</th>
-                                        <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                    </tr>
-                                    <tr>
-                                        <th>∠</th>
-                                        <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                        <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                        <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="label-value-pair">
+                            <label for="system-area">A</label>
+                            <input id="system-area" type="text" class="form-control" size="8" readonly>
                         </div>
-                        
-                        <!-- Channels Panel -->
-                        <div class="col-md-2 dashboard-panel">
-                            <h3 class="panel-header">Channels</h3>
-                            <div class="label-value-pair">
-                                <label for="edge-nc1">NC1</label>
-                                <input id="edge-nc1" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="edge-nc2">NC2</label>
-                                <input id="edge-nc2" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="edge-nc3">NC3</label>
-                                <input id="edge-nc3" type="text" class="form-control" size="8" readonly>
-                            </div>
-                        </div>
-                        
-                        <!-- Medians Panel -->
-                        <div class="col-md-2 dashboard-panel">
-                            <h3 class="panel-header">Medians</h3>
-                            <div class="label-value-pair">
-                                <label for="median-n1">N1</label>
-                                <input id="median-n1" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="median-n2">N2</label>
-                                <input id="median-n2" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="median-n3">N3</label>
-                                <input id="median-n3" type="text" class="form-control" size="8" readonly>
-                            </div>
-                        </div>
-                        
-                        <!-- Nodes Panel -->
-                        <div class="col-md-2 dashboard-panel">
-                            <h3 class="panel-header">Nodes</h3>
-                            <div class="label-value-pair">
-                                <label for="node-n1-angle">N1 ∠</label>
-                                <input id="node-n1-angle" type="text" class="form-control angle-input" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="node-n2-angle">N2 ∠</label>
-                                <input id="node-n2-angle" type="text" class="form-control angle-input" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="node-n3-angle">N3 ∠</label>
-                                <input id="node-n3-angle" type="text" class="form-control angle-input" size="8" readonly>
-                            </div>
-                        </div>
-                        
-                        <!-- Centers Panel -->
-                        <div class="col-md-2 dashboard-panel">
-                            <h3 class="panel-header">Centers</h3>
-                            <div class="label-value-pair">
-                                <label for="centroid-coords">I (x,y)</label>
-                                <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="incenter-coords">IC (x,y)</label>
-                                <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="i-to-ic-distance">d (I, IC)</label>
-                                <input id="i-to-ic-distance" type="text" class="form-control" size="8" readonly>
-                            </div>
+                        <div class="label-value-pair">
+                            <label for="subsystems-area">SS A</label>
+                            <input id="subsystems-area" type="text" class="form-control" size="8" readonly>
                         </div>
                     </div>
-                </div>
-
-                <!-- Separator -->
-                <div class="separator"></div>
-
-                <!-- Information Panel -->
-                <div id="information-panel" class="bg-dark p-4 rounded mb-4">
-                    <h3 class="panel-header">Information Panel</h3>
-                    <div class="info-container">
-                        <div class="info-column">
-                            <div class="label-value-pair">
-                                <label for="d-i-ic">d(I, IC)</label>
-                                <input id="d-i-ic" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="d-m-t-n1">d(M,T) N1</label>
-                                <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="d-m-t-n2">d(M,T) N2</label>
-                                <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="d-m-t-n3">d(M,T) N3</label>
-                                <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
-                            </div>
+                    
+                    <!-- Subsystems Panel -->
+                    <div class="col-md-3 dashboard-panel">
+                        <h3 class="panel-header">Subsystems</h3>
+                        <table class="subsystems-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>SS1</th>
+                                    <th>SS2</th>
+                                    <th>SS3</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>P</th>
+                                    <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                </tr>
+                                <tr>
+                                    <th>∠</th>
+                                    <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                    <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                    <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Channels Panel -->
+                    <div class="col-md-2 dashboard-panel">
+                        <h3 class="panel-header">Channels</h3>
+                        <div class="label-value-pair">
+                            <label for="edge-nc1">NC1</label>
+                            <input id="edge-nc1" type="text" class="form-control" size="8" readonly>
                         </div>
-                        <div class="info-column">
-                            <div class="label-value-pair">
-                                <label for="r-i-ic">r(I, IC)</label>
-                                <input id="r-i-ic" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="r-m-t-n1">r(M,T) N1</label>
-                                <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="r-m-t-n2">r(M,T) N2</label>
-                                <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="r-m-t-n3">r(M,T) N3</label>
-                                <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
-                            </div>
+                        <div class="label-value-pair">
+                            <label for="edge-nc2">NC2</label>
+                            <input id="edge-nc2" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="edge-nc3">NC3</label>
+                            <input id="edge-nc3" type="text" class="form-control" size="8" readonly>
                         </div>
                     </div>
-                </div>
-
-                <!-- Legends Panel -->
-                <div class="legends-panel">
-                    <h3 class="panel-header">Legends</h3>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <p>P: Perimeter</p>
+                    
+                    <!-- Medians Panel -->
+                    <div class="col-md-2 dashboard-panel">
+                        <h3 class="panel-header">Medians</h3>
+                        <div class="label-value-pair">
+                            <label for="median-n1">N1</label>
+                            <input id="median-n1" type="text" class="form-control" size="8" readonly>
                         </div>
-                        <div class="col-md-3">
-                            <p>A: Area</p>
+                        <div class="label-value-pair">
+                            <label for="median-n2">N2</label>
+                            <input id="median-n2" type="text" class="form-control" size="8" readonly>
                         </div>
-                        <div class="col-md-3">
-                            <p>SS: Subsystem</p>
+                        <div class="label-value-pair">
+                            <label for="median-n3">N3</label>
+                            <input id="median-n3" type="text" class="form-control" size="8" readonly>
                         </div>
-                        <div class="col-md-3">
-                            <p>∠: Angle</p>
+                    </div>
+                    
+                    <!-- Nodes Panel -->
+                    <div class="col-md-2 dashboard-panel">
+                        <h3 class="panel-header">Nodes</h3>
+                        <div class="label-value-pair">
+                            <label for="node-n1-angle">N1 ∠</label>
+                            <input id="node-n1-angle" type="text" class="form-control angle-input" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="node-n2-angle">N2 ∠</label>
+                            <input id="node-n2-angle" type="text" class="form-control angle-input" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="node-n3-angle">N3 ∠</label>
+                            <input id="node-n3-angle" type="text" class="form-control angle-input" size="8" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Centers Panel -->
+                    <div class="col-md-2 dashboard-panel">
+                        <h3 class="panel-header">Centers</h3>
+                        <div class="label-value-pair">
+                            <label for="centroid-coords">I (x,y)</label>
+                            <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="incenter-coords">IC (x,y)</label>
+                            <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="i-to-ic-distance">d (I, IC)</label>
+                            <input id="i-to-ic-distance" type="text" class="form-control" size="8" readonly>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Export Data button (Moved to Sidebar if needed) -->
-        <!-- If you prefer to keep the export button in the sidebar, you can uncomment the following lines and remove it from the main content -->
-        <!--
-        <div class="w-100 text-center mt-3">
-            <button id="export-data" class="btn btn-success">Export Data</button>
+            <!-- Separator -->
+            <div class="separator"></div>
+
+            <!-- Information Panel -->
+            <div id="information-panel" class="bg-dark p-2 rounded mb-2">
+                <h3 class="panel-header">Information Panel</h3>
+                <div class="info-container">
+                    <div class="info-column">
+                        <div class="label-value-pair">
+                            <label for="d-i-ic">d(I, IC)</label>
+                            <input id="d-i-ic" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="d-m-t-n1">d(M,T) N1</label>
+                            <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="d-m-t-n2">d(M,T) N2</label>
+                            <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="d-m-t-n3">d(M,T) N3</label>
+                            <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
+                        </div>
+                    </div>
+                    <div class="info-column">
+                        <div class="label-value-pair">
+                            <label for="r-i-ic">r(I, IC)</label>
+                            <input id="r-i-ic" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="r-m-t-n1">r(M,T) N1</label>
+                            <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="r-m-t-n2">r(M,T) N2</label>
+                            <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="r-m-t-n3">r(M,T) N3</label>
+                            <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legends Panel -->
+            <div class="legends-panel bg-dark p-2 rounded">
+                <h3 class="panel-header">Legends</h3>
+                <div class="row">
+                    <div class="col-md-3">
+                        <p>P: Perimeter</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>A: Area</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>SS: Subsystem</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>∠: Angle</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        -->
     </div>
 
     <script src="script.js" defer></script>
