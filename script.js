@@ -1113,45 +1113,28 @@ class TriangleSystem {
     }
 
     initializeManualControls() {
-        console.log('Initializing manual controls');
-        
-        // Get all manual input fields
-        const manualInputs = document.querySelectorAll('.manual-input');
-        
-        manualInputs.forEach(input => {
-            // Ensure the field is editable
-            input.readOnly = false;
-            
-            // When field is clicked, move cursor to end
-            input.addEventListener('click', function(e) {
-                this.readOnly = false;  // Ensure it's editable
-                // Move cursor to end of input
-                this.setSelectionRange(this.value.length, this.value.length);
-            });
-
-            // Also handle focus via tab key
-            input.addEventListener('focus', function(e) {
-                this.readOnly = false;  // Ensure it's editable
-                this.setSelectionRange(this.value.length, this.value.length);
-            });
-        });
-
-        // Get the apply button
+        const nc1Input = document.getElementById('manual-nc1');
+        const nc2Input = document.getElementById('manual-nc2');
+        const nc3Input = document.getElementById('manual-nc3');
         const applyButton = document.getElementById('apply-manual');
-        if (!applyButton) {
-            console.error('Apply button not found');
-            return;
-        }
 
-        // Add click event listener to the apply button
-        applyButton.addEventListener('click', () => {
-            console.log('Apply button clicked');
-            const nc1 = document.getElementById('manual-nc1').value;
-            const nc2 = document.getElementById('manual-nc2').value;
-            const nc3 = document.getElementById('manual-nc3').value;
-            console.log('Current input values:', { nc1, nc2, nc3 });
-            this.handleManualUpdate();
-        });
+        const handleEnterKey = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const nc1 = parseFloat(nc1Input.value);
+                const nc2 = parseFloat(nc2Input.value);
+                const nc3 = parseFloat(nc3Input.value);
+                
+                if (!isNaN(nc1) && !isNaN(nc2) && !isNaN(nc3)) {
+                    this.updateTriangleFromEdges(nc1, nc2, nc3);
+                }
+            }
+        };
+
+        // Add keypress listeners to each input
+        nc1Input.addEventListener('keypress', handleEnterKey);
+        nc2Input.addEventListener('keypress', handleEnterKey);
+        nc3Input.addEventListener('keypress', handleEnterKey);
     }
 
     updateManualFields() {
