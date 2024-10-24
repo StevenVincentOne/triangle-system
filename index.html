@@ -433,6 +433,182 @@
             padding-bottom: 0.5rem;
             margin-bottom: 1rem;
         }
+
+        .info-container {
+            width: fit-content !important;
+            margin: 0 auto !important;  /* Centers the container */
+        }
+
+        .info-content {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .info-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .label-value-pair label {
+            min-width: 8ch;
+        }
+
+        /* Center all major containers */
+        .container > div {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Center the visualization container and its contents */
+        .visualization-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: fit-content;
+        }
+
+        /* Center the buttons container */
+        #buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Center the button rows */
+        #buttons-container > div {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Center the controls group */
+        .controls-group {
+            margin: 0 auto;
+        }
+
+        /* Center the dashboard panels */
+        .dashboard, .info-container, .legends-panel {
+            margin: 0 auto !important;
+            width: fit-content;
+        }
+
+        /* Center content within panels */
+        .panel-header {
+            text-align: center;
+        }
+
+        /* Make System panel conform to content */
+        .dashboard-panel {
+            width: fit-content !important;
+        }
+
+        /* Adjust label-value spacing in System panel */
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem !important;  /* Reduce space between label and input */
+        }
+
+        .label-value-pair label {
+            min-width: 4ch !important;  /* Minimum width for labels */
+            margin-right: 0 !important; /* Remove any extra margin */
+        }
+
+        .label-value-pair input {
+            width: 8ch !important;     /* Fixed width for inputs */
+        }
+
+        /* Make all dashboard panels conform to content */
+        .dashboard-panel {
+            width: fit-content !important;
+            padding: 0.5rem !important;
+        }
+
+        /* Consistent spacing for all label-value pairs */
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        /* Specific adjustments for Channels, Medians, Nodes, Centers panels */
+        .dashboard-panel .label-value-pair label {
+            min-width: 4ch !important;
+            text-align: right !important;
+        }
+
+        .dashboard-panel .label-value-pair input {
+            width: 8ch !important;
+        }
+
+        /* Panel headers */
+        .panel-header {
+            text-align: center;
+            margin-bottom: 0.5rem !important;
+            padding-bottom: 0.25rem !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dashboard row layout */
+        .dashboard {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .main-content {
+            width: fit-content !important;
+            height: fit-content !important;
+        }
+
+        #canvas-container {
+            width: 800px !important;  /* Or your desired width */
+            height: 600px !important; /* Or your desired height */
+            overflow: hidden !important;
+        }
+
+        #canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .main-content {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+        }
+
+        #canvas-container {
+            width: 800px !important;
+            height: 600px !important;
+            overflow: hidden !important;
+            margin: 0 auto !important;  /* Centers horizontally if flex is not working */
+        }
+
+        #canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* If needed, also center the parent container */
+        .visualization-container {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
     </style>
 </head>
 <body>
@@ -442,90 +618,86 @@
         <!-- First container: Buttons and Canvas -->
         <div class="visualization-container bg-dark p-2 rounded mb-2">
             <div class="d-flex">
-                <!-- Sidebar with buttons -->
-                <div id="sidebar" class="bg-dark p-3 rounded me-3">
-                    <!-- First group: Features -->
-                    <div class="mb-3">
-                        <h5>Features</h5>
-                        <div class="d-flex flex-column">
-                            <button id="toggleCentroid" class="btn btn-info m-1">Centroid</button>
-                            <button id="toggleIncenter" class="btn btn-info m-1">Incenter</button>
-                            <button id="toggleMidpoints" class="btn btn-info m-1">Midpoints</button>
-                            <button id="toggleTangents" class="btn btn-info m-1">Tangents</button>
-                            <button id="toggleIncircle" class="btn btn-info m-1">Incircle</button>
-                            <button id="toggleMedians" class="btn btn-info m-1">Medians</button>
-                            <button id="toggleSubsystems" class="btn btn-info m-1">Subsystems</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Second group: Presets -->
-                    <div>
-                        <h5>Presets</h5>
-                        <div class="d-flex flex-column">
-                            <button id="equilateral" class="btn btn-secondary m-1">Equilateral</button>
-                            <button id="isosceles" class="btn btn-secondary m-1">Isosceles</button>
-                            <button id="scalene" class="btn btn-secondary m-1">Scalene</button>
-                            <button id="right" class="btn btn-secondary m-1">Right</button>
-                            <button id="acute" class="btn btn-secondary m-1">Acute</button>
-                            <button id="obtuse" class="btn btn-secondary m-1">Obtuse</button>
-                        </div>
-                    </div>
+                <!-- Sidebar 
+<!-- Second container: Controls and Panels -->
+<div class="controls-container bg-dark p-2 rounded">
+    <!-- Parent container for both control sets -->
+    <div class="controls-group bg-dark p-2 rounded mb-2">
+        <!-- Manual Controls -->
+        <div id="manual-controls" class="bg-dark p-2 rounded">
+            <h3 class="panel-header mb-2">Set Manual / Animation Start</h3>
+            <div class="manual-controls-container">
+                <div class="manual-input-group">
+                    <label for="manual-nc1">NC1</label>
+                    <input id="manual-nc1" type="text" class="form-control manual-input" size="8" readonly="false">
                 </div>
+                <div class="manual-input-group">
+                    <label for="manual-nc2">NC2</label>
+                    <input id="manual-nc2" type="text" class="form-control manual-input" size="8" readonly="false">
+                </div>
+                <div class="manual-input-group">
+                    <label for="manual-nc3">NC3</label>
+                    <input id="manual-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
+                </div>
+                <button id="apply-manual" class="btn btn-info">Apply</button>
+            </div>
+        </div>
 
+        <!-- Animation Controls -->
+        <div id="animation-controls" class="bg-dark p-2 rounded">
+            <h3 class="panel-header mb-2">Set Animation End</h3>
+            <div class="manual-controls-container">
+                <div class="manual-input-group">
+                    <label for="animation-nc1">NC1</label>
+                    <input id="animation-nc1" type="text" class="form-control manual-input" size="8" readonly="false">
+                </div>
+                <div class="manual-input-group">
+                    <label for="animation-nc2">NC2</label>
+                    <input id="animation-nc2" type="text" class="form-control manual-input" size="8" readonly="false">
+                </div>
+                <div class="manual-input-group">
+                    <label for="animation-nc3">NC3</label>
+                    <input id="animation-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
+                </div>
+                <button id="animate-button" class="btn btn-info">Animate</button>
+            </div>
+        </div>
+    </div>
                 <!-- Canvas -->
                 <div class="main-content">
                     <div id="canvas-container" class="bg-dark p-2 rounded">
                         <canvas id="canvas"></canvas>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Second container: Controls and Panels -->
-        <div class="controls-container bg-dark p-2 rounded">
-            <!-- Parent container for both control sets -->
-            <div class="controls-group bg-dark p-2 rounded mb-2">
-                <!-- Manual Controls -->
-                <div id="manual-controls" class="bg-dark p-2 rounded">
-                    <h3 class="panel-header mb-2">Set Manual / Animation Start</h3>
-                    <div class="manual-controls-container">
-                        <div class="manual-input-group">
-                            <label for="manual-nc1">NC1</label>
-                            <input id="manual-nc1" type="text" class="form-control manual-input" size="8" readonly="false">
-                        </div>
-                        <div class="manual-input-group">
-                            <label for="manual-nc2">NC2</label>
-                            <input id="manual-nc2" type="text" class="form-control manual-input" size="8" readonly="false">
-                        </div>
-                        <div class="manual-input-group">
-                            <label for="manual-nc3">NC3</label>
-                            <input id="manual-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
-                        </div>
-                        <button id="apply-manual" class="btn btn-info">Apply</button>
-                    </div>
-                </div>
+                
 
-                <!-- Animation Controls -->
-                <div id="animation-controls" class="bg-dark p-2 rounded">
-                    <h3 class="panel-header mb-2">Set Animation End</h3>
-                    <div class="manual-controls-container">
-                        <div class="manual-input-group">
-                            <label for="animation-nc1">NC1</label>
-                            <input id="animation-nc1" type="text" class="form-control manual-input" size="8" readonly="false">
-                        </div>
-                        <div class="manual-input-group">
-                            <label for="animation-nc2">NC2</label>
-                            <input id="animation-nc2" type="text" class="form-control manual-input" size="8" readonly="false">
-                        </div>
-                        <div class="manual-input-group">
-                            <label for="animation-nc3">NC3</label>
-                            <input id="animation-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
-                        </div>
-                        <button id="animate-button" class="btn btn-info">Animate</button>
-                    </div>
-                </div>
-            </div>
+        
+        <!-- Paste the modified buttons structure HERE -->
+<div id="buttons-container" class="mt-2">
+    <!-- Features row -->
+        <div class="d-flex gap-2 mb-2">
+            <button id="toggleCentroid" class="btn btn-info">Centroid</button>
+            <button id="toggleIncenter" class="btn btn-info">Incenter</button>
+            <button id="toggleMidpoints" class="btn btn-info">Midpoints</button>
+            <button id="toggleTangents" class="btn btn-info">Tangents</button>
+            <button id="toggleIncircle" class="btn btn-info">Incircle</button>
+            <button id="toggleMedians" class="btn btn-info">Medians</button>
+        <button id="toggleSubsystems" class="btn btn-info">Subsystems</button>
+    </div>
 
+    <!-- Presets row -->
+    <div class="d-flex gap-2">
+        <button id="equilateral" class="btn btn-secondary">Equilateral</button>
+        <button id="isosceles" class="btn btn-secondary">Isosceles</button>
+        <button id="scalene" class="btn btn-secondary">Scalene</button>
+        <button id="right" class="btn btn-secondary">Right</button>
+        <button id="acute" class="btn btn-secondary">Acute</button>
+        <button id="obtuse" class="btn btn-secondary">Obtuse</button>
+    </div>
+</div>
+</div>
+</div>
             <!-- Dashboard -->
             <div id="dashboard" class="dashboard bg-dark p-2 rounded mb-2">
                 <div class="row">
@@ -649,43 +821,45 @@
             <div class="separator"></div>
 
             <!-- Information Panel -->
-            <div id="information-panel" class="bg-dark p-2 rounded mb-2">
-                <h3 class="panel-header">Information Panel</h3>
-                <div class="info-container">
-                    <div class="info-column">
-                        <div class="label-value-pair">
-                            <label for="d-i-ic">d(I, IC)</label>
-                            <input id="d-i-ic" type="text" class="form-control" size="8" readonly>
+            <div class="info-container bg-dark p-2 rounded mb-2">
+                <div id="information-panel" class="bg-dark p-2 rounded">
+                    <h3 class="panel-header">Information Panel</h3>
+                    <div class="info-content d-flex gap-2">
+                        <div class="info-column">
+                            <div class="label-value-pair">
+                                <label for="d-i-ic">d(I, IC)</label>
+                                <input id="d-i-ic" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="d-m-t-n1">d(M,T) N1</label>
+                                <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="d-m-t-n2">d(M,T) N2</label>
+                                <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="d-m-t-n3">d(M,T) N3</label>
+                                <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
+                            </div>
                         </div>
-                        <div class="label-value-pair">
-                            <label for="d-m-t-n1">d(M,T) N1</label>
-                            <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="d-m-t-n2">d(M,T) N2</label>
-                            <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="d-m-t-n3">d(M,T) N3</label>
-                            <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
-                        </div>
-                    </div>
-                    <div class="info-column">
-                        <div class="label-value-pair">
-                            <label for="r-i-ic">r(I, IC)</label>
-                            <input id="r-i-ic" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="r-m-t-n1">r(M,T) N1</label>
-                            <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="r-m-t-n2">r(M,T) N2</label>
-                            <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="r-m-t-n3">r(M,T) N3</label>
-                            <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
+                        <div class="info-column">
+                            <div class="label-value-pair">
+                                <label for="r-i-ic">r(I, IC)</label>
+                                <input id="r-i-ic" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="r-m-t-n1">r(M,T) N1</label>
+                                <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="r-m-t-n2">r(M,T) N2</label>
+                                <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="r-m-t-n3">r(M,T) N3</label>
+                                <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
+                            </div>
                         </div>
                     </div>
                 </div>

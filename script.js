@@ -3,13 +3,9 @@ class TriangleSystem {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         
-        // Make canvas fill its container
-        this.canvas.style.width = '100%';
-        this.canvas.style.height = 'auto';
-        
-        // Set actual dimensions to match displayed size
-        this.canvas.width = this.canvas.offsetWidth;
-        this.canvas.height = this.canvas.offsetWidth * 0.75; // 4:3 aspect ratio
+        // Set up canvas dimensions
+        this.canvas.width = canvas.clientWidth;
+        this.canvas.height = canvas.clientHeight;
         
         // Transform to center origin and flip y-axis correctly
         this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
@@ -28,8 +24,17 @@ class TriangleSystem {
         this.isDragging = false;
         this.draggedNode = null;
 
+        // Initialize with default triangle first
+        this.initializeSystem('equilateral');
+        
+        // Then initialize controls
         this.initializeEventListeners();
         this.initializeManualControls();
+        this.initializeAnimationControls();
+        
+        // Draw initial state
+        this.drawSystem();
+        this.updateDashboard();
     }
 
     // Method to initialize all event listeners
@@ -1252,6 +1257,162 @@ class TriangleSystem {
             y: (point1.y + point2.y) / 2
         };
     }
+
+    initializeAnimationControls() {
+        console.log('Initializing animation controls');
+        
+        // Get animation input fields
+        const animationInputs = document.querySelectorAll('.animation-input');
+        console.log('Found animation inputs:', animationInputs.length);
+        
+        // Initialize each input field
+        animationInputs.forEach((input, index) => {
+            console.log(`Initializing animation input ${index}:`, input.id);
+            
+            // Set initial values from current triangle state
+            if (this.system && this.system.n1) {
+                let value;
+                if (index === 0) {
+                    value = this.calculateDistance(this.system.n1, this.system.n3);
+                } else if (index === 1) {
+                    value = this.calculateDistance(this.system.n1, this.system.n2);
+                } else if (index === 2) {
+                    value = this.calculateDistance(this.system.n2, this.system.n3);
+                }
+                
+                // Set the value and ensure the input is editable
+                input.value = value.toFixed(2);
+                input.removeAttribute('readonly');
+                input.removeAttribute('disabled');
+            }
+            
+            // Add input handler
+            input.addEventListener('input', (e) => {
+                console.log('Input value changed:', e.target.id, e.target.value);
+            });
+        });
+
+        // Get and initialize the animate button
+        const animateButton = document.getElementById('animate-button');
+        if (animateButton) {
+            animateButton.addEventListener('click', () => {
+                console.log('Animate button clicked');
+                this.startAnimation();
+            });
+        } else {
+            console.error('Animate button not found');
+        }
+    }
+
+    startAnimation() {
+        console.log('Starting animation');
+        
+        // Get end state values from input fields
+        const nc1End = parseFloat(document.getElementById('animation-nc1').value);
+        const nc2End = parseFloat(document.getElementById('animation-nc2').value);
+        const nc3End = parseFloat(document.getElementById('animation-nc3').value);
+
+        console.log('End state values:', { nc1End, nc2End, nc3End });
+
+        // Get current edge lengths as start values
+        const startState = {
+            nc1: this.calculateDistance(this.system.n1, this.system.n2),
+            nc2: this.calculateDistance(this.system.n1, this.system.n3),
+            nc3: this.calculateDistance(this.system.n2, this.system.n3)
+        };
+
+        console.log('Start state:', startState);
+        console.log('End state:', { nc1: nc1End, nc2: nc2End, nc3: nc3End });
+
+        // Store animation parameters
+        this.animationStartState = startState;
+        this.animationEndState = { nc1: nc1End, nc2: nc2End, nc3: nc3End };
+        this.animationStartTime = performance.now();
+        this.animationDuration = 2000; // 2 seconds
+        this.isAnimating = true;
+
+        // Start animation loop
+        requestAnimationFrame(this.animate.bind(this));
+    }
+
+    animate(currentTime) {
+        if (!this.isAnimating) return;
+
+        const elapsed = currentTime - this.animationStartTime;
+        const progress = Math.min(elapsed / this.animationDuration, 1);
+
+        console.log('Animation progress:', progress);
+
+        // Calculate current values using linear interpolation
+        const currentNC1 = this.lerp(this.animationStartState.nc1, this.animationEndState.nc1, progress);
+        const currentNC2 = this.lerp(this.animationStartState.nc2, this.animationEndState.nc2, progress);
+        const currentNC3 = this.lerp(this.animationStartState.nc3, this.animationEndState.nc3, progress);
+
+        console.log('Current values:', { currentNC1, currentNC2, currentNC3 });
+
+        // Update triangle with current values
+        this.adjustEdgeLength('nc1', currentNC1, true);
+        this.adjustEdgeLength('nc2', currentNC2, true);
+        this.adjustEdgeLength('nc3', currentNC3, true);
+
+        // Draw updated state
+        this.drawSystem();
+        this.updateDashboard();
+
+        // Continue animation if not complete
+        if (progress < 1) {
+            requestAnimationFrame(this.animate.bind(this));
+        } else {
+            this.isAnimating = false;
+            console.log('Animation complete');
+        }
+    }
+
+    lerp(start, end, progress) {
+        return start + (end - start) * progress;
+    }
+
+    adjustEdgeLength(edge, newLength, suppressAlert = false) {
+        let nodeA, nodeB;
+        
+        switch(edge) {
+            case 'nc1':
+                nodeA = this.system.n1;
+                nodeB = this.system.n2;
+                break;
+            case 'nc2':
+                nodeA = this.system.n1;
+                nodeB = this.system.n3;
+                break;
+            case 'nc3':
+                nodeA = this.system.n2;
+                nodeB = this.system.n3;
+                break;
+            default:
+                return;
+        }
+
+        const currentLength = this.calculateDistance(nodeA, nodeB);
+        const scaleFactor = newLength / currentLength;
+
+        // Calculate midpoint
+        const midpoint = {
+            x: (nodeA.x + nodeB.x) / 2,
+            y: (nodeA.y + nodeB.y) / 2
+        };
+
+        // Scale points from midpoint
+        nodeA.x = midpoint.x + (nodeA.x - midpoint.x) * scaleFactor;
+        nodeA.y = midpoint.y + (nodeA.y - midpoint.y) * scaleFactor;
+        nodeB.x = midpoint.x + (nodeB.x - midpoint.x) * scaleFactor;
+        nodeB.y = midpoint.y + (nodeB.y - midpoint.y) * scaleFactor;
+
+        // Ensure base nodes stay at BASE_Y
+        if (edge === 'nc3') {
+            nodeA.y = this.BASE_Y;
+            nodeB.y = this.BASE_Y;
+        }
+    }
 }
 
 function checkInputFields() {
@@ -1268,8 +1429,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (canvas) {
         window.triangleSystem = new TriangleSystem(canvas);
         checkInputFields();
-
-        window.triangleSystem.initializeSystem('equilateral');
     } else {
         console.error("Canvas element not found");
     }
