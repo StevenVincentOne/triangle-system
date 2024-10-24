@@ -3,9 +3,13 @@ class TriangleSystem {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         
-        // Set up canvas dimensions
-        this.canvas.width = canvas.clientWidth;
-        this.canvas.height = canvas.clientHeight;
+        // Make canvas fill its container
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = 'auto';
+        
+        // Set actual dimensions to match displayed size
+        this.canvas.width = this.canvas.offsetWidth;
+        this.canvas.height = this.canvas.offsetWidth * 0.75; // 4:3 aspect ratio
         
         // Transform to center origin and flip y-axis correctly
         this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
