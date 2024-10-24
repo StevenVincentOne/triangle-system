@@ -115,7 +115,7 @@
             max-width: 300px;
             height: fit-content;
             background-color: #2c2c2c;
-            padding: 1rem;
+            padding: 0.5rem;
             border-radius: 8px;
         }
         
@@ -243,11 +243,127 @@
             margin-left: 0.5rem;
             padding: 2px 12px;
         }
+
+        h3.title {
+            margin: 0.25rem 0;  /* Reduce from default margins */
+            padding: 0;
+        }
+
+        .features {
+            margin-top: 0.25rem;  /* Reduce space between title and features */
+        }
+
+        /* If needed, adjust canvas top margin */
+        #canvas-container {
+            margin-top: 0.25rem;
+        }
+
+        .title {
+            font-size: 1.5rem;  /* Make the title smaller */
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1 !important;
+        }
+
+        /* Reduce spacing between all dashboard sections */
+        .mb-4 {
+            margin-bottom: 0.5rem !important;  /* Reduce from default 1.5rem */
+        }
+
+        /* Or if you prefer to target sections directly */
+        #manual-controls, #animation-controls, #preset-controls {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .preset-button, .feature-button {
+            width: 14ch;  /* Sets width to 14 characters */
+            text-align: center;
+        }
+
+        /* For preset buttons */
+        .btn-secondary {
+            width: 14ch !important;
+            text-align: center !important;
+        }
+
+        /* For feature buttons in the sidebar */
+        #sidebar button {
+            width: 14ch !important;
+            text-align: center !important;
+        }
+
+        /* Minimize spacing between Features header and buttons */
+        #sidebar h2 {
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1 !important;
+        }
+
+        /* Reduce spacing between feature buttons */
+        #sidebar button {
+            margin: 0.1rem 0 !important;
+            padding: 0.25rem !important;
+        }
+
+        /* Reduce sidebar padding */
+        #sidebar {
+            padding: 0.5rem !important;
+        }
+
+        /* Reduce spacing between preset buttons */
+        .btn-secondary {
+            margin: 0.1rem !important;
+            padding: 0.25rem !important;
+        }
+
+        /* Reduce container padding */
+        .container {
+            padding: 0.5rem !important;
+        }
+
+        /* Tighten the d-flex spacing */
+        .d-flex {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Reduce sidebar margin */
+        #sidebar {
+            margin-right: 0.5rem !important;  /* Reduce me-3 to smaller gap */
+        }
+
+        /* Reduce spacing between button groups */
+        .mb-3 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* Reduce spacing for feature buttons */
+        .btn {
+            margin: 0.1rem !important;
+        }
+
+        /* Ensure h5 headers are tight */
+        h5 {
+            margin: 0 0 0.25rem 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Reduce spacing in main content area */
+        .main-content > div {
+            margin-bottom: 0.25rem !important;  /* Reduce space between all direct children */
+            padding: 0.5rem !important;         /* Reduce padding */
+        }
+
+        /* Specifically target the controls */
+        #manual-controls, #animation-controls {
+            margin-top: 0.25rem !important;    /* Minimal top margin */
+            padding: 0.5rem !important;        /* Reduced padding */
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center my-4">Intelligent System Model</h1>
+        <h1 class="title text-center mb-2">Intelligent System Model</h1>
 
         <div class="d-flex">
             <!-- Sidebar -->
@@ -283,13 +399,13 @@
             <!-- Main Content -->
             <div class="main-content">
                 <!-- Move Canvas Container to top -->
-                <div id="canvas-container" class="bg-dark p-4 rounded mb-4">
-                    <canvas id="canvas" width="800" height="600"></canvas>
+                <div id="canvas-container" class="bg-dark p-2 rounded mb-2">
+                    <canvas id="canvas"></canvas>
                 </div>
 
                 <!-- Add this right after the canvas-container div -->
                 <div id="manual-controls" class="bg-dark p-3 rounded mb-4">
-                    <h3 class="panel-header mb-2">Manual Configuration</h3>
+                    <h3 class="panel-header mb-2">Set Manual / Animation Start</h3>
                     <div class="manual-controls-container">
                         <div class="manual-input-group">
                             <label for="manual-nc1">NC1</label>
@@ -309,7 +425,7 @@
 
                 <!-- Animation Controls -->
                 <div id="animation-controls" class="bg-dark p-3 rounded mb-4">
-                    <h3 class="panel-header mb-2">Animation Configuration</h3>
+                    <h3 class="panel-header mb-2">Set Animation End</h3>
                     <div class="manual-controls-container">
                         <div class="manual-input-group">
                             <label for="animation-nc1">Target NC1</label>
@@ -441,30 +557,6 @@
                             <div class="label-value-pair">
                                 <label for="i-to-ic-distance">d (I, IC)</label>
                                 <input id="i-to-ic-distance" type="text" class="form-control" size="8" readonly>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Add the new Animation Controls section here -->
-                    <div class="dashboard-section">
-                        <h2>Animation Controls</h2>
-                        <div class="dashboard-row">
-                            <div class="dashboard-item">
-                                <span>Target NC1 (N1-N2):</span>
-                                <input type="number" id="target-nc1" class="animation-input" step="0.01" required readonly="false">
-                            </div>
-                            <div class="dashboard-item">
-                                <span>Target NC2 (N1-N3):</span>
-                                <input type="number" id="target-nc2" class="animation-input" step="0.01" required readonly="false">
-                            </div>
-                            <div class="dashboard-item">
-                                <span>Target NC3 (N2-N3):</span>
-                                <input type="number" id="target-nc3" class="animation-input" step="0.01" required readonly="false">
-                            </div>
-                        </div>
-                        <div class="dashboard-row">
-                            <div class="dashboard-item">
-                                <button id="animate-button" class="btn btn-primary">Animate</button>
                             </div>
                         </div>
                     </div>
