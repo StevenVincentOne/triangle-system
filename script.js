@@ -35,6 +35,7 @@ class TriangleSystem {
         // Draw initial state
         this.drawSystem();
         this.updateDashboard();
+        this.updateAnimationEndFields();
     }
 
     // Method to initialize all event listeners
@@ -449,6 +450,7 @@ class TriangleSystem {
         setElementValue('#r-m-t-n3', rMT.n3);
 
         this.updateManualFields();
+        this.updateAnimationEndFields();  // Add this line
     }
 
     calculateSubsystemAngles() {
@@ -1288,6 +1290,27 @@ class TriangleSystem {
         } else {
             console.error('Animate button not found');
         }
+
+        // Get current NC values from the triangle
+        const nc1 = this.calculateDistance(this.system.n1, this.system.n2);
+        const nc2 = this.calculateDistance(this.system.n1, this.system.n3);
+        const nc3 = this.calculateDistance(this.system.n2, this.system.n3);
+
+        // Initialize animation end fields with current values
+        const animationEndInputs = {
+            'animation-nc1-end': nc1,
+            'animation-nc2-end': nc2,
+            'animation-nc3-end': nc3
+        };
+
+        // Update each animation end field
+        Object.entries(animationEndInputs).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input && !input.matches(':focus')) {
+                input.value = value.toFixed(2);
+                input.readOnly = false;
+            }
+        });
     }
 
     startAnimation() {
@@ -1399,22 +1422,53 @@ class TriangleSystem {
             nodeB.y = this.BASE_Y;
         }
     }
+
+    updateAnimationEndFields() {
+        // Update animation end fields with current values
+        const animationEndInputs = {
+            'animation-nc1': this.calculateDistance(this.system.n1, this.system.n3),
+            'animation-nc2': this.calculateDistance(this.system.n1, this.system.n2),
+            'animation-nc3': this.calculateDistance(this.system.n2, this.system.n3)
+        };
+
+        // Update each field while preserving editability
+        Object.entries(animationEndInputs).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input && !input.matches(':focus')) {  // Only update if not being edited
+                input.value = value.toFixed(2);
+                input.readOnly = false;  // Ensure it remains editable
+            }
+        });
+    }
 }
 
 function checkInputFields() {
-    // If this exists, modify it to exclude manual inputs
-    const inputFields = document.querySelectorAll('input[type="text"]:not(.manual-input)');
+    const inputFields = document.querySelectorAll('input[type="text"]:not(.manual-input):not([readonly="false"])');
     inputFields.forEach(field => {
         field.readOnly = true;
     });
+}
+
+function initializeAnimationFields(triangleSystem) {
+    const nc1 = triangleSystem.calculateDistance(triangleSystem.system.n1, triangleSystem.system.n2);
+    const nc2 = triangleSystem.calculateDistance(triangleSystem.system.n1, triangleSystem.system.n3);
+    const nc3 = triangleSystem.calculateDistance(triangleSystem.system.n2, triangleSystem.system.n3);
+
+    document.getElementById('animation-nc1-start').value = nc1.toFixed(2);
+    document.getElementById('animation-nc1-end').value = nc1.toFixed(2);
+    document.getElementById('animation-nc2-start').value = nc2.toFixed(2);
+    document.getElementById('animation-nc2-end').value = nc2.toFixed(2);
+    document.getElementById('animation-nc3-start').value = nc3.toFixed(2);
+    document.getElementById('animation-nc3-end').value = nc3.toFixed(2);
 }
 
 // Initialization once the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('#canvas');
     if (canvas) {
-        window.triangleSystem = new TriangleSystem(canvas);
+        const triangleSystem = new TriangleSystem(canvas);
         checkInputFields();
+        initializeAnimationFields(triangleSystem);
     } else {
         console.error("Canvas element not found");
     }
