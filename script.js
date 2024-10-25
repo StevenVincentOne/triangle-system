@@ -1115,10 +1115,18 @@ class TriangleSystem {
     }
 
     initializeManualControls() {
+        // Get references to manual input fields
         const nc1Input = document.getElementById('manual-nc1');
         const nc2Input = document.getElementById('manual-nc2');
         const nc3Input = document.getElementById('manual-nc3');
         const applyButton = document.getElementById('apply-manual');
+
+        // Ensure fields are editable
+        [nc1Input, nc2Input, nc3Input].forEach(input => {
+            if (input) {
+                input.readOnly = false;
+            }
+        });
 
         const handleEnterKey = (event) => {
             if (event.key === 'Enter') {
@@ -1142,9 +1150,9 @@ class TriangleSystem {
     updateManualFields() {
         // Update edge length fields with current values
         const manualInputs = {
-            'manual-nc1': this.calculateDistance(this.system.n1, this.system.n3),
-            'manual-nc2': this.calculateDistance(this.system.n1, this.system.n2),
-            'manual-nc3': this.calculateDistance(this.system.n2, this.system.n3)
+            'manual-nc1': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge
+            'manual-nc2': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge
+            'manual-nc3': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge
         };
 
         // Update each field while preserving editability
@@ -1403,18 +1411,19 @@ class TriangleSystem {
         
         let nodeA, nodeB;
         
+        // Fix the edge-to-nodes mapping
         switch(edge) {
             case 'nc1':
                 nodeA = this.system.n1;
-                nodeB = this.system.n2;
+                nodeB = this.system.n2;  // Blue edge (NC1)
                 break;
             case 'nc2':
                 nodeA = this.system.n1;
-                nodeB = this.system.n3;
+                nodeB = this.system.n3;  // Red edge (NC2)
                 break;
             case 'nc3':
                 nodeA = this.system.n2;
-                nodeB = this.system.n3;
+                nodeB = this.system.n3;  // Green edge (NC3)
                 break;
             default:
                 console.error('Invalid edge:', edge);
@@ -1454,21 +1463,12 @@ class TriangleSystem {
     }
 
     updateAnimationEndFields() {
-        // Update animation end fields with current values
         const animationEndInputs = {
-            'animation-nc1': this.calculateDistance(this.system.n1, this.system.n3),
-            'animation-nc2': this.calculateDistance(this.system.n1, this.system.n2),
-            'animation-nc3': this.calculateDistance(this.system.n2, this.system.n3)
+            'animation-nc1-end': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge
+            'animation-nc2-end': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge
+            'animation-nc3-end': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge
         };
-
-        // Update each field while preserving editability
-        Object.entries(animationEndInputs).forEach(([id, value]) => {
-            const input = document.getElementById(id);
-            if (input && !input.matches(':focus')) {  // Only update if not being edited
-                input.value = value.toFixed(2);
-                input.readOnly = false;  // Ensure it remains editable
-            }
-        });
+        // ... rest of the function ...
     }
 }
 
