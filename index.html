@@ -639,7 +639,10 @@
                     <label for="manual-nc3">NC3</label>
                     <input id="manual-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
                 </div>
-                <button id="apply-manual" class="btn btn-info">Apply</button>
+                <div class="button-group">
+                    <button id="apply-manual" class="btn btn-info">Apply</button>
+                    <button id="save-preset" class="btn btn-info">Save</button>
+                </div>
             </div>
         </div>
 
@@ -694,6 +697,16 @@
         <button id="right" class="btn btn-secondary">Right</button>
         <button id="acute" class="btn btn-secondary">Acute</button>
         <button id="obtuse" class="btn btn-secondary">Obtuse</button>
+    </div>
+
+    <!-- At the end of your presets row -->
+    <div class="dropdown" style="display: inline-block;">
+        <button class="btn btn-secondary preset-button dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            User Presets
+        </button>
+        <ul class="dropdown-menu" id="userPresetsList" aria-labelledby="userPresetsDropdown">
+            <!-- User presets will be added here dynamically -->
+        </ul>
     </div>
 </div>
 </div>

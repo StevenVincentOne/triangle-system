@@ -39,6 +39,9 @@ class TriangleSystem {
         
         // Add animation state storage
         this.storedAnimation = null;
+
+        this.userPresets = JSON.parse(localStorage.getItem('userPresets')) || {};
+        this.initializeUserPresets();
     }
 
     // Method to initialize all event listeners
@@ -96,6 +99,19 @@ class TriangleSystem {
         this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
         this.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
         this.canvas.addEventListener('mouseleave', this.onMouseUp.bind(this));
+
+        // Add Save button listener with debug logs
+        console.log('Setting up Save button listener');
+        const saveButton = document.getElementById('save-preset');
+        if (saveButton) {
+            console.log('Save button found');
+            saveButton.addEventListener('click', () => {
+                console.log('Save button clicked');
+                this.saveCurrentConfig();
+            });
+        } else {
+            console.error('Save button not found');
+        }
     }
 
     onMouseDown(event) {
@@ -1398,6 +1414,80 @@ class TriangleSystem {
                 this.clearStoredAnimation();
             });
         });
+    }
+
+    initializeUserPresets() {
+        console.log('Initializing user presets dropdown');
+        const userPresetsList = document.getElementById('userPresetsList');
+        
+        if (!userPresetsList) {
+            console.error('User presets list element not found');
+            return;
+        }
+        
+        // Clear existing items
+        userPresetsList.innerHTML = '';
+        
+        // Add each saved preset
+        Object.entries(this.userPresets).forEach(([name, config]) => {
+            console.log('Adding preset:', name);
+            const item = document.createElement('li');
+            const link = document.createElement('a');
+            link.className = 'dropdown-item';
+            link.href = '#';
+            link.textContent = name;
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.loadUserPreset(name);
+            });
+            item.appendChild(link);
+            userPresetsList.appendChild(item);
+        });
+
+        console.log('User presets initialized');
+    }
+
+    loadUserPreset(name) {
+        console.log('Loading preset:', name);
+        const config = this.userPresets[name];
+        if (config) {
+            // Load the configuration
+            this.system.n1.x = config.n1.x;
+            this.system.n1.y = config.n1.y;
+            this.system.n2.x = config.n2.x;
+            this.system.n2.y = config.n2.y;
+            this.system.n3.x = config.n3.x;
+            this.system.n3.y = config.n3.y;
+
+            // Update display
+            this.drawSystem();
+            this.updateDashboard();
+            console.log('Preset loaded:', name);
+        }
+    }
+
+    saveCurrentConfig() {
+        console.log('Saving current configuration');
+        
+        // Get current triangle configuration
+        const config = {
+            n1: { x: this.system.n1.x, y: this.system.n1.y },
+            n2: { x: this.system.n2.x, y: this.system.n2.y },
+            n3: { x: this.system.n3.x, y: this.system.n3.y }
+        };
+
+        // Prompt for preset name
+        const name = prompt('Enter a name for this preset:');
+        
+        if (name) {
+            // Save to user presets
+            this.userPresets[name] = config;
+            localStorage.setItem('userPresets', JSON.stringify(this.userPresets));
+            console.log('Saved preset:', name);
+            
+            // Update dropdown
+            this.initializeUserPresets();
+        }
     }
 }
 
