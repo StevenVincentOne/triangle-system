@@ -1162,19 +1162,19 @@ class TriangleSystem {
     }
 
     updateManualFields() {
-        // Update edge length fields with current values - fix mapping
+        // Get current edge lengths with correct mapping
         const manualInputs = {
-            'manual-nc1': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge (NC1)
-            'manual-nc2': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge (NC2)
-            'manual-nc3': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge (NC3)
+            'manual-nc2': this.calculateDistance(this.system.n1, this.system.n2),  // NC2 maps to blue edge
+            'manual-nc1': this.calculateDistance(this.system.n1, this.system.n3),  // NC1 maps to red edge
+            'manual-nc3': this.calculateDistance(this.system.n2, this.system.n3)   // NC3 maps to green edge
         };
 
         // Update each field while preserving editability
         Object.entries(manualInputs).forEach(([id, value]) => {
             const input = document.getElementById(id);
-            if (input && !input.matches(':focus')) {  // Only update if not being edited
+            if (input && !input.matches(':focus')) {
                 input.value = value.toFixed(2);
-                input.readOnly = false;  // Ensure it remains editable
+                input.readOnly = false;
             }
         });
     }
@@ -1302,36 +1302,31 @@ class TriangleSystem {
                 this.storedAnimation.start.nc3
             );
         } else {
-            console.log('Creating new animation values');
-            // Get current state as start values
-            const startState = {
-                nc1: this.calculateDistance(this.system.n1, this.system.n2),
-                nc2: this.calculateDistance(this.system.n1, this.system.n3),
-                nc3: this.calculateDistance(this.system.n2, this.system.n3)
-            };
-
-            // Get end state values from input fields - use correct IDs
+            // Get end state values from input fields with correct mapping
             const endState = {
-                nc1: parseFloat(document.getElementById('animation-nc1-end').value),
-                nc2: parseFloat(document.getElementById('animation-nc2-end').value),
-                nc3: parseFloat(document.getElementById('animation-nc3-end').value)
+                nc1: parseFloat(document.getElementById('animation-nc1').value),  // Red edge
+                nc2: parseFloat(document.getElementById('animation-nc2').value),  // Blue edge
+                nc3: parseFloat(document.getElementById('animation-nc3').value)   // Green edge
             };
 
-            console.log('Start state:', startState);
-            console.log('End state:', endState);
+            // Get current state as start values with correct mapping
+            const startState = {
+                nc1: this.calculateDistance(this.system.n1, this.system.n3),  // Red edge
+                nc2: this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge
+                nc3: this.calculateDistance(this.system.n2, this.system.n3)   // Green edge
+            };
+
+            console.log('Animation states:', { startState, endState });
 
             // Store animation states for reuse
-            this.storedAnimation = {
-                start: startState,
-                end: endState
-            };
+            this.storedAnimation = { start: startState, end: endState };
         }
 
         // Start animation with stored values
         this.animationStartState = this.storedAnimation.start;
         this.animationEndState = this.storedAnimation.end;
         this.animationStartTime = performance.now();
-        this.animationDuration = 2000; // 2 seconds
+        this.animationDuration = 2000;
         this.isAnimating = true;
 
         requestAnimationFrame(this.animate.bind(this));
@@ -1449,19 +1444,19 @@ class TriangleSystem {
     }
 
     updateAnimationEndFields() {
-        // Update animation end fields with current values - fix mapping
+        // Get current edge lengths with correct mapping
         const animationEndInputs = {
-            'animation-nc1-end': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge (NC1)
-            'animation-nc2-end': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge (NC2)
-            'animation-nc3-end': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge (NC3)
+            'animation-nc2': this.calculateDistance(this.system.n1, this.system.n2),  // NC2 maps to blue edge
+            'animation-nc1': this.calculateDistance(this.system.n1, this.system.n3),  // NC1 maps to red edge
+            'animation-nc3': this.calculateDistance(this.system.n2, this.system.n3)   // NC3 maps to green edge
         };
 
         // Update each field while preserving editability
         Object.entries(animationEndInputs).forEach(([id, value]) => {
             const input = document.getElementById(id);
-            if (input && !input.matches(':focus')) {  // Only update if not being edited
+            if (input && !input.matches(':focus')) {
                 input.value = value.toFixed(2);
-                input.readOnly = false;  // Ensure it remains editable
+                input.readOnly = false;
             }
         });
     }
