@@ -1374,6 +1374,9 @@ class TriangleSystem {
             this.adjustEdgeLength('nc2', currentNC2, true);
             this.adjustEdgeLength('nc3', currentNC3, true);
 
+            // Add this line to update derived points
+            this.updateDerivedPoints();
+
             // Draw updated state
             this.drawSystem();
             this.updateDashboard();
