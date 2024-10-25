@@ -450,7 +450,7 @@ class TriangleSystem {
         setElementValue('#r-m-t-n3', rMT.n3);
 
         this.updateManualFields();
-        this.updateAnimationEndFields();
+        this.updateAnimationEndFields();  // Add this line
     }
 
     calculateSubsystemAngles() {
@@ -1472,12 +1472,21 @@ class TriangleSystem {
     }
 
     updateAnimationEndFields() {
+        // Update animation end fields with current values
         const animationEndInputs = {
             'animation-nc1-end': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge
             'animation-nc2-end': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge
             'animation-nc3-end': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge
         };
-        // ... rest of the function ...
+
+        // Update each field while preserving editability
+        Object.entries(animationEndInputs).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input && !input.matches(':focus')) {  // Only update if not being edited
+                input.value = value.toFixed(2);
+                input.readOnly = false;  // Ensure it remains editable
+            }
+        });
     }
 }
 
