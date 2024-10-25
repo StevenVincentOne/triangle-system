@@ -450,7 +450,7 @@ class TriangleSystem {
         setElementValue('#r-m-t-n3', rMT.n3);
 
         this.updateManualFields();
-        this.updateAnimationEndFields();  // Add this line
+        this.updateAnimationEndFields();
     }
 
     calculateSubsystemAngles() {
@@ -1280,7 +1280,7 @@ class TriangleSystem {
             });
         });
 
-        // Get and initialize the animate button
+        // Add event listener for animate button
         const animateButton = document.getElementById('animate-button');
         if (animateButton) {
             animateButton.addEventListener('click', () => {
@@ -1316,13 +1316,13 @@ class TriangleSystem {
     startAnimation() {
         console.log('Starting animation');
         
-        // Get end state values from input fields
-        const nc1End = parseFloat(document.getElementById('animation-nc1').value);
-        const nc2End = parseFloat(document.getElementById('animation-nc2').value);
-        const nc3End = parseFloat(document.getElementById('animation-nc3').value);
+        // Update to use -end suffix
+        const nc1End = parseFloat(document.getElementById('animation-nc1-end').value);
+        const nc2End = parseFloat(document.getElementById('animation-nc2-end').value);
+        const nc3End = parseFloat(document.getElementById('animation-nc3-end').value);
 
-        console.log('End state values:', { nc1End, nc2End, nc3End });
-
+        console.log('Animation end values:', { nc1End, nc2End, nc3End });
+        
         // Get current edge lengths as start values
         const startState = {
             nc1: this.calculateDistance(this.system.n1, this.system.n2),
@@ -1345,35 +1345,49 @@ class TriangleSystem {
     }
 
     animate(currentTime) {
-        if (!this.isAnimating) return;
+        if (!this.isAnimating) {
+            console.log('Animation stopped');
+            return;
+        }
 
         const elapsed = currentTime - this.animationStartTime;
         const progress = Math.min(elapsed / this.animationDuration, 1);
 
-        console.log('Animation progress:', progress);
+        // Log current state
+        console.log('Animation state:', {
+            startState: this.animationStartState,
+            endState: this.animationEndState,
+            progress,
+            elapsed
+        });
 
         // Calculate current values using linear interpolation
         const currentNC1 = this.lerp(this.animationStartState.nc1, this.animationEndState.nc1, progress);
         const currentNC2 = this.lerp(this.animationStartState.nc2, this.animationEndState.nc2, progress);
         const currentNC3 = this.lerp(this.animationStartState.nc3, this.animationEndState.nc3, progress);
 
-        console.log('Current values:', { currentNC1, currentNC2, currentNC3 });
+        console.log('Interpolated values:', { currentNC1, currentNC2, currentNC3 });
 
-        // Update triangle with current values
-        this.adjustEdgeLength('nc1', currentNC1, true);
-        this.adjustEdgeLength('nc2', currentNC2, true);
-        this.adjustEdgeLength('nc3', currentNC3, true);
+        try {
+            // Update triangle with current values
+            this.adjustEdgeLength('nc1', currentNC1, true);
+            this.adjustEdgeLength('nc2', currentNC2, true);
+            this.adjustEdgeLength('nc3', currentNC3, true);
 
-        // Draw updated state
-        this.drawSystem();
-        this.updateDashboard();
+            // Draw updated state
+            this.drawSystem();
+            this.updateDashboard();
 
-        // Continue animation if not complete
-        if (progress < 1) {
-            requestAnimationFrame(this.animate.bind(this));
-        } else {
+            // Continue animation if not complete
+            if (progress < 1) {
+                requestAnimationFrame(this.animate.bind(this));
+            } else {
+                this.isAnimating = false;
+                console.log('Animation complete');
+            }
+        } catch (error) {
+            console.error('Error during animation:', error);
             this.isAnimating = false;
-            console.log('Animation complete');
         }
     }
 
@@ -1382,6 +1396,8 @@ class TriangleSystem {
     }
 
     adjustEdgeLength(edge, newLength, suppressAlert = false) {
+        console.log(`Adjusting ${edge} to length ${newLength}`);
+        
         let nodeA, nodeB;
         
         switch(edge) {
@@ -1398,11 +1414,23 @@ class TriangleSystem {
                 nodeB = this.system.n3;
                 break;
             default:
+                console.error('Invalid edge:', edge);
                 return;
         }
 
+        console.log('Nodes before adjustment:', {
+            nodeA: { ...nodeA },
+            nodeB: { ...nodeB }
+        });
+
         const currentLength = this.calculateDistance(nodeA, nodeB);
         const scaleFactor = newLength / currentLength;
+
+        console.log('Adjustment factors:', {
+            currentLength,
+            newLength,
+            scaleFactor
+        });
 
         // Calculate midpoint
         const midpoint = {
@@ -1416,11 +1444,10 @@ class TriangleSystem {
         nodeB.x = midpoint.x + (nodeB.x - midpoint.x) * scaleFactor;
         nodeB.y = midpoint.y + (nodeB.y - midpoint.y) * scaleFactor;
 
-        // Ensure base nodes stay at BASE_Y
-        if (edge === 'nc3') {
-            nodeA.y = this.BASE_Y;
-            nodeB.y = this.BASE_Y;
-        }
+        console.log('Nodes after adjustment:', {
+            nodeA: { ...nodeA },
+            nodeB: { ...nodeB }
+        });
     }
 
     updateAnimationEndFields() {
@@ -1454,11 +1481,9 @@ function initializeAnimationFields(triangleSystem) {
     const nc2 = triangleSystem.calculateDistance(triangleSystem.system.n1, triangleSystem.system.n3);
     const nc3 = triangleSystem.calculateDistance(triangleSystem.system.n2, triangleSystem.system.n3);
 
-    document.getElementById('animation-nc1-start').value = nc1.toFixed(2);
+    // Update to use -end suffix
     document.getElementById('animation-nc1-end').value = nc1.toFixed(2);
-    document.getElementById('animation-nc2-start').value = nc2.toFixed(2);
     document.getElementById('animation-nc2-end').value = nc2.toFixed(2);
-    document.getElementById('animation-nc3-start').value = nc3.toFixed(2);
     document.getElementById('animation-nc3-end').value = nc3.toFixed(2);
 }
 
