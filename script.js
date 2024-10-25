@@ -1295,34 +1295,33 @@ class TriangleSystem {
         // If we have stored animation values, use them
         if (this.storedAnimation) {
             console.log('Using stored animation values');
-            // Reset triangle to start state
             this.updateTriangleFromEdges(
                 this.storedAnimation.start.nc1,
                 this.storedAnimation.start.nc2,
                 this.storedAnimation.start.nc3
             );
         } else {
-            // Get end state values from input fields with correct mapping
+            // Get end state values from input fields
             const endState = {
-                nc1: parseFloat(document.getElementById('animation-nc1').value),  // Red edge
-                nc2: parseFloat(document.getElementById('animation-nc2').value),  // Blue edge
-                nc3: parseFloat(document.getElementById('animation-nc3').value)   // Green edge
+                // Correct mapping for animation end fields
+                nc1: parseFloat(document.getElementById('animation-nc1').value),  // Blue edge (N1-N2)
+                nc2: parseFloat(document.getElementById('animation-nc2').value),  // Red edge (N1-N3)
+                nc3: parseFloat(document.getElementById('animation-nc3').value)   // Green edge (N2-N3)
             };
 
-            // Get current state as start values with correct mapping
+            // Get current state as start values
             const startState = {
-                nc1: this.calculateDistance(this.system.n1, this.system.n3),  // Red edge
-                nc2: this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge
-                nc3: this.calculateDistance(this.system.n2, this.system.n3)   // Green edge
+                nc1: this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge (N1-N2)
+                nc2: this.calculateDistance(this.system.n1, this.system.n3),  // Red edge (N1-N3)
+                nc3: this.calculateDistance(this.system.n2, this.system.n3)   // Green edge (N2-N3)
             };
 
-            console.log('Animation states:', { startState, endState });
+            console.log('Start state:', startState);
+            console.log('End state:', endState);
 
-            // Store animation states for reuse
             this.storedAnimation = { start: startState, end: endState };
         }
 
-        // Start animation with stored values
         this.animationStartState = this.storedAnimation.start;
         this.animationEndState = this.storedAnimation.end;
         this.animationStartTime = performance.now();
@@ -1333,114 +1332,29 @@ class TriangleSystem {
     }
 
     animate(currentTime) {
-        if (!this.isAnimating) {
-            console.log('Animation stopped');
+        if (!this.isAnimating) return;
+
+        const progress = (currentTime - this.animationStartTime) / this.animationDuration;
+
+        if (progress >= 1) {
+            this.isAnimating = false;
+            // Update triangle with final values
+            this.updateTriangleFromEdges(
+                this.animationEndState.nc1,  // Blue edge (N1-N2)
+                this.animationEndState.nc2,  // Red edge (N1-N3)
+                this.animationEndState.nc3   // Green edge (N2-N3)
+            );
             return;
         }
 
-        const elapsed = currentTime - this.animationStartTime;
-        const progress = Math.min(elapsed / this.animationDuration, 1);
+        // Calculate current values
+        const currentNC1 = this.animationStartState.nc1 + (this.animationEndState.nc1 - this.animationStartState.nc1) * progress;
+        const currentNC2 = this.animationStartState.nc2 + (this.animationEndState.nc2 - this.animationStartState.nc2) * progress;
+        const currentNC3 = this.animationStartState.nc3 + (this.animationEndState.nc3 - this.animationStartState.nc3) * progress;
 
-        // Log current state
-        console.log('Animation state:', {
-            startState: this.animationStartState,
-            endState: this.animationEndState,
-            progress,
-            elapsed
-        });
-
-        // Calculate current values using linear interpolation
-        const currentNC1 = this.lerp(this.animationStartState.nc1, this.animationEndState.nc1, progress);
-        const currentNC2 = this.lerp(this.animationStartState.nc2, this.animationEndState.nc2, progress);
-        const currentNC3 = this.lerp(this.animationStartState.nc3, this.animationEndState.nc3, progress);
-
-        console.log('Interpolated values:', { currentNC1, currentNC2, currentNC3 });
-
-        try {
-            // Update triangle with current values
-            this.adjustEdgeLength('nc1', currentNC1, true);
-            this.adjustEdgeLength('nc2', currentNC2, true);
-            this.adjustEdgeLength('nc3', currentNC3, true);
-
-            // Add this line to update derived points
-            this.updateDerivedPoints();
-
-            // Draw updated state
-            this.drawSystem();
-            this.updateDashboard();
-
-            // Continue animation if not complete
-            if (progress < 1) {
-                requestAnimationFrame(this.animate.bind(this));
-            } else {
-                this.isAnimating = false;
-                this.updateDashboard();  // Make sure fields update after animation
-                console.log('Animation complete');
-            }
-        } catch (error) {
-            console.error('Error during animation:', error);
-            this.isAnimating = false;
-        }
-    }
-
-    lerp(start, end, progress) {
-        return start + (end - start) * progress;
-    }
-
-    adjustEdgeLength(edge, newLength, suppressAlert = false) {
-        console.log(`Adjusting ${edge} to length ${newLength}`);
-        
-        let nodeA, nodeB;
-        
-        // Fix the edge-to-nodes mapping
-        switch(edge) {
-            case 'nc1':
-                nodeA = this.system.n1;
-                nodeB = this.system.n2;  // Blue edge (NC1)
-                break;
-            case 'nc2':
-                nodeA = this.system.n1;
-                nodeB = this.system.n3;  // Red edge (NC2)
-                break;
-            case 'nc3':
-                nodeA = this.system.n2;
-                nodeB = this.system.n3;  // Green edge (NC3)
-                break;
-            default:
-                console.error('Invalid edge:', edge);
-                return;
-        }
-
-        console.log('Nodes before adjustment:', {
-            nodeA: { ...nodeA },
-            nodeB: { ...nodeB }
-        });
-
-        const currentLength = this.calculateDistance(nodeA, nodeB);
-        const scaleFactor = newLength / currentLength;
-
-        console.log('Adjustment factors:', {
-            currentLength,
-            newLength,
-            scaleFactor
-        });
-
-        // Calculate midpoint
-        const midpoint = {
-            x: (nodeA.x + nodeB.x) / 2,
-            y: (nodeA.y + nodeB.y) / 2
-        };
-
-        // Scale points from midpoint
-        nodeA.x = midpoint.x + (nodeA.x - midpoint.x) * scaleFactor;
-        nodeA.y = midpoint.y + (nodeA.y - midpoint.y) * scaleFactor;
-        nodeB.x = midpoint.x + (nodeB.x - midpoint.x) * scaleFactor;
-        nodeB.y = midpoint.y + (nodeB.y - midpoint.y) * scaleFactor;
-
-        console.log('Nodes after adjustment:', {
-            nodeA: { ...nodeA },
-            nodeB: { ...nodeB }
-        });
+        // Update triangle with current values
+        this.updateTriangleFromEdges(currentNC1, currentNC2, currentNC3);
+        requestAnimationFrame(this.animate.bind(this));
     }
 
     updateAnimationEndFields() {
