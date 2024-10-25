@@ -1128,20 +1128,29 @@ class TriangleSystem {
             }
         });
 
-        const handleEnterKey = (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const nc1 = parseFloat(nc1Input.value);
-                const nc2 = parseFloat(nc2Input.value);
-                const nc3 = parseFloat(nc3Input.value);
-                
-                if (!isNaN(nc1) && !isNaN(nc2) && !isNaN(nc3)) {
-                    this.updateTriangleFromEdges(nc1, nc2, nc3);
-                }
+        const updateTriangle = () => {
+            const nc1 = parseFloat(nc1Input.value);
+            const nc2 = parseFloat(nc2Input.value);
+            const nc3 = parseFloat(nc3Input.value);
+            
+            if (!isNaN(nc1) && !isNaN(nc2) && !isNaN(nc3)) {
+                this.updateTriangleFromEdges(nc1, nc2, nc3);
             }
         };
 
+        // Add click listener to Apply button
+        if (applyButton) {
+            applyButton.addEventListener('click', updateTriangle);
+        }
+
         // Add keypress listeners to each input
+        const handleEnterKey = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                updateTriangle();
+            }
+        };
+
         nc1Input.addEventListener('keypress', handleEnterKey);
         nc2Input.addEventListener('keypress', handleEnterKey);
         nc3Input.addEventListener('keypress', handleEnterKey);
