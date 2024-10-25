@@ -36,6 +36,9 @@ class TriangleSystem {
         this.drawSystem();
         this.updateDashboard();
         this.updateAnimationEndFields();
+        
+        // Add animation state storage
+        this.storedAnimation = null;
     }
 
     // Method to initialize all event listeners
@@ -80,6 +83,8 @@ class TriangleSystem {
             if (element) {
                 element.addEventListener('click', () => {
                     this.initializeSystem(preset);
+                    this.drawSystem();
+                    this.updateDashboard();  // This will call updateAnimationEndFields
                 });
             } else {
                 console.warn(`Preset button with ID ${preset} not found.`);
@@ -450,7 +455,7 @@ class TriangleSystem {
         setElementValue('#r-m-t-n3', rMT.n3);
 
         this.updateManualFields();
-        this.updateAnimationEndFields();  // Add this line
+        this.updateAnimationEndFields();  // Make sure this line is here
     }
 
     calculateSubsystemAngles() {
@@ -1157,11 +1162,11 @@ class TriangleSystem {
     }
 
     updateManualFields() {
-        // Update edge length fields with current values
+        // Update edge length fields with current values - fix mapping
         const manualInputs = {
-            'manual-nc1': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge
-            'manual-nc2': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge
-            'manual-nc3': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge
+            'manual-nc1': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge (NC1)
+            'manual-nc2': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge (NC2)
+            'manual-nc3': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge (NC3)
         };
 
         // Update each field while preserving editability
@@ -1264,100 +1269,71 @@ class TriangleSystem {
     }
 
     initializeAnimationControls() {
-        console.log('Initializing animation controls');
-        
-        // Get animation input fields
-        const animationInputs = document.querySelectorAll('.animation-input');
-        console.log('Found animation inputs:', animationInputs.length);
-        
-        // Initialize each input field
-        animationInputs.forEach((input, index) => {
-            console.log(`Initializing animation input ${index}:`, input.id);
-            
-            // Set initial values from current triangle state
-            if (this.system && this.system.n1) {
-                let value;
-                if (index === 0) {
-                    value = this.calculateDistance(this.system.n1, this.system.n3);
-                } else if (index === 1) {
-                    value = this.calculateDistance(this.system.n1, this.system.n2);
-                } else if (index === 2) {
-                    value = this.calculateDistance(this.system.n2, this.system.n3);
-                }
-                
-                // Set the value and ensure the input is editable
-                input.value = value.toFixed(2);
-                input.removeAttribute('readonly');
-                input.removeAttribute('disabled');
+        // Make sure animation end fields are editable
+        ['animation-nc1-end', 'animation-nc2-end', 'animation-nc3-end'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.readOnly = false;
             }
-            
-            // Add input handler
-            input.addEventListener('input', (e) => {
-                console.log('Input value changed:', e.target.id, e.target.value);
-            });
         });
 
-        // Add event listener for animate button
         const animateButton = document.getElementById('animate-button');
         if (animateButton) {
             animateButton.addEventListener('click', () => {
                 console.log('Animate button clicked');
                 this.startAnimation();
             });
-        } else {
-            console.error('Animate button not found');
         }
 
-        // Get current NC values from the triangle
-        const nc1 = this.calculateDistance(this.system.n1, this.system.n2);
-        const nc2 = this.calculateDistance(this.system.n1, this.system.n3);
-        const nc3 = this.calculateDistance(this.system.n2, this.system.n3);
-
-        // Initialize animation end fields with current values
-        const animationEndInputs = {
-            'animation-nc1-end': nc1,
-            'animation-nc2-end': nc2,
-            'animation-nc3-end': nc3
-        };
-
-        // Update each animation end field
-        Object.entries(animationEndInputs).forEach(([id, value]) => {
-            const input = document.getElementById(id);
-            if (input && !input.matches(':focus')) {
-                input.value = value.toFixed(2);
-                input.readOnly = false;
-            }
-        });
+        // Update fields initially
+        this.updateAnimationEndFields();
     }
 
     startAnimation() {
         console.log('Starting animation');
         
-        // Update to use -end suffix
-        const nc1End = parseFloat(document.getElementById('animation-nc1-end').value);
-        const nc2End = parseFloat(document.getElementById('animation-nc2-end').value);
-        const nc3End = parseFloat(document.getElementById('animation-nc3-end').value);
+        // If we have stored animation values, use them
+        if (this.storedAnimation) {
+            console.log('Using stored animation values');
+            // Reset triangle to start state
+            this.updateTriangleFromEdges(
+                this.storedAnimation.start.nc1,
+                this.storedAnimation.start.nc2,
+                this.storedAnimation.start.nc3
+            );
+        } else {
+            console.log('Creating new animation values');
+            // Get current state as start values
+            const startState = {
+                nc1: this.calculateDistance(this.system.n1, this.system.n2),
+                nc2: this.calculateDistance(this.system.n1, this.system.n3),
+                nc3: this.calculateDistance(this.system.n2, this.system.n3)
+            };
 
-        console.log('Animation end values:', { nc1End, nc2End, nc3End });
-        
-        // Get current edge lengths as start values
-        const startState = {
-            nc1: this.calculateDistance(this.system.n1, this.system.n2),
-            nc2: this.calculateDistance(this.system.n1, this.system.n3),
-            nc3: this.calculateDistance(this.system.n2, this.system.n3)
-        };
+            // Get end state values from input fields - use correct IDs
+            const endState = {
+                nc1: parseFloat(document.getElementById('animation-nc1-end').value),
+                nc2: parseFloat(document.getElementById('animation-nc2-end').value),
+                nc3: parseFloat(document.getElementById('animation-nc3-end').value)
+            };
 
-        console.log('Start state:', startState);
-        console.log('End state:', { nc1: nc1End, nc2: nc2End, nc3: nc3End });
+            console.log('Start state:', startState);
+            console.log('End state:', endState);
 
-        // Store animation parameters
-        this.animationStartState = startState;
-        this.animationEndState = { nc1: nc1End, nc2: nc2End, nc3: nc3End };
+            // Store animation states for reuse
+            this.storedAnimation = {
+                start: startState,
+                end: endState
+            };
+        }
+
+        // Start animation with stored values
+        this.animationStartState = this.storedAnimation.start;
+        this.animationEndState = this.storedAnimation.end;
         this.animationStartTime = performance.now();
         this.animationDuration = 2000; // 2 seconds
         this.isAnimating = true;
 
-        // Start animation loop
         requestAnimationFrame(this.animate.bind(this));
     }
 
@@ -1403,6 +1379,7 @@ class TriangleSystem {
                 requestAnimationFrame(this.animate.bind(this));
             } else {
                 this.isAnimating = false;
+                this.updateDashboard();  // Make sure fields update after animation
                 console.log('Animation complete');
             }
         } catch (error) {
@@ -1472,11 +1449,11 @@ class TriangleSystem {
     }
 
     updateAnimationEndFields() {
-        // Update animation end fields with current values
+        // Update animation end fields with current values - fix mapping
         const animationEndInputs = {
-            'animation-nc1-end': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge
-            'animation-nc2-end': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge
-            'animation-nc3-end': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge
+            'animation-nc1-end': this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge (NC1)
+            'animation-nc2-end': this.calculateDistance(this.system.n1, this.system.n3),  // Red edge (NC2)
+            'animation-nc3-end': this.calculateDistance(this.system.n2, this.system.n3)   // Green edge (NC3)
         };
 
         // Update each field while preserving editability
@@ -1486,6 +1463,31 @@ class TriangleSystem {
                 input.value = value.toFixed(2);
                 input.readOnly = false;  // Ensure it remains editable
             }
+        });
+    }
+
+    // Add method to clear stored animation
+    clearStoredAnimation() {
+        this.storedAnimation = null;
+    }
+
+    // Update initializeAnimationControls to clear stored animation when values change
+    initializeAnimationControls() {
+        const animateButton = document.getElementById('animate-button');
+        const animationInputs = document.querySelectorAll('[id^="animation-nc"]');
+
+        if (animateButton) {
+            animateButton.addEventListener('click', () => {
+                console.log('Animate button clicked');
+                this.startAnimation();
+            });
+        }
+
+        // Clear stored animation when inputs change
+        animationInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                this.clearStoredAnimation();
+            });
         });
     }
 }
