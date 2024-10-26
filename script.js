@@ -227,6 +227,17 @@ class TriangleSystem {
         } else {
             console.error('Export button not found');
         }
+
+        // Add Image Export button listener
+        const exportImageButton = document.getElementById('exportImage');
+        if (exportImageButton) {
+            exportImageButton.addEventListener('click', () => {
+                console.log('Export Image button clicked');
+                this.exportToImage();
+            });
+        } else {
+            console.error('Export Image button not found');
+        }
     }
 
     onMouseDown(event) {
@@ -1829,6 +1840,43 @@ class TriangleSystem {
         document.body.removeChild(link);
         
         console.log('Export complete');
+    }
+
+    // Add new method for image export
+    exportToImage() {
+        console.log('Exporting canvas as image');
+        
+        try {
+            // Create a temporary canvas
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = this.canvas.width;
+            tempCanvas.height = this.canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Draw dark background
+            tempCtx.fillStyle = '#1a1a1a';  // Match your app's dark background
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Draw the original canvas content on top
+            tempCtx.drawImage(this.canvas, 0, 0);
+            
+            // Convert to JPEG instead of PNG (JPEG doesn't support transparency)
+            const imageData = tempCanvas.toDataURL('image/jpeg', 1.0);
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.download = 'triangle_system.jpg';  // Changed extension to .jpg
+            link.href = imageData;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('Image export complete');
+        } catch (error) {
+            console.error('Error exporting image:', error);
+        }
     }
 }
 
