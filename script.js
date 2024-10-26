@@ -61,7 +61,10 @@ class TriangleSystem {
 
         // Initialize storage for user animations
         this.userAnimations = JSON.parse(localStorage.getItem('userAnimations')) || {};
-
+        
+        // Initialize the animations dropdown
+        this.initializeUserAnimations();
+        
         // Add Save Animation button listener
         const saveAnimationButton = document.getElementById('save-animation');
         if (saveAnimationButton) {
@@ -1664,6 +1667,49 @@ class TriangleSystem {
             // Update dropdown if it exists
             this.initializeUserAnimations();
         }
+    }
+
+    // Add new method to initialize animations dropdown
+    initializeUserAnimations() {
+        console.log('Initializing animations dropdown');
+        const animationsList = document.getElementById('animationsList');
+        const animationsDropdown = document.getElementById('animationsDropdown');
+        
+        if (!animationsList || !animationsDropdown) {
+            console.error('Animation dropdown elements not found');
+            return;
+        }
+        
+        // Clear existing items
+        animationsList.innerHTML = '';
+        
+        // Add each saved animation to dropdown
+        Object.entries(this.userAnimations).forEach(([name, config]) => {
+            console.log('Adding animation:', name);
+            const item = document.createElement('li');
+            const link = document.createElement('a');
+            link.className = 'dropdown-item';
+            link.href = '#';
+            link.textContent = name;
+            item.appendChild(link);
+            animationsList.appendChild(item);
+        });
+
+        // Initialize Bootstrap dropdown functionality
+        animationsDropdown.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Animations dropdown clicked');
+            animationsList.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!animationsDropdown.contains(e.target) && !animationsList.contains(e.target)) {
+                animationsList.classList.remove('show');
+            }
+        });
+
+        console.log('Animations dropdown initialized');
     }
 }
 
