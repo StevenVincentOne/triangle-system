@@ -609,6 +609,17 @@
             flex-direction: column !important;
             align-items: center !important;
         }
+
+        .controls-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        #manual-controls, #animation-controls {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -622,7 +633,7 @@
 <!-- Second container: Controls and Panels -->
 <div class="controls-container bg-dark p-2 rounded">
     <!-- Parent container for both control sets -->
-    <div class="controls-group bg-dark p-2 rounded mb-2">
+    <div class="controls-group bg-dark p-2 rounded mb-2 d-flex flex-column gap-2">  <!-- Modified this line -->
         <!-- Manual Controls -->
         <div id="manual-controls" class="bg-dark p-2 rounded">
             <div class="d-flex justify-content-between align-items-center mb-2">
