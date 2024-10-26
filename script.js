@@ -36,6 +36,40 @@ class TriangleSystem {
         this.drawSystem();
         this.updateDashboard();
         this.updateAnimationEndFields();  // Add this
+        
+        // Update the title and dropdown container in the HTML
+        const manualTitle = document.querySelector('.manual-title');
+        if (manualTitle) {
+            // Preserve the original text content
+            const titleText = manualTitle.textContent;
+            
+            // Replace the title's content with a flex container
+            manualTitle.innerHTML = `
+                <div class="d-flex align-items-center gap-3">
+                    <span>${titleText}</span>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            User Presets
+                        </button>
+                        <ul class="dropdown-menu" id="userPresetsList">
+                            <!-- Presets will be added here dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize storage for user animations
+        this.userAnimations = JSON.parse(localStorage.getItem('userAnimations')) || {};
+
+        // Add Save Animation button listener
+        const saveAnimationButton = document.getElementById('save-animation');
+        if (saveAnimationButton) {
+            saveAnimationButton.addEventListener('click', () => {
+                console.log('Save Animation button clicked');
+                this.saveCurrentAnimation();
+            });
+        }
     }
 
     // Method to initialize all event listeners
@@ -1361,8 +1395,8 @@ class TriangleSystem {
                 input.readOnly = false;  // Make editable
                 
                 // Set initial values based on current triangle state
-                const nc = id.includes('nc1') ? this.calculateDistance(this.system.n1, this.system.n2) :
-                          id.includes('nc2') ? this.calculateDistance(this.system.n1, this.system.n3) :
+                const nc = id.includes('nc1') ? this.calculateDistance(this.system.n1, this.system.n3) :
+                          id.includes('nc2') ? this.calculateDistance(this.system.n1, this.system.n2) :
                           this.calculateDistance(this.system.n2, this.system.n3);
                 
                 input.value = nc.toFixed(2);  // Display with 2 decimal places
@@ -1581,6 +1615,55 @@ class TriangleSystem {
         inputFields.forEach(field => {
             field.readOnly = true;
         });
+    }
+
+    saveCurrentAnimation() {
+        console.log('Saving current animation');
+        
+        // Get current triangle configuration for start state
+        const startConfig = {
+            n1: { x: this.system.n1.x, y: this.system.n1.y },
+            n2: { x: this.system.n2.x, y: this.system.n2.y },
+            n3: { x: this.system.n3.x, y: this.system.n3.y }
+        };
+
+        // Get end state from animation inputs
+        const nc1Input = document.getElementById('animation-nc1-end');
+        const nc2Input = document.getElementById('animation-nc2-end');
+        const nc3Input = document.getElementById('animation-nc3-end');
+
+        if (!nc1Input || !nc2Input || !nc3Input) {
+            console.error('Missing animation input fields');
+            return;
+        }
+
+        const endState = {
+            nc1: parseFloat(nc1Input.value),
+            nc2: parseFloat(nc2Input.value),
+            nc3: parseFloat(nc3Input.value)
+        };
+
+        // Validate inputs
+        if (isNaN(endState.nc1) || isNaN(endState.nc2) || isNaN(endState.nc3)) {
+            alert('Please enter valid numbers for all edge lengths');
+            return;
+        }
+
+        // Prompt for animation name
+        const name = prompt('Enter a name for this animation:');
+        
+        if (name) {
+            // Save both states
+            this.userAnimations[name] = {
+                startConfig,
+                endState
+            };
+            localStorage.setItem('userAnimations', JSON.stringify(this.userAnimations));
+            console.log('Saved animation:', name);
+            
+            // Update dropdown if it exists
+            this.initializeUserAnimations();
+        }
     }
 }
 
