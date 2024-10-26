@@ -30,10 +30,12 @@ class TriangleSystem {
         // Then initialize controls
         this.initializeEventListeners();
         this.initializeManualControls();
+        this.initializeAnimationControls();  // Add this line
         
         // Draw initial state
         this.drawSystem();
         this.updateDashboard();
+        this.updateAnimationEndFields();  // Add this
     }
 
     // Method to initialize all event listeners
@@ -1176,6 +1178,7 @@ class TriangleSystem {
         
         this.updateDerivedPoints();
         this.updateDashboard();
+        this.updateAnimationEndFields();  // Add this
         this.drawSystem();
     }
 
@@ -1321,6 +1324,7 @@ class TriangleSystem {
         // Update rendering and dashboard
         this.drawSystem();
         this.updateDashboard();
+        this.updateAnimationEndFields();  // Add this
     }
 
     centerTriangle() {
@@ -1348,61 +1352,74 @@ class TriangleSystem {
     }
 
     initializeAnimationControls() {
-        // Make sure animation end fields are editable
+        console.log('Initializing animation controls');
+        
+        // Make animation end fields editable and set initial values
         ['animation-nc1-end', 'animation-nc2-end', 'animation-nc3-end'].forEach(id => {
             const input = document.getElementById(id);
             if (input) {
-                input.readOnly = false;
+                input.readOnly = false;  // Make editable
+                
+                // Set initial values based on current triangle state
+                const nc = id.includes('nc1') ? this.calculateDistance(this.system.n1, this.system.n2) :
+                          id.includes('nc2') ? this.calculateDistance(this.system.n1, this.system.n3) :
+                          this.calculateDistance(this.system.n2, this.system.n3);
+                
+                input.value = nc.toFixed(2);  // Display with 2 decimal places
+                console.log(`Initialized ${id} with value ${input.value}`);
+            } else {
+                console.error(`Animation input field ${id} not found`);
             }
         });
 
+        // Set up animate button
         const animateButton = document.getElementById('animate-button');
         if (animateButton) {
             animateButton.addEventListener('click', () => {
                 console.log('Animate button clicked');
                 this.startAnimation();
             });
+            console.log('Animate button listener added');
         }
-
-        // Update fields initially
-        this.updateAnimationEndFields();
     }
 
     startAnimation() {
         console.log('Starting animation');
         
-        // If we have stored animation values, use them
-        if (this.storedAnimation) {
-            console.log('Using stored animation values');
-            this.updateTriangleFromEdges(
-                this.storedAnimation.start.nc1,
-                this.storedAnimation.start.nc2,
-                this.storedAnimation.start.nc3
-            );
-        } else {
-            // Get end state values from input fields
-            const endState = {
-                // Correct mapping for animation end fields
-                nc1: parseFloat(document.getElementById('animation-nc1').value),  // Blue edge (N1-N2)
-                nc2: parseFloat(document.getElementById('animation-nc2').value),  // Red edge (N1-N3)
-                nc3: parseFloat(document.getElementById('animation-nc3').value)   // Green edge (N2-N3)
-            };
+        // Check for input fields existence first
+        const nc1Input = document.getElementById('animation-nc1-end');
+        const nc2Input = document.getElementById('animation-nc2-end');
+        const nc3Input = document.getElementById('animation-nc3-end');
 
-            // Get current state as start values
-            const startState = {
-                nc1: this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge (N1-N2)
-                nc2: this.calculateDistance(this.system.n1, this.system.n3),  // Red edge (N1-N3)
-                nc3: this.calculateDistance(this.system.n2, this.system.n3)   // Green edge (N2-N3)
-            };
-
-            console.log('Start state:', startState);
-            console.log('End state:', endState);
-
-            this.storedAnimation = { start: startState, end: endState };
+        if (!nc1Input || !nc2Input || !nc3Input) {
+            console.error('Missing animation input fields:', {
+                'animation-nc1-end': !!nc1Input,
+                'animation-nc2-end': !!nc2Input,
+                'animation-nc3-end': !!nc3Input
+            });
+            return;
         }
+        
+        // Get end state values from input fields
+        const endState = {
+            nc1: parseFloat(nc1Input.value),
+            nc2: parseFloat(nc2Input.value),
+            nc3: parseFloat(nc3Input.value)
+        };
 
-        this.animationStartState = this.storedAnimation.start;
-        this.animationEndState = this.storedAnimation.end;
+        console.log('Animation end state:', endState);
+
+        // Get current state as start values
+        const startState = {
+            nc1: this.calculateDistance(this.system.n1, this.system.n2),
+            nc2: this.calculateDistance(this.system.n1, this.system.n3),
+            nc3: this.calculateDistance(this.system.n2, this.system.n3)
+        };
+
+        console.log('Animation start state:', startState);
+
+        this.animationStartState = startState;
+        this.animationEndState = endState;
         this.animationStartTime = performance.now();
         this.animationDuration = 2000;
         this.isAnimating = true;
@@ -1446,8 +1463,8 @@ class TriangleSystem {
 
         // Update each field while preserving editability
         Object.entries(animationEndInputs).forEach(([id, value]) => {
-            const input = document.getElementById(id);
-            if (input && !input.matches(':focus')) {
+            const input = document.getElementById(`${id}-end`);
+            if (input && !input.matches(':focus')) {  // Don't update if user is editing
                 input.value = value.toFixed(2);
                 input.readOnly = false;
             }
@@ -1563,6 +1580,12 @@ class TriangleSystem {
 
 // Outside the class - DOM initialization
 document.addEventListener('DOMContentLoaded', () => {
+    // Check for animation elements
+    ['animation-nc1-end', 'animation-nc2-end', 'animation-nc3-end', 'animate-button'].forEach(id => {
+        const element = document.getElementById(id);
+        console.log(`Element ${id} exists:`, !!element);
+    });
+
     const canvas = document.querySelector('#canvas');
     if (canvas) {
         const triangleSystem = new TriangleSystem(canvas);
