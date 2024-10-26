@@ -1392,33 +1392,39 @@ class TriangleSystem {
         const nc3Input = document.getElementById('animation-nc3-end');
 
         if (!nc1Input || !nc2Input || !nc3Input) {
-            console.error('Missing animation input fields:', {
-                'animation-nc1-end': !!nc1Input,
-                'animation-nc2-end': !!nc2Input,
-                'animation-nc3-end': !!nc3Input
-            });
+            console.error('Missing animation input fields');
             return;
         }
-        
+
+        // Get current state
+        const currentState = {
+            nc1: this.calculateDistance(this.system.n1, this.system.n3),  // NC1 maps to red edge (N1-N3)
+            nc2: this.calculateDistance(this.system.n1, this.system.n2),  // NC2 maps to blue edge (N1-N2)
+            nc3: this.calculateDistance(this.system.n2, this.system.n3)   // NC3 maps to green edge (N2-N3)
+        };
+
+        // If we're already animating, use the stored end state
+        if (this.isAnimating) {
+            this.animationStartState = currentState;
+            this.animationStartTime = performance.now();
+            requestAnimationFrame(this.animate.bind(this));
+            return;
+        }
+
         // Get end state values from input fields
         const endState = {
-            nc1: parseFloat(nc1Input.value),
-            nc2: parseFloat(nc2Input.value),
-            nc3: parseFloat(nc3Input.value)
+            nc1: parseFloat(nc1Input.value) || currentState.nc1,
+            nc2: parseFloat(nc2Input.value) || currentState.nc2,
+            nc3: parseFloat(nc3Input.value) || currentState.nc3
         };
 
-        console.log('Animation end state:', endState);
+        console.log('Animation states:', {
+            start: currentState,
+            end: endState
+        });
 
-        // Get current state as start values
-        const startState = {
-            nc1: this.calculateDistance(this.system.n1, this.system.n2),
-            nc2: this.calculateDistance(this.system.n1, this.system.n3),
-            nc3: this.calculateDistance(this.system.n2, this.system.n3)
-        };
-
-        console.log('Animation start state:', startState);
-
-        this.animationStartState = startState;
+        // Store the states
+        this.animationStartState = currentState;
         this.animationEndState = endState;
         this.animationStartTime = performance.now();
         this.animationDuration = 2000;
@@ -1436,9 +1442,9 @@ class TriangleSystem {
             this.isAnimating = false;
             // Update triangle with final values
             this.updateTriangleFromEdges(
-                this.animationEndState.nc1,  // Blue edge (N1-N2)
-                this.animationEndState.nc2,  // Red edge (N1-N3)
-                this.animationEndState.nc3   // Green edge (N2-N3)
+                this.animationEndState.nc1,
+                this.animationEndState.nc2,
+                this.animationEndState.nc3
             );
             return;
         }
