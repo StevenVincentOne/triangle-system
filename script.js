@@ -1197,6 +1197,9 @@ class TriangleSystem {
         
         // Update derived points after centering
         this.updateDerivedPoints();
+        this.drawSystem();
+        this.updateDashboard();
+        this.updateAnimationFields();  // Add this
     }
 
     handleDrag(e) {
@@ -1215,7 +1218,7 @@ class TriangleSystem {
         
         this.updateDerivedPoints();
         this.updateDashboard();
-        this.updateAnimationEndFields();  // Add this
+        this.updateAnimationFields();  // Add this
         this.drawSystem();
     }
 
@@ -1361,7 +1364,7 @@ class TriangleSystem {
         // Update rendering and dashboard
         this.drawSystem();
         this.updateDashboard();
-        this.updateAnimationEndFields();  // Add this
+        this.updateAnimationFields();  // Add this
     }
 
     centerTriangle() {
@@ -1710,6 +1713,41 @@ class TriangleSystem {
         });
 
         console.log('Animations dropdown initialized');
+    }
+
+    // Add this method if it doesn't exist, or update it if it does
+    updateAnimationFields() {
+        // Get current lengths
+        const currentLengths = this.calculateLengths();
+        console.log('Updating animation fields with lengths:', currentLengths);
+
+        // Update Animation Start fields
+        const startNc1Input = document.getElementById('animation-nc1-start');
+        const startNc2Input = document.getElementById('animation-nc2-start');
+        const startNc3Input = document.getElementById('animation-nc3-start');
+
+        if (startNc1Input && startNc2Input && startNc3Input) {
+            startNc1Input.value = currentLengths.l1.toFixed(2);
+            startNc2Input.value = currentLengths.l2.toFixed(2);
+            startNc3Input.value = currentLengths.l3.toFixed(2);
+            console.log('Updated start fields');
+        } else {
+            console.error('Some animation start input fields not found');
+        }
+
+        // Update Animation End fields
+        const endNc1Input = document.getElementById('animation-nc1-end');
+        const endNc2Input = document.getElementById('animation-nc2-end');
+        const endNc3Input = document.getElementById('animation-nc3-end');
+
+        if (endNc1Input && endNc2Input && endNc3Input) {
+            endNc1Input.value = currentLengths.l1.toFixed(2);
+            endNc2Input.value = currentLengths.l2.toFixed(2);
+            endNc3Input.value = currentLengths.l3.toFixed(2);
+            console.log('Updated end fields');
+        } else {
+            console.error('Some animation end input fields not found');
+        }
     }
 }
 
