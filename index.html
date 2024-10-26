@@ -613,12 +613,14 @@
         .controls-stack {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.5rem;  /* Reduced from default */
             width: 100%;
         }
 
         #manual-controls, #animation-controls {
             width: 100%;
+            margin: 0 !important;  /* Remove any default margins */
+            padding: 0.5rem !important;  /* Reduced padding */
         }
 
         .manual-input-group {
