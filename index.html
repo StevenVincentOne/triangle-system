@@ -658,7 +658,17 @@
 
         <!-- Animation Controls -->
         <div id="animation-controls" class="bg-dark p-2 rounded">
-            <h3 class="panel-header mb-2">Set Animation End</h3>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h3 class="panel-header mb-0">Set Animation End</h3>
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="animationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Animations
+                    </button>
+                    <ul class="dropdown-menu" id="animationsList">
+                        <!-- Saved animations will be added here dynamically -->
+                    </ul>
+                </div>
+            </div>
             <div class="manual-controls-container">
                 <div class="manual-input-group">
                     <label for="animation-nc1-end">NC1</label>
