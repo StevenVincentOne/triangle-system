@@ -214,6 +214,19 @@ class TriangleSystem {
         } else {
             console.error('Preset dropdown elements not found');
         }
+
+        // Add Export button listener with correct ID
+        const exportButton = document.getElementById('exportData');
+        console.log('Export button found:', !!exportButton); // Debug log
+        
+        if (exportButton) {
+            exportButton.addEventListener('click', () => {
+                console.log('Export button clicked'); // Debug log
+                this.exportToCSV();
+            });
+        } else {
+            console.error('Export button not found');
+        }
     }
 
     onMouseDown(event) {
@@ -1748,6 +1761,27 @@ class TriangleSystem {
         } else {
             console.error('Some animation end input fields not found');
         }
+    }
+
+    exportToCSV() {
+        console.log('exportToCSV called'); // Debug log
+        
+        // Create empty CSV content for testing
+        const csvContent = "data:text/csv;charset=utf-8,\n";
+        console.log('CSV content created:', csvContent); // Debug log
+        
+        // Create download link
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "triangle_data.csv");
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('Download triggered'); // Debug log
     }
 }
 
