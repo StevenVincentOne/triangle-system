@@ -1764,30 +1764,59 @@ class TriangleSystem {
     }
 
     exportToCSV() {
-        console.log('Exporting Information Panel data');
+        console.log('Exporting data');
         
-        // Get the Information Panel element using ID
+        // Initialize CSV content with headers
+        let csvContent = "data:text/csv;charset=utf-8,Section,Label,Value\n";
+
+        // Function to process a panel's data
+        const processPanel = (panel, sectionName) => {
+            console.log(`Processing section: ${sectionName}`);
+            // Get all label-value pairs
+            const labelValuePairs = panel.querySelectorAll('.label-value-pair');
+            console.log(`Found ${labelValuePairs.length} label-value pairs`);
+            labelValuePairs.forEach(pair => {
+                const label = pair.querySelector('label')?.textContent.trim() || '';
+                const value = pair.querySelector('input')?.value || '';
+                console.log(`Found pair - Label: ${label}, Value: ${value}`);
+                csvContent += `"${sectionName}","${label}","${value}"\n`;
+            });
+
+            // Special handling for subsystems table if it exists
+            const subsystemsTable = panel.querySelector('.subsystems-table');
+            if (subsystemsTable) {
+                const headers = Array.from(subsystemsTable.querySelectorAll('thead th'))
+                    .map(th => th.textContent.trim())
+                    .filter(text => text !== '');
+                
+                const rows = subsystemsTable.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const rowHeader = row.querySelector('th').textContent.trim();
+                    const inputs = row.querySelectorAll('input');
+                    inputs.forEach((input, index) => {
+                        const label = `${rowHeader} ${headers[index]}`;
+                        csvContent += `"${sectionName}","${label}","${input.value}"\n`;
+                    });
+                });
+            }
+        };
+
+        // Process Information Panel
         const infoPanel = document.getElementById('information-panel');
-        if (!infoPanel) {
-            console.error('Information panel not found');
-            return;
+        if (infoPanel) {
+            processPanel(infoPanel, 'Information Panel');
         }
 
-        // Initialize CSV content with headers
-        let csvContent = "data:text/csv;charset=utf-8,Label,Value\n";
-
-        // Get all label-value pairs
-        const labelValuePairs = infoPanel.querySelectorAll('.label-value-pair');
-        labelValuePairs.forEach(pair => {
-            // Get label text
-            const label = pair.querySelector('label')?.textContent.trim() || '';
-            
-            // Get input value
-            const value = pair.querySelector('input')?.value || '';
-            
-            // Add to CSV content
-            csvContent += `"${label}","${value}"\n`;
-        });
+        // Process Dashboard sections
+        const dashboard = document.getElementById('dashboard');
+        if (dashboard) {
+            // Get all dashboard panels
+            const panels = dashboard.querySelectorAll('.dashboard-panel');
+            panels.forEach(panel => {
+                const sectionTitle = panel.querySelector('.panel-header')?.textContent.trim() || 'Unnamed Section';
+                processPanel(panel, sectionTitle);
+            });
+        }
 
         // Create and trigger download
         const encodedUri = encodeURI(csvContent);
