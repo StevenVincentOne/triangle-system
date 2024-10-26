@@ -1764,24 +1764,42 @@ class TriangleSystem {
     }
 
     exportToCSV() {
-        console.log('exportToCSV called'); // Debug log
+        console.log('Exporting Information Panel data');
         
-        // Create empty CSV content for testing
-        const csvContent = "data:text/csv;charset=utf-8,\n";
-        console.log('CSV content created:', csvContent); // Debug log
-        
-        // Create download link
+        // Get the Information Panel element using ID
+        const infoPanel = document.getElementById('information-panel');
+        if (!infoPanel) {
+            console.error('Information panel not found');
+            return;
+        }
+
+        // Initialize CSV content with headers
+        let csvContent = "data:text/csv;charset=utf-8,Label,Value\n";
+
+        // Get all label-value pairs
+        const labelValuePairs = infoPanel.querySelectorAll('.label-value-pair');
+        labelValuePairs.forEach(pair => {
+            // Get label text
+            const label = pair.querySelector('label')?.textContent.trim() || '';
+            
+            // Get input value
+            const value = pair.querySelector('input')?.value || '';
+            
+            // Add to CSV content
+            csvContent += `"${label}","${value}"\n`;
+        });
+
+        // Create and trigger download
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "triangle_data.csv");
         
-        // Trigger download
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         
-        console.log('Download triggered'); // Debug log
+        console.log('Export complete');
     }
 }
 
