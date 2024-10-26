@@ -620,6 +620,92 @@
         #manual-controls, #animation-controls {
             width: 100%;
         }
+
+        .manual-input-group {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .manual-input-group label {
+            margin-right: 0.25rem !important;
+        }
+
+        .manual-input-group input {
+            margin: 0 !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+
+        .btn {
+            padding: 0.25rem 0.5rem !important;
+        }
+
+        /* Reduce input field padding */
+        .manual-input input, .animation-input input {
+            padding: 0.15rem 0.25rem !important;
+        }
+
+        /* Tighter spacing between elements */
+        .manual-controls-container, .animation-controls-container {
+            gap: 0.5rem !important;
+        }
+
+        /* Reduce space between label and input */
+        .manual-input-group, .animation-input-group {
+            gap: 0.25rem !important;
+        }
+
+        /* Compact labels */
+        .manual-input-group label, .animation-input-group label {
+            margin: 0 !important;
+            padding-right: 0.15rem !important;
+        }
+
+        /* Adjust button padding */
+        .btn {
+            padding: 0.15rem 0.35rem !important;
+        }
+
+        /* Adjust dropdown button */
+        .dropdown-toggle {
+            padding: 0.15rem 0.35rem !important;
+        }
+
+        .manual-input, .animation-input {
+            width: 8ch !important;     /* Increased to 8ch to ensure visibility of 6 chars plus decimal */
+            min-width: 8ch !important; /* Match the width */
+            padding: 0.15rem 0.25rem !important;
+        }
+
+        .manual-input-group input, .animation-input-group input {
+            width: 8ch !important;
+            min-width: 8ch !important;
+        }
+
+        /* Reduce text size for manual and animation controls */
+        .manual-controls-container,
+        .animation-controls-container,
+        .manual-input-group,
+        .animation-input-group,
+        .manual-input-group label,
+        .animation-input-group label,
+        .manual-input,
+        .animation-input,
+        .manual-controls-container .btn,
+        .animation-controls-container .btn {
+            font-size: 0.8rem !important;  /* Reduced from 0.9rem to 0.8rem */
+        }
+
+        /* Adjust input height to match new font size */
+        .manual-input,
+        .animation-input {
+            height: calc(1.4em + 0.4rem) !important;  /* Further reduced height */
+        }
+
+        /* Adjust button padding to match new size */
+        .manual-controls-container .btn,
+        .animation-controls-container .btn {
+            padding: 0.1rem 0.25rem !important;  /* Further reduced padding */
+        }
     </style>
 </head>
 <body>
@@ -636,19 +722,19 @@
     <div class="controls-group bg-dark p-2 rounded mb-2 d-flex flex-column gap-2">  <!-- Modified this line -->
         <!-- Manual Controls -->
         <div id="manual-controls" class="bg-dark p-2 rounded">
-            <div class="manual-controls-container d-flex justify-content-center align-items-center gap-3">
+            <div class="manual-controls-container d-flex justify-content-center align-items-center gap-2">
                 <label class="mb-0">Set Manual:</label>
                 <div class="manual-input-group">
                     <label for="manual-nc1">NC1</label>
-                    <input id="manual-nc1" type="text" class="form-control manual-input" size="8" readonly="false">
+                    <input id="manual-nc1" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 <div class="manual-input-group">
                     <label for="manual-nc2">NC2</label>
-                    <input id="manual-nc2" type="text" class="form-control manual-input" size="8" readonly="false">
+                    <input id="manual-nc2" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 <div class="manual-input-group">
                     <label for="manual-nc3">NC3</label>
-                    <input id="manual-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
+                    <input id="manual-nc3" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 <div class="button-group d-flex align-items-center gap-2">
                     <button id="apply-manual" class="btn btn-info">Apply</button>
@@ -667,47 +753,45 @@
 
         <!-- Animation Controls -->
         <div id="animation-controls" class="bg-dark p-2 rounded">
-            <div class="manual-controls-container d-flex justify-content-center align-items-center gap-3">
-                <label class="mb-0">Animation:</label>
+            <div class="manual-controls-container d-flex justify-content-center align-items-center gap-2">
+                <label class="mb-0">Animation Start:</label>
                 <!-- Start Values -->
                 <div class="manual-input-group">
                     <label for="animation-nc1-start">NC1</label>
-                    <input id="animation-nc1-start" type="text" class="form-control manual-input" size="8">
+                    <input id="animation-nc1-start" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 <div class="manual-input-group">
                     <label for="animation-nc2-start">NC2</label>
-                    <input id="animation-nc2-start" type="text" class="form-control manual-input" size="8">
+                    <input id="animation-nc2-start" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 <div class="manual-input-group">
                     <label for="animation-nc3-start">NC3</label>
-                    <input id="animation-nc3-start" type="text" class="form-control manual-input" size="8">
+                    <input id="animation-nc3-start" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 
+                <label class="mb-0">End:</label>
                 <!-- End Values -->
                 <div class="manual-input-group">
                     <label for="animation-nc1-end">NC1</label>
-                    <input id="animation-nc1-end" type="text" class="form-control manual-input" size="8">
+                    <input id="animation-nc1-end" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 <div class="manual-input-group">
                     <label for="animation-nc2-end">NC2</label>
-                    <input id="animation-nc2-end" type="text" class="form-control manual-input" size="8">
+                    <input id="animation-nc2-end" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 <div class="manual-input-group">
                     <label for="animation-nc3-end">NC3</label>
-                    <input id="animation-nc3-end" type="text" class="form-control manual-input" size="8">
+                    <input id="animation-nc3-end" type="text" class="form-control manual-input" maxlength="6" size="8">
                 </div>
                 
                 <!-- Controls -->
-                <div class="button-group d-flex align-items-center gap-2">
+                <div class="button-group d-flex align-items-center gap-1">  <!-- Changed to gap-1 -->
                     <button id="animate-button" class="btn btn-info">Animate</button>
                     <button id="save-animation" class="btn btn-info">Save</button>
                     <div class="dropdown">
                         <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="animationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             Animations
                         </button>
-                        <ul class="dropdown-menu" id="animationsList">
-                            <!-- Animations will be added here dynamically -->
-                        </ul>
                     </div>
                 </div>
             </div>
