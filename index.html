@@ -627,14 +627,6 @@
         <div id="manual-controls" class="bg-dark p-2 rounded">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h3 class="panel-header mb-0">Set Manual / Animation Start</h3>
-                <div class="dropdown">
-                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        User Presets
-                    </button>
-                    <ul class="dropdown-menu" id="userPresetsList">
-                        <!-- User presets will be added here dynamically -->
-                    </ul>
-                </div>
             </div>
             <div class="manual-controls-container">
                 <div class="manual-input-group">
@@ -649,9 +641,17 @@
                     <label for="manual-nc3">NC3</label>
                     <input id="manual-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
                 </div>
-                <div class="button-group">
+                <div class="button-group d-flex align-items-center gap-2">
                     <button id="apply-manual" class="btn btn-info">Apply</button>
                     <button id="save-preset" class="btn btn-info">Save</button>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            User Presets
+                        </button>
+                        <ul class="dropdown-menu" id="userPresetsList">
+                            <!-- User presets will be added here dynamically -->
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
