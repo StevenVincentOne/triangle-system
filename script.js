@@ -30,18 +30,10 @@ class TriangleSystem {
         // Then initialize controls
         this.initializeEventListeners();
         this.initializeManualControls();
-        this.initializeAnimationControls();
         
         // Draw initial state
         this.drawSystem();
         this.updateDashboard();
-        this.updateAnimationEndFields();
-        
-        // Add animation state storage
-        this.storedAnimation = null;
-
-        this.userPresets = JSON.parse(localStorage.getItem('userPresets')) || {};
-        this.initializeUserPresets();
     }
 
     // Method to initialize all event listeners
@@ -111,6 +103,77 @@ class TriangleSystem {
             });
         } else {
             console.error('Save button not found');
+        }
+
+        // Add Preset Dropdown Functionality
+        const presetDropdown = document.getElementById('userPresetsList');
+        const dropdownButton = document.getElementById('userPresetsDropdown');
+        
+        if (presetDropdown && dropdownButton) {
+            // Load saved presets from localStorage
+            const savedPresets = JSON.parse(localStorage.getItem('userPresets')) || {};
+            console.log('Loaded presets from storage:', savedPresets);
+            
+            // Clear existing items
+            presetDropdown.innerHTML = '';
+            
+            // Add each preset to the dropdown
+            Object.entries(savedPresets).forEach(([name, config]) => {
+                console.log('Adding preset to dropdown:', name, config);
+                const item = document.createElement('li');
+                const link = document.createElement('a');
+                link.className = 'dropdown-item';
+                link.href = '#';
+                link.textContent = name;
+                link.setAttribute('data-preset-name', name);  // Add data attribute
+                item.appendChild(link);
+                presetDropdown.appendChild(item);
+            });
+
+            // Add a single event listener to the dropdown container
+            presetDropdown.addEventListener('click', (e) => {
+                const link = e.target.closest('.dropdown-item');
+                if (!link) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const presetName = link.getAttribute('data-preset-name');
+                console.log('Preset clicked:', presetName);
+                
+                const config = savedPresets[presetName];
+                if (config && config.n1 && config.n2 && config.n3) {
+                    console.log('Loading preset configuration...');
+                    this.system.n1 = { ...config.n1 };
+                    this.system.n2 = { ...config.n2 };
+                    this.system.n3 = { ...config.n3 };
+                    
+                    this.updateDerivedPoints();
+                    this.updateDashboard();
+                    this.drawSystem();
+                    console.log('Preset loaded successfully');
+                } else {
+                    console.error('Invalid preset configuration:', config);
+                }
+            });
+
+            // Initialize Bootstrap dropdown
+            dropdownButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Dropdown button clicked');
+                presetDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!dropdownButton.contains(e.target) && !presetDropdown.contains(e.target)) {
+                    presetDropdown.classList.remove('show');
+                }
+            });
+            
+            console.log('Dropdown initialized with items:', presetDropdown.innerHTML);
+        } else {
+            console.error('Preset dropdown elements not found');
         }
     }
 
@@ -1489,33 +1552,20 @@ class TriangleSystem {
             this.initializeUserPresets();
         }
     }
+
+    checkInputFields() {
+        const inputFields = document.querySelectorAll('input[type="text"]:not(.manual-input):not([readonly="false"])');
+        inputFields.forEach(field => {
+            field.readOnly = true;
+        });
+    }
 }
 
-function checkInputFields() {
-    const inputFields = document.querySelectorAll('input[type="text"]:not(.manual-input):not([readonly="false"])');
-    inputFields.forEach(field => {
-        field.readOnly = true;
-    });
-}
-
-function initializeAnimationFields(triangleSystem) {
-    const nc1 = triangleSystem.calculateDistance(triangleSystem.system.n1, triangleSystem.system.n2);
-    const nc2 = triangleSystem.calculateDistance(triangleSystem.system.n1, triangleSystem.system.n3);
-    const nc3 = triangleSystem.calculateDistance(triangleSystem.system.n2, triangleSystem.system.n3);
-
-    // Update to use -end suffix
-    document.getElementById('animation-nc1-end').value = nc1.toFixed(2);
-    document.getElementById('animation-nc2-end').value = nc2.toFixed(2);
-    document.getElementById('animation-nc3-end').value = nc3.toFixed(2);
-}
-
-// Initialization once the DOM is loaded
+// Outside the class - DOM initialization
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('#canvas');
     if (canvas) {
         const triangleSystem = new TriangleSystem(canvas);
-        checkInputFields();
-        initializeAnimationFields(triangleSystem);
     } else {
         console.error("Canvas element not found");
     }
