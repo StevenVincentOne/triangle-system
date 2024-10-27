@@ -708,6 +708,19 @@
         .animation-controls-container .btn {
             padding: 0.1rem 0.25rem !important;  /* Further reduced padding */
         }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
     </style>
 </head>
 <body>
@@ -834,9 +847,10 @@
 </div>
 </div>
 </div>
-            <!-- Dashboard -->
-            <div id="dashboard" class="dashboard bg-dark p-2 rounded mb-2">
-                <div class="row">
+            <!-- Dashboard Container -->
+            <div class="dashboard-container">
+                <!-- Top Row Panels -->
+                <div class="dashboard bg-dark p-2 rounded mb-2">
                     <!-- System Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">System</h3>
@@ -855,7 +869,7 @@
                     </div>
                     
                     <!-- Subsystems Panel -->
-                    <div class="col-md-3 dashboard-panel">
+                    <div class="dashboard-panel">
                         <h3 class="panel-header">Subsystems</h3>
                         <table class="subsystems-table">
                             <thead>
@@ -884,7 +898,7 @@
                     </div>
                     
                     <!-- Channels Panel -->
-                    <div class="col-md-2 dashboard-panel">
+                    <div class="dashboard-panel">
                         <h3 class="panel-header">Channels</h3>
                         <div class="label-value-pair">
                             <label for="edge-nc1">NC1</label>
@@ -899,9 +913,9 @@
                             <input id="edge-nc3" type="text" class="form-control" size="8" readonly>
                         </div>
                     </div>
-                    
+
                     <!-- Medians Panel -->
-                    <div class="col-md-2 dashboard-panel">
+                    <div class="dashboard-panel">
                         <h3 class="panel-header">Medians</h3>
                         <div class="label-value-pair">
                             <label for="median-n1">N1</label>
@@ -918,7 +932,7 @@
                     </div>
                     
                     <!-- Nodes Panel -->
-                    <div class="col-md-2 dashboard-panel">
+                    <div class="dashboard-panel">
                         <h3 class="panel-header">Nodes</h3>
                         <div class="label-value-pair">
                             <label for="node-n1-angle">N1 ∠</label>
@@ -933,10 +947,12 @@
                             <input id="node-n3-angle" type="text" class="form-control angle-input" size="8" readonly>
                         </div>
                     </div>
-                    
-                    <!-- Centers Panel -->
-                    <div class="col-md-2 dashboard-panel">
-                        <h3 class="panel-header">Centers</h3>
+                </div>
+
+                <!-- Position Panel in its own row -->
+                <div class="dashboard bg-dark p-2 rounded">
+                    <div class="dashboard-panel">
+                        <h3 class="panel-header">Position</h3>
                         <div class="label-value-pair">
                             <label for="centroid-coords">I (x,y)</label>
                             <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
@@ -944,10 +960,6 @@
                         <div class="label-value-pair">
                             <label for="incenter-coords">IC (x,y)</label>
                             <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="i-to-ic-distance">d (I, IC)</label>
-                            <input id="i-to-ic-distance" type="text" class="form-control" size="8" readonly>
                         </div>
                     </div>
                 </div>
