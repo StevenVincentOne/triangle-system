@@ -16,13 +16,12 @@
         }
         .dashboard-panel {
             flex: 0 1 auto;
-            min-width: min-content;
-            width: fit-content;
+            width: fit-content !important;
+            min-width: min-content !important;
             background-color: #333;
             border: 1px solid #444;
             border-radius: 4px;
-            padding: 0.5rem;
-            margin-bottom: 0;
+            padding: 0.5rem !important;
         }
         .panel-header {
             text-align: center;
@@ -34,15 +33,14 @@
         }
         .label-value-pair {
             display: flex;
-            justify-content: flex-start;
             align-items: center;
-            margin-bottom: 0.25rem;
+            gap: 0.5rem !important;
+            width: 100% !important;
         }
         .label-value-pair label {
-            margin-right: 5px;
+            flex: 0 0 auto;
             white-space: nowrap;
-            min-width: 40px;
-            color: #bbb;
+            min-width: 4ch !important;
         }
         input[type="text"].form-control {
             width: auto;
@@ -59,7 +57,7 @@
         }
         .subsystems-table {
             width: 100%;
-            border-collapse: collapse;
+            table-layout: fixed;
         }
         .subsystems-table th,
         .subsystems-table td {
@@ -721,6 +719,231 @@
             gap: 0.5rem;
             align-items: flex-start;
         }
+
+        /* Update dashboard panel styles */
+        .dashboard-panel {
+            flex: 0 1 auto;
+            width: fit-content !important;
+            min-width: min-content !important;
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 0.5rem !important;
+        }
+
+        /* Ensure label-value pairs are properly contained */
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem !important;
+            width: 100% !important;
+        }
+
+        /* Make input fields consistent */
+        .label-value-pair input {
+            width: 8ch !important;     /* Fixed width for all inputs */
+            min-width: 8ch !important;
+            text-align: right !important;
+            padding: 0.15rem 0.25rem !important;
+        }
+
+        /* Ensure labels don't shrink */
+        .label-value-pair label {
+            flex: 0 0 auto;
+            white-space: nowrap;
+            min-width: 4ch !important;
+        }
+
+        /* Special handling for Subsystems panel */
+        .subsystems-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .subsystems-table input {
+            width: 100% !important;
+            min-width: 8ch !important;
+        }
+
+        /* Main container */
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: fit-content;
+            margin: 0 auto;
+        }
+
+        /* Row container */
+        .dashboard-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            width: fit-content;
+        }
+
+        /* Panel group (for Channels, Medians, Nodes) */
+        .dashboard-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        /* Individual panels */
+        .dashboard-panel {
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 0.5rem;
+            width: fit-content;
+        }
+
+        /* Panel content container */
+        .panel-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: fit-content;
+        }
+
+        /* Subsystems specific styling */
+        .subsystems-panel {
+            flex: 0 0 auto;
+        }
+
+        .subsystems-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* Label-value pairs */
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: fit-content;
+        }
+
+        .label-value-pair label {
+            flex: 0 0 auto;
+            min-width: 4ch;
+            text-align: right;
+        }
+
+        .label-value-pair input {
+            width: 8ch;
+            text-align: right;
+            padding: 0.15rem 0.25rem;
+        }
+
+        /* System panel specific fixes */
+        .dashboard-panel {
+            width: fit-content !important;
+            min-width: min-content !important;
+            padding: 0.5rem !important;
+        }
+
+        /* Ensure label-value pairs are properly contained */
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem !important;
+            width: 100% !important;
+        }
+
+        .label-value-pair label {
+            min-width: 4ch !important;
+            text-align: right !important;
+        }
+
+        .label-value-pair input {
+            width: 8ch !important;     /* Fixed width for inputs */
+            min-width: 8ch !important;
+            text-align: right !important;
+        }
+
+        /* Subsystems panel specific fixes */
+        .subsystems-panel {
+            width: fit-content !important;
+            flex: 0 0 auto !important;
+        }
+
+        .subsystems-table {
+            width: auto !important;
+            table-layout: fixed !important;
+        }
+
+        .subsystems-table td {
+            padding: 0.25rem 0.5rem !important;
+        }
+
+        .subsystems-table input {
+            width: 8ch !important;
+            min-width: 8ch !important;
+        }
+
+        /* Base panel styles */
+        .dashboard-panel {
+            display: flex !important;
+            flex-direction: column !important;
+            width: fit-content !important;
+            min-width: min-content !important;
+            padding: 0.5rem !important;
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        /* Panel content wrapper */
+        .panel-content {
+            display: flex !important;
+            flex-direction: column !important;
+            width: fit-content !important;
+            min-width: min-content !important;
+        }
+
+        /* Label-value pair container */
+        .label-value-pair {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            width: fit-content !important;
+            min-width: min-content !important;
+            gap: 0.5rem !important;
+        }
+
+        /* Labels */
+        .label-value-pair label {
+            flex: 0 0 auto !important;
+            white-space: nowrap !important;
+            min-width: 4ch !important;
+            text-align: right !important;
+        }
+
+        /* Input fields */
+        .label-value-pair input {
+            width: 8ch !important;
+            min-width: 8ch !important;
+            max-width: 8ch !important;
+            text-align: right !important;
+            padding: 0.15rem 0.25rem !important;
+        }
+
+        /* Subsystems specific */
+        .subsystems-table {
+            width: auto !important;
+            table-layout: fixed !important;
+        }
+
+        .subsystems-table td {
+            padding: 0.25rem 0.5rem !important;
+        }
+
+        .subsystems-table input {
+            width: 8ch !important;
+            min-width: 8ch !important;
+            max-width: 8ch !important;
+        }
     </style>
 </head>
 <body>
@@ -849,117 +1072,130 @@
 </div>
             <!-- Dashboard Container -->
             <div class="dashboard-container">
-                <!-- Top Row Panels -->
-                <div class="dashboard bg-dark p-2 rounded mb-2">
+                <!-- First Row -->
+                <div class="dashboard-row">
                     <!-- System Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">System</h3>
-                        <div class="label-value-pair">
-                            <label for="system-perimeter">P</label>
-                            <input id="system-perimeter" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="system-area">A</label>
-                            <input id="system-area" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="subsystems-area">SS A</label>
-                            <input id="subsystems-area" type="text" class="form-control" size="8" readonly>
+                        <div class="panel-content">
+                            <div class="label-value-pair">
+                                <label for="system-perimeter">P</label>
+                                <input id="system-perimeter" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="system-area">A</label>
+                                <input id="system-area" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="subsystems-area">SS A</label>
+                                <input id="subsystems-area" type="text" class="form-control" size="8" readonly>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Subsystems Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">Subsystems</h3>
-                        <table class="subsystems-table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>SS1</th>
-                                    <th>SS2</th>
-                                    <th>SS3</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th>P</th>
-                                    <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                    <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                    <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                </tr>
-                                <tr>
-                                    <th>∠</th>
-                                    <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                    <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                    <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="panel-content">
+                            <table class="subsystems-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>SS1</th>
+                                        <th>SS2</th>
+                                        <th>SS3</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>P</th>
+                                        <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <th>∠</th>
+                                        <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     
                     <!-- Channels Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">Channels</h3>
-                        <div class="label-value-pair">
-                            <label for="edge-nc1">NC1</label>
-                            <input id="edge-nc1" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="edge-nc2">NC2</label>
-                            <input id="edge-nc2" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="edge-nc3">NC3</label>
-                            <input id="edge-nc3" type="text" class="form-control" size="8" readonly>
+                        <div class="panel-content">
+                            <div class="label-value-pair">
+                                <label for="edge-nc1">NC1</label>
+                                <input id="edge-nc1" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="edge-nc2">NC2</label>
+                                <input id="edge-nc2" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="edge-nc3">NC3</label>
+                                <input id="edge-nc3" type="text" class="form-control" size="8" readonly>
+                            </div>
                         </div>
                     </div>
-
+                    
                     <!-- Medians Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">Medians</h3>
-                        <div class="label-value-pair">
-                            <label for="median-n1">N1</label>
-                            <input id="median-n1" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="median-n2">N2</label>
-                            <input id="median-n2" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="median-n3">N3</label>
-                            <input id="median-n3" type="text" class="form-control" size="8" readonly>
+                        <div class="panel-content">
+                            <div class="label-value-pair">
+                                <label for="median-n1">N1</label>
+                                <input id="median-n1" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="median-n2">N2</label>
+                                <input id="median-n2" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="median-n3">N3</label>
+                                <input id="median-n3" type="text" class="form-control" size="8" readonly>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Nodes Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">Nodes</h3>
-                        <div class="label-value-pair">
-                            <label for="node-n1-angle">N1 ∠</label>
-                            <input id="node-n1-angle" type="text" class="form-control angle-input" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="node-n2-angle">N2 ∠</label>
-                            <input id="node-n2-angle" type="text" class="form-control angle-input" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="node-n3-angle">N3 ∠</label>
-                            <input id="node-n3-angle" type="text" class="form-control angle-input" size="8" readonly>
+                        <div class="panel-content">
+                            <div class="label-value-pair">
+                                <label for="node-n1-angle">N1 ∠</label>
+                                <input id="node-n1-angle" type="text" class="form-control angle-input" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="node-n2-angle">N2 ∠</label>
+                                <input id="node-n2-angle" type="text" class="form-control angle-input" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="node-n3-angle">N3 ∠</label>
+                                <input id="node-n3-angle" type="text" class="form-control angle-input" size="8" readonly>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Position Panel in its own row -->
-                <div class="dashboard bg-dark p-2 rounded">
+                <!-- Second Row -->
+                <div class="dashboard-row">
+                    <!-- Position Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">Position</h3>
-                        <div class="label-value-pair">
-                            <label for="centroid-coords">I (x,y)</label>
-                            <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="incenter-coords">IC (x,y)</label>
-                            <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
+                        <div class="panel-content">
+                            <div class="label-value-pair">
+                                <label for="centroid-coords">I (x,y)</label>
+                                <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="incenter-coords">IC (x,y)</label>
+                                <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
+                            </div>
                         </div>
                     </div>
                 </div>
