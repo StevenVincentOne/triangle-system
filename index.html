@@ -944,6 +944,17 @@
             min-width: 8ch !important;
             max-width: 8ch !important;
         }
+
+        /* Position panel specific styles */
+        .dashboard-row:last-child {
+            justify-content: center !important;  /* Center the Position panel row */
+            width: 100% !important;  /* Full width container to allow centering */
+        }
+
+        .position-panel .panel-content {
+            flex-direction: row !important;
+            gap: 2rem !important;
+        }
     </style>
 </head>
 <body>
@@ -1185,7 +1196,7 @@
                 <!-- Second Row -->
                 <div class="dashboard-row">
                     <!-- Position Panel -->
-                    <div class="dashboard-panel">
+                    <div class="dashboard-panel position-panel">
                         <h3 class="panel-header">Position</h3>
                         <div class="panel-content">
                             <div class="label-value-pair">
