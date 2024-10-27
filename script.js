@@ -531,14 +531,18 @@ class TriangleSystem {
         setElementValue('#median-n2', medians.n2);
         setElementValue('#median-n3', medians.n3);
 
-        // Centers Panel
+        // Position Panel
         const centroid = {
             x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
             y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
         };
         
-        setElementValue('#centroid-coords', 
-            `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
+        // Update vertex coordinates
+        setElementValue('#node1-coords', `${this.system.n1.x.toFixed(1)}, ${this.system.n1.y.toFixed(1)}`);
+        setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
+        setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
+        
+        setElementValue('#centroid-coords', `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
         
         if (this.system.incenter) {
             setElementValue('#incenter-coords', 
@@ -598,6 +602,11 @@ class TriangleSystem {
 
         this.updateManualFields();
         this.updateAnimationEndFields();  // Make sure this line is here
+
+        // Update vertex coordinates in Position panel
+        document.getElementById('node1-coords').value = `${n1.x.toFixed(1)}, ${n1.y.toFixed(1)}`;
+        document.getElementById('node2-coords').value = `${n2.x.toFixed(1)}, ${n2.y.toFixed(1)}`;
+        document.getElementById('node3-coords').value = `${n3.x.toFixed(1)}, ${n3.y.toFixed(1)}`;
     }
 
     calculateSubsystemAngles() {
