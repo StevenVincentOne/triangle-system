@@ -1,0 +1,18 @@
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+#user-presets {
+    margin-left: 10px;
+}
+
+.feature-button {
+    min-width: 120px;  /* Adjust this value as needed */
+    width: auto;
+}
+
+.preset-button {
+    min-width: 120px;  /* Match feature button width */
+    width: auto;
+}

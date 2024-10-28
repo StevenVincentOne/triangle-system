@@ -495,23 +495,6 @@ class TriangleSystem {
 
         // Re-adjust triangle to maintain centroid's position after updating points
         this.adjustTriangleToOrigin();
-
-        // Calculate circumcenter
-        const d = 2 * (n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y));
-        
-        if (Math.abs(d) > 1e-10) {
-            this.system.circumcenter = {
-                x: ((n1.x * n1.x + n1.y * n1.y) * (n2.y - n3.y) +
-                    (n2.x * n2.x + n2.y * n2.y) * (n3.y - n1.y) +
-                    (n3.x * n3.x + n3.y * n3.y) * (n1.y - n2.y)) / d,
-                y: ((n1.x * n1.x + n1.y * n1.y) * (n3.x - n2.x) +
-                    (n2.x * n2.x + n2.y * n2.y) * (n1.x - n3.x) +
-                    (n3.x * n3.x + n3.y * n3.y) * (n2.x - n1.x)) / d
-            };
-        } else {
-            // Handle degenerate case
-            this.system.circumcenter = { x: 0, y: 0 };
-        }
     }
 
     updateDashboard() {
@@ -558,18 +541,6 @@ class TriangleSystem {
         setElementValue('#node1-coords', `${this.system.n1.x.toFixed(1)}, ${this.system.n1.y.toFixed(1)}`);
         setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
         setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
-        
-        // Update midpoint coordinates
-        setElementValue('#mid1-coords', `${this.system.midpoints.m1.x.toFixed(1)}, ${this.system.midpoints.m1.y.toFixed(1)}`);
-        setElementValue('#mid2-coords', `${this.system.midpoints.m2.x.toFixed(1)}, ${this.system.midpoints.m2.y.toFixed(1)}`);
-        setElementValue('#mid3-coords', `${this.system.midpoints.m3.x.toFixed(1)}, ${this.system.midpoints.m3.y.toFixed(1)}`);
-        
-        // Update tangent point coordinates
-        if (this.system.TangencyPoints && this.system.TangencyPoints.length === 3) {
-            setElementValue('#tan1-coords', `${this.system.TangencyPoints[0].x.toFixed(1)}, ${this.system.TangencyPoints[0].y.toFixed(1)}`);
-            setElementValue('#tan2-coords', `${this.system.TangencyPoints[1].x.toFixed(1)}, ${this.system.TangencyPoints[1].y.toFixed(1)}`);
-            setElementValue('#tan3-coords', `${this.system.TangencyPoints[2].x.toFixed(1)}, ${this.system.TangencyPoints[2].y.toFixed(1)}`);
-        }
         
         setElementValue('#centroid-coords', `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
         
@@ -637,11 +608,10 @@ class TriangleSystem {
         document.getElementById('node2-coords').value = `${n2.x.toFixed(1)}, ${n2.y.toFixed(1)}`;
         document.getElementById('node3-coords').value = `${n3.x.toFixed(1)}, ${n3.y.toFixed(1)}`;
 
-        // Update circumcenter coordinates
-        if (this.system.circumcenter) {
-            const { x, y } = this.system.circumcenter;
-            document.getElementById('circumcenter-coords').value = `${x.toFixed(1)}, ${y.toFixed(1)}`;
-        }
+        // Add Midpoint Coordinates
+        setElementValue('#mid1-coords', `${this.system.midpoints.m1.x.toFixed(1)}, ${this.system.midpoints.m1.y.toFixed(1)}`);  // NC1 (Red) midpoint
+        setElementValue('#mid2-coords', `${this.system.midpoints.m2.x.toFixed(1)}, ${this.system.midpoints.m2.y.toFixed(1)}`);  // NC2 (Blue) midpoint
+        setElementValue('#mid3-coords', `${this.system.midpoints.m3.x.toFixed(1)}, ${this.system.midpoints.m3.y.toFixed(1)}`);  // NC3 (Green) midpoint
     }
 
     calculateSubsystemAngles() {

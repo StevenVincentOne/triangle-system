@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Intelligent System Model</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <style>
+        /* Existing Styles */
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            background-color: #2c2c2c;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        .dashboard-panel {
+            flex: 0 1 auto;
+            min-width: min-content;
+            width: fit-content;
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 0;
+        }
+        .panel-header {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            color: #ddd;
+            border-bottom: 1px solid #444;
+            padding-bottom: 0.25rem;
+        }
+        .label-value-pair {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        .label-value-pair label {
+            margin-right: 5px;
+            white-space: nowrap;
+            min-width: 40px;
+            color: #bbb;
+        }
+        input[type="text"].form-control {
+            width: auto;
+            min-width: 60px;
+            box-sizing: border-box;
+            padding: 2px 4px;
+            font-size: 14px;
+            text-align: center;
+            margin: 0;
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 3px;
+        }
+        .subsystems-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .subsystems-table th,
+        .subsystems-table td {
+            text-align: center;
+            padding: 0.25rem;
+            border: 1px solid #444;
+        }
+        .subsystems-table th {
+            font-weight: normal;
+            background-color: #2c2c2c;
+            color: #ddd;
+        }
+        .subsystems-table input[type="text"].form-control {
+            width: 100%;
+            min-width: 0;
+        }
+        .separator {
+            height: 1px;
+            background-color: #444;
+            margin: 1rem 0;
+        }
+        .info-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .info-column {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .label-value-pair label {
+            flex: 1;
+            margin-right: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .label-value-pair input {
+            flex: 0 0 100px;
+            width: 100px;
+        }
+
+        /* New Sidebar Styles */
+        #sidebar {
+            min-width: 200px;
+            max-width: 300px;
+            height: fit-content;
+            background-color: #2c2c2c;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        
+        #sidebar h5 {
+            color: #ddd;
+            margin-bottom: 0.5rem;
+        }
+        
+        #sidebar button {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            margin: 0.1rem;  /* Reduce from 0.25rem to 0.1rem */
+            width: 100%;
+        }
+
+        /* And/or adjust the flex column gap */
+        #sidebar .d-flex.flex-column {
+            gap: 0.1rem;  /* Add this if not already present, or reduce if it exists */
+        }
+
+        /* Layout Styles */
+        .d-flex {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        /* Additional Adjustments */
+        .controls {
+            display: none; /* Hide the original controls */
+        }
+
+        /* Legends Panel Adjustments */
+        .legends-panel {
+            background-color: #2c2c2c;
+            padding: 1rem;
+            border-radius: 8px;
+            color: #ddd;
+        }
+        .legends-panel p {
+            margin: 0.5rem 0;
+        }
+
+        /* Add to your existing styles */
+        .manual-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .manual-input-group label {
+            color: #bbb;
+            white-space: nowrap;
+        }
+
+        .manual-input-group input {
+            width: 60px;
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #555;
+            text-align: right;
+            padding-right: 4px;
+        }
+
+        /* Update the manual controls styles */
+        #manual-controls {
+            width: fit-content;
+            min-width: min-content;
+            background-color: #333;
+            border: 1px solid #444;
+        }
+
+        .manual-controls-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .manual-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .manual-input-group label {
+            color: #bbb;
+            white-space: nowrap;
+            min-width: 35px;
+        }
+
+        .manual-input-group input.manual-input {
+            width: 80px;  /* Width for 8 characters */
+            text-align: center;
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 2px 4px;
+            font-family: monospace;  /* For better alignment of numbers */
+        }
+
+       a #apply-manual {
+            margin-left: 0.5rem;
+            padding: 2px 12px;
+        }
+
+        .animation-input {
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            border-radius: 4px;
+            width: 100px;
+        }
+
+        .animation-input:focus {
+            outline: none;
+            border-color: #0dcaf0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25);
+        }
+
+        #animate-button {
+            margin-left: 0.5rem;
+            padding: 2px 12px;
+        }
+
+        h3.title {
+            margin: 0.25rem 0;  /* Reduce from default margins */
+            padding: 0;
+        }
+
+        .features {
+            margin-top: 0.25rem;  /* Reduce space between title and features */
+        }
+
+        /* If needed, adjust canvas top margin */
+        #canvas-container {
+            margin-top: 0.25rem;
+        }
+
+        .title {
+            font-size: 1.5rem;  /* Make the title smaller */
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1 !important;
+        }
+
+        /* Reduce spacing between all dashboard sections */
+        .mb-4 {
+            margin-bottom: 0.5rem !important;  /* Reduce from default 1.5rem */
+        }
+
+        /* Or if you prefer to target sections directly */
+        #manual-controls, #animation-controls, #preset-controls {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .preset-button, .feature-button {
+            width: 14ch;  /* Sets width to 14 characters */
+            text-align: center;
+        }
+
+        /* For preset buttons */
+        .btn-secondary {
+            width: 14ch !important;
+            text-align: center !important;
+        }
+
+        /* For feature buttons in the sidebar */
+        #sidebar button {
+            width: 14ch !important;
+            text-align: center !important;
+        }
+
+        /* Minimize spacing between Features header and buttons */
+        #sidebar h2 {
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1 !important;
+        }
+
+        /* Reduce spacing between feature buttons */
+        #sidebar button {
+            margin: 0.1rem 0 !important;
+            padding: 0.25rem !important;
+        }
+
+        /* Reduce sidebar padding */
+        #sidebar {
+            padding: 0.5rem !important;
+        }
+
+        /* Reduce spacing between preset buttons */
+        .btn-secondary {
+            margin: 0.1rem !important;
+            padding: 0.25rem !important;
+        }
+
+        /* Reduce container padding */
+        .container {
+            padding: 0.5rem !important;
+        }
+
+        /* Tighten the d-flex spacing */
+        .d-flex {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Reduce sidebar margin */
+        #sidebar {
+            margin-right: 0.5rem !important;  /* Reduce me-3 to smaller gap */
+        }
+
+        /* Reduce spacing between button groups */
+        .mb-3 {
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* Reduce spacing for feature buttons */
+        .btn {
+            margin: 0.1rem !important;
+        }
+
+        /* Ensure h5 headers are tight */
+        h5 {
+            margin: 0 0 0.25rem 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Reduce spacing in main content area */
+        .main-content > div {
+            margin-bottom: 0.25rem !important;  /* Reduce space between all direct children */
+            padding: 0.5rem !important;         /* Reduce padding */
+        }
+
+        /* Specifically target the controls */
+        #manual-controls, #animation-controls {
+            margin-top: 0.25rem !important;    /* Minimal top margin */
+            padding: 0.5rem !important;        /* Reduced padding */
+        }
+
+        .visualization-container {
+            margin-bottom: 1rem !important;
+        }
+
+        .controls-container {
+            margin-bottom: 1rem !important;
+        }
+
+        .controls-container {
+            background-color: #1a1a1a !important;
+        }
+
+        /* Adjust internal spacing */
+        .controls-container > div {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .controls-container > div:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        #animation-controls {
+            width: fit-content !important;
+            min-width: min-content !important;
+        }
+
+        /* If needed, also add these to ensure consistent styling */
+        #animation-controls .manual-controls-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            gap: 1rem;
+            width: fit-content;
+        }
+
+        /* Remove bottom margins from children since they're side by side */
+        .controls-group > div {
+            margin-bottom: 0 !important;
+        }
+
+        .container {
+            padding-left: 0.5rem !important;    /* Minimal left buffer */
+            padding-right: 0.5rem !important;   /* Minimal right buffer */
+            margin-left: 0 !important;          /* Remove default left margin */
+            margin-right: 0 !important;         /* Remove default right margin */
+            max-width: none !important;         /* Allow container to use full width */
+        }
+
+        /* Style for both control groups */
+        #manual-controls, #animation-controls {
+            background-color: #1a1e2c !important;  /* Dark blue background */
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;  /* Subtle border for bezel */
+            border-radius: 6px !important;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2) !important;  /* Inner shadow for depth */
+        }
+
+        /* Fix background color for the lower container */
+        .controls-container {
+            background-color: #1a1e2c !important;  /* Match the dark blue */
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Ensure consistent header styling */
+        #manual-controls h3, #animation-controls h3 {
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-container {
+            width: fit-content !important;
+            margin: 0 auto !important;  /* Centers the container */
+        }
+
+        .info-content {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .info-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .label-value-pair label {
+            min-width: 8ch;
+        }
+
+        /* Center all major containers */
+        .container > div {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Center the visualization container and its contents */
+        .visualization-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: fit-content;
+        }
+
+        /* Center the buttons container */
+        #buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Center the button rows */
+        #buttons-container > div {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Center the controls group */
+        .controls-group {
+            margin: 0 auto;
+        }
+
+        /* Center the dashboard panels */
+        .dashboard, .info-container, .legends-panel {
+            margin: 0 auto !important;
+            width: fit-content;
+        }
+
+        /* Center content within panels */
+        .panel-header {
+            text-align: center;
+        }
+
+        /* Make System panel conform to content */
+        .dashboard-panel {
+            width: fit-content !important;
+        }
+
+        /* Adjust label-value spacing in System panel */
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem !important;  /* Reduce space between label and input */
+        }
+
+        .label-value-pair label {
+            min-width: 4ch !important;  /* Minimum width for labels */
+            margin-right: 0 !important; /* Remove any extra margin */
+        }
+
+        .label-value-pair input {
+            width: 8ch !important;     /* Fixed width for inputs */
+        }
+
+        /* Make all dashboard panels conform to content */
+        .dashboard-panel {
+            width: fit-content !important;
+            padding: 0.5rem !important;
+        }
+
+        /* Consistent spacing for all label-value pairs */
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+
+        /* Specific adjustments for Channels, Medians, Nodes, Centers panels */
+        .dashboard-panel .label-value-pair label {
+            min-width: 4ch !important;
+            text-align: right !important;
+        }
+
+        .dashboard-panel .label-value-pair input {
+            width: 8ch !important;
+        }
+
+        /* Panel headers */
+        .panel-header {
+            text-align: center;
+            margin-bottom: 0.5rem !important;
+            padding-bottom: 0.25rem !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dashboard row layout */
+        .dashboard {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .main-content {
+            width: fit-content !important;
+            height: fit-content !important;
+        }
+
+        #canvas-container {
+            width: 800px !important;  /* Or your desired width */
+            height: 600px !important; /* Or your desired height */
+            overflow: hidden !important;
+        }
+
+        #canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .main-content {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+        }
+
+        #canvas-container {
+            width: 800px !important;
+            height: 600px !important;
+            overflow: hidden !important;
+            margin: 0 auto !important;  /* Centers horizontally if flex is not working */
+        }
+
+        #canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* If needed, also center the parent container */
+        .visualization-container {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title text-center mb-2">Intelligent System Model</h1>
+
+        <!-- First container: Buttons and Canvas -->
+        <div class="visualization-container bg-dark p-2 rounded mb-2">
+            <div class="d-flex">
+                <!-- Sidebar 
+<!-- Second container: Controls and Panels -->
+<div class="controls-container bg-dark p-2 rounded">
+    <!-- Parent container for both control sets -->
+    <div class="controls-group bg-dark p-2 rounded mb-2">
+        <!-- Manual Controls -->
+        <div id="manual-controls" class="bg-dark p-2 rounded">
+            <h3 class="panel-header mb-2">Set Manual / Animation Start</h3>
+            <div class="manual-controls-container">
+                <div class="manual-input-group">
+                    <label for="manual-nc1">NC1</label>
+                    <input id="manual-nc1" type="text" class="form-control manual-input" size="8" readonly="false">
+                </div>
+                <div class="manual-input-group">
+                    <label for="manual-nc2">NC2</label>
+                    <input id="manual-nc2" type="text" class="form-control manual-input" size="8" readonly="false">
+                </div>
+                <div class="manual-input-group">
+                    <label for="manual-nc3">NC3</label>
+                    <input id="manual-nc3" type="text" class="form-control manual-input" size="8" readonly="false">
+                </div>
+                <div class="button-group">
+                    <button id="apply-manual" class="btn btn-info">Apply</button>
+                    <button id="save-preset" class="btn btn-info">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animation Controls -->
+        <div id="animation-controls" class="bg-dark p-2 rounded">
+            <h3 class="panel-header mb-2">Set Animation End</h3>
+            <div class="manual-controls-container">
+                <div class="manual-input-group">
+                    <label for="animation-nc1-end">NC1</label>
+                    <input id="animation-nc1-end" type="text" class="form-control manual-input" size="8">
+                </div>
+                <div class="manual-input-group">
+                    <label for="animation-nc2-end">NC2</label>
+                    <input id="animation-nc2-end" type="text" class="form-control manual-input" size="8">
+                </div>
+                <div class="manual-input-group">
+                    <label for="animation-nc3-end">NC3</label>
+                    <input id="animation-nc3-end" type="text" class="form-control manual-input" size="8">
+                </div>
+                <button id="animate-button" class="btn btn-info">Animate</button>
+            </div>
+        </div>
+    </div>
+                <!-- Canvas -->
+                <div class="main-content">
+                    <div id="canvas-container" class="bg-dark p-2 rounded">
+                        <canvas id="canvas"></canvas>
+                    </div>
+                </div>
+
+                
+
+        
+        <!-- Paste the modified buttons structure HERE -->
+<div id="buttons-container" class="mt-2">
+    <!-- Features row -->
+        <div class="d-flex gap-2 mb-2">
+            <button id="toggleCentroid" class="btn btn-info">Centroid</button>
+            <button id="toggleIncenter" class="btn btn-info">Incenter</button>
+            <button id="toggleMidpoints" class="btn btn-info">Midpoints</button>
+            <button id="toggleTangents" class="btn btn-info">Tangents</button>
+            <button id="toggleIncircle" class="btn btn-info">Incircle</button>
+            <button id="toggleMedians" class="btn btn-info">Medians</button>
+        <button id="toggleSubsystems" class="btn btn-info">Subsystems</button>
+    </div>
+
+    <!-- Presets row -->
+    <div class="d-flex gap-2">
+        <button id="equilateral" class="btn btn-secondary">Equilateral</button>
+        <button id="isosceles" class="btn btn-secondary">Isosceles</button>
+        <button id="scalene" class="btn btn-secondary">Scalene</button>
+        <button id="right" class="btn btn-secondary">Right</button>
+        <button id="acute" class="btn btn-secondary">Acute</button>
+        <button id="obtuse" class="btn btn-secondary">Obtuse</button>
+    </div>
+
+    <!-- At the end of your presets row -->
+    <div class="dropdown" style="display: inline-block;">
+        <button class="btn btn-secondary preset-button dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            User Presets
+        </button>
+        <ul class="dropdown-menu" id="userPresetsList" aria-labelledby="userPresetsDropdown">
+            <!-- User presets will be added here dynamically -->
+        </ul>
+    </div>
+</div>
+</div>
+</div>
+            <!-- Dashboard -->
+            <div id="dashboard" class="dashboard bg-dark p-2 rounded mb-2">
+                <div class="row">
+                    <!-- System Panel -->
+                    <div class="dashboard-panel">
+                        <h3 class="panel-header">System</h3>
+                        <div class="label-value-pair">
+                            <label for="system-perimeter">P</label>
+                            <input id="system-perimeter" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="system-area">A</label>
+                            <input id="system-area" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="subsystems-area">SS A</label>
+                            <input id="subsystems-area" type="text" class="form-control" size="8" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Subsystems Panel -->
+                    <div class="col-md-3 dashboard-panel">
+                        <h3 class="panel-header">Subsystems</h3>
+                        <table class="subsystems-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>SS1</th>
+                                    <th>SS2</th>
+                                    <th>SS3</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>P</th>
+                                    <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                </tr>
+                                <tr>
+                                    <th>∠</th>
+                                    <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                    <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                    <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Channels Panel -->
+                    <div class="col-md-2 dashboard-panel">
+                        <h3 class="panel-header">Channels</h3>
+                        <div class="label-value-pair">
+                            <label for="edge-nc1">NC1</label>
+                            <input id="edge-nc1" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="edge-nc2">NC2</label>
+                            <input id="edge-nc2" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="edge-nc3">NC3</label>
+                            <input id="edge-nc3" type="text" class="form-control" size="8" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Medians Panel -->
+                    <div class="col-md-2 dashboard-panel">
+                        <h3 class="panel-header">Medians</h3>
+                        <div class="label-value-pair">
+                            <label for="median-n1">N1</label>
+                            <input id="median-n1" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="median-n2">N2</label>
+                            <input id="median-n2" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="median-n3">N3</label>
+                            <input id="median-n3" type="text" class="form-control" size="8" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Nodes Panel -->
+                    <div class="col-md-2 dashboard-panel">
+                        <h3 class="panel-header">Nodes</h3>
+                        <div class="label-value-pair">
+                            <label for="node-n1-angle">N1 ∠</label>
+                            <input id="node-n1-angle" type="text" class="form-control angle-input" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="node-n2-angle">N2 ∠</label>
+                            <input id="node-n2-angle" type="text" class="form-control angle-input" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="node-n3-angle">N3 ∠</label>
+                            <input id="node-n3-angle" type="text" class="form-control angle-input" size="8" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Centers Panel -->
+                    <div class="col-md-2 dashboard-panel">
+                        <h3 class="panel-header">Centers</h3>
+                        <div class="label-value-pair">
+                            <label for="centroid-coords">I (x,y)</label>
+                            <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="incenter-coords">IC (x,y)</label>
+                            <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="i-to-ic-distance">d (I, IC)</label>
+                            <input id="i-to-ic-distance" type="text" class="form-control" size="8" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Separator -->
+            <div class="separator"></div>
+
+            <!-- Information Panel -->
+            <div class="info-container bg-dark p-2 rounded mb-2">
+                <div id="information-panel" class="bg-dark p-2 rounded">
+                    <h3 class="panel-header">Information Panel</h3>
+                    <div class="info-content d-flex gap-2">
+                        <div class="info-column">
+                            <div class="label-value-pair">
+                                <label for="d-i-ic">d(I, IC)</label>
+                                <input id="d-i-ic" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="d-m-t-n1">d(M,T) N1</label>
+                                <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="d-m-t-n2">d(M,T) N2</label>
+                                <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="d-m-t-n3">d(M,T) N3</label>
+                                <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
+                            </div>
+                        </div>
+                        <div class="info-column">
+                            <div class="label-value-pair">
+                                <label for="r-i-ic">r(I, IC)</label>
+                                <input id="r-i-ic" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="r-m-t-n1">r(M,T) N1</label>
+                                <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="r-m-t-n2">r(M,T) N2</label>
+                                <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="r-m-t-n3">r(M,T) N3</label>
+                                <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legends Panel -->
+            <div class="legends-panel bg-dark p-2 rounded">
+                <h3 class="panel-header">Legends</h3>
+                <div class="row">
+                    <div class="col-md-3">
+                        <p>P: Perimeter</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>A: Area</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>SS: Subsystem</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>∠: Angle</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Button Container -->
+    <div class="export-container bg-dark p-2 rounded mb-2 text-center">
+        <button id="exportData" class="btn btn-info">Export Data</button>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

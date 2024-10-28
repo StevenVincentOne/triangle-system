@@ -214,30 +214,6 @@ class TriangleSystem {
         } else {
             console.error('Preset dropdown elements not found');
         }
-
-        // Add Export button listener with correct ID
-        const exportButton = document.getElementById('exportData');
-        console.log('Export button found:', !!exportButton); // Debug log
-        
-        if (exportButton) {
-            exportButton.addEventListener('click', () => {
-                console.log('Export button clicked'); // Debug log
-                this.exportToCSV();
-            });
-        } else {
-            console.error('Export button not found');
-        }
-
-        // Add Image Export button listener
-        const exportImageButton = document.getElementById('exportImage');
-        if (exportImageButton) {
-            exportImageButton.addEventListener('click', () => {
-                console.log('Export Image button clicked');
-                this.exportToImage();
-            });
-        } else {
-            console.error('Export Image button not found');
-        }
     }
 
     onMouseDown(event) {
@@ -495,23 +471,6 @@ class TriangleSystem {
 
         // Re-adjust triangle to maintain centroid's position after updating points
         this.adjustTriangleToOrigin();
-
-        // Calculate circumcenter
-        const d = 2 * (n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y));
-        
-        if (Math.abs(d) > 1e-10) {
-            this.system.circumcenter = {
-                x: ((n1.x * n1.x + n1.y * n1.y) * (n2.y - n3.y) +
-                    (n2.x * n2.x + n2.y * n2.y) * (n3.y - n1.y) +
-                    (n3.x * n3.x + n3.y * n3.y) * (n1.y - n2.y)) / d,
-                y: ((n1.x * n1.x + n1.y * n1.y) * (n3.x - n2.x) +
-                    (n2.x * n2.x + n2.y * n2.y) * (n1.x - n3.x) +
-                    (n3.x * n3.x + n3.y * n3.y) * (n2.x - n1.x)) / d
-            };
-        } else {
-            // Handle degenerate case
-            this.system.circumcenter = { x: 0, y: 0 };
-        }
     }
 
     updateDashboard() {
@@ -548,30 +507,14 @@ class TriangleSystem {
         setElementValue('#median-n2', medians.n2);
         setElementValue('#median-n3', medians.n3);
 
-        // Position Panel
+        // Centers Panel
         const centroid = {
             x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
             y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
         };
         
-        // Update vertex coordinates
-        setElementValue('#node1-coords', `${this.system.n1.x.toFixed(1)}, ${this.system.n1.y.toFixed(1)}`);
-        setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
-        setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
-        
-        // Update midpoint coordinates
-        setElementValue('#mid1-coords', `${this.system.midpoints.m1.x.toFixed(1)}, ${this.system.midpoints.m1.y.toFixed(1)}`);
-        setElementValue('#mid2-coords', `${this.system.midpoints.m2.x.toFixed(1)}, ${this.system.midpoints.m2.y.toFixed(1)}`);
-        setElementValue('#mid3-coords', `${this.system.midpoints.m3.x.toFixed(1)}, ${this.system.midpoints.m3.y.toFixed(1)}`);
-        
-        // Update tangent point coordinates
-        if (this.system.TangencyPoints && this.system.TangencyPoints.length === 3) {
-            setElementValue('#tan1-coords', `${this.system.TangencyPoints[0].x.toFixed(1)}, ${this.system.TangencyPoints[0].y.toFixed(1)}`);
-            setElementValue('#tan2-coords', `${this.system.TangencyPoints[1].x.toFixed(1)}, ${this.system.TangencyPoints[1].y.toFixed(1)}`);
-            setElementValue('#tan3-coords', `${this.system.TangencyPoints[2].x.toFixed(1)}, ${this.system.TangencyPoints[2].y.toFixed(1)}`);
-        }
-        
-        setElementValue('#centroid-coords', `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
+        setElementValue('#centroid-coords', 
+            `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
         
         if (this.system.incenter) {
             setElementValue('#incenter-coords', 
@@ -631,17 +574,6 @@ class TriangleSystem {
 
         this.updateManualFields();
         this.updateAnimationEndFields();  // Make sure this line is here
-
-        // Update vertex coordinates in Position panel
-        document.getElementById('node1-coords').value = `${n1.x.toFixed(1)}, ${n1.y.toFixed(1)}`;
-        document.getElementById('node2-coords').value = `${n2.x.toFixed(1)}, ${n2.y.toFixed(1)}`;
-        document.getElementById('node3-coords').value = `${n3.x.toFixed(1)}, ${n3.y.toFixed(1)}`;
-
-        // Update circumcenter coordinates
-        if (this.system.circumcenter) {
-            const { x, y } = this.system.circumcenter;
-            document.getElementById('circumcenter-coords').value = `${x.toFixed(1)}, ${y.toFixed(1)}`;
-        }
     }
 
     calculateSubsystemAngles() {
@@ -1815,111 +1747,6 @@ class TriangleSystem {
             console.log('Updated end fields');
         } else {
             console.error('Some animation end input fields not found');
-        }
-    }
-
-    exportToCSV() {
-        console.log('Exporting data');
-        
-        // Initialize CSV content with headers
-        let csvContent = "data:text/csv;charset=utf-8,Section,Label,Value\n";
-
-        // Function to process a panel's data
-        const processPanel = (panel, sectionName) => {
-            console.log(`Processing section: ${sectionName}`);
-            // Get all label-value pairs
-            const labelValuePairs = panel.querySelectorAll('.label-value-pair');
-            console.log(`Found ${labelValuePairs.length} label-value pairs`);
-            labelValuePairs.forEach(pair => {
-                const label = pair.querySelector('label')?.textContent.trim() || '';
-                const value = pair.querySelector('input')?.value || '';
-                console.log(`Found pair - Label: ${label}, Value: ${value}`);
-                csvContent += `"${sectionName}","${label}","${value}"\n`;
-            });
-
-            // Special handling for subsystems table if it exists
-            const subsystemsTable = panel.querySelector('.subsystems-table');
-            if (subsystemsTable) {
-                const headers = Array.from(subsystemsTable.querySelectorAll('thead th'))
-                    .map(th => th.textContent.trim())
-                    .filter(text => text !== '');
-                
-                const rows = subsystemsTable.querySelectorAll('tbody tr');
-                rows.forEach(row => {
-                    const rowHeader = row.querySelector('th').textContent.trim();
-                    const inputs = row.querySelectorAll('input');
-                    inputs.forEach((input, index) => {
-                        const label = `${rowHeader} ${headers[index]}`;
-                        csvContent += `"${sectionName}","${label}","${input.value}"\n`;
-                    });
-                });
-            }
-        };
-
-        // Process Information Panel
-        const infoPanel = document.getElementById('information-panel');
-        if (infoPanel) {
-            processPanel(infoPanel, 'Information Panel');
-        }
-
-        // Process Dashboard sections
-        const dashboard = document.getElementById('dashboard');
-        if (dashboard) {
-            // Get all dashboard panels
-            const panels = dashboard.querySelectorAll('.dashboard-panel');
-            panels.forEach(panel => {
-                const sectionTitle = panel.querySelector('.panel-header')?.textContent.trim() || 'Unnamed Section';
-                processPanel(panel, sectionTitle);
-            });
-        }
-
-        // Create and trigger download
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "triangle_data.csv");
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        console.log('Export complete');
-    }
-
-    // Add new method for image export
-    exportToImage() {
-        console.log('Exporting canvas as image');
-        
-        try {
-            // Create a temporary canvas
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = this.canvas.width;
-            tempCanvas.height = this.canvas.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            // Draw dark background
-            tempCtx.fillStyle = '#1a1a1a';  // Match your app's dark background
-            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-            
-            // Draw the original canvas content on top
-            tempCtx.drawImage(this.canvas, 0, 0);
-            
-            // Convert to JPEG instead of PNG (JPEG doesn't support transparency)
-            const imageData = tempCanvas.toDataURL('image/jpeg', 1.0);
-            
-            // Create download link
-            const link = document.createElement('a');
-            link.download = 'triangle_system.jpg';  // Changed extension to .jpg
-            link.href = imageData;
-            
-            // Trigger download
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            console.log('Image export complete');
-        } catch (error) {
-            console.error('Error exporting image:', error);
         }
     }
 }

@@ -30,49 +30,18 @@ class TriangleSystem {
         // Then initialize controls
         this.initializeEventListeners();
         this.initializeManualControls();
-        this.initializeAnimationControls();  // Add this line
+        this.initializeAnimationControls();
         
         // Draw initial state
         this.drawSystem();
         this.updateDashboard();
-        this.updateAnimationEndFields();  // Add this
+        this.updateAnimationEndFields();
         
-        // Update the title and dropdown container in the HTML
-        const manualTitle = document.querySelector('.manual-title');
-        if (manualTitle) {
-            // Preserve the original text content
-            const titleText = manualTitle.textContent;
-            
-            // Replace the title's content with a flex container
-            manualTitle.innerHTML = `
-                <div class="d-flex align-items-center gap-3">
-                    <span>${titleText}</span>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            User Presets
-                        </button>
-                        <ul class="dropdown-menu" id="userPresetsList">
-                            <!-- Presets will be added here dynamically -->
-                        </ul>
-                    </div>
-                </div>
-            `;
-        }
+        // Add animation state storage
+        this.storedAnimation = null;
 
-        // Initialize storage for user animations
-        this.userAnimations = JSON.parse(localStorage.getItem('userAnimations')) || {};
-        
-        // Initialize the animations dropdown
-        this.initializeUserAnimations();
-        
-        // Add Save Animation button listener
-        const saveAnimationButton = document.getElementById('save-animation');
-        if (saveAnimationButton) {
-            saveAnimationButton.addEventListener('click', () => {
-                console.log('Save Animation button clicked');
-                this.saveCurrentAnimation();
-            });
-        }
+        this.userPresets = JSON.parse(localStorage.getItem('userPresets')) || {};
+        this.initializeUserPresets();
     }
 
     // Method to initialize all event listeners
@@ -142,101 +111,6 @@ class TriangleSystem {
             });
         } else {
             console.error('Save button not found');
-        }
-
-        // Add Preset Dropdown Functionality
-        const presetDropdown = document.getElementById('userPresetsList');
-        const dropdownButton = document.getElementById('userPresetsDropdown');
-        
-        if (presetDropdown && dropdownButton) {
-            // Load saved presets from localStorage
-            const savedPresets = JSON.parse(localStorage.getItem('userPresets')) || {};
-            console.log('Loaded presets from storage:', savedPresets);
-            
-            // Clear existing items
-            presetDropdown.innerHTML = '';
-            
-            // Add each preset to the dropdown
-            Object.entries(savedPresets).forEach(([name, config]) => {
-                console.log('Adding preset to dropdown:', name, config);
-                const item = document.createElement('li');
-                const link = document.createElement('a');
-                link.className = 'dropdown-item';
-                link.href = '#';
-                link.textContent = name;
-                link.setAttribute('data-preset-name', name);  // Add data attribute
-                item.appendChild(link);
-                presetDropdown.appendChild(item);
-            });
-
-            // Add a single event listener to the dropdown container
-            presetDropdown.addEventListener('click', (e) => {
-                const link = e.target.closest('.dropdown-item');
-                if (!link) return;
-                
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const presetName = link.getAttribute('data-preset-name');
-                console.log('Preset clicked:', presetName);
-                
-                const config = savedPresets[presetName];
-                if (config && config.n1 && config.n2 && config.n3) {
-                    console.log('Loading preset configuration...');
-                    this.system.n1 = { ...config.n1 };
-                    this.system.n2 = { ...config.n2 };
-                    this.system.n3 = { ...config.n3 };
-                    
-                    this.updateDerivedPoints();
-                    this.updateDashboard();
-                    this.drawSystem();
-                    console.log('Preset loaded successfully');
-                } else {
-                    console.error('Invalid preset configuration:', config);
-                }
-            });
-
-            // Initialize Bootstrap dropdown
-            dropdownButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                console.log('Dropdown button clicked');
-                presetDropdown.classList.toggle('show');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!dropdownButton.contains(e.target) && !presetDropdown.contains(e.target)) {
-                    presetDropdown.classList.remove('show');
-                }
-            });
-            
-            console.log('Dropdown initialized with items:', presetDropdown.innerHTML);
-        } else {
-            console.error('Preset dropdown elements not found');
-        }
-
-        // Add Export button listener with correct ID
-        const exportButton = document.getElementById('exportData');
-        console.log('Export button found:', !!exportButton); // Debug log
-        
-        if (exportButton) {
-            exportButton.addEventListener('click', () => {
-                console.log('Export button clicked'); // Debug log
-                this.exportToCSV();
-            });
-        } else {
-            console.error('Export button not found');
-        }
-
-        // Add Image Export button listener
-        const exportImageButton = document.getElementById('exportImage');
-        if (exportImageButton) {
-            exportImageButton.addEventListener('click', () => {
-                console.log('Export Image button clicked');
-                this.exportToImage();
-            });
-        } else {
-            console.error('Export Image button not found');
         }
     }
 
@@ -495,23 +369,6 @@ class TriangleSystem {
 
         // Re-adjust triangle to maintain centroid's position after updating points
         this.adjustTriangleToOrigin();
-
-        // Calculate circumcenter
-        const d = 2 * (n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y));
-        
-        if (Math.abs(d) > 1e-10) {
-            this.system.circumcenter = {
-                x: ((n1.x * n1.x + n1.y * n1.y) * (n2.y - n3.y) +
-                    (n2.x * n2.x + n2.y * n2.y) * (n3.y - n1.y) +
-                    (n3.x * n3.x + n3.y * n3.y) * (n1.y - n2.y)) / d,
-                y: ((n1.x * n1.x + n1.y * n1.y) * (n3.x - n2.x) +
-                    (n2.x * n2.x + n2.y * n2.y) * (n1.x - n3.x) +
-                    (n3.x * n3.x + n3.y * n3.y) * (n2.x - n1.x)) / d
-            };
-        } else {
-            // Handle degenerate case
-            this.system.circumcenter = { x: 0, y: 0 };
-        }
     }
 
     updateDashboard() {
@@ -548,30 +405,14 @@ class TriangleSystem {
         setElementValue('#median-n2', medians.n2);
         setElementValue('#median-n3', medians.n3);
 
-        // Position Panel
+        // Centers Panel
         const centroid = {
             x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
             y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
         };
         
-        // Update vertex coordinates
-        setElementValue('#node1-coords', `${this.system.n1.x.toFixed(1)}, ${this.system.n1.y.toFixed(1)}`);
-        setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
-        setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
-        
-        // Update midpoint coordinates
-        setElementValue('#mid1-coords', `${this.system.midpoints.m1.x.toFixed(1)}, ${this.system.midpoints.m1.y.toFixed(1)}`);
-        setElementValue('#mid2-coords', `${this.system.midpoints.m2.x.toFixed(1)}, ${this.system.midpoints.m2.y.toFixed(1)}`);
-        setElementValue('#mid3-coords', `${this.system.midpoints.m3.x.toFixed(1)}, ${this.system.midpoints.m3.y.toFixed(1)}`);
-        
-        // Update tangent point coordinates
-        if (this.system.TangencyPoints && this.system.TangencyPoints.length === 3) {
-            setElementValue('#tan1-coords', `${this.system.TangencyPoints[0].x.toFixed(1)}, ${this.system.TangencyPoints[0].y.toFixed(1)}`);
-            setElementValue('#tan2-coords', `${this.system.TangencyPoints[1].x.toFixed(1)}, ${this.system.TangencyPoints[1].y.toFixed(1)}`);
-            setElementValue('#tan3-coords', `${this.system.TangencyPoints[2].x.toFixed(1)}, ${this.system.TangencyPoints[2].y.toFixed(1)}`);
-        }
-        
-        setElementValue('#centroid-coords', `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
+        setElementValue('#centroid-coords', 
+            `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
         
         if (this.system.incenter) {
             setElementValue('#incenter-coords', 
@@ -631,17 +472,6 @@ class TriangleSystem {
 
         this.updateManualFields();
         this.updateAnimationEndFields();  // Make sure this line is here
-
-        // Update vertex coordinates in Position panel
-        document.getElementById('node1-coords').value = `${n1.x.toFixed(1)}, ${n1.y.toFixed(1)}`;
-        document.getElementById('node2-coords').value = `${n2.x.toFixed(1)}, ${n2.y.toFixed(1)}`;
-        document.getElementById('node3-coords').value = `${n3.x.toFixed(1)}, ${n3.y.toFixed(1)}`;
-
-        // Update circumcenter coordinates
-        if (this.system.circumcenter) {
-            const { x, y } = this.system.circumcenter;
-            document.getElementById('circumcenter-coords').value = `${x.toFixed(1)}, ${y.toFixed(1)}`;
-        }
     }
 
     calculateSubsystemAngles() {
@@ -1265,9 +1095,6 @@ class TriangleSystem {
         
         // Update derived points after centering
         this.updateDerivedPoints();
-        this.drawSystem();
-        this.updateDashboard();
-        this.updateAnimationFields();  // Add this
     }
 
     handleDrag(e) {
@@ -1286,7 +1113,6 @@ class TriangleSystem {
         
         this.updateDerivedPoints();
         this.updateDashboard();
-        this.updateAnimationFields();  // Add this
         this.drawSystem();
     }
 
@@ -1432,7 +1258,6 @@ class TriangleSystem {
         // Update rendering and dashboard
         this.drawSystem();
         this.updateDashboard();
-        this.updateAnimationFields();  // Add this
     }
 
     centerTriangle() {
@@ -1460,80 +1285,61 @@ class TriangleSystem {
     }
 
     initializeAnimationControls() {
-        console.log('Initializing animation controls');
-        
-        // Make animation end fields editable and set initial values
+        // Make sure animation end fields are editable
         ['animation-nc1-end', 'animation-nc2-end', 'animation-nc3-end'].forEach(id => {
             const input = document.getElementById(id);
             if (input) {
-                input.readOnly = false;  // Make editable
-                
-                // Set initial values based on current triangle state
-                const nc = id.includes('nc1') ? this.calculateDistance(this.system.n1, this.system.n3) :
-                          id.includes('nc2') ? this.calculateDistance(this.system.n1, this.system.n2) :
-                          this.calculateDistance(this.system.n2, this.system.n3);
-                
-                input.value = nc.toFixed(2);  // Display with 2 decimal places
-                console.log(`Initialized ${id} with value ${input.value}`);
-            } else {
-                console.error(`Animation input field ${id} not found`);
+                input.readOnly = false;
             }
         });
 
-        // Set up animate button
         const animateButton = document.getElementById('animate-button');
         if (animateButton) {
             animateButton.addEventListener('click', () => {
                 console.log('Animate button clicked');
                 this.startAnimation();
             });
-            console.log('Animate button listener added');
         }
+
+        // Update fields initially
+        this.updateAnimationEndFields();
     }
 
     startAnimation() {
         console.log('Starting animation');
         
-        // Check for input fields existence first
-        const nc1Input = document.getElementById('animation-nc1-end');
-        const nc2Input = document.getElementById('animation-nc2-end');
-        const nc3Input = document.getElementById('animation-nc3-end');
+        // If we have stored animation values, use them
+        if (this.storedAnimation) {
+            console.log('Using stored animation values');
+            this.updateTriangleFromEdges(
+                this.storedAnimation.start.nc1,
+                this.storedAnimation.start.nc2,
+                this.storedAnimation.start.nc3
+            );
+        } else {
+            // Get end state values from input fields
+            const endState = {
+                // Correct mapping for animation end fields
+                nc1: parseFloat(document.getElementById('animation-nc1').value),  // Blue edge (N1-N2)
+                nc2: parseFloat(document.getElementById('animation-nc2').value),  // Red edge (N1-N3)
+                nc3: parseFloat(document.getElementById('animation-nc3').value)   // Green edge (N2-N3)
+            };
 
-        if (!nc1Input || !nc2Input || !nc3Input) {
-            console.error('Missing animation input fields');
-            return;
+            // Get current state as start values
+            const startState = {
+                nc1: this.calculateDistance(this.system.n1, this.system.n2),  // Blue edge (N1-N2)
+                nc2: this.calculateDistance(this.system.n1, this.system.n3),  // Red edge (N1-N3)
+                nc3: this.calculateDistance(this.system.n2, this.system.n3)   // Green edge (N2-N3)
+            };
+
+            console.log('Start state:', startState);
+            console.log('End state:', endState);
+
+            this.storedAnimation = { start: startState, end: endState };
         }
 
-        // Get current state
-        const currentState = {
-            nc1: this.calculateDistance(this.system.n1, this.system.n3),  // NC1 maps to red edge (N1-N3)
-            nc2: this.calculateDistance(this.system.n1, this.system.n2),  // NC2 maps to blue edge (N1-N2)
-            nc3: this.calculateDistance(this.system.n2, this.system.n3)   // NC3 maps to green edge (N2-N3)
-        };
-
-        // If we're already animating, use the stored end state
-        if (this.isAnimating) {
-            this.animationStartState = currentState;
-            this.animationStartTime = performance.now();
-            requestAnimationFrame(this.animate.bind(this));
-            return;
-        }
-
-        // Get end state values from input fields
-        const endState = {
-            nc1: parseFloat(nc1Input.value) || currentState.nc1,
-            nc2: parseFloat(nc2Input.value) || currentState.nc2,
-            nc3: parseFloat(nc3Input.value) || currentState.nc3
-        };
-
-        console.log('Animation states:', {
-            start: currentState,
-            end: endState
-        });
-
-        // Store the states
-        this.animationStartState = currentState;
-        this.animationEndState = endState;
+        this.animationStartState = this.storedAnimation.start;
+        this.animationEndState = this.storedAnimation.end;
         this.animationStartTime = performance.now();
         this.animationDuration = 2000;
         this.isAnimating = true;
@@ -1550,9 +1356,9 @@ class TriangleSystem {
             this.isAnimating = false;
             // Update triangle with final values
             this.updateTriangleFromEdges(
-                this.animationEndState.nc1,
-                this.animationEndState.nc2,
-                this.animationEndState.nc3
+                this.animationEndState.nc1,  // Blue edge (N1-N2)
+                this.animationEndState.nc2,  // Red edge (N1-N3)
+                this.animationEndState.nc3   // Green edge (N2-N3)
             );
             return;
         }
@@ -1577,8 +1383,8 @@ class TriangleSystem {
 
         // Update each field while preserving editability
         Object.entries(animationEndInputs).forEach(([id, value]) => {
-            const input = document.getElementById(`${id}-end`);
-            if (input && !input.matches(':focus')) {  // Don't update if user is editing
+            const input = document.getElementById(id);
+            if (input && !input.matches(':focus')) {
                 input.value = value.toFixed(2);
                 input.readOnly = false;
             }
@@ -1683,258 +1489,33 @@ class TriangleSystem {
             this.initializeUserPresets();
         }
     }
-
-    checkInputFields() {
-        const inputFields = document.querySelectorAll('input[type="text"]:not(.manual-input):not([readonly="false"])');
-        inputFields.forEach(field => {
-            field.readOnly = true;
-        });
-    }
-
-    saveCurrentAnimation() {
-        console.log('Saving current animation');
-        
-        // Get current triangle configuration for start state
-        const startConfig = {
-            n1: { x: this.system.n1.x, y: this.system.n1.y },
-            n2: { x: this.system.n2.x, y: this.system.n2.y },
-            n3: { x: this.system.n3.x, y: this.system.n3.y }
-        };
-
-        // Get end state from animation inputs
-        const nc1Input = document.getElementById('animation-nc1-end');
-        const nc2Input = document.getElementById('animation-nc2-end');
-        const nc3Input = document.getElementById('animation-nc3-end');
-
-        if (!nc1Input || !nc2Input || !nc3Input) {
-            console.error('Missing animation input fields');
-            return;
-        }
-
-        const endState = {
-            nc1: parseFloat(nc1Input.value),
-            nc2: parseFloat(nc2Input.value),
-            nc3: parseFloat(nc3Input.value)
-        };
-
-        // Validate inputs
-        if (isNaN(endState.nc1) || isNaN(endState.nc2) || isNaN(endState.nc3)) {
-            alert('Please enter valid numbers for all edge lengths');
-            return;
-        }
-
-        // Prompt for animation name
-        const name = prompt('Enter a name for this animation:');
-        
-        if (name) {
-            // Save both states
-            this.userAnimations[name] = {
-                startConfig,
-                endState
-            };
-            localStorage.setItem('userAnimations', JSON.stringify(this.userAnimations));
-            console.log('Saved animation:', name);
-            
-            // Update dropdown if it exists
-            this.initializeUserAnimations();
-        }
-    }
-
-    // Add new method to initialize animations dropdown
-    initializeUserAnimations() {
-        console.log('Initializing animations dropdown');
-        const animationsList = document.getElementById('animationsList');
-        const animationsDropdown = document.getElementById('animationsDropdown');
-        
-        if (!animationsList || !animationsDropdown) {
-            console.error('Animation dropdown elements not found');
-            return;
-        }
-        
-        // Clear existing items
-        animationsList.innerHTML = '';
-        
-        // Add each saved animation to dropdown
-        Object.entries(this.userAnimations).forEach(([name, config]) => {
-            console.log('Adding animation:', name);
-            const item = document.createElement('li');
-            const link = document.createElement('a');
-            link.className = 'dropdown-item';
-            link.href = '#';
-            link.textContent = name;
-            item.appendChild(link);
-            animationsList.appendChild(item);
-        });
-
-        // Initialize Bootstrap dropdown functionality
-        animationsDropdown.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('Animations dropdown clicked');
-            animationsList.classList.toggle('show');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!animationsDropdown.contains(e.target) && !animationsList.contains(e.target)) {
-                animationsList.classList.remove('show');
-            }
-        });
-
-        console.log('Animations dropdown initialized');
-    }
-
-    // Add this method if it doesn't exist, or update it if it does
-    updateAnimationFields() {
-        // Get current lengths
-        const currentLengths = this.calculateLengths();
-        console.log('Updating animation fields with lengths:', currentLengths);
-
-        // Update Animation Start fields
-        const startNc1Input = document.getElementById('animation-nc1-start');
-        const startNc2Input = document.getElementById('animation-nc2-start');
-        const startNc3Input = document.getElementById('animation-nc3-start');
-
-        if (startNc1Input && startNc2Input && startNc3Input) {
-            startNc1Input.value = currentLengths.l1.toFixed(2);
-            startNc2Input.value = currentLengths.l2.toFixed(2);
-            startNc3Input.value = currentLengths.l3.toFixed(2);
-            console.log('Updated start fields');
-        } else {
-            console.error('Some animation start input fields not found');
-        }
-
-        // Update Animation End fields
-        const endNc1Input = document.getElementById('animation-nc1-end');
-        const endNc2Input = document.getElementById('animation-nc2-end');
-        const endNc3Input = document.getElementById('animation-nc3-end');
-
-        if (endNc1Input && endNc2Input && endNc3Input) {
-            endNc1Input.value = currentLengths.l1.toFixed(2);
-            endNc2Input.value = currentLengths.l2.toFixed(2);
-            endNc3Input.value = currentLengths.l3.toFixed(2);
-            console.log('Updated end fields');
-        } else {
-            console.error('Some animation end input fields not found');
-        }
-    }
-
-    exportToCSV() {
-        console.log('Exporting data');
-        
-        // Initialize CSV content with headers
-        let csvContent = "data:text/csv;charset=utf-8,Section,Label,Value\n";
-
-        // Function to process a panel's data
-        const processPanel = (panel, sectionName) => {
-            console.log(`Processing section: ${sectionName}`);
-            // Get all label-value pairs
-            const labelValuePairs = panel.querySelectorAll('.label-value-pair');
-            console.log(`Found ${labelValuePairs.length} label-value pairs`);
-            labelValuePairs.forEach(pair => {
-                const label = pair.querySelector('label')?.textContent.trim() || '';
-                const value = pair.querySelector('input')?.value || '';
-                console.log(`Found pair - Label: ${label}, Value: ${value}`);
-                csvContent += `"${sectionName}","${label}","${value}"\n`;
-            });
-
-            // Special handling for subsystems table if it exists
-            const subsystemsTable = panel.querySelector('.subsystems-table');
-            if (subsystemsTable) {
-                const headers = Array.from(subsystemsTable.querySelectorAll('thead th'))
-                    .map(th => th.textContent.trim())
-                    .filter(text => text !== '');
-                
-                const rows = subsystemsTable.querySelectorAll('tbody tr');
-                rows.forEach(row => {
-                    const rowHeader = row.querySelector('th').textContent.trim();
-                    const inputs = row.querySelectorAll('input');
-                    inputs.forEach((input, index) => {
-                        const label = `${rowHeader} ${headers[index]}`;
-                        csvContent += `"${sectionName}","${label}","${input.value}"\n`;
-                    });
-                });
-            }
-        };
-
-        // Process Information Panel
-        const infoPanel = document.getElementById('information-panel');
-        if (infoPanel) {
-            processPanel(infoPanel, 'Information Panel');
-        }
-
-        // Process Dashboard sections
-        const dashboard = document.getElementById('dashboard');
-        if (dashboard) {
-            // Get all dashboard panels
-            const panels = dashboard.querySelectorAll('.dashboard-panel');
-            panels.forEach(panel => {
-                const sectionTitle = panel.querySelector('.panel-header')?.textContent.trim() || 'Unnamed Section';
-                processPanel(panel, sectionTitle);
-            });
-        }
-
-        // Create and trigger download
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "triangle_data.csv");
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        console.log('Export complete');
-    }
-
-    // Add new method for image export
-    exportToImage() {
-        console.log('Exporting canvas as image');
-        
-        try {
-            // Create a temporary canvas
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = this.canvas.width;
-            tempCanvas.height = this.canvas.height;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            // Draw dark background
-            tempCtx.fillStyle = '#1a1a1a';  // Match your app's dark background
-            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-            
-            // Draw the original canvas content on top
-            tempCtx.drawImage(this.canvas, 0, 0);
-            
-            // Convert to JPEG instead of PNG (JPEG doesn't support transparency)
-            const imageData = tempCanvas.toDataURL('image/jpeg', 1.0);
-            
-            // Create download link
-            const link = document.createElement('a');
-            link.download = 'triangle_system.jpg';  // Changed extension to .jpg
-            link.href = imageData;
-            
-            // Trigger download
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            console.log('Image export complete');
-        } catch (error) {
-            console.error('Error exporting image:', error);
-        }
-    }
 }
 
-// Outside the class - DOM initialization
-document.addEventListener('DOMContentLoaded', () => {
-    // Check for animation elements
-    ['animation-nc1-end', 'animation-nc2-end', 'animation-nc3-end', 'animate-button'].forEach(id => {
-        const element = document.getElementById(id);
-        console.log(`Element ${id} exists:`, !!element);
+function checkInputFields() {
+    const inputFields = document.querySelectorAll('input[type="text"]:not(.manual-input):not([readonly="false"])');
+    inputFields.forEach(field => {
+        field.readOnly = true;
     });
+}
 
+function initializeAnimationFields(triangleSystem) {
+    const nc1 = triangleSystem.calculateDistance(triangleSystem.system.n1, triangleSystem.system.n2);
+    const nc2 = triangleSystem.calculateDistance(triangleSystem.system.n1, triangleSystem.system.n3);
+    const nc3 = triangleSystem.calculateDistance(triangleSystem.system.n2, triangleSystem.system.n3);
+
+    // Update to use -end suffix
+    document.getElementById('animation-nc1-end').value = nc1.toFixed(2);
+    document.getElementById('animation-nc2-end').value = nc2.toFixed(2);
+    document.getElementById('animation-nc3-end').value = nc3.toFixed(2);
+}
+
+// Initialization once the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('#canvas');
     if (canvas) {
         const triangleSystem = new TriangleSystem(canvas);
+        checkInputFields();
+        initializeAnimationFields(triangleSystem);
     } else {
         console.error("Canvas element not found");
     }
