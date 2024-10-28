@@ -91,8 +91,11 @@ class TriangleSystem {
 
         // Bind methods to this instance
         this.drawSystem = this.drawSystem.bind(this);
-        this.toggleSpecialCenters = this.toggleSpecialCenters.bind(this);
-        this.toggleNinePointCircle = this.toggleNinePointCircle.bind(this);
+        this.drawNinePointCircle = this.drawNinePointCircle.bind(this);
+        this.calculateNinePointCircle = this.calculateNinePointCircle.bind(this);
+        this.calculateCircumcenter = this.calculateCircumcenter.bind(this);
+        this.calculateOrthocenter = this.calculateOrthocenter.bind(this);
+        this.updateDashboard = this.updateDashboard.bind(this);
     }
 
     // Method to initialize all event listeners
@@ -726,9 +729,10 @@ class TriangleSystem {
         }
 
         // Update nine-point center coordinates
-        if (this.system.ninePointCenter) {
+        const ninePointCircle = this.calculateNinePointCircle();
+        if (ninePointCircle && ninePointCircle.center) {
             setElementValue('#nine-point-coords', 
-                `${this.system.ninePointCenter.x.toFixed(1)}, ${this.system.ninePointCenter.y.toFixed(1)}`);
+                `${ninePointCircle.center.x.toFixed(1)}, ${ninePointCircle.center.y.toFixed(1)}`);
         }
     }
 
