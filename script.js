@@ -512,6 +512,46 @@ class TriangleSystem {
             // Handle degenerate case
             this.system.circumcenter = { x: 0, y: 0 };
         }
+
+        // Calculate orthocenter
+        this.calculateOrthocenter();
+    }
+
+    calculateOrthocenter() {
+        const { n1, n2, n3 } = this.system;
+        
+        // Calculate slopes of sides
+        const slopeBC = (n3.y - n2.y) / (n3.x - n2.x);
+        const slopeAC = (n3.y - n1.y) / (n3.x - n1.x);
+        const slopeAB = (n2.y - n1.y) / (n2.x - n1.x);
+
+        // Calculate perpendicular slopes from vertices to opposite sides
+        const perpSlopeA = slopeBC !== 0 ? -1 / slopeBC : Infinity;
+        const perpSlopeB = slopeAC !== 0 ? -1 / slopeAC : Infinity;
+
+        // Calculate intersection point (orthocenter)
+        let x, y;
+
+        // Handle special cases for vertical/horizontal lines
+        if (!isFinite(perpSlopeA) || !isFinite(perpSlopeB)) {
+            // Handle vertical lines case
+            if (!isFinite(perpSlopeA)) {
+                x = n1.x;
+                y = perpSlopeB * (x - n2.x) + n2.y;
+            } else {
+                x = n2.x;
+                y = perpSlopeA * (x - n1.x) + n1.y;
+            }
+        } else {
+            // Calculate intersection of altitude lines
+            x = (n2.y - n1.y + perpSlopeA * n1.x - perpSlopeB * n2.x) / (perpSlopeA - perpSlopeB);
+            y = perpSlopeA * (x - n1.x) + n1.y;
+        }
+
+        // Store orthocenter in system
+        this.system.orthocenter = { x, y };
+        
+        return { x, y };
     }
 
     updateDashboard() {
@@ -641,6 +681,13 @@ class TriangleSystem {
         if (this.system.circumcenter) {
             const { x, y } = this.system.circumcenter;
             document.getElementById('circumcenter-coords').value = `${x.toFixed(1)}, ${y.toFixed(1)}`;
+        }
+
+        // Update orthocenter coordinates
+        const orthocenter = this.calculateOrthocenter();
+        if (orthocenter) {
+            setElementValue('#orthocenter-coords', 
+                `${orthocenter.x.toFixed(1)}, ${orthocenter.y.toFixed(1)}`);
         }
     }
 

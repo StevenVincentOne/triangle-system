@@ -991,6 +991,108 @@
             align-items: center;
             gap: 0.5rem;
         }
+
+        /* Center content in Position panel */
+        .position-panel .panel-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center all content horizontally */
+        }
+
+        .position-panel .position-row {
+            display: flex;
+            justify-content: center; /* Center the rows */
+            flex-wrap: wrap;
+            gap: 1rem;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .position-panel .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 150px; /* Ensure consistent width for each pair */
+        }
+
+        .position-panel input[type="text"].form-control {
+            text-align: center;
+            width: 80px; /* Fixed width for inputs */
+        }
+
+        .position-panel label {
+            min-width: 60px; /* Fixed width for labels */
+        }
+
+        /* Position panel grid layout */
+        .position-panel .panel-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 columns of equal width */
+            gap: 1rem;
+            justify-items: center; /* Center items horizontally */
+            align-items: center; /* Center items vertically */
+            padding: 1rem;
+        }
+
+        /* For the last row with 5 items (I, IC, O, H, N) */
+        .position-panel .position-row:last-child {
+            grid-column: 1 / -1; /* Span all columns */
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .position-panel .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .position-panel input[type="text"].form-control {
+            text-align: center;
+            width: 80px;
+        }
+
+        /* Position Panel Specific Styles */
+        .position-panel {
+            width: 100%; /* Take full width of container */
+        }
+
+        .position-panel .panel-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .position-panel .position-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.5rem; /* Increased gap between pairs */
+            width: 100%;
+        }
+
+        .position-panel .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 140px; /* Consistent width for each pair */
+            justify-content: center;
+        }
+
+        .position-panel label {
+            flex: 0 0 70px; /* Fixed width for labels */
+            text-align: right; /* Right align labels */
+        }
+
+        .position-panel input[type="text"].form-control {
+            flex: 0 0 80px; /* Fixed width for inputs */
+            text-align: center;
+        }
     </style>
 </head>
 <body>
