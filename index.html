@@ -973,6 +973,24 @@
         .position-row:last-child {
             justify-content: flex-start !important;
         }
+
+        /* Only center the text inside input fields */
+        .position-panel input[type="text"].form-control {
+            text-align: center; /* Center the text inside inputs */
+        }
+
+        /* Keep existing layout but ensure consistent spacing */
+        .position-panel .position-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .position-panel .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -1278,6 +1296,14 @@
                                 <div class="label-value-pair">
                                     <label for="circumcenter-coords">O (x,y)</label>
                                     <input id="circumcenter-coords" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="orthocenter-coords">H (x,y)</label>
+                                    <input id="orthocenter-coords" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="nine-point-coords">N (x,y)</label>
+                                    <input id="nine-point-coords" type="text" class="form-control" size="8" readonly>
                                 </div>
                             </div>
                         </div>
