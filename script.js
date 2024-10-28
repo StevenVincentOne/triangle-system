@@ -73,6 +73,17 @@ class TriangleSystem {
                 this.saveCurrentAnimation();
             });
         }
+
+        // Add to your constants/settings section at the top
+        const SPECIAL_CENTERS_COLOR = '#FF69B4';  // Pink color for O, H, N
+        const SPECIAL_CENTERS_RADIUS = 4;  // Match the radius used for I and IC
+
+        // Add a property to track visibility
+        this.showSpecialCenters = true;  // Add this line
+
+        // Bind methods to this instance
+        this.drawSystem = this.drawSystem.bind(this);
+        this.toggleSpecialCenters = this.toggleSpecialCenters.bind(this);
     }
 
     // Method to initialize all event listeners
@@ -86,6 +97,7 @@ class TriangleSystem {
             { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleMedians', property: 'showMedians' },
             { id: 'toggleSubsystems', property: 'showSubsystems' },
+            { id: 'toggleSpecialCenters', property: 'showSpecialCenters' }  // Add to feature buttons
         ];
 
         featureButtons.forEach(button => {
@@ -238,6 +250,12 @@ class TriangleSystem {
         } else {
             console.error('Export Image button not found');
         }
+
+        // Add button to toggle special centers
+        document.getElementById('toggleSpecialCenters').addEventListener('click', () => {
+            this.toggleSpecialCenters();
+            document.getElementById('toggleSpecialCenters').classList.toggle('active');
+        });
     }
 
     onMouseDown(event) {
@@ -899,6 +917,81 @@ class TriangleSystem {
         this.ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
 
         this.ctx.restore();  // Restore context state
+
+        // Draw special centers and Euler line
+        if (this.showSpecialCenters) {
+            // Draw Euler line first (so it appears behind the points)
+            if (this.system.circumcenter && this.system.orthocenter) {
+                this.ctx.strokeStyle = 'rgba(255, 105, 180, 0.5)'; // Pink with 0.5 opacity
+                this.ctx.setLineDash([5, 5]);  // Match other dotted lines
+                this.ctx.lineWidth = 1;  // Match other lines
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.system.circumcenter.x, this.system.circumcenter.y);
+                this.ctx.lineTo(this.system.orthocenter.x, this.system.orthocenter.y);
+                this.ctx.stroke();
+                
+                // Reset line style
+                this.ctx.setLineDash([]);
+            }
+
+            // Draw Circumcenter (O)
+            if (this.system.circumcenter) {
+                this.ctx.beginPath();
+                this.ctx.arc(this.system.circumcenter.x, this.system.circumcenter.y, 
+                            4, 0, 2 * Math.PI);
+                this.ctx.fillStyle = '#FF69B4';
+                this.ctx.fill();
+                
+                // Label O
+                this.ctx.save();
+                this.ctx.scale(1, -1);
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('O', 
+                    this.system.circumcenter.x + 10, 
+                    -this.system.circumcenter.y);
+                this.ctx.restore();
+            }
+
+            // Draw Orthocenter (H)
+            if (this.system.orthocenter) {
+                this.ctx.beginPath();
+                this.ctx.arc(this.system.orthocenter.x, this.system.orthocenter.y, 
+                            4, 0, 2 * Math.PI);
+                this.ctx.fillStyle = '#FF69B4';
+                this.ctx.fill();
+                
+                // Label H
+                this.ctx.save();
+                this.ctx.scale(1, -1);
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('H', 
+                    this.system.orthocenter.x + 10, 
+                    -this.system.orthocenter.y);
+                this.ctx.restore();
+            }
+
+            // Draw Nine-Point Center (N)
+            if (this.system.ninePointCenter) {
+                this.ctx.beginPath();
+                this.ctx.arc(this.system.ninePointCenter.x, this.system.ninePointCenter.y, 
+                            4, 0, 2 * Math.PI);
+                this.ctx.fillStyle = '#FF69B4';
+                this.ctx.fill();
+                
+                // Label N
+                this.ctx.save();
+                this.ctx.scale(1, -1);
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('N', 
+                    this.system.ninePointCenter.x + 10, 
+                    -this.system.ninePointCenter.y);
+                this.ctx.restore();
+            }
+        }
     }
 
     drawNode(ctx, node, color, label) {
@@ -1987,6 +2080,12 @@ class TriangleSystem {
         } catch (error) {
             console.error('Error exporting image:', error);
         }
+    }
+
+    // Add a toggle method
+    toggleSpecialCenters() {
+        this.showSpecialCenters = !this.showSpecialCenters;
+        this.drawSystem();  // Use drawSystem instead of draw
     }
 }
 
