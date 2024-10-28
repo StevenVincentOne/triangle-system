@@ -8,11 +8,8 @@ class TriangleSystem {
         this.canvas.height = canvas.clientHeight;
         
         // Transform to center origin and flip y-axis correctly
-        this.ctx.save(); // Save the default state
         this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
         this.ctx.scale(1, -1);  // This flips the y-axis
-        
-        console.log('Canvas setup complete');
         
         this.system = {};
         this.showConnections = true;
@@ -92,6 +89,7 @@ class TriangleSystem {
         this.showSpecialCenters = false;  // For Euler
         this.showNinePointCircle = false; // For 9-Points Circle
         this.showOrthocircle = false; // For Orthocircle
+        this.showCircumcircle = false; // For Circumcircle
 
         // Bind methods to this instance
         this.drawSystem = this.drawSystem.bind(this);
@@ -100,8 +98,11 @@ class TriangleSystem {
         this.calculateCircumcenter = this.calculateCircumcenter.bind(this);
         this.calculateOrthocenter = this.calculateOrthocenter.bind(this);
         this.updateDashboard = this.updateDashboard.bind(this);
-        this.calculateOrthocircle = this.calculateOrthocircle.bind(this);
         this.drawOrthocircle = this.drawOrthocircle.bind(this);
+        this.calculateOrthocircle = this.calculateOrthocircle.bind(this);
+        this.calculateAltitudeFoot = this.calculateAltitudeFoot.bind(this);
+        this.calculateCircumcircle = this.calculateCircumcircle.bind(this);
+        this.drawCircumcircle = this.drawCircumcircle.bind(this);
     }
 
     // Method to initialize all event listeners
@@ -117,7 +118,8 @@ class TriangleSystem {
             { id: 'toggleSubsystems', property: 'showSubsystems' },
             { id: 'toggleEuler', property: 'showSpecialCenters' },
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
-            { id: 'toggleOrthocircle', property: 'showOrthocircle' }
+            { id: 'toggleOrthocircle', property: 'showOrthocircle' },
+            { id: 'toggleCircumcircle', property: 'showCircumcircle' }
         ];
 
         featureButtons.forEach(button => {
@@ -555,24 +557,36 @@ class TriangleSystem {
     calculateOrthocenter() {
         const { n1, n2, n3 } = this.system;
         
-        // Helper function to calculate the slope of a line perpendicular to another line
-        const perpendicularSlope = (p1, p2) => {
-            if (p2.x - p1.x === 0) return 0;
-            return -1 / ((p2.y - p1.y) / (p2.x - p1.x));
-        };
-        
-        // Calculate slopes of altitudes
-        const slope1 = perpendicularSlope(n2, n3);
-        const slope2 = perpendicularSlope(n1, n3);
-        const slope3 = perpendicularSlope(n1, n2);
-        
-        // Calculate y-intercepts of altitudes
-        const b1 = n1.y - slope1 * n1.x;
-        const b2 = n2.y - slope2 * n2.x;
-        
-        // Find intersection of first two altitudes
-        const x = (b2 - b1) / (slope1 - slope2);
-        const y = slope1 * x + b1;
+        // Calculate slopes of sides
+        const slopeBC = (n3.y - n2.y) / (n3.x - n2.x);
+        const slopeAC = (n3.y - n1.y) / (n3.x - n1.x);
+        const slopeAB = (n2.y - n1.y) / (n2.x - n1.x);
+
+        // Calculate perpendicular slopes from vertices to opposite sides
+        const perpSlopeA = slopeBC !== 0 ? -1 / slopeBC : Infinity;
+        const perpSlopeB = slopeAC !== 0 ? -1 / slopeAC : Infinity;
+
+        // Calculate intersection point (orthocenter)
+        let x, y;
+
+        // Handle special cases for vertical/horizontal lines
+        if (!isFinite(perpSlopeA) || !isFinite(perpSlopeB)) {
+            // Handle vertical lines case
+            if (!isFinite(perpSlopeA)) {
+                x = n1.x;
+                y = perpSlopeB * (x - n2.x) + n2.y;
+            } else {
+                x = n2.x;
+                y = perpSlopeA * (x - n1.x) + n1.y;
+            }
+        } else {
+            // Calculate intersection of altitude lines
+            x = (n2.y - n1.y + perpSlopeA * n1.x - perpSlopeB * n2.x) / (perpSlopeA - perpSlopeB);
+            y = perpSlopeA * (x - n1.x) + n1.y;
+        }
+
+        // Store orthocenter in system
+        this.system.orthocenter = { x, y };
         
         return { x, y };
     }
@@ -592,7 +606,7 @@ class TriangleSystem {
             y: (circumcenter.y + orthocenter.y) / 2
         };
         
-        // The radius is half the circumradius
+        // The radius is half of the circumradius
         const circumradius = this.calculateDistance(circumcenter, n1);
         const ninePointRadius = circumradius / 2;
         
@@ -612,11 +626,11 @@ class TriangleSystem {
         const x = ((n1.x * n1.x + n1.y * n1.y) * (n2.y - n3.y) + 
                   (n2.x * n2.x + n2.y * n2.y) * (n3.y - n1.y) + 
                   (n3.x * n3.x + n3.y * n3.y) * (n1.y - n2.y)) / d;
-                
+                  
         const y = ((n1.x * n1.x + n1.y * n1.y) * (n3.x - n2.x) + 
                   (n2.x * n2.x + n2.y * n2.y) * (n1.x - n3.x) + 
                   (n3.x * n3.x + n3.y * n3.y) * (n2.x - n1.x)) / d;
-                
+                  
         return { x, y };
     }
 
@@ -1047,6 +1061,11 @@ class TriangleSystem {
         // Draw Orthocircle
         if (this.showOrthocircle) {
             this.drawOrthocircle(this.ctx);
+        }
+
+        // Draw Circumcircle
+        if (this.showCircumcircle) {
+            this.drawCircumcircle(this.ctx);
         }
     }
 
@@ -1998,39 +2017,180 @@ class TriangleSystem {
         console.log('Animations dropdown initialized');
     }
 
-    // Add this method if it doesn't exist, or update it if it does
-    updateAnimationFields() {
-        // Get current lengths
-        const currentLengths = this.calculateLengths();
-        console.log('Updating animation fields with lengths:', currentLengths);
+    // Add method to draw nine-point circle
+    drawNinePointCircle(ctx) {
+        if (!this.showNinePointCircle) return;
+        
+        const ninePointCircle = this.calculateNinePointCircle();
+        
+        // Draw the circle
+        ctx.strokeStyle = '#FF69B4';  // Hot pink
+        ctx.setLineDash([5, 5]);  // Dashed line
+        ctx.beginPath();
+        ctx.arc(
+            ninePointCircle.center.x,
+            ninePointCircle.center.y,
+            ninePointCircle.radius,
+            0,
+            2 * Math.PI
+        );
+        ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
+        
+        // Draw the center point
+        ctx.fillStyle = '#FF69B4';
+        ctx.beginPath();
+        ctx.arc(ninePointCircle.center.x, ninePointCircle.center.y, 4, 0, 2 * Math.PI);
+        ctx.fill();
 
-        // Update Animation Start fields
-        const startNc1Input = document.getElementById('animation-nc1-start');
-        const startNc2Input = document.getElementById('animation-nc2-start');
-        const startNc3Input = document.getElementById('animation-nc3-start');
+        // Add label 'N'
+        ctx.fillStyle = '#FF69B4';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);  // Flip text right-side up
+        ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+        ctx.restore();
+    }
 
-        if (startNc1Input && startNc2Input && startNc3Input) {
-            startNc1Input.value = currentLengths.l1.toFixed(2);
-            startNc2Input.value = currentLengths.l2.toFixed(2);
-            startNc3Input.value = currentLengths.l3.toFixed(2);
-            console.log('Updated start fields');
-        } else {
-            console.error('Some animation start input fields not found');
+    // Add method to calculate orthocircle
+    calculateOrthocircle() {
+        const { n1, n2, n3 } = this.system;
+        
+        // Calculate orthocenter
+        const orthocenter = this.calculateOrthocenter();
+        
+        // Calculate feet of altitudes
+        const foot1 = this.calculateAltitudeFoot(n1, n2, n3);
+        const foot2 = this.calculateAltitudeFoot(n2, n3, n1);
+        const foot3 = this.calculateAltitudeFoot(n3, n1, n2);
+        
+        // Calculate circumcenter of the triangle formed by the feet
+        const d = 2 * (foot1.x * (foot2.y - foot3.y) + 
+                       foot2.x * (foot3.y - foot1.y) + 
+                       foot3.x * (foot1.y - foot2.y));
+        
+        const orthocircleCenter = {
+            x: ((foot1.x * foot1.x + foot1.y * foot1.y) * (foot2.y - foot3.y) +
+                (foot2.x * foot2.x + foot2.y * foot2.y) * (foot3.y - foot1.y) +
+                (foot3.x * foot3.x + foot3.y * foot3.y) * (foot1.y - foot2.y)) / d,
+            y: ((foot1.x * foot1.x + foot1.y * foot1.y) * (foot3.x - foot2.x) +
+                (foot2.x * foot2.x + foot2.y * foot2.y) * (foot1.x - foot3.x) +
+                (foot3.x * foot3.x + foot3.y * foot3.y) * (foot2.x - foot1.x)) / d
+        };
+        
+        // Calculate radius (distance from center to any foot)
+        const orthocircleRadius = this.calculateDistance(orthocircleCenter, foot1);
+        
+        return {
+            center: orthocircleCenter,
+            radius: orthocircleRadius,
+            feet: { foot1, foot2, foot3 }
+        };
+    }
+
+    // Helper method to calculate foot of altitude
+    calculateAltitudeFoot(vertex, p1, p2) {
+        // Calculate slope of base line (p1p2)
+        const baseSlope = (p2.y - p1.y) / (p2.x - p1.x);
+        
+        // Handle vertical base line
+        if (!isFinite(baseSlope)) {
+            return {
+                x: p1.x,
+                y: vertex.y
+            };
         }
-
-        // Update Animation End fields
-        const endNc1Input = document.getElementById('animation-nc1-end');
-        const endNc2Input = document.getElementById('animation-nc2-end');
-        const endNc3Input = document.getElementById('animation-nc3-end');
-
-        if (endNc1Input && endNc2Input && endNc3Input) {
-            endNc1Input.value = currentLengths.l1.toFixed(2);
-            endNc2Input.value = currentLengths.l2.toFixed(2);
-            endNc3Input.value = currentLengths.l3.toFixed(2);
-            console.log('Updated end fields');
-        } else {
-            console.error('Some animation end input fields not found');
+        
+        // Calculate perpendicular slope
+        const perpSlope = -1 / baseSlope;
+        
+        // Handle horizontal base line
+        if (!isFinite(perpSlope)) {
+            return {
+                x: vertex.x,
+                y: p1.y
+            };
         }
+        
+        // Calculate intersection
+        const x = (p1.y - vertex.y + perpSlope * vertex.x - baseSlope * p1.x) / (perpSlope - baseSlope);
+        const y = perpSlope * (x - vertex.x) + vertex.y;
+        
+        return { x, y };
+    }
+
+    // Add method to draw orthocircle
+    drawOrthocircle(ctx) {
+        if (!this.showOrthocircle) return;
+        
+        const orthocircle = this.calculateOrthocircle();
+        
+        // Draw the circle
+        ctx.strokeStyle = '#00FF00';  // Bright neon green
+        ctx.setLineDash([5, 5]);  // Dashed line
+        ctx.beginPath();
+        ctx.arc(
+            orthocircle.center.x,
+            orthocircle.center.y,
+            orthocircle.radius,
+            0,
+            2 * Math.PI
+        );
+        ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
+        
+        // Draw the feet of altitudes
+        ctx.fillStyle = '#00FF00';
+        Object.values(orthocircle.feet).forEach(foot => {
+            ctx.beginPath();
+            ctx.arc(foot.x, foot.y, 3, 0, 2 * Math.PI);
+            ctx.fill();
+        });
+    }
+
+    calculateCircumcircle() {
+        const circumcenter = this.calculateCircumcenter();
+        // Radius is distance from circumcenter to any vertex
+        const radius = this.calculateDistance(circumcenter, this.system.n1);
+        
+        return {
+            center: circumcenter,
+            radius: radius
+        };
+    }
+
+    drawCircumcircle(ctx) {
+        if (!this.showCircumcircle) return;
+        
+        const circumcircle = this.calculateCircumcircle();
+        
+        // Draw the circle
+        ctx.strokeStyle = '#00FF00';  // Bright neon green
+        ctx.setLineDash([5, 5]);  // Dashed line
+        ctx.beginPath();
+        ctx.arc(
+            circumcircle.center.x,
+            circumcircle.center.y,
+            circumcircle.radius,
+            0,
+            2 * Math.PI
+        );
+        ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
+        
+        // Draw the center point
+        ctx.fillStyle = '#00FF00';
+        ctx.beginPath();
+        ctx.arc(circumcircle.center.x, circumcircle.center.y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Add label 'O'
+        ctx.fillStyle = '#00FF00';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);  // Flip text right-side up
+        ctx.fillText('O', circumcircle.center.x + 10, -circumcircle.center.y);
+        ctx.restore();
     }
 
     exportToCSV() {
@@ -2193,25 +2353,21 @@ class TriangleSystem {
     calculateOrthocenter() {
         const { n1, n2, n3 } = this.system;
         
-        // Helper function to calculate the slope of a line perpendicular to another line
-        const perpendicularSlope = (p1, p2) => {
-            if (p2.x - p1.x === 0) return 0;
-            return -1 / ((p2.y - p1.y) / (p2.x - p1.x));
-        };
+        // Calculate angles
+        const angles = this.calculateAngles();
         
-        // Calculate slopes of altitudes
-        const slope1 = perpendicularSlope(n2, n3);
-        const slope2 = perpendicularSlope(n1, n3);
-        const slope3 = perpendicularSlope(n1, n2);
+        // Convert angles to radians
+        const a1 = angles.n1 * Math.PI / 180;
+        const a2 = angles.n2 * Math.PI / 180;
+        const a3 = angles.n3 * Math.PI / 180;
         
-        // Calculate y-intercepts of altitudes
-        const b1 = n1.y - slope1 * n1.x;
-        const b2 = n2.y - slope2 * n2.x;
-        
-        // Find intersection of first two altitudes
-        const x = (b2 - b1) / (slope1 - slope2);
-        const y = slope1 * x + b1;
-        
+        // Calculate orthocenter coordinates using trigonometric formulas
+        const x = (n1.x * Math.tan(a1) + n2.x * Math.tan(a2) + n3.x * Math.tan(a3)) /
+                 (Math.tan(a1) + Math.tan(a2) + Math.tan(a3));
+                 
+        const y = (n1.y * Math.tan(a1) + n2.y * Math.tan(a2) + n3.y * Math.tan(a3)) /
+                 (Math.tan(a1) + Math.tan(a2) + Math.tan(a3));
+                 
         return { x, y };
     }
 
@@ -2247,6 +2403,53 @@ class TriangleSystem {
         ctx.save();
         ctx.scale(1, -1);  // Flip text right-side up
         ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+        ctx.restore();
+    }
+
+    // Add method to calculate circumcircle
+    calculateCircumcircle() {
+        const circumcenter = this.calculateCircumcenter();
+        // Radius is distance from circumcenter to any vertex
+        const radius = this.calculateDistance(circumcenter, this.system.n1);
+        
+        return {
+            center: circumcenter,
+            radius: radius
+        };
+    }
+
+    // Add method to draw circumcircle
+    drawCircumcircle(ctx) {
+        if (!this.showCircumcircle) return;
+        
+        const circumcircle = this.calculateCircumcircle();
+        
+        // Draw the circle
+        ctx.strokeStyle = '#00FF00';  // Bright neon green
+        ctx.setLineDash([5, 5]);  // Dashed line
+        ctx.beginPath();
+        ctx.arc(
+            circumcircle.center.x,
+            circumcircle.center.y,
+            circumcircle.radius,
+            0,
+            2 * Math.PI
+        );
+        ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
+        
+        // Draw the center point
+        ctx.fillStyle = '#00FF00';
+        ctx.beginPath();
+        ctx.arc(circumcircle.center.x, circumcircle.center.y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Add label 'O'
+        ctx.fillStyle = '#00FF00';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);  // Flip text right-side up
+        ctx.fillText('O', circumcircle.center.x + 10, -circumcircle.center.y);
         ctx.restore();
     }
 
@@ -2324,7 +2527,7 @@ class TriangleSystem {
         const orthocircle = this.calculateOrthocircle();
         
         // Draw the circle
-        ctx.strokeStyle = '#FFA500';  // Orange
+        ctx.strokeStyle = '#00FF00';  // Bright neon green
         ctx.setLineDash([5, 5]);  // Dashed line
         ctx.beginPath();
         ctx.arc(
@@ -2338,7 +2541,7 @@ class TriangleSystem {
         ctx.setLineDash([]);  // Reset dash pattern
         
         // Draw the feet of altitudes
-        ctx.fillStyle = '#FFA500';
+        ctx.fillStyle = '#00FF00';
         Object.values(orthocircle.feet).forEach(foot => {
             ctx.beginPath();
             ctx.arc(foot.x, foot.y, 3, 0, 2 * Math.PI);
