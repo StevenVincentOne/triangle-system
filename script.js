@@ -2096,6 +2096,108 @@ class TriangleSystem {
         this.showSpecialCenters = !this.showSpecialCenters;
         this.drawSystem();  // Use drawSystem instead of draw
     }
+
+    // Add method to calculate nine-point circle
+    calculateNinePointCircle() {
+        const { n1, n2, n3 } = this.system;
+        
+        // First calculate circumcenter (O)
+        const circumcenter = this.calculateCircumcenter();
+        
+        // Calculate orthocenter (H)
+        const orthocenter = this.calculateOrthocenter();
+        
+        // Nine-point center (N) is the midpoint of OH
+        const ninePointCenter = {
+            x: (circumcenter.x + orthocenter.x) / 2,
+            y: (circumcenter.y + orthocenter.y) / 2
+        };
+        
+        // The radius is half of the circumradius
+        const circumradius = this.calculateDistance(circumcenter, n1);
+        const ninePointRadius = circumradius / 2;
+        
+        return {
+            center: ninePointCenter,
+            radius: ninePointRadius
+        };
+    }
+
+    // Helper method to calculate circumcenter
+    calculateCircumcenter() {
+        const { n1, n2, n3 } = this.system;
+        
+        // Calculate perpendicular bisector parameters
+        const d = 2 * (n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y));
+        
+        // Calculate circumcenter coordinates
+        const x = ((n1.x * n1.x + n1.y * n1.y) * (n2.y - n3.y) + 
+                  (n2.x * n2.x + n2.y * n2.y) * (n3.y - n1.y) + 
+                  (n3.x * n3.x + n3.y * n3.y) * (n1.y - n2.y)) / d;
+                  
+        const y = ((n1.x * n1.x + n1.y * n1.y) * (n3.x - n2.x) + 
+                  (n2.x * n2.x + n2.y * n2.y) * (n1.x - n3.x) + 
+                  (n3.x * n3.x + n3.y * n3.y) * (n2.x - n1.x)) / d;
+                  
+        return { x, y };
+    }
+
+    // Helper method to calculate orthocenter
+    calculateOrthocenter() {
+        const { n1, n2, n3 } = this.system;
+        
+        // Calculate angles
+        const angles = this.calculateAngles();
+        
+        // Convert angles to radians
+        const a1 = angles.n1 * Math.PI / 180;
+        const a2 = angles.n2 * Math.PI / 180;
+        const a3 = angles.n3 * Math.PI / 180;
+        
+        // Calculate orthocenter coordinates using trigonometric formulas
+        const x = (n1.x * Math.tan(a1) + n2.x * Math.tan(a2) + n3.x * Math.tan(a3)) /
+                 (Math.tan(a1) + Math.tan(a2) + Math.tan(a3));
+                 
+        const y = (n1.y * Math.tan(a1) + n2.y * Math.tan(a2) + n3.y * Math.tan(a3)) /
+                 (Math.tan(a1) + Math.tan(a2) + Math.tan(a3));
+                 
+        return { x, y };
+    }
+
+    // Add method to draw nine-point circle
+    drawNinePointCircle(ctx) {
+        if (!this.showNinePointCircle) return;
+        
+        const ninePointCircle = this.calculateNinePointCircle();
+        
+        // Draw the circle
+        ctx.strokeStyle = '#FF69B4';  // Hot pink
+        ctx.setLineDash([5, 5]);  // Dashed line
+        ctx.beginPath();
+        ctx.arc(
+            ninePointCircle.center.x,
+            ninePointCircle.center.y,
+            ninePointCircle.radius,
+            0,
+            2 * Math.PI
+        );
+        ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
+        
+        // Draw the center point
+        ctx.fillStyle = '#FF69B4';
+        ctx.beginPath();
+        ctx.arc(ninePointCircle.center.x, ninePointCircle.center.y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Add label 'N'
+        ctx.fillStyle = '#FF69B4';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);  // Flip text right-side up
+        ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+        ctx.restore();
+    }
 }
 
 // Outside the class - DOM initialization
