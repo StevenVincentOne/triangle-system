@@ -78,12 +78,21 @@ class TriangleSystem {
         const SPECIAL_CENTERS_COLOR = '#FF69B4';  // Pink color for O, H, N
         const SPECIAL_CENTERS_RADIUS = 4;  // Match the radius used for I and IC
 
-        // Add a property to track visibility
-        this.showSpecialCenters = true;  // Add this line
+        // Set all feature flags to false by default
+        this.showCentroid = false;
+        this.showIncenter = false;
+        this.showMidpoints = false;
+        this.showTangents = false;
+        this.showIncircle = false;
+        this.showMedians = false;
+        this.showSubsystems = false;
+        this.showSpecialCenters = false;  // For Euler
+        this.showNinePointCircle = false; // For 9-Points Circle
 
         // Bind methods to this instance
         this.drawSystem = this.drawSystem.bind(this);
         this.toggleSpecialCenters = this.toggleSpecialCenters.bind(this);
+        this.toggleNinePointCircle = this.toggleNinePointCircle.bind(this);
     }
 
     // Method to initialize all event listeners
@@ -97,7 +106,8 @@ class TriangleSystem {
             { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleMedians', property: 'showMedians' },
             { id: 'toggleSubsystems', property: 'showSubsystems' },
-            { id: 'toggleSpecialCenters', property: 'showSpecialCenters' }  // Add to feature buttons
+            { id: 'toggleEuler', property: 'showSpecialCenters' },
+            { id: 'toggleNinePointCircle', property: 'showNinePointCircle' }
         ];
 
         featureButtons.forEach(button => {
@@ -250,12 +260,6 @@ class TriangleSystem {
         } else {
             console.error('Export Image button not found');
         }
-
-        // Add button to toggle special centers
-        document.getElementById('toggleSpecialCenters').addEventListener('click', () => {
-            this.toggleSpecialCenters();
-            document.getElementById('toggleSpecialCenters').classList.toggle('active');
-        });
     }
 
     onMouseDown(event) {
@@ -991,6 +995,11 @@ class TriangleSystem {
                     -this.system.ninePointCenter.y);
                 this.ctx.restore();
             }
+        }
+
+        // Draw Nine-Point Circle
+        if (this.showNinePointCircle) {
+            this.drawNinePointCircle(this.ctx);
         }
     }
 
