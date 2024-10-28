@@ -515,6 +515,9 @@ class TriangleSystem {
 
         // Calculate orthocenter
         this.calculateOrthocenter();
+        
+        // Calculate nine-point center
+        this.calculateNinePointCenter();
     }
 
     calculateOrthocenter() {
@@ -552,6 +555,16 @@ class TriangleSystem {
         this.system.orthocenter = { x, y };
         
         return { x, y };
+    }
+
+    calculateNinePointCenter() {
+        // Nine-point center is the midpoint between orthocenter and circumcenter
+        if (this.system.orthocenter && this.system.circumcenter) {
+            this.system.ninePointCenter = {
+                x: (this.system.orthocenter.x + this.system.circumcenter.x) / 2,
+                y: (this.system.orthocenter.y + this.system.circumcenter.y) / 2
+            };
+        }
     }
 
     updateDashboard() {
@@ -688,6 +701,12 @@ class TriangleSystem {
         if (orthocenter) {
             setElementValue('#orthocenter-coords', 
                 `${orthocenter.x.toFixed(1)}, ${orthocenter.y.toFixed(1)}`);
+        }
+
+        // Update nine-point center coordinates
+        if (this.system.ninePointCenter) {
+            setElementValue('#nine-point-coords', 
+                `${this.system.ninePointCenter.x.toFixed(1)}, ${this.system.ninePointCenter.y.toFixed(1)}`);
         }
     }
 
