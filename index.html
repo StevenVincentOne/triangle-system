@@ -1093,6 +1093,38 @@
             flex: 0 0 80px; /* Fixed width for inputs */
             text-align: center;
         }
+
+        /* Button sizing and consistency fixes */
+        .btn-secondary {
+            padding: 0.375rem 0.75rem;  /* Standard Bootstrap padding */
+            width: auto !important;     /* Override any width settings */
+            min-width: fit-content;     /* Adjust to content */
+            height: auto !important;    /* Override any height settings */
+            white-space: nowrap;        /* Prevent text wrapping */
+            display: inline-flex;       /* Use flexbox for better content alignment */
+            align-items: center;        /* Center content vertically */
+            justify-content: center;    /* Center content horizontally */
+        }
+
+        /* Ensure buttons maintain size when active/selected */
+        .btn-secondary:active,
+        .btn-secondary.active {
+            width: auto !important;
+            min-width: fit-content;
+            height: auto !important;
+        }
+
+        /* Feature buttons container specific styles */
+        #buttons-container .d-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        #buttons-container .btn {
+            margin: 0;                  /* Remove any margin that might affect sizing */
+            flex: 0 0 auto;            /* Prevent flex growth/shrink */
+        }
     </style>
 </head>
 <body>
