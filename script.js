@@ -2534,5 +2534,15 @@ document.addEventListener('DOMContentLoaded', () => {
             triangleSystem.drawSystem();
         });
     }
+
+    // First, let's add the button to the HTML
+    const circlesRow = document.querySelector('#buttons-container .d-flex:nth-child(2)');
+    if (circlesRow) {
+        const orthocircleButton = document.createElement('button');
+        orthocircleButton.id = 'toggleOrthocircle';
+        orthocircleButton.className = 'btn btn-secondary';
+        orthocircleButton.textContent = 'Orthocircle';
+        circlesRow.appendChild(orthocircleButton);
+    }
 });
 
