@@ -395,7 +395,7 @@ class TriangleSystem {
             
             rawTriangle = {
                 n1: { x: offset, y: height },    // Top vertex (should give us 60°)
-                n2: { x: n2x, y: n2y },          // Right vertex (35°)
+                n2: { x: n2x, y: n2y },          // Right vertex (35��)
                 n3: { x: n3x, y: n3y }           // Left vertex (85°)
             };
         }
@@ -995,7 +995,43 @@ class TriangleSystem {
 
         // Draw Nine-Point Circle
         if (this.showNinePointCircle) {
-            this.drawNinePointCircle(this.ctx);
+            const ninePointCircle = this.calculateNinePointCircle();
+            if (ninePointCircle && ninePointCircle.center && ninePointCircle.radius) {
+                // Draw the circle
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = '#FFFFFF';  // White
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.lineWidth = 1;
+                this.ctx.arc(
+                    ninePointCircle.center.x,
+                    ninePointCircle.center.y,
+                    ninePointCircle.radius,
+                    0,
+                    2 * Math.PI
+                );
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+
+                // Draw the center point
+                this.ctx.beginPath();
+                this.ctx.fillStyle = '#FFFFFF';  // White
+                this.ctx.arc(
+                    ninePointCircle.center.x,
+                    ninePointCircle.center.y,
+                    4,
+                    0,
+                    2 * Math.PI
+                );
+                this.ctx.fill();
+
+                // Label 'N'
+                this.ctx.save();
+                this.ctx.scale(1, -1);
+                this.ctx.fillStyle = '#FFFFFF';  // White
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+                this.ctx.restore();
+            }
         }
 
         if (this.showCircumcircle) {
