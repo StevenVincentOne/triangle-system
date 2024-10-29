@@ -111,13 +111,14 @@ class TriangleSystem {
             { id: 'toggleIncenter', property: 'showIncenter' },
             { id: 'toggleMidpoints', property: 'showMidpoints' },
             { id: 'toggleTangents', property: 'showTangents' },
-            { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleMedians', property: 'showMedians' },
             { id: 'toggleSubsystems', property: 'showSubsystems' },
             { id: 'toggleEuler', property: 'showEuler' },
-            { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleCircumcircle', property: 'showCircumcircle' },
-            { id: 'toggleOrthocircle', property: 'showOrthocircle' }  // Add this line
+            { id: 'toggleOrthocircle', property: 'showOrthocircle' },
+            { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
+            { id: 'toggleIncircle', property: 'showIncircle' },
+            { id: 'toggleSpecialCenters', property: 'showSpecialCenters' }  // Add this line
         ];
 
         featureButtons.forEach(button => {
@@ -548,11 +549,8 @@ class TriangleSystem {
     }
 
     calculateOrthocenter() {
-        const n1 = this.system.n1;
-        const n2 = this.system.n2;
-        const n3 = this.system.n3;
+        const { n1, n2, n3 } = this.system;
         
-        // Add debug logging
         console.log("Calculating orthocenter for points:", { n1, n2, n3 });
         
         if (this.areCollinear(n1, n2, n3)) {
@@ -572,23 +570,9 @@ class TriangleSystem {
             const ma1 = m23 !== 0 ? (-1 / m23) : Infinity;  // From n1 to side 23
             const ma2 = m31 !== 0 ? (-1 / m31) : Infinity;  // From n2 to side 31
             
-            console.log("Altitude slopes:", { ma1, ma2 });
-            
-            // Calculate y-intercepts or x-coordinates of altitudes
-            let b1, b2;
-            if (ma1 !== Infinity) {
-                b1 = n1.y - ma1 * n1.x;
-            } else {
-                b1 = n1.x; // x-coordinate for vertical line
-            }
-
-            if (ma2 !== Infinity) {
-                b2 = n2.y - ma2 * n2.x;
-            } else {
-                b2 = n2.x; // x-coordinate for vertical line
-            }
-            
-            console.log("Intercepts:", { b1, b2 });
+            // Calculate y-intercepts of altitudes
+            const b1 = n1.y - ma1 * n1.x;
+            const b2 = n2.y - ma2 * n2.x;
             
             let x, y;
             if (ma1 !== Infinity && ma2 !== Infinity) {
@@ -597,17 +581,21 @@ class TriangleSystem {
                 y = ma1 * x + b1;
             } else if (ma1 === Infinity) {
                 // First altitude is vertical
-                x = b1;
+                x = n1.x;
                 y = ma2 * x + b2;
             } else if (ma2 === Infinity) {
                 // Second altitude is vertical
-                x = b2;
+                x = n2.x;
                 y = ma1 * x + b1;
             } else {
                 throw new Error("Cannot determine orthocenter: both altitudes are vertical");
             }
             
             console.log("Calculated orthocenter:", { x, y });
+            
+            // Store the orthocenter in the system
+            this.system.orthocenter = { x, y };
+            
             return { x, y };
             
         } catch (error) {
@@ -970,76 +958,39 @@ class TriangleSystem {
 
         this.ctx.restore();  // Restore context state
 
-        // Draw special centers and Euler line
+        // Draw special centers if enabled
         if (this.showSpecialCenters) {
-            // Draw Euler line first (so it appears behind the points)
-            if (this.system.circumcenter && this.system.orthocenter) {
-                this.ctx.strokeStyle = 'rgba(255, 105, 180, 0.5)'; // Pink with 0.5 opacity
-                this.ctx.setLineDash([5, 5]);  // Match other dotted lines
-                this.ctx.lineWidth = 1;  // Match other lines
-                
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.system.circumcenter.x, this.system.circumcenter.y);
-                this.ctx.lineTo(this.system.orthocenter.x, this.system.orthocenter.y);
-                this.ctx.stroke();
-                
-                // Reset line style
-                this.ctx.setLineDash([]);
-            }
+            console.log("Drawing special centers with state:", {
+                showSpecialCenters: this.showSpecialCenters,
+                orthocenter: this.system.orthocenter
+            });
 
-            // Draw Circumcenter (O)
-            if (this.system.circumcenter) {
-                this.ctx.beginPath();
-                this.ctx.arc(this.system.circumcenter.x, this.system.circumcenter.y, 
-                            4, 0, 2 * Math.PI);
-                this.ctx.fillStyle = '#FF69B4';
-                this.ctx.fill();
-                
-                // Label O
-                this.ctx.save();
-                this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#fff';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText('O', 
-                    this.system.circumcenter.x + 10, 
-                    -this.system.circumcenter.y);
-                this.ctx.restore();
-            }
-
-            // Draw Orthocenter (H)
+            // Draw orthocenter point and label
             if (this.system.orthocenter) {
                 this.ctx.beginPath();
                 this.ctx.fillStyle = '#FF69B4';  // Pink color
-                this.ctx.arc(this.system.orthocenter.x, this.system.orthocenter.y, 4, 0, 2 * Math.PI);
+                this.ctx.arc(
+                    this.system.orthocenter.x,
+                    this.system.orthocenter.y,
+                    4,
+                    0,
+                    2 * Math.PI
+                );
                 this.ctx.fill();
-                
-                // Label H
+
+                // Label 'H' for orthocenter
                 this.ctx.save();
                 this.ctx.scale(1, -1);  // Flip text right-side up
-                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.fillStyle = '#FF69B4';
                 this.ctx.font = '12px Arial';
                 this.ctx.fillText('H', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
                 this.ctx.restore();
             }
+        }
 
-            // Draw Nine-Point Center (N)
-            if (this.system.ninePointCenter) {
-                this.ctx.beginPath();
-                this.ctx.arc(this.system.ninePointCenter.x, this.system.ninePointCenter.y, 
-                            4, 0, 2 * Math.PI);
-                this.ctx.fillStyle = '#FF69B4';
-                this.ctx.fill();
-                
-                // Label N
-                this.ctx.save();
-                this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#fff';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText('N', 
-                    this.system.ninePointCenter.x + 10, 
-                    -this.system.ninePointCenter.y);
-                this.ctx.restore();
-            }
+        // Draw Orthocircle if enabled (after special centers)
+        if (this.showOrthocircle) {
+            this.drawOrthocircle(this.ctx);
         }
 
         // Draw Nine-Point Circle
@@ -1049,12 +1000,6 @@ class TriangleSystem {
 
         if (this.showCircumcircle) {
             this.drawCircumcircle(this.ctx);
-        }
-
-        // Draw orthocircle if enabled
-        if (this.showOrthocircle) {
-            console.log("Drawing orthocircle...");
-            this.drawOrthocircle(this.ctx);
         }
     }
 
@@ -2231,23 +2176,9 @@ class TriangleSystem {
             const ma1 = m23 !== 0 ? (-1 / m23) : Infinity;  // From n1 to side 23
             const ma2 = m31 !== 0 ? (-1 / m31) : Infinity;  // From n2 to side 31
             
-            console.log("Altitude slopes:", { ma1, ma2 });
-            
-            // Calculate y-intercepts or x-coordinates of altitudes
-            let b1, b2;
-            if (ma1 !== Infinity) {
-                b1 = n1.y - ma1 * n1.x;
-            } else {
-                b1 = n1.x; // x-coordinate for vertical line
-            }
-
-            if (ma2 !== Infinity) {
-                b2 = n2.y - ma2 * n2.x;
-            } else {
-                b2 = n2.x; // x-coordinate for vertical line
-            }
-            
-            console.log("Intercepts:", { b1, b2 });
+            // Calculate y-intercepts of altitudes
+            const b1 = n1.y - ma1 * n1.x;
+            const b2 = n2.y - ma2 * n2.x;
             
             let x, y;
             if (ma1 !== Infinity && ma2 !== Infinity) {
@@ -2256,17 +2187,21 @@ class TriangleSystem {
                 y = ma1 * x + b1;
             } else if (ma1 === Infinity) {
                 // First altitude is vertical
-                x = b1;
+                x = n1.x;
                 y = ma2 * x + b2;
             } else if (ma2 === Infinity) {
                 // Second altitude is vertical
-                x = b2;
+                x = n2.x;
                 y = ma1 * x + b1;
             } else {
                 throw new Error("Cannot determine orthocenter: both altitudes are vertical");
             }
             
             console.log("Calculated orthocenter:", { x, y });
+            
+            // Store the orthocenter in the system
+            this.system.orthocenter = { x, y };
+            
             return { x, y };
             
         } catch (error) {
