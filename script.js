@@ -24,6 +24,7 @@ class TriangleSystem {
         this.isDragging = false;
         this.draggedNode = null;
         this.showCircumcircle = false;
+        this.showOrthocircle = false;
 
         // Initialize with default triangle first
         this.initializeSystem('equilateral');
@@ -115,7 +116,8 @@ class TriangleSystem {
             { id: 'toggleSubsystems', property: 'showSubsystems' },
             { id: 'toggleEuler', property: 'showEuler' },
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
-            { id: 'toggleCircumcircle', property: 'showCircumcircle' }  // Add this line
+            { id: 'toggleCircumcircle', property: 'showCircumcircle' },
+            { id: 'toggleOrthocircle', property: 'showOrthocircle' }  // Add this line
         ];
 
         featureButtons.forEach(button => {
@@ -2535,14 +2537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // First, let's add the button to the HTML
-    const circlesRow = document.querySelector('#buttons-container .d-flex:nth-child(2)');
-    if (circlesRow) {
-        const orthocircleButton = document.createElement('button');
-        orthocircleButton.id = 'toggleOrthocircle';
-        orthocircleButton.className = 'btn btn-secondary';
-        orthocircleButton.textContent = 'Orthocircle';
-        circlesRow.appendChild(orthocircleButton);
-    }
+    
+    
 });
 
