@@ -97,6 +97,9 @@ class TriangleSystem {
         this.calculateCircumcenter = this.calculateCircumcenter.bind(this);
         this.calculateOrthocenter = this.calculateOrthocenter.bind(this);
         this.updateDashboard = this.updateDashboard.bind(this);
+
+        // Add this line
+        this.showEuler = false;  // New clean flag for Euler line
     }
 
     // Method to initialize all event listeners
@@ -110,7 +113,7 @@ class TriangleSystem {
             { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleMedians', property: 'showMedians' },
             { id: 'toggleSubsystems', property: 'showSubsystems' },
-            { id: 'toggleEuler', property: 'showSpecialCenters' },
+            { id: 'toggleEuler', property: 'showEuler' },
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleCircumcircle', property: 'showCircumcircle' }  // Add this line
         ];
@@ -118,8 +121,10 @@ class TriangleSystem {
         featureButtons.forEach(button => {
             const element = document.getElementById(button.id);
             if (element) {
+                console.log(`Initializing ${button.id} button`);  // Add debug log
                 element.addEventListener('click', () => {
                     this[button.property] = !this[button.property];
+                    console.log(`Euler state: ${this.showEuler}`);  // Add debug log
                     element.classList.toggle('btn-info', this[button.property]);
                     element.classList.toggle('btn-secondary', !this[button.property]);
                     this.drawSystem();
@@ -524,24 +529,17 @@ class TriangleSystem {
         this.adjustTriangleToOrigin();
 
         // Calculate circumcenter
-        const d = 2 * (n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y));
+        const circumcenter = this.calculateCircumcenter();
+        this.system.circumcenter = circumcenter;
         
-        if (Math.abs(d) > 1e-10) {
-            this.system.circumcenter = {
-                x: ((n1.x * n1.x + n1.y * n1.y) * (n2.y - n3.y) +
-                    (n2.x * n2.x + n2.y * n2.y) * (n3.y - n1.y) +
-                    (n3.x * n3.x + n3.y * n3.y) * (n1.y - n2.y)) / d,
-                y: ((n1.x * n1.x + n1.y * n1.y) * (n3.x - n2.x) +
-                    (n2.x * n2.x + n2.y * n2.y) * (n1.x - n3.x) +
-                    (n3.x * n3.x + n3.y * n3.y) * (n2.x - n1.x)) / d
-            };
-        } else {
-            // Handle degenerate case
-            this.system.circumcenter = { x: 0, y: 0 };
-        }
-
         // Calculate orthocenter
-        this.calculateOrthocenter();
+        const orthocenter = this.calculateOrthocenter();
+        this.system.orthocenter = orthocenter;
+        
+        console.log("Updated points:", {
+            circumcenter: this.system.circumcenter,
+            orthocenter: this.system.orthocenter
+        });
         
         // Calculate nine-point center
         this.calculateNinePointCenter();
@@ -863,9 +861,19 @@ class TriangleSystem {
     }
 
     drawSystem() {
-        // Clear canvas
-        this.ctx.clearRect(-this.canvas.width/2, -this.canvas.height/2, this.canvas.width, this.canvas.height);
-        
+        // Clear the canvas
+        this.ctx.clearRect(-this.canvas.width/2, -this.canvas.height/2, 
+                           this.canvas.width, this.canvas.height);
+
+        // Draw base triangle first
+        this.drawTriangle();
+
+        // Draw Euler line if enabled
+        if (this.showEuler) {
+            console.log("Drawing Euler line");
+            this.drawEulerLine(this.ctx);
+        }
+
         // Draw axes for reference
         this.drawAxes(this.ctx);
         
@@ -2252,6 +2260,70 @@ class TriangleSystem {
         ctx.scale(1, -1);  // Flip text right-side up
         ctx.fillText('O', circumcircle.center.x + 10, -circumcircle.center.y);
         ctx.restore();
+    }
+
+    drawEulerLine(ctx) {
+        console.log("drawEulerLine called");  // Add debug log
+        
+        // Get the required points
+        const O = this.system.circumcenter;
+        const H = this.system.orthocenter;
+        
+        console.log("Points:", { O, H });  // Add debug log
+        
+        if (!O || !H) {
+            console.log("Missing required points");  // Add debug log
+            return;
+        }
+        
+        // Draw the line
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = '#FFFFFF';  // White color
+        ctx.setLineDash([5, 5]);     // Dotted line
+        ctx.lineWidth = 1;
+        
+        ctx.moveTo(O.x, O.y);
+        ctx.lineTo(H.x, H.y);
+        
+        ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
+        ctx.restore();
+        
+        console.log("Euler line drawn");  // Add debug log
+    }
+
+    drawTriangle() {
+        // Draw the base triangle
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = '#FFFFFF';  // White lines
+        this.ctx.lineWidth = 2;
+        
+        // Move to first vertex
+        this.ctx.moveTo(this.system.n1.x, this.system.n1.y);
+        
+        // Draw lines to other vertices
+        this.ctx.lineTo(this.system.n2.x, this.system.n2.y);
+        this.ctx.lineTo(this.system.n3.x, this.system.n3.y);
+        this.ctx.lineTo(this.system.n1.x, this.system.n1.y);
+        
+        this.ctx.stroke();
+        
+        // Draw vertices
+        [this.system.n1, this.system.n2, this.system.n3].forEach((node, index) => {
+            this.ctx.beginPath();
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.arc(node.x, node.y, 4, 0, 2 * Math.PI);
+            this.ctx.fill();
+            
+            // Add labels N1, N2, N3
+            this.ctx.save();
+            this.ctx.scale(1, -1);  // Flip text right-side up
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.font = '12px Arial';
+            this.ctx.fillText(`N${index + 1}`, node.x + 10, -node.y);
+            this.ctx.restore();
+        });
     }
 }
 
