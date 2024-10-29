@@ -546,40 +546,72 @@ class TriangleSystem {
     }
 
     calculateOrthocenter() {
-        const { n1, n2, n3 } = this.system;
+        const n1 = this.system.n1;
+        const n2 = this.system.n2;
+        const n3 = this.system.n3;
         
-        // Calculate slopes of sides
-        const slopeBC = (n3.y - n2.y) / (n3.x - n2.x);
-        const slopeAC = (n3.y - n1.y) / (n3.x - n1.x);
-        const slopeAB = (n2.y - n1.y) / (n2.x - n1.x);
-
-        // Calculate perpendicular slopes from vertices to opposite sides
-        const perpSlopeA = slopeBC !== 0 ? -1 / slopeBC : Infinity;
-        const perpSlopeB = slopeAC !== 0 ? -1 / slopeAC : Infinity;
-
-        // Calculate intersection point (orthocenter)
-        let x, y;
-
-        // Handle special cases for vertical/horizontal lines
-        if (!isFinite(perpSlopeA) || !isFinite(perpSlopeB)) {
-            // Handle vertical lines case
-            if (!isFinite(perpSlopeA)) {
-                x = n1.x;
-                y = perpSlopeB * (x - n2.x) + n2.y;
-            } else {
-                x = n2.x;
-                y = perpSlopeA * (x - n1.x) + n1.y;
-            }
-        } else {
-            // Calculate intersection of altitude lines
-            x = (n2.y - n1.y + perpSlopeA * n1.x - perpSlopeB * n2.x) / (perpSlopeA - perpSlopeB);
-            y = perpSlopeA * (x - n1.x) + n1.y;
+        // Add debug logging
+        console.log("Calculating orthocenter for points:", { n1, n2, n3 });
+        
+        if (this.areCollinear(n1, n2, n3)) {
+            console.warn("Cannot calculate orthocenter: points are collinear");
+            return null;
         }
-
-        // Store orthocenter in system
-        this.system.orthocenter = { x, y };
         
-        return { x, y };
+        try {
+            // Calculate slopes of sides
+            const m12 = this.calculateSlope(n1, n2);
+            const m23 = this.calculateSlope(n2, n3);
+            const m31 = this.calculateSlope(n3, n1);
+            
+            console.log("Side slopes:", { m12, m23, m31 });
+            
+            // Calculate slopes of altitudes (perpendicular to sides)
+            const ma1 = m23 !== 0 ? (-1 / m23) : Infinity;  // From n1 to side 23
+            const ma2 = m31 !== 0 ? (-1 / m31) : Infinity;  // From n2 to side 31
+            
+            console.log("Altitude slopes:", { ma1, ma2 });
+            
+            // Calculate y-intercepts or x-coordinates of altitudes
+            let b1, b2;
+            if (ma1 !== Infinity) {
+                b1 = n1.y - ma1 * n1.x;
+            } else {
+                b1 = n1.x; // x-coordinate for vertical line
+            }
+
+            if (ma2 !== Infinity) {
+                b2 = n2.y - ma2 * n2.x;
+            } else {
+                b2 = n2.x; // x-coordinate for vertical line
+            }
+            
+            console.log("Intercepts:", { b1, b2 });
+            
+            let x, y;
+            if (ma1 !== Infinity && ma2 !== Infinity) {
+                // Both altitudes are not vertical
+                x = (b2 - b1) / (ma1 - ma2);
+                y = ma1 * x + b1;
+            } else if (ma1 === Infinity) {
+                // First altitude is vertical
+                x = b1;
+                y = ma2 * x + b2;
+            } else if (ma2 === Infinity) {
+                // Second altitude is vertical
+                x = b2;
+                y = ma1 * x + b1;
+            } else {
+                throw new Error("Cannot determine orthocenter: both altitudes are vertical");
+            }
+            
+            console.log("Calculated orthocenter:", { x, y });
+            return { x, y };
+            
+        } catch (error) {
+            console.error("Error calculating orthocenter:", error);
+            return null;
+        }
     }
 
     calculateNinePointCenter() {
@@ -975,19 +1007,16 @@ class TriangleSystem {
             // Draw Orthocenter (H)
             if (this.system.orthocenter) {
                 this.ctx.beginPath();
-                this.ctx.arc(this.system.orthocenter.x, this.system.orthocenter.y, 
-                            4, 0, 2 * Math.PI);
-                this.ctx.fillStyle = '#FF69B4';
+                this.ctx.fillStyle = '#FF69B4';  // Pink color
+                this.ctx.arc(this.system.orthocenter.x, this.system.orthocenter.y, 4, 0, 2 * Math.PI);
                 this.ctx.fill();
                 
                 // Label H
                 this.ctx.save();
-                this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#fff';
+                this.ctx.scale(1, -1);  // Flip text right-side up
+                this.ctx.fillStyle = '#FFFFFF';
                 this.ctx.font = '12px Arial';
-                this.ctx.fillText('H', 
-                    this.system.orthocenter.x + 10, 
-                    -this.system.orthocenter.y);
+                this.ctx.fillText('H', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
                 this.ctx.restore();
             }
 
@@ -1018,6 +1047,12 @@ class TriangleSystem {
 
         if (this.showCircumcircle) {
             this.drawCircumcircle(this.ctx);
+        }
+
+        // Draw orthocircle if enabled
+        if (this.showOrthocircle) {
+            console.log("Drawing orthocircle...");
+            this.drawOrthocircle(this.ctx);
         }
     }
 
@@ -1351,9 +1386,17 @@ class TriangleSystem {
         };
     }
 
-    calculateDistance(p1, p2) {
-        const dx = p1.x - p2.x;
-        const dy = p1.y - p2.y;
+    /**
+     * Calculates the Euclidean distance between two points.
+     * 
+     * @param {Object} point1 - First point with properties x and y.
+     * @param {Object} point2 - Second point with properties x and y.
+     * @returns {number} The distance between point1 and point2.
+     */
+    calculateDistance(point1, point2) {
+        if (!point1 || !point2) return 0;
+        const dx = point2.x - point1.x;
+        const dy = point2.y - point1.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
@@ -2162,24 +2205,72 @@ class TriangleSystem {
 
     // Helper method to calculate orthocenter
     calculateOrthocenter() {
-        const { n1, n2, n3 } = this.system;
+        const n1 = this.system.n1;
+        const n2 = this.system.n2;
+        const n3 = this.system.n3;
         
-        // Calculate angles
-        const angles = this.calculateAngles();
+        // Add debug logging
+        console.log("Calculating orthocenter for points:", { n1, n2, n3 });
         
-        // Convert angles to radians
-        const a1 = angles.n1 * Math.PI / 180;
-        const a2 = angles.n2 * Math.PI / 180;
-        const a3 = angles.n3 * Math.PI / 180;
+        if (this.areCollinear(n1, n2, n3)) {
+            console.warn("Cannot calculate orthocenter: points are collinear");
+            return null;
+        }
         
-        // Calculate orthocenter coordinates using trigonometric formulas
-        const x = (n1.x * Math.tan(a1) + n2.x * Math.tan(a2) + n3.x * Math.tan(a3)) /
-                 (Math.tan(a1) + Math.tan(a2) + Math.tan(a3));
-                 
-        const y = (n1.y * Math.tan(a1) + n2.y * Math.tan(a2) + n3.y * Math.tan(a3)) /
-                 (Math.tan(a1) + Math.tan(a2) + Math.tan(a3));
-                 
-        return { x, y };
+        try {
+            // Calculate slopes of sides
+            const m12 = this.calculateSlope(n1, n2);
+            const m23 = this.calculateSlope(n2, n3);
+            const m31 = this.calculateSlope(n3, n1);
+            
+            console.log("Side slopes:", { m12, m23, m31 });
+            
+            // Calculate slopes of altitudes (perpendicular to sides)
+            const ma1 = m23 !== 0 ? (-1 / m23) : Infinity;  // From n1 to side 23
+            const ma2 = m31 !== 0 ? (-1 / m31) : Infinity;  // From n2 to side 31
+            
+            console.log("Altitude slopes:", { ma1, ma2 });
+            
+            // Calculate y-intercepts or x-coordinates of altitudes
+            let b1, b2;
+            if (ma1 !== Infinity) {
+                b1 = n1.y - ma1 * n1.x;
+            } else {
+                b1 = n1.x; // x-coordinate for vertical line
+            }
+
+            if (ma2 !== Infinity) {
+                b2 = n2.y - ma2 * n2.x;
+            } else {
+                b2 = n2.x; // x-coordinate for vertical line
+            }
+            
+            console.log("Intercepts:", { b1, b2 });
+            
+            let x, y;
+            if (ma1 !== Infinity && ma2 !== Infinity) {
+                // Both altitudes are not vertical
+                x = (b2 - b1) / (ma1 - ma2);
+                y = ma1 * x + b1;
+            } else if (ma1 === Infinity) {
+                // First altitude is vertical
+                x = b1;
+                y = ma2 * x + b2;
+            } else if (ma2 === Infinity) {
+                // Second altitude is vertical
+                x = b2;
+                y = ma1 * x + b1;
+            } else {
+                throw new Error("Cannot determine orthocenter: both altitudes are vertical");
+            }
+            
+            console.log("Calculated orthocenter:", { x, y });
+            return { x, y };
+            
+        } catch (error) {
+            console.error("Error calculating orthocenter:", error);
+            return null;
+        }
     }
 
     // Add method to draw nine-point circle
@@ -2324,6 +2415,99 @@ class TriangleSystem {
             this.ctx.fillText(`N${index + 1}`, node.x + 10, -node.y);
             this.ctx.restore();
         });
+    }
+
+    // Helper functions for orthocenter calculation
+    calculateSlope(p1, p2) {
+        if (Math.abs(p2.x - p1.x) < 1e-10) {  // Using epsilon for floating-point comparison
+            return Infinity; // Vertical line
+        }
+        return (p2.y - p1.y) / (p2.x - p1.x);
+    }
+
+    areCollinear(n1, n2, n3) {
+        // Using epsilon for floating-point comparison
+        const epsilon = 1e-10;
+        const area = (n2.x - n1.x) * (n3.y - n1.y) - (n3.x - n1.x) * (n2.y - n1.y);
+        return Math.abs(area) < epsilon;
+    }
+
+    /**
+     * Calculates the Orthocircle of the triangle.
+     * 
+     * Definition:
+     * The Orthocircle is defined as a circle centered at the orthocenter of the triangle,
+     * with a radius equal to the distance from the orthocenter to one of the triangle's vertices.
+     * 
+     * @returns {Object|null} An object containing the center (orthocenter) and radius of the Orthocircle,
+     *                        or null if calculation is not possible.
+     */
+    calculateOrthocircle() {
+        const { n1, n2, n3 } = this.system;
+        
+        console.log("Calculating orthocircle for points:", { n1, n2, n3 });
+
+        try {
+            // Check if the triangle is degenerate
+            if (this.areCollinear(n1, n2, n3)) {
+                console.warn("Cannot calculate orthocircle: points are collinear");
+                return null;
+            }
+
+            // Calculate the orthocenter
+            const orthocenter = this.calculateOrthocenter();
+            if (!orthocenter) {
+                console.warn("Cannot calculate orthocircle: orthocenter calculation failed");
+                return null;
+            }
+
+            // Calculate the radius as the distance from the orthocenter to one vertex
+            const radius = this.calculateDistance(orthocenter, n1);
+            
+            console.log("Orthocircle calculated:", { center: orthocenter, radius });
+            
+            return {
+                center: orthocenter,
+                radius: radius
+            };
+        } catch (error) {
+            console.error("Error calculating orthocircle:", error);
+            return null;
+        }
+    }
+
+    /**
+     * Draws the Orthocircle on the canvas if it exists.
+     * 
+     * @param {CanvasRenderingContext2D} ctx - The canvas rendering context
+     */
+    drawOrthocircle(ctx) {
+        const orthocircle = this.calculateOrthocircle();
+        
+        if (!orthocircle || !orthocircle.center || !orthocircle.radius) {
+            console.warn("Cannot draw orthocircle: invalid calculation");
+            return;
+        }
+        
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = '#FF69B4';  // Pink color to match orthocenter
+        ctx.setLineDash([5, 5]);     // Dashed line
+        ctx.lineWidth = 1;
+        
+        ctx.arc(
+            orthocircle.center.x,
+            orthocircle.center.y,
+            orthocircle.radius,
+            0,
+            2 * Math.PI
+        );
+        
+        ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
+        ctx.restore();
+        
+        console.log("Orthocircle drawn");
     }
 }
 
