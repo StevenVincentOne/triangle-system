@@ -128,6 +128,9 @@ class TriangleSystem {
 
         // Add this line
         this.showEuler = false;  // New clean flag for Euler line
+
+        // Add to constructor
+        this.showExpo = false;  // New property for Exponential Point visibility
     }
 
     // Method to initialize all event listeners
@@ -145,7 +148,8 @@ class TriangleSystem {
             { id: 'toggleOrthocircle', property: 'showOrthocircle' },
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleIncircle', property: 'showIncircle' },
-            { id: 'toggleSpecialCenters', property: 'showSpecialCenters' }  // Add this line
+            { id: 'toggleSpecialCenters', property: 'showSpecialCenters' },  // Add this line
+            { id: 'toggleExpo', property: 'showExpo' }  // Add this line
         ];
 
         featureButtons.forEach(button => {
@@ -1074,6 +1078,11 @@ class TriangleSystem {
 
         if (this.showCircumcircle) {
             this.drawCircumcircle(this.ctx);
+        }
+
+        // Draw Exponential Point if enabled
+        if (this.showExpo) {
+            this.drawExponentialPoint(this.ctx);
         }
     }
 
@@ -2579,6 +2588,28 @@ class TriangleSystem {
             return null;
         }
     }
+
+    // Update drawExponentialPoint method
+    drawExponentialPoint(ctx) {
+        if (!this.showExpo) return;
+        
+        const expPoint = this.calculateExponentialPoint();
+        if (!expPoint) return;
+        
+        // Draw the point in neon orange
+        ctx.fillStyle = '#FF6600';  // Bright neon orange
+        ctx.beginPath();
+        ctx.arc(expPoint.x, expPoint.y, 6, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Label 'E' in same color
+        ctx.fillStyle = '#FF6600';
+        ctx.font = '16px Arial';
+        ctx.save();
+        ctx.scale(1, -1);  // Flip text right-side up
+        ctx.fillText('E', expPoint.x + 10, -expPoint.y);
+        ctx.restore();
+    }
 }
 
 // Outside the class - DOM initialization
@@ -2601,6 +2632,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleCircumcircleButton) {
         toggleCircumcircleButton.addEventListener('click', () => {
             triangleSystem.showCircumcircle = !triangleSystem.showCircumcircle;
+            triangleSystem.drawSystem();
+        });
+    }
+
+    // Add Exponential Point toggle
+    const toggleExpoButton = document.getElementById('toggleExpo');
+    if (toggleExpoButton) {
+        toggleExpoButton.addEventListener('click', () => {
+            triangleSystem.showExpo = !triangleSystem.showExpo;
             triangleSystem.drawSystem();
         });
     }
