@@ -1,3 +1,30 @@
+/**
+ * Helper class to handle complex numbers
+ */
+class Complex {
+    constructor(re, im) {
+        this.re = re;
+        this.im = im;
+    }
+    
+    add(other) {
+        return new Complex(this.re + other.re, this.im + other.im);
+    }
+    
+    subtract(other) {
+        return new Complex(this.re - other.re, this.im - other.im);
+    }
+    
+    multiply(scalar) {
+        return new Complex(this.re * scalar, this.im * scalar);
+    }
+    
+    exp() {
+        const expRe = Math.exp(this.re);
+        return new Complex(expRe * Math.cos(this.im), expRe * Math.sin(this.im));
+    }
+}
+
 class TriangleSystem {
     constructor(canvas) {
         this.canvas = canvas;
@@ -395,7 +422,7 @@ class TriangleSystem {
             
             rawTriangle = {
                 n1: { x: offset, y: height },    // Top vertex (should give us 60°)
-                n2: { x: n2x, y: n2y },          // Right vertex (35��)
+                n2: { x: n2x, y: n2y },          // Right vertex (35)
                 n3: { x: n3x, y: n3y }           // Left vertex (85°)
             };
         }
@@ -755,6 +782,17 @@ class TriangleSystem {
         if (ninePointCircle && ninePointCircle.center) {
             setElementValue('#nine-point-coords', 
                 `${ninePointCircle.center.x.toFixed(1)}, ${ninePointCircle.center.y.toFixed(1)}`);
+        }
+
+        // Update Exponential Point coordinates
+        const expPoint = this.calculateExponentialPoint();
+        if (expPoint) {
+            setElementValue('#exponential-coords', 
+                `${this.formatValue(this.roundToZero(expPoint.x))}, ${this.formatValue(this.roundToZero(expPoint.y))}`);
+            console.log("Updated Exponential Point coordinates:", expPoint);  // Debug log
+        } else {
+            setElementValue('#exponential-coords', 'undefined');
+            console.log("Could not calculate Exponential Point");  // Debug log
         }
     }
 
@@ -2481,6 +2519,65 @@ class TriangleSystem {
         ctx.restore();
         
         console.log("Orthocircle drawn");
+    }
+
+    /**
+     * Calculates the Exponential Point of the triangle.
+     * This point lies on the Euler line and is calculated using complex exponentials.
+     */
+    calculateExponentialPoint() {
+        try {
+            const { n1, n2, n3 } = this.system;
+            
+            if (!n1 || !n2 || !n3) {
+                console.warn("Cannot calculate Exponential Point: vertices not defined");
+                return null;
+            }
+            
+            // Step 1: Calculate side lengths a, b, c
+            const a = Math.sqrt(Math.pow(n2.x - n3.x, 2) + Math.pow(n2.y - n3.y, 2));
+            const b = Math.sqrt(Math.pow(n1.x - n3.x, 2) + Math.pow(n1.y - n3.y, 2));
+            const c = Math.sqrt(Math.pow(n1.x - n2.x, 2) + Math.pow(n1.y - n2.y, 2));
+            
+            // Step 2: Calculate semi-perimeter s and area K using Heron's formula
+            const s = (a + b + c) / 2;
+            const K = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+            
+            // Step 3: Calculate circumradius R
+            const R = (a * b * c) / (4 * K);
+            
+            // Step 4: Calculate cosines and sines of angles
+            const cosA = (b * b + c * c - a * a) / (2 * b * c);
+            const cosB = (a * a + c * c - b * b) / (2 * a * c);
+            const cosC = (a * a + b * b - c * c) / (2 * a * b);
+            
+            const sinA = Math.sqrt(1 - cosA * cosA);
+            const sinB = Math.sqrt(1 - cosB * cosB);
+            const sinC = Math.sqrt(1 - cosC * cosC);
+            
+            // Step 5: Calculate weighted coordinates without direct R scaling
+            const x_weighted = n1.x * cosA + n2.x * cosB + n3.x * cosC;
+            const y_weighted = n1.y * sinA + n2.y * sinB + n3.y * sinC;
+            
+            // Step 6: Scale down by perimeter for stability
+            const x_E = (x_weighted / (a + b + c)) * R;
+            const y_E = (y_weighted / (a + b + c)) * R;
+            
+            console.log("Triangle sides:", { a, b, c });
+            console.log("Area and circumradius:", { K, R });
+            console.log("Angles (degrees):", { 
+                A: Math.acos(cosA) * 180/Math.PI,
+                B: Math.acos(cosB) * 180/Math.PI,
+                C: Math.acos(cosC) * 180/Math.PI
+            });
+            console.log("Exponential Point:", { x: x_E, y: y_E });
+            
+            return { x: x_E, y: y_E };
+            
+        } catch (error) {
+            console.error("Error calculating Exponential Point:", error);
+            return null;
+        }
     }
 }
 
