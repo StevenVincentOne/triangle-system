@@ -1353,24 +1353,34 @@
                             <table class="subsystems-table">
                                 <thead>
                                     <tr>
-                                        <th></th>
-                                        <th>SS1</th>
-                                        <th>SS2</th>
-                                        <th>SS3</th>
+                                        <th>Subsystems</th>
+                                        <th>∠</th>
+                                        <th>P</th>
+                                        <th>A</th>
+                                        <th>I (x,y)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <th>P</th>
+                                        <td>SS1</td>
+                                        <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                         <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-1-centroid" type="text" class="form-control" size="12" readonly></td>
                                     </tr>
                                     <tr>
-                                        <th>∠</th>
-                                        <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td>SS2</td>
                                         <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-2-centroid" type="text" class="form-control" size="12" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <td>SS3</td>
                                         <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-3-centroid" type="text" class="form-control" size="12" readonly></td>
                                     </tr>
                                 </tbody>
                             </table>
