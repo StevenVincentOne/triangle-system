@@ -952,7 +952,7 @@ class TriangleSystem {
         if (this.showMidpoints) this.drawMidpoints(this.ctx);
         if (this.showMedians) this.drawMedians(this.ctx);
         if (this.showIncircle) this.drawIncircle(this.ctx);
-        if (this.showIncenter) this.drawIncenterPoint(this.ctx);  // New separate method for incenter
+        if (this.showIncenter) this.drawIncenter(this.ctx);  // New separate method for incenter
         if (this.showTangents) this.drawTangents(this.ctx);
         if (this.showCentroid) this.drawCentroid(this.ctx);
         
@@ -1259,21 +1259,23 @@ class TriangleSystem {
      * @param {CanvasRenderingContext2D} ctx 
      */
     drawCentroid(ctx) {
-        const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
-        const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
-
-        // Changed color from orange to white
-        ctx.fillStyle = 'white';
+        if (!this.showCentroid) return;
+        
+        const centroid = this.calculateCentroid();
+        if (!centroid) return;
+        
+        // Draw the point in white with radius 4
+        ctx.fillStyle = '#FFFFFF';  // Changed from #00FF00 to white
         ctx.beginPath();
-        ctx.arc(centroidX, centroidY, 6, 0, 2 * Math.PI);
+        ctx.arc(centroid.x, centroid.y, 4, 0, 2 * Math.PI);
         ctx.fill();
-
-        // Label remains white and changed from 'Centroid' to 'I'
-        ctx.fillStyle = 'white';
+        
+        // Label 'I' in white with 12px font
+        ctx.fillStyle = '#FFFFFF';  // Changed from #00FF00 to white
         ctx.font = '12px Arial';
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText('I', centroidX + 10, -centroidY);  // Changed label text
+        ctx.fillText('I', centroid.x + 8, -centroid.y);
         ctx.restore();
     }
 
@@ -1550,21 +1552,24 @@ class TriangleSystem {
     }
 
     // Add new method for drawing just the incenter point
-    drawIncenterPoint(ctx) {
-        if (!this.system.incenter) return;
+    drawIncenter(ctx) {
+        if (!this.showIncenter) return;
         
-        // Match incircle color
-        ctx.fillStyle = 'cyan';
+        const incenter = this.calculateIncenter();
+        if (!incenter) return;
+        
+        // Draw the point with smaller radius
+        ctx.fillStyle = '#00FFFF';  // Keep the cyan color
         ctx.beginPath();
-        ctx.arc(this.system.incenter.x, this.system.incenter.y, 6, 0, 2 * Math.PI);
+        ctx.arc(incenter.x, incenter.y, 4, 0, 2 * Math.PI);  // Reduced from 5 to 4
         ctx.fill();
-
-        // Add label
-        ctx.fillStyle = 'white';
-        ctx.font = '12px Arial';
+        
+        // Label 'IC' with smaller font size
+        ctx.fillStyle = '#00FFFF';
+        ctx.font = '12px Arial';  // Reduced from 14px to 12px
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText('IC', this.system.incenter.x + 10, -this.system.incenter.y);
+        ctx.fillText('IC', incenter.x + 10, -incenter.y);
         ctx.restore();
     }
 
@@ -2609,6 +2614,25 @@ class TriangleSystem {
         ctx.scale(1, -1);
         ctx.fillText('E', expPoint.x + 8, -expPoint.y);  // Adjusted offset to match other labels
         ctx.restore();
+    }
+
+    calculateCentroid() {
+        const { n1, n2, n3 } = this.system;
+        return {
+            x: (n1.x + n2.x + n3.x) / 3,
+            y: (n1.y + n2.y + n3.y) / 3
+        };
+    }
+
+    calculateIncenter() {
+        const { n1, n2, n3 } = this.system;
+        const lengths = this.calculateLengths();
+        const angles = this.calculateAngles();
+
+        const incenterX = (n1.x * lengths.l2 * Math.cos(angles.n2) + n2.x * lengths.l3 * Math.cos(angles.n3) + n3.x * lengths.l1 * Math.cos(angles.n1)) / (lengths.l1 + lengths.l2 + lengths.l3);
+        const incenterY = (n1.y * lengths.l2 * Math.sin(angles.n2) + n2.y * lengths.l3 * Math.sin(angles.n3) + n3.y * lengths.l1 * Math.sin(angles.n1)) / (lengths.l1 + lengths.l2 + lengths.l3);
+
+        return { x: incenterX, y: incenterY };
     }
 }
 
