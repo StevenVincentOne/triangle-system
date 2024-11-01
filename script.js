@@ -2596,18 +2596,18 @@ class TriangleSystem {
         const expPoint = this.calculateExponentialPoint();
         if (!expPoint) return;
         
-        // Draw the point in neon orange
-        ctx.fillStyle = '#FF6600';  // Bright neon orange
+        // Draw the point in brighter neon orange
+        ctx.fillStyle = '#FF9933';  // Brighter orange
         ctx.beginPath();
-        ctx.arc(expPoint.x, expPoint.y, 6, 0, 2 * Math.PI);
+        ctx.arc(expPoint.x, expPoint.y, 4, 0, 2 * Math.PI);  // Smaller dot size to match N and O
         ctx.fill();
         
-        // Label 'E' in same color
-        ctx.fillStyle = '#FF6600';
-        ctx.font = '16px Arial';
+        // Label 'E' in same color with matching font size
+        ctx.fillStyle = '#FF9933';
+        ctx.font = '12px Arial';  // Smaller font to match N and O
         ctx.save();
-        ctx.scale(1, -1);  // Flip text right-side up
-        ctx.fillText('E', expPoint.x + 10, -expPoint.y);
+        ctx.scale(1, -1);
+        ctx.fillText('E', expPoint.x + 8, -expPoint.y);  // Adjusted offset to match other labels
         ctx.restore();
     }
 }
