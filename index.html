@@ -8,7 +8,8 @@
         /* Existing Styles */
         .dashboard {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
             gap: 0.5rem;
             background-color: #2c2c2c;
             padding: 0.5rem;
@@ -22,6 +23,7 @@
             border: 1px solid #444;
             border-radius: 4px;
             padding: 0.5rem !important;
+            margin: 0 auto;
         }
         .panel-header {
             text-align: center;
@@ -777,9 +779,9 @@
         /* Row container */
         .dashboard-row {
             display: flex;
-            gap: 1rem;
-            align-items: flex-start;
-            width: fit-content;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
         }
 
         /* Panel group (for Channels, Medians, Nodes) */
@@ -1284,37 +1286,6 @@
                         </div>
                     </div>
                     
-                    <!-- Subsystems Panel -->
-                    <div class="dashboard-panel">
-                        <h3 class="panel-header">Subsystems</h3>
-                        <div class="panel-content">
-                            <table class="subsystems-table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>SS1</th>
-                                        <th>SS2</th>
-                                        <th>SS3</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th>P</th>
-                                        <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                    </tr>
-                                    <tr>
-                                        <th>∠</th>
-                                        <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                        <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                        <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
                     <!-- Channels Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">Channels</h3>
@@ -1369,6 +1340,40 @@
                                 <label for="node-n3-angle">N3 ∠</label>
                                 <input id="node-n3-angle" type="text" class="form-control angle-input" size="8" readonly>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Subsystems Row -->
+                <div class="dashboard-row">
+                    <!-- Move Subsystems Panel here -->
+                    <div class="dashboard-panel">
+                        <h3 class="panel-header">Subsystems</h3>
+                        <div class="panel-content">
+                            <table class="subsystems-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>SS1</th>
+                                        <th>SS2</th>
+                                        <th>SS3</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>P</th>
+                                        <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    </tr>
+                                    <tr>
+                                        <th>∠</th>
+                                        <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
