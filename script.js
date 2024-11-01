@@ -2626,13 +2626,19 @@ class TriangleSystem {
 
     calculateIncenter() {
         const { n1, n2, n3 } = this.system;
-        const lengths = this.calculateLengths();
         const angles = this.calculateAngles();
-
-        const incenterX = (n1.x * lengths.l2 * Math.cos(angles.n2) + n2.x * lengths.l3 * Math.cos(angles.n3) + n3.x * lengths.l1 * Math.cos(angles.n1)) / (lengths.l1 + lengths.l2 + lengths.l3);
-        const incenterY = (n1.y * lengths.l2 * Math.sin(angles.n2) + n2.y * lengths.l3 * Math.sin(angles.n3) + n3.y * lengths.l1 * Math.sin(angles.n1)) / (lengths.l1 + lengths.l2 + lengths.l3);
-
-        return { x: incenterX, y: incenterY };
+        
+        // Calculate incenter using angle bisector theorem
+        const sinA1 = Math.sin(angles.n1 * Math.PI / 180);
+        const sinA2 = Math.sin(angles.n2 * Math.PI / 180);
+        const sinA3 = Math.sin(angles.n3 * Math.PI / 180);
+        
+        const denominator = sinA1 + sinA2 + sinA3;
+        
+        return {
+            x: (n1.x * sinA1 + n2.x * sinA2 + n3.x * sinA3) / denominator,
+            y: (n1.y * sinA1 + n2.y * sinA2 + n3.y * sinA3) / denominator
+        };
     }
 }
 
