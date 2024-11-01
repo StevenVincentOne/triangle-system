@@ -798,6 +798,14 @@ class TriangleSystem {
             setElementValue('#exponential-coords', 'undefined');
             console.log("Could not calculate Exponential Point");  // Debug log
         }
+
+        // Get the subsystem area (which is already calculated as system area / 3)
+        const subsystemArea = area / 3;  // Using the existing 'area' variable
+
+        // Update subsystem areas
+        setElementValue('#subsystem-1-area', subsystemArea.toFixed(1));
+        setElementValue('#subsystem-2-area', subsystemArea.toFixed(1));
+        setElementValue('#subsystem-3-area', subsystemArea.toFixed(1));
     }
 
     calculateSubsystemAngles() {
