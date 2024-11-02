@@ -1301,38 +1301,58 @@ class TriangleSystem {
      * @param {CanvasRenderingContext2D} ctx 
      */
     drawSubsystems(ctx) {
+        if (!this.showSubsystems) return;
+        
         const { n1, n2, n3 } = this.system;
-        const centroid = {
-            x: (n1.x + n2.x + n3.x) / 3,
-            y: (n1.y + n2.y + n3.y) / 3
-        };
+        const origin = { x: 0, y: 0 };
 
-        // Draw SS1 (Red, Left Subsystem: N1-N3-I)
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
-        ctx.beginPath();
-        ctx.moveTo(n1.x, n1.y);
-        ctx.lineTo(n3.x, n3.y);
-        ctx.lineTo(centroid.x, centroid.y);
-        ctx.closePath();
-        ctx.fill();
+        // Draw SS1 region (Red)
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+        this.ctx.beginPath();
+        this.ctx.moveTo(n1.x, n1.y);
+        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.lineTo(origin.x, origin.y);
+        this.ctx.closePath();
+        this.ctx.fill();
 
-        // Draw SS2 (Blue, Right Subsystem: N1-N2-I)
-        ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
-        ctx.beginPath();
-        ctx.moveTo(n1.x, n1.y);
-        ctx.lineTo(n2.x, n2.y);
-        ctx.lineTo(centroid.x, centroid.y);
-        ctx.closePath();
-        ctx.fill();
+        // Draw SS2 region (Blue)
+        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+        this.ctx.beginPath();
+        this.ctx.moveTo(n1.x, n1.y);
+        this.ctx.lineTo(n2.x, n2.y);
+        this.ctx.lineTo(origin.x, origin.y);
+        this.ctx.closePath();
+        this.ctx.fill();
 
-        // Draw SS3 (Green, Base Subsystem: N2-N3-I)
-        ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
-        ctx.beginPath();
-        ctx.moveTo(n2.x, n2.y);
-        ctx.lineTo(n3.x, n3.y);
-        ctx.lineTo(centroid.x, centroid.y);
-        ctx.closePath();
-        ctx.fill();
+        // Draw SS3 region (Green)
+        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
+        this.ctx.beginPath();
+        this.ctx.moveTo(n2.x, n2.y);
+        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.lineTo(origin.x, origin.y);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        // Draw centroids
+        const centroids = this.calculateSubsystemCentroids();
+        
+        // Draw SS1 centroid (Red)
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+        this.ctx.beginPath();
+        this.ctx.arc(centroids.ss1.x, centroids.ss1.y, 4, 0, 2 * Math.PI);
+        this.ctx.fill();
+        
+        // Draw SS2 centroid (Blue)
+        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';
+        this.ctx.beginPath();
+        this.ctx.arc(centroids.ss2.x, centroids.ss2.y, 4, 0, 2 * Math.PI);
+        this.ctx.fill();
+        
+        // Draw SS3 centroid (Green)
+        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+        this.ctx.beginPath();
+        this.ctx.arc(centroids.ss3.x, centroids.ss3.y, 4, 0, 2 * Math.PI);
+        this.ctx.fill();
     }
 
     calculateTangents() {
@@ -2660,24 +2680,23 @@ class TriangleSystem {
 
     calculateSubsystemCentroids() {
         const { n1, n2, n3 } = this.system;
-        const origin = { x: 0, y: 0 };  // Intelligence point at origin
+        const origin = { x: 0, y: 0 };  // Intelligence point (I)
 
-        // Calculate centroids for each subsystem triangle
         const centroids = {
-            // SS1: triangle formed by n2, n3, and origin (I)
+            // SS1 (Red): triangle formed by N1, N3, and I
             ss1: {
-                x: (n2.x + n3.x + origin.x) / 3,
-                y: (n2.y + n3.y + origin.y) / 3
+                x: (n1.x + n3.x + origin.x) / 3,
+                y: (n1.y + n3.y + origin.y) / 3
             },
-            // SS2: triangle formed by n3, n1, and origin (I)
+            // SS2 (Blue): triangle formed by N1, N2, and I
             ss2: {
-                x: (n3.x + n1.x + origin.x) / 3,
-                y: (n3.y + n1.y + origin.y) / 3
-            },
-            // SS3: triangle formed by n1, n2, and origin (I)
-            ss3: {
                 x: (n1.x + n2.x + origin.x) / 3,
                 y: (n1.y + n2.y + origin.y) / 3
+            },
+            // SS3 (Green): triangle formed by N2, N3, and I
+            ss3: {
+                x: (n2.x + n3.x + origin.x) / 3,
+                y: (n2.y + n3.y + origin.y) / 3
             }
         };
 
