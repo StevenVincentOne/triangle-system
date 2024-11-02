@@ -1127,6 +1127,52 @@
             margin: 0;                  /* Remove any margin that might affect sizing */
             flex: 0 0 auto;            /* Prevent flex growth/shrink */
         }
+
+        .subsystems-table td:last-child {
+            min-width: 140px;  /* Increased minimum width */
+            width: auto;       /* Allow width to grow */
+        }
+
+        .subsystems-table input[type="text"].form-control {
+            width: 100%;
+            min-width: 100%;  /* Force input to take full cell width */
+            box-sizing: border-box;
+        }
+
+        /* Specific style for centroid inputs */
+        .subsystems-table input[id$="-centroid"] {
+            min-width: 120px;
+            width: auto;
+            font-family: monospace;  /* Use monospace for better coordinate alignment */
+        }
+
+        /* Update styles for all input fields in the Subsystems table */
+        .subsystems-table input[type="text"].form-control {
+            width: 100%;
+            min-width: 100%;
+            padding: 2px 4px;
+            box-sizing: border-box;
+        }
+
+        /* Specific style for centroid coordinate inputs */
+        .subsystems-table input[id$="-centroid"] {
+            width: 140px !important;  /* Force wider width */
+            min-width: 140px !important;
+            font-family: monospace;
+        }
+
+        /* Ensure table cells expand to fit inputs */
+        .subsystems-table td {
+            width: auto;
+            white-space: nowrap;
+        }
+
+        /* Make the last column (coordinates) wider */
+        .subsystems-table th:last-child,
+        .subsystems-table td:last-child {
+            width: 140px;
+            min-width: 140px;
+        }
     </style>
 </head>
 <body>
@@ -1348,7 +1394,6 @@
                 <div class="dashboard-row">
                     <!-- Move Subsystems Panel here -->
                     <div class="dashboard-panel">
-                        <h3 class="panel-header">Subsystems</h3>
                         <div class="panel-content">
                             <table class="subsystems-table">
                                 <thead>
@@ -1366,21 +1411,21 @@
                                         <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                         <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-1-centroid" type="text" class="form-control" size="12" readonly></td>
+                                        <td><input id="subsystem-1-centroid" type="text" class="form-control" size="16" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>SS2</td>
                                         <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                         <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-2-centroid" type="text" class="form-control" size="12" readonly></td>
+                                        <td><input id="subsystem-2-centroid" type="text" class="form-control" size="16" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>SS3</td>
                                         <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                         <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-3-centroid" type="text" class="form-control" size="12" readonly></td>
+                                        <td><input id="subsystem-3-centroid" type="text" class="form-control" size="16" readonly></td>
                                     </tr>
                                 </tbody>
                             </table>
