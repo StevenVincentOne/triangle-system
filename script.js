@@ -579,60 +579,57 @@ class TriangleSystem {
         this.calculateNinePointCenter();
     }
 
+    /**
+     * Calculates the Orthocenter of the triangle.
+     * 
+     * @returns {Object|null} An object containing the x and y coordinates of the orthocenter,
+     *                        or null if the orthocenter cannot be determined.
+     */
     calculateOrthocenter() {
         const { n1, n2, n3 } = this.system;
-        
+        const EPSILON = 1e-10;
+        const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
+
         console.log("Calculating orthocenter for points:", { n1, n2, n3 });
-        
-        if (this.areCollinear(n1, n2, n3)) {
-            console.warn("Cannot calculate orthocenter: points are collinear");
+
+        // Calculate the slopes of sides n1-n2 and n2-n3
+        const slopeAB = this.calculateSlope(n1, n2);
+        const slopeBC = this.calculateSlope(n2, n3);
+
+        // Calculate the slopes of the altitudes
+        const slopeAltitudeA = Math.abs(slopeBC) < EPSILON ? Infinity : -1 / slopeBC; // Altitude from n1
+        const slopeAltitudeB = Math.abs(slopeAB) < EPSILON ? Infinity : -1 / slopeAB; // Altitude from n3
+
+        // Calculate the y-intercepts of the altitudes
+        const interceptA = n1.y - slopeAltitudeA * n1.x;
+        const interceptB = n3.y - slopeAltitudeB * n3.x;
+
+        let orthocenter;
+
+        if (Math.abs(slopeAltitudeA - slopeAltitudeB) < EPSILON) {
+            console.warn("Altitudes are parallel. Orthocenter is undefined.");
             return null;
         }
-        
-        try {
-            // Calculate slopes of sides
-            const m12 = this.calculateSlope(n1, n2);
-            const m23 = this.calculateSlope(n2, n3);
-            const m31 = this.calculateSlope(n3, n1);
-            
-            console.log("Side slopes:", { m12, m23, m31 });
-            
-            // Calculate slopes of altitudes (perpendicular to sides)
-            const ma1 = m23 !== 0 ? (-1 / m23) : Infinity;  // From n1 to side 23
-            const ma2 = m31 !== 0 ? (-1 / m31) : Infinity;  // From n2 to side 31
-            
-            // Calculate y-intercepts of altitudes
-            const b1 = n1.y - ma1 * n1.x;
-            const b2 = n2.y - ma2 * n2.x;
-            
-            let x, y;
-            if (ma1 !== Infinity && ma2 !== Infinity) {
-                // Both altitudes are not vertical
-                x = (b2 - b1) / (ma1 - ma2);
-                y = ma1 * x + b1;
-            } else if (ma1 === Infinity) {
-                // First altitude is vertical
-                x = n1.x;
-                y = ma2 * x + b2;
-            } else if (ma2 === Infinity) {
-                // Second altitude is vertical
-                x = n2.x;
-                y = ma1 * x + b1;
-            } else {
-                throw new Error("Cannot determine orthocenter: both altitudes are vertical");
-            }
-            
-            console.log("Calculated orthocenter:", { x, y });
-            
-            // Store the orthocenter in the system
-            this.system.orthocenter = { x, y };
-            
-            return { x, y };
-            
-        } catch (error) {
-            console.error("Error calculating orthocenter:", error);
-            return null;
+
+        if (slopeAltitudeA === Infinity) {
+            // Altitude A is vertical
+            const x = roundNearZero(n1.x);
+            const y = roundNearZero(slopeAltitudeB * x + interceptB);
+            orthocenter = { x, y };
+        } else if (slopeAltitudeB === Infinity) {
+            // Altitude B is vertical
+            const x = roundNearZero(n3.x);
+            const y = roundNearZero(slopeAltitudeA * x + interceptA);
+            orthocenter = { x, y };
+        } else {
+            // Calculate intersection point of the two altitudes
+            const x = roundNearZero((interceptB - interceptA) / (slopeAltitudeA - slopeAltitudeB));
+            const y = roundNearZero(slopeAltitudeA * x + interceptA);
+            orthocenter = { x, y };
         }
+
+        console.log("Calculated orthocenter:", orthocenter);
+        return orthocenter;
     }
 
     calculateNinePointCenter() {
@@ -829,6 +826,19 @@ class TriangleSystem {
         setElementValue('#subsystem-1-centroid', formatCoord(centroids.ss1.x, centroids.ss1.y));
         setElementValue('#subsystem-2-centroid', formatCoord(centroids.ss2.x, centroids.ss2.y));
         setElementValue('#subsystem-3-centroid', formatCoord(centroids.ss3.x, centroids.ss3.y));
+
+        const subsystemCircumcenters = this.calculateSubsystemCircumcenters();
+        
+        // Debug logging
+        console.log('Raw circumcenter SS1:', subsystemCircumcenters.ss1);
+        console.log('Formatted x:', this.formatValue(subsystemCircumcenters.ss1.x));
+        console.log('Formatted y:', this.formatValue(subsystemCircumcenters.ss1.y));
+        
+        // Format with consistent spacing and ensure both coordinates are shown
+        const formattedCircumcenter = `${this.formatValue(subsystemCircumcenters.ss1.x)}, ${this.formatValue(subsystemCircumcenters.ss1.y)}`;
+        console.log('Final formatted value:', formattedCircumcenter);
+        
+        setElementValue('#subsystem-1-circumcenter', formattedCircumcenter);
     }
 
     calculateSubsystemAngles() {
@@ -2273,80 +2283,91 @@ class TriangleSystem {
     // Helper method to calculate circumcenter
     calculateCircumcenter() {
         const { n1, n2, n3 } = this.system;
-        
-        // Calculate perpendicular bisector parameters
-        const d = 2 * (n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y));
-        
-        // Calculate circumcenter coordinates
-        const x = ((n1.x * n1.x + n1.y * n1.y) * (n2.y - n3.y) + 
-                  (n2.x * n2.x + n2.y * n2.y) * (n3.y - n1.y) + 
-                  (n3.x * n3.x + n3.y * n3.y) * (n1.y - n2.y)) / d;
-                  
-        const y = ((n1.x * n1.x + n1.y * n1.y) * (n3.x - n2.x) + 
-                  (n2.x * n2.x + n2.y * n2.y) * (n1.x - n3.x) + 
-                  (n3.x * n3.x + n3.y * n3.y) * (n2.x - n1.x)) / d;
-                  
-        return { x, y };
+        const EPSILON = 1e-10;
+        const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
+
+        console.log("Calculating circumcenter for points:", { n1, n2, n3 });
+
+        // Calculate the midpoints of sides n1-n2 and n2-n3
+        const midAB = this.calculateMidpoint(n1, n2);
+        const midBC = this.calculateMidpoint(n2, n3);
+
+        // Calculate the slopes of sides n1-n2 and n2-n3
+        const slopeAB = this.calculateSlope(n1, n2);
+        const slopeBC = this.calculateSlope(n2, n3);
+
+        // Calculate the slopes of the perpendicular bisectors
+        const perpSlopeAB = slopeAB !== Infinity ? -1 / slopeAB : 0;
+        const perpSlopeBC = slopeBC !== Infinity ? -1 / slopeBC : 0;
+
+        // Calculate the y-intercepts of the perpendicular bisectors
+        const interceptAB = midAB.y - perpSlopeAB * midAB.x;
+        const interceptBC = midBC.y - perpSlopeBC * midBC.x;
+
+        let circumcenter;
+
+        if (Math.abs(perpSlopeAB - perpSlopeBC) < EPSILON) {
+            console.warn("Perpendicular bisectors are parallel. Circumcenter is undefined.");
+            return null;
+        }
+
+        if (perpSlopeAB === Infinity) {
+            // First bisector is vertical
+            const x = roundNearZero(midAB.x);
+            const y = roundNearZero(perpSlopeBC * x + interceptBC);
+            circumcenter = { x, y };
+        } else if (perpSlopeBC === Infinity) {
+            // Second bisector is vertical
+            const x = roundNearZero(midBC.x);
+            const y = roundNearZero(perpSlopeAB * x + interceptAB);
+            circumcenter = { x, y };
+        } else {
+            // Calculate intersection point of the two perpendicular bisectors
+            const x = roundNearZero((interceptBC - interceptAB) / (perpSlopeAB - perpSlopeBC));
+            const y = roundNearZero(perpSlopeAB * x + interceptAB);
+            circumcenter = { x, y };
+        }
+
+        console.log("Calculated circumcenter:", circumcenter);
+        return circumcenter;
     }
 
     // Helper method to calculate orthocenter
     calculateOrthocenter() {
-        const n1 = this.system.n1;
-        const n2 = this.system.n2;
-        const n3 = this.system.n3;
+        const { n1, n2, n3 } = this.system;
         
-        // Add debug logging
-        console.log("Calculating orthocenter for points:", { n1, n2, n3 });
+        // Calculate slopes of sides
+        const slope12 = (n2.y - n1.y) / (n2.x - n1.x);
+        const slope23 = (n3.y - n2.y) / (n3.x - n2.x);
+        const slope31 = (n1.y - n3.y) / (n1.x - n3.x);
         
-        if (this.areCollinear(n1, n2, n3)) {
-            console.warn("Cannot calculate orthocenter: points are collinear");
-            return null;
+        // Calculate slopes of altitudes (perpendicular to sides)
+        const altSlope1 = slope23 !== 0 ? -1 / slope23 : Infinity;
+        const altSlope2 = slope31 !== 0 ? -1 / slope31 : Infinity;
+        
+        // Calculate y-intercepts for altitude lines
+        const b1 = n1.y - altSlope1 * n1.x;
+        const b2 = n2.y - altSlope2 * n2.x;
+        
+        // Calculate intersection of altitudes
+        let orthocenter;
+        if (altSlope1 === Infinity) {
+            orthocenter = {
+                x: n1.x,
+                y: altSlope2 * n1.x + b2
+            };
+        } else if (altSlope2 === Infinity) {
+            orthocenter = {
+                x: n2.x,
+                y: altSlope1 * n2.x + b1
+            };
+        } else {
+            const x = (b2 - b1) / (altSlope1 - altSlope2);
+            const y = altSlope1 * x + b1;
+            orthocenter = { x, y };
         }
         
-        try {
-            // Calculate slopes of sides
-            const m12 = this.calculateSlope(n1, n2);
-            const m23 = this.calculateSlope(n2, n3);
-            const m31 = this.calculateSlope(n3, n1);
-            
-            console.log("Side slopes:", { m12, m23, m31 });
-            
-            // Calculate slopes of altitudes (perpendicular to sides)
-            const ma1 = m23 !== 0 ? (-1 / m23) : Infinity;  // From n1 to side 23
-            const ma2 = m31 !== 0 ? (-1 / m31) : Infinity;  // From n2 to side 31
-            
-            // Calculate y-intercepts of altitudes
-            const b1 = n1.y - ma1 * n1.x;
-            const b2 = n2.y - ma2 * n2.x;
-            
-            let x, y;
-            if (ma1 !== Infinity && ma2 !== Infinity) {
-                // Both altitudes are not vertical
-                x = (b2 - b1) / (ma1 - ma2);
-                y = ma1 * x + b1;
-            } else if (ma1 === Infinity) {
-                // First altitude is vertical
-                x = n1.x;
-                y = ma2 * x + b2;
-            } else if (ma2 === Infinity) {
-                // Second altitude is vertical
-                x = n2.x;
-                y = ma1 * x + b1;
-            } else {
-                throw new Error("Cannot determine orthocenter: both altitudes are vertical");
-            }
-            
-            console.log("Calculated orthocenter:", { x, y });
-            
-            // Store the orthocenter in the system
-            this.system.orthocenter = { x, y };
-            
-            return { x, y };
-            
-        } catch (error) {
-            console.error("Error calculating orthocenter:", error);
-            return null;
-        }
+        return orthocenter;
     }
 
     // Add method to draw nine-point circle
@@ -2495,7 +2516,8 @@ class TriangleSystem {
 
     // Helper functions for orthocenter calculation
     calculateSlope(p1, p2) {
-        if (Math.abs(p2.x - p1.x) < 1e-10) {  // Using epsilon for floating-point comparison
+        const EPSILON = 1e-10;
+        if (Math.abs(p2.x - p1.x) < EPSILON) {
             return Infinity; // Vertical line
         }
         return (p2.y - p1.y) / (p2.x - p1.x);
@@ -2715,6 +2737,72 @@ class TriangleSystem {
         };
 
         return centroids;
+    }
+
+    calculateSubsystemCircumcenters() {
+        const EPSILON = 1e-10;
+        const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
+        
+        // For SS1: triangle formed by N1, N3, and I (origin)
+        const { n1, n3 } = this.system;
+        const i = { x: 0, y: 0 };
+
+        // Calculate side lengths of the subsystem triangle SS1
+        const a = this.calculateDistance(n1, n3); // Side N1-N3
+        const b = this.calculateDistance(n3, i);  // Side N3-I
+        const c = this.calculateDistance(i, n1);  // Side I-N1
+
+        // Check if the subsystem triangle is equilateral
+        const isEquilateral = Math.abs(a - b) < EPSILON && Math.abs(b - c) < EPSILON;
+
+        console.log('Subsystem triangle sides:', { a, b, c });
+        console.log('Is Equilateral:', isEquilateral);
+
+        let circumcenter;
+
+        if (isEquilateral) {
+            // For equilateral triangles, circumcenter coincides with centroid (origin)
+            circumcenter = { x: 0, y: 0 };
+            console.log('Circumcenter set to origin for equilateral subsystem triangle.');
+        } else {
+            // Calculate midpoints of sides
+            const mid1 = this.calculateMidpoint(n1, n3); // Midpoint of N1-N3
+            const mid2 = this.calculateMidpoint(n3, i);  // Midpoint of N3-I
+
+            // Calculate slopes of sides
+            const slope1 = this.calculateSlope(n1, n3);
+            const slope2 = this.calculateSlope(n3, i);
+
+            // Calculate slopes of perpendicular bisectors
+            const perpSlope1 = slope1 !== Infinity ? -1 / slope1 : 0;
+            const perpSlope2 = slope2 !== Infinity ? -1 / slope2 : 0;
+
+            // Calculate y-intercepts of perpendicular bisectors
+            const intercept1 = mid1.y - perpSlope1 * mid1.x;
+            const intercept2 = mid2.y - perpSlope2 * mid2.x;
+
+            // Calculate intersection point
+            if (perpSlope1 === perpSlope2) {
+                console.warn('Perpendicular bisectors are parallel. Using centroid.');
+                circumcenter = { x: 0, y: 0 };
+            } else if (perpSlope1 === Infinity) {
+                const x = mid1.x;
+                const y = perpSlope2 * x + intercept2;
+                circumcenter = { x: roundNearZero(x), y: roundNearZero(y) };
+            } else if (perpSlope2 === Infinity) {
+                const x = mid2.x;
+                const y = perpSlope1 * x + intercept1;
+                circumcenter = { x: roundNearZero(x), y: roundNearZero(y) };
+            } else {
+                const x = (intercept2 - intercept1) / (perpSlope1 - perpSlope2);
+                const y = perpSlope1 * x + intercept1;
+                circumcenter = { x: roundNearZero(x), y: roundNearZero(y) };
+            }
+        }
+
+        return {
+            ss1: circumcenter
+        };
     }
 }
 
