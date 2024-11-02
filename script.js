@@ -803,18 +803,27 @@ class TriangleSystem {
         const subsystemArea = area / 3;  // Using the existing 'area' variable
 
         // Update subsystem areas
-        setElementValue('#subsystem-1-area', subsystemArea.toFixed(1));
-        setElementValue('#subsystem-2-area', subsystemArea.toFixed(1));
-        setElementValue('#subsystem-3-area', subsystemArea.toFixed(1));
+        setElementValue('#subsystem-1-area', subsystemArea.toFixed(2));
+        setElementValue('#subsystem-2-area', subsystemArea.toFixed(2));
+        setElementValue('#subsystem-3-area', subsystemArea.toFixed(2));
+
+        // Add CSS dynamically to ensure input fields are wide enough
+        const style = document.createElement('style');
+        style.textContent = `
+            .subsystems-table input[type="text"] {
+                min-width: 90px !important;  /* Increase from current width */
+                width: auto !important;
+                text-align: right;
+            }
+        `;
+        document.head.appendChild(style);
 
         // Calculate and update subsystem centroids
         const centroids = this.calculateSubsystemCentroids();
-        setElementValue('#subsystem-1-centroid', 
-            `${centroids.ss1.x.toFixed(1)}, ${centroids.ss1.y.toFixed(1)}`);
-        setElementValue('#subsystem-2-centroid', 
-            `${centroids.ss2.x.toFixed(1)}, ${centroids.ss2.y.toFixed(1)}`);
-        setElementValue('#subsystem-3-centroid', 
-            `${centroids.ss3.x.toFixed(1)}, ${centroids.ss3.y.toFixed(1)}`);
+        const formatCoord = (x, y) => `${x.toFixed(1)}, ${y.toFixed(1)}`;
+        setElementValue('#subsystem-1-centroid', formatCoord(centroids.ss1.x, centroids.ss1.y));
+        setElementValue('#subsystem-2-centroid', formatCoord(centroids.ss2.x, centroids.ss2.y));
+        setElementValue('#subsystem-3-centroid', formatCoord(centroids.ss3.x, centroids.ss3.y));
     }
 
     calculateSubsystemAngles() {
