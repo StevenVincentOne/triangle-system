@@ -1487,10 +1487,7 @@ class TriangleSystem {
      * @returns {number} The distance between point1 and point2.
      */
     calculateDistance(point1, point2) {
-        if (!point1 || !point2) return 0;
-        const dx = point2.x - point1.x;
-        const dy = point2.y - point1.y;
-        return Math.sqrt(dx * dx + dy * dy);
+        return Math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2);
     }
 
     // Placeholder methods for drawAngles and drawEdgeLengths
@@ -2743,66 +2740,68 @@ class TriangleSystem {
         const EPSILON = 1e-10;
         const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
         
-        // For SS1: triangle formed by N1, N3, and I (origin)
-        const { n1, n3 } = this.system;
-        const i = { x: 0, y: 0 };
-
-        // Calculate side lengths of the subsystem triangle SS1
-        const a = this.calculateDistance(n1, n3); // Side N1-N3
-        const b = this.calculateDistance(n3, i);  // Side N3-I
-        const c = this.calculateDistance(i, n1);  // Side I-N1
-
-        // Check if the subsystem triangle is equilateral
-        const isEquilateral = Math.abs(a - b) < EPSILON && Math.abs(b - c) < EPSILON;
-
-        console.log('Subsystem triangle sides:', { a, b, c });
-        console.log('Is Equilateral:', isEquilateral);
-
-        let circumcenter;
-
-        if (isEquilateral) {
-            // For equilateral triangles, circumcenter coincides with centroid (origin)
-            circumcenter = { x: 0, y: 0 };
-            console.log('Circumcenter set to origin for equilateral subsystem triangle.');
-        } else {
-            // Calculate midpoints of sides
-            const mid1 = this.calculateMidpoint(n1, n3); // Midpoint of N1-N3
-            const mid2 = this.calculateMidpoint(n3, i);  // Midpoint of N3-I
-
-            // Calculate slopes of sides
-            const slope1 = this.calculateSlope(n1, n3);
-            const slope2 = this.calculateSlope(n3, i);
-
-            // Calculate slopes of perpendicular bisectors
-            const perpSlope1 = slope1 !== Infinity ? -1 / slope1 : 0;
-            const perpSlope2 = slope2 !== Infinity ? -1 / slope2 : 0;
-
-            // Calculate y-intercepts of perpendicular bisectors
-            const intercept1 = mid1.y - perpSlope1 * mid1.x;
-            const intercept2 = mid2.y - perpSlope2 * mid2.x;
-
-            // Calculate intersection point
-            if (perpSlope1 === perpSlope2) {
-                console.warn('Perpendicular bisectors are parallel. Using centroid.');
-                circumcenter = { x: 0, y: 0 };
-            } else if (perpSlope1 === Infinity) {
-                const x = mid1.x;
-                const y = perpSlope2 * x + intercept2;
-                circumcenter = { x: roundNearZero(x), y: roundNearZero(y) };
-            } else if (perpSlope2 === Infinity) {
-                const x = mid2.x;
-                const y = perpSlope1 * x + intercept1;
-                circumcenter = { x: roundNearZero(x), y: roundNearZero(y) };
-            } else {
-                const x = (intercept2 - intercept1) / (perpSlope1 - perpSlope2);
-                const y = perpSlope1 * x + intercept1;
-                circumcenter = { x: roundNearZero(x), y: roundNearZero(y) };
-            }
-        }
-
-        return {
-            ss1: circumcenter
+        const { n1, n2, n3 } = this.system;
+        const origin = { x: 0, y: 0 };
+        
+        // Define subsystem triangles
+        const subsystems = {
+            ss1: [n1, n3, origin], // Red: N1-N3-I
+            ss2: [n1, n2, origin], // Blue: N1-N2-I
+            ss3: [n2, n3, origin]  // Green: N2-N3-I
         };
+        
+        const circumcenters = {};
+        
+        for (const [key, triangle] of Object.entries(subsystems)) {
+            const [p1, p2, p3] = triangle;
+            
+            // Calculate side lengths
+            const a = this.calculateDistance(p1, p2);
+            const b = this.calculateDistance(p2, p3);
+            const c = this.calculateDistance(p3, p1);
+            
+            // Check for equilateral
+            const isEquilateral = Math.abs(a - b) < EPSILON && Math.abs(b - c) < EPSILON;
+            
+            console.log(`Subsystem ${key} sides:`, { a, b, c }, `Is Equilateral: ${isEquilateral}`);
+            
+            let circumcenter;
+            
+            if (isEquilateral) {
+                // For equilateral subsystem, circumcenter coincides with centroid (origin)
+                circumcenter = { x: 0, y: 0 };
+                console.log(`Circumcenter of ${key} set to origin for equilateral subsystem.`);
+            } else {
+                // Calculate circumcenter using the calculateCircumcenter method
+                // Save original system
+                const originalSystem = { ...this.system };
+                
+                // Temporarily set system points to subsystem triangle
+                this.system = {
+                    n1: p1,
+                    n2: p2,
+                    n3: p3
+                };
+                
+                circumcenter = this.calculateCircumcenter();
+                
+                // Restore the original system
+                this.system = originalSystem;
+                
+                if (circumcenter) {
+                    circumcenter.x = roundNearZero(circumcenter.x);
+                    circumcenter.y = roundNearZero(circumcenter.y);
+                    console.log(`Circumcenter of ${key}:`, circumcenter);
+                } else {
+                    console.warn(`Circumcenter of ${key} could not be determined.`);
+                    circumcenter = null;
+                }
+            }
+            
+            circumcenters[key] = circumcenter;
+        }
+        
+        return circumcenters;
     }
 }
 
