@@ -806,6 +806,15 @@ class TriangleSystem {
         setElementValue('#subsystem-1-area', subsystemArea.toFixed(1));
         setElementValue('#subsystem-2-area', subsystemArea.toFixed(1));
         setElementValue('#subsystem-3-area', subsystemArea.toFixed(1));
+
+        // Calculate and update subsystem centroids
+        const centroids = this.calculateSubsystemCentroids();
+        setElementValue('#subsystem-1-centroid', 
+            `${centroids.ss1.x.toFixed(1)}, ${centroids.ss1.y.toFixed(1)}`);
+        setElementValue('#subsystem-2-centroid', 
+            `${centroids.ss2.x.toFixed(1)}, ${centroids.ss2.y.toFixed(1)}`);
+        setElementValue('#subsystem-3-centroid', 
+            `${centroids.ss3.x.toFixed(1)}, ${centroids.ss3.y.toFixed(1)}`);
     }
 
     calculateSubsystemAngles() {
@@ -2647,6 +2656,32 @@ class TriangleSystem {
             x: (n1.x * sinA1 + n2.x * sinA2 + n3.x * sinA3) / denominator,
             y: (n1.y * sinA1 + n2.y * sinA2 + n3.y * sinA3) / denominator
         };
+    }
+
+    calculateSubsystemCentroids() {
+        const { n1, n2, n3 } = this.system;
+        const origin = { x: 0, y: 0 };  // Intelligence point at origin
+
+        // Calculate centroids for each subsystem triangle
+        const centroids = {
+            // SS1: triangle formed by n2, n3, and origin (I)
+            ss1: {
+                x: (n2.x + n3.x + origin.x) / 3,
+                y: (n2.y + n3.y + origin.y) / 3
+            },
+            // SS2: triangle formed by n3, n1, and origin (I)
+            ss2: {
+                x: (n3.x + n1.x + origin.x) / 3,
+                y: (n3.y + n1.y + origin.y) / 3
+            },
+            // SS3: triangle formed by n1, n2, and origin (I)
+            ss3: {
+                x: (n1.x + n2.x + origin.x) / 3,
+                y: (n1.y + n2.y + origin.y) / 3
+            }
+        };
+
+        return centroids;
     }
 }
 
