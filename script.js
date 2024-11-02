@@ -820,7 +820,12 @@ class TriangleSystem {
 
         // Calculate and update subsystem centroids
         const centroids = this.calculateSubsystemCentroids();
-        const formatCoord = (x, y) => `${x.toFixed(1)}, ${y.toFixed(1)}`;
+        const formatCoord = (x, y) => {
+            // Ensure consistent spacing and alignment
+            const xStr = x.toFixed(1).padStart(6);  // pad to align decimal points
+            const yStr = y.toFixed(1).padStart(6);
+            return `${xStr}, ${yStr}`;
+        };
         setElementValue('#subsystem-1-centroid', formatCoord(centroids.ss1.x, centroids.ss1.y));
         setElementValue('#subsystem-2-centroid', formatCoord(centroids.ss2.x, centroids.ss2.y));
         setElementValue('#subsystem-3-centroid', formatCoord(centroids.ss3.x, centroids.ss3.y));
@@ -2746,7 +2751,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    
-    
+    // Add CSS dynamically to ensure coordinate input fields are wide enough
+    const style = document.createElement('style');
+    style.textContent = `
+        /* General subsystem table input styling */
+        .subsystems-table input[type="text"] {
+            min-width: 90px !important;
+            width: auto !important;
+            text-align: right;
+        }
+
+        /* Coordinate input fields (for all x,y positions) */
+        input[type="text"].form-control[size="15"] {
+            min-width: 120px !important;
+            width: auto !important;
+            text-align: center !important;
+            font-family: monospace !important;  /* For better alignment of numbers */
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Update the HTML size attributes
+    document.querySelectorAll('.subsystems-table td:nth-child(5) input, .subsystems-table td:nth-child(6) input').forEach(input => {
+        input.setAttribute('size', '15');
+    });
 });
 

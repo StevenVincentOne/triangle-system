@@ -1173,6 +1173,33 @@
             width: 140px;
             min-width: 140px;
         }
+
+        /* Update the I and O column input styles */
+        .subsystems-table input[type="text"] {
+            width: 100%;
+            text-align: right;  /* Right-align all numbers */
+            padding: 2px 4px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+        }
+
+        /* Specific width for coordinate columns */
+        .subsystems-table td:nth-child(5) input,  /* I column */
+        .subsystems-table td:nth-child(6) input { /* O column */
+            min-width: 120px;  /* Ensure enough space for coordinates */
+        }
+
+        /* Make area column inputs wider */
+        .subsystems-table td:nth-child(4) input { /* A column */
+            min-width: 100px;  /* Adjust this value as needed */
+        }
+
+        /* Keep coordinate columns at their current width */
+        .subsystems-table td:nth-child(5) input,  /* I column */
+        .subsystems-table td:nth-child(6) input { /* O column */
+            min-width: 120px;
+        }
     </style>
 </head>
 <body>
@@ -1403,6 +1430,7 @@
                                         <th>P</th>
                                         <th>A</th>
                                         <th>I (x,y)</th>
+                                        <th>O (x,y)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1411,21 +1439,24 @@
                                         <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                         <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-1-centroid" type="text" class="form-control" size="16" readonly></td>
+                                        <td><input id="subsystem-1-centroid" type="text" class="form-control" size="15" readonly></td>
+                                        <td><input id="subsystem-1-circumcenter" type="text" class="form-control" size="15" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>SS2</td>
                                         <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                         <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-2-centroid" type="text" class="form-control" size="16" readonly></td>
+                                        <td><input id="subsystem-2-centroid" type="text" class="form-control" size="15" readonly></td>
+                                        <td><input id="subsystem-2-circumcenter" type="text" class="form-control" size="15" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>SS3</td>
                                         <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                         <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
-                                        <td><input id="subsystem-3-centroid" type="text" class="form-control" size="16" readonly></td>
+                                        <td><input id="subsystem-3-centroid" type="text" class="form-control" size="15" readonly></td>
+                                        <td><input id="subsystem-3-circumcenter" type="text" class="form-control" size="15" readonly></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1443,15 +1474,15 @@
                             <div class="position-row">
                                 <div class="label-value-pair">
                                     <label for="node1-coords">N1 (x,y)</label>
-                                    <input id="node1-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="node1-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="node2-coords">N2 (x,y)</label>
-                                    <input id="node2-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="node2-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="node3-coords">N3 (x,y)</label>
-                                    <input id="node3-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="node3-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                             </div>
                             
@@ -1459,15 +1490,15 @@
                             <div class="position-row">
                                 <div class="label-value-pair">
                                     <label for="mid1-coords">M1 (x,y)</label>
-                                    <input id="mid1-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="mid1-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="mid2-coords">M2 (x,y)</label>
-                                    <input id="mid2-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="mid2-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="mid3-coords">M3 (x,y)</label>
-                                    <input id="mid3-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="mid3-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                             </div>
                             
@@ -1475,15 +1506,15 @@
                             <div class="position-row">
                                 <div class="label-value-pair">
                                     <label for="tan1-coords">T1 (x,y)</label>
-                                    <input id="tan1-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="tan1-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="tan2-coords">T2 (x,y)</label>
-                                    <input id="tan2-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="tan2-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="tan3-coords">T3 (x,y)</label>
-                                    <input id="tan3-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="tan3-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                             </div>
                             
@@ -1491,27 +1522,27 @@
                             <div class="position-row">
                                 <div class="label-value-pair">
                                     <label for="centroid-coords">I (x,y)</label>
-                                    <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="centroid-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="incenter-coords">IC (x,y)</label>
-                                    <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="incenter-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="circumcenter-coords">O (x,y)</label>
-                                    <input id="circumcenter-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="circumcenter-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="orthocenter-coords">H (x,y)</label>
-                                    <input id="orthocenter-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="orthocenter-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="nine-point-coords">N (x,y)</label>
-                                    <input id="nine-point-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="nine-point-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                                 <div class="label-value-pair">
                                     <label for="exponential-coords">E (x,y)</label>
-                                    <input id="exponential-coords" type="text" class="form-control" size="8" readonly>
+                                    <input id="exponential-coords" type="text" class="form-control" size="15" readonly>
                                 </div>
                             </div>
                         </div>
