@@ -2736,71 +2736,135 @@ class TriangleSystem {
         return centroids;
     }
 
+    /**
+     * Calculates the Circumcenter for any three given points.
+     * 
+     * @param {Object} p1 - First point with properties x and y.
+     * @param {Object} p2 - Second point with properties x and y.
+     * @param {Object} p3 - Third point with properties x and y.
+     * @returns {Object|null} Circumcenter with properties x and y, or null if undefined.
+     */
+    calculateCircumcenterForPoints(p1, p2, p3) {
+        // Validate input points
+        if (!p1 || !p2 || !p3 || 
+            typeof p1.x === 'undefined' || typeof p1.y === 'undefined' ||
+            typeof p2.x === 'undefined' || typeof p2.y === 'undefined' ||
+            typeof p3.x === 'undefined' || typeof p3.y === 'undefined') {
+            console.error("Invalid points passed to calculateCircumcenterForPoints:", { p1, p2, p3 });
+            return null;
+        }
+
+        console.log("Calculating circumcenter for subsystem points:", { p1, p2, p3 });
+
+        try {
+            // Calculate midpoints of p1-p2 and p2-p3
+            const midAB = this.calculateMidpoint(p1, p2);
+            const midBC = this.calculateMidpoint(p2, p3);
+
+            // Calculate slopes of p1-p2 and p2-p3
+            const slopeAB = this.calculateSlope(p1, p2);
+            const slopeBC = this.calculateSlope(p2, p3);
+
+            // Calculate slopes of the perpendicular bisectors
+            const perpSlopeAB = slopeAB !== Infinity ? -1 / slopeAB : 0;
+            const perpSlopeBC = slopeBC !== Infinity ? -1 / slopeBC : 0;
+
+            // Calculate y-intercepts of the perpendicular bisectors
+            const interceptAB = midAB.y - perpSlopeAB * midAB.x;
+            const interceptBC = midBC.y - perpSlopeBC * midBC.x;
+
+            let circumcenter;
+            const EPSILON = 1e-10;
+
+            if (Math.abs(perpSlopeAB - perpSlopeBC) < EPSILON) {
+                console.warn("Perpendicular bisectors are parallel. Circumcenter is undefined.");
+                return null;
+            }
+
+            if (perpSlopeAB === Infinity) {
+                // First bisector is vertical
+                const x = midAB.x;
+                const y = perpSlopeBC * x + interceptBC;
+                circumcenter = { x, y };
+            } else if (perpSlopeBC === Infinity) {
+                // Second bisector is vertical
+                const x = midBC.x;
+                const y = perpSlopeAB * x + interceptAB;
+                circumcenter = { x, y };
+            } else {
+                // Calculate intersection point of the two perpendicular bisectors
+                const x = (interceptBC - interceptAB) / (perpSlopeAB - perpSlopeBC);
+                const y = perpSlopeAB * x + interceptAB;
+                circumcenter = { x, y };
+            }
+
+            // Round near-zero values to zero
+            if (Math.abs(circumcenter.x) < EPSILON) circumcenter.x = 0;
+            if (Math.abs(circumcenter.y) < EPSILON) circumcenter.y = 0;
+
+            console.log("Calculated circumcenter for subsystem:", circumcenter);
+            return circumcenter;
+        } catch (error) {
+            console.error("Error in calculateCircumcenterForPoints:", error);
+            return null;
+        }
+    }
+
+    /**
+     * Calculates the Circumcenters of the subsystem triangles.
+     * 
+     * @returns {Object} An object containing circumcenters for SS1, SS2, and SS3.
+     */
     calculateSubsystemCircumcenters() {
-        const EPSILON = 1e-10;
-        const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
-        
+        if (!this.system || !this.system.n1 || !this.system.n2 || !this.system.n3) {
+            console.error("System or vertices not properly initialized");
+            return {};
+        }
+
         const { n1, n2, n3 } = this.system;
-        const origin = { x: 0, y: 0 };
-        
-        // Define subsystem triangles
+        const origin = { x: 0, y: 0 }; // Intelligence point (I)
+
         const subsystems = {
             ss1: [n1, n3, origin], // Red: N1-N3-I
             ss2: [n1, n2, origin], // Blue: N1-N2-I
             ss3: [n2, n3, origin]  // Green: N2-N3-I
         };
-        
+
         const circumcenters = {};
-        
-        for (const [key, triangle] of Object.entries(subsystems)) {
-            const [p1, p2, p3] = triangle;
-            
-            // Calculate side lengths
-            const a = this.calculateDistance(p1, p2);
-            const b = this.calculateDistance(p2, p3);
-            const c = this.calculateDistance(p3, p1);
-            
-            // Check for equilateral
-            const isEquilateral = Math.abs(a - b) < EPSILON && Math.abs(b - c) < EPSILON;
-            
-            console.log(`Subsystem ${key} sides:`, { a, b, c }, `Is Equilateral: ${isEquilateral}`);
-            
-            let circumcenter;
-            
-            if (isEquilateral) {
-                // For equilateral subsystem, circumcenter coincides with centroid (origin)
-                circumcenter = { x: 0, y: 0 };
-                console.log(`Circumcenter of ${key} set to origin for equilateral subsystem.`);
-            } else {
-                // Calculate circumcenter using the calculateCircumcenter method
-                // Save original system
-                const originalSystem = { ...this.system };
-                
-                // Temporarily set system points to subsystem triangle
-                this.system = {
-                    n1: p1,
-                    n2: p2,
-                    n3: p3
-                };
-                
-                circumcenter = this.calculateCircumcenter();
-                
-                // Restore the original system
-                this.system = originalSystem;
-                
-                if (circumcenter) {
-                    circumcenter.x = roundNearZero(circumcenter.x);
-                    circumcenter.y = roundNearZero(circumcenter.y);
-                    console.log(`Circumcenter of ${key}:`, circumcenter);
+        const EPSILON = 1e-10;
+
+        for (const [key, trianglePoints] of Object.entries(subsystems)) {
+            try {
+                const [p1, p2, p3] = trianglePoints;
+
+                // Calculate side lengths
+                const a = this.calculateDistance(p1, p2);
+                const b = this.calculateDistance(p2, p3);
+                const c = this.calculateDistance(p3, p1);
+
+                // Check if the subsystem triangle is equilateral
+                const isEquilateral = Math.abs(a - b) < EPSILON && Math.abs(b - c) < EPSILON;
+
+                console.log(`Subsystem ${key} sides:`, { a, b, c }, `Is Equilateral: ${isEquilateral}`);
+
+                let circumcenter;
+
+                if (isEquilateral) {
+                    // For equilateral triangles, circumcenter coincides with centroid (origin)
+                    circumcenter = { x: 0, y: 0 };
+                    console.log(`Circumcenter of ${key} set to origin for equilateral subsystem.`);
                 } else {
-                    console.warn(`Circumcenter of ${key} could not be determined.`);
-                    circumcenter = null;
+                    // Calculate circumcenter using the helper function
+                    circumcenter = this.calculateCircumcenterForPoints(p1, p2, p3);
                 }
+
+                circumcenters[key] = circumcenter;
+            } catch (error) {
+                console.error(`Error calculating circumcenter for ${key}:`, error);
+                circumcenters[key] = null;
             }
-            
-            circumcenters[key] = circumcenter;
         }
-        
+
         return circumcenters;
     }
 }
