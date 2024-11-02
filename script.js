@@ -839,6 +839,27 @@ class TriangleSystem {
         console.log('Final formatted value:', formattedCircumcenter);
         
         setElementValue('#subsystem-1-circumcenter', formattedCircumcenter);
+
+        // Update Median Channel coordinates (formerly N1, N2, N3)
+        if (this.system) {
+            // MC1 (formerly N1)
+            const mc1Element = document.getElementById('mc1-coords');
+            if (mc1Element && this.system.n1) {
+                mc1Element.value = `(${this.formatValue(this.system.n1.x)}, ${this.formatValue(this.system.n1.y)})`;
+            }
+
+            // MC2 (formerly N2)
+            const mc2Element = document.getElementById('mc2-coords');
+            if (mc2Element && this.system.n2) {
+                mc2Element.value = `(${this.formatValue(this.system.n2.x)}, ${this.formatValue(this.system.n2.y)})`;
+            }
+
+            // MC3 (formerly N3)
+            const mc3Element = document.getElementById('mc3-coords');
+            if (mc3Element && this.system.n3) {
+                mc3Element.value = `(${this.formatValue(this.system.n3.x)}, ${this.formatValue(this.system.n3.y)})`;
+            }
+        }
     }
 
     calculateSubsystemAngles() {
@@ -2479,36 +2500,62 @@ class TriangleSystem {
     }
 
     drawTriangle() {
-        // Draw the base triangle
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#FFFFFF';  // White lines
+        const { n1, n2, n3 } = this.system;
+        
+        // Draw edges
+        this.ctx.strokeStyle = '#FFFFFF';
         this.ctx.lineWidth = 2;
-        
-        // Move to first vertex
-        this.ctx.moveTo(this.system.n1.x, this.system.n1.y);
-        
-        // Draw lines to other vertices
-        this.ctx.lineTo(this.system.n2.x, this.system.n2.y);
-        this.ctx.lineTo(this.system.n3.x, this.system.n3.y);
-        this.ctx.lineTo(this.system.n1.x, this.system.n1.y);
-        
+        this.ctx.beginPath();
+        this.ctx.moveTo(n1.x, n1.y);
+        this.ctx.lineTo(n2.x, n2.y);
+        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.closePath();
         this.ctx.stroke();
-        
-        // Draw vertices
-        [this.system.n1, this.system.n2, this.system.n3].forEach((node, index) => {
+
+        // Draw vertices with N1, N2, N3 labels
+        [n1, n2, n3].forEach((node, index) => {
+            // Draw vertex point
+            this.ctx.fillStyle = '#FFFFFF';
             this.ctx.beginPath();
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.arc(node.x, node.y, 4, 0, 2 * Math.PI);
+            this.ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI);
             this.ctx.fill();
-            
-            // Add labels N1, N2, N3
+
+            // Draw Node labels (N1, N2, N3)
             this.ctx.save();
-            this.ctx.scale(1, -1);  // Flip text right-side up
+            this.ctx.scale(1, -1); // Flip y-axis for text
             this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.font = '12px Arial';
+            this.ctx.font = '14px Arial';
             this.ctx.fillText(`N${index + 1}`, node.x + 10, -node.y);
             this.ctx.restore();
         });
+
+        // Draw Median Channels (if enabled)
+        if (this.showMedians) {
+            const origin = { x: 0, y: 0 }; // I point
+            
+            // Draw lines from I to each vertex
+            [n1, n2, n3].forEach((node, index) => {
+                this.ctx.strokeStyle = '#AAAAAA'; // Gray color for medians
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(origin.x, origin.y);
+                this.ctx.lineTo(node.x, node.y);
+                this.ctx.stroke();
+
+                // Optionally label the median channels (MC1, MC2, MC3)
+                const midpoint = {
+                    x: (origin.x + node.x) / 2,
+                    y: (origin.y + node.y) / 2
+                };
+                
+                this.ctx.save();
+                this.ctx.scale(1, -1);
+                this.ctx.fillStyle = '#AAAAAA';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText(`MC${index + 1}`, midpoint.x + 5, -midpoint.y);
+                this.ctx.restore();
+            });
+        }
     }
 
     // Helper functions for orthocenter calculation
@@ -2754,55 +2801,48 @@ class TriangleSystem {
             return null;
         }
 
-        console.log("Calculating circumcenter for subsystem points:", { p1, p2, p3 });
-
         try {
-            // Calculate midpoints of p1-p2 and p2-p3
+            // Calculate midpoints
             const midAB = this.calculateMidpoint(p1, p2);
             const midBC = this.calculateMidpoint(p2, p3);
 
-            // Calculate slopes of p1-p2 and p2-p3
+            // Calculate slopes
             const slopeAB = this.calculateSlope(p1, p2);
             const slopeBC = this.calculateSlope(p2, p3);
 
-            // Calculate slopes of the perpendicular bisectors
+            // Calculate perpendicular slopes
             const perpSlopeAB = slopeAB !== Infinity ? -1 / slopeAB : 0;
             const perpSlopeBC = slopeBC !== Infinity ? -1 / slopeBC : 0;
 
-            // Calculate y-intercepts of the perpendicular bisectors
+            // Calculate intercepts
             const interceptAB = midAB.y - perpSlopeAB * midAB.x;
             const interceptBC = midBC.y - perpSlopeBC * midBC.x;
 
-            let circumcenter;
             const EPSILON = 1e-10;
-
             if (Math.abs(perpSlopeAB - perpSlopeBC) < EPSILON) {
-                console.warn("Perpendicular bisectors are parallel. Circumcenter is undefined.");
+                console.warn("Perpendicular bisectors are parallel.");
                 return null;
             }
 
+            let circumcenter;
             if (perpSlopeAB === Infinity) {
-                // First bisector is vertical
                 const x = midAB.x;
                 const y = perpSlopeBC * x + interceptBC;
                 circumcenter = { x, y };
             } else if (perpSlopeBC === Infinity) {
-                // Second bisector is vertical
                 const x = midBC.x;
                 const y = perpSlopeAB * x + interceptAB;
                 circumcenter = { x, y };
             } else {
-                // Calculate intersection point of the two perpendicular bisectors
                 const x = (interceptBC - interceptAB) / (perpSlopeAB - perpSlopeBC);
                 const y = perpSlopeAB * x + interceptAB;
                 circumcenter = { x, y };
             }
 
-            // Round near-zero values to zero
+            // Round near-zero values
             if (Math.abs(circumcenter.x) < EPSILON) circumcenter.x = 0;
             if (Math.abs(circumcenter.y) < EPSILON) circumcenter.y = 0;
 
-            console.log("Calculated circumcenter for subsystem:", circumcenter);
             return circumcenter;
         } catch (error) {
             console.error("Error in calculateCircumcenterForPoints:", error);
@@ -2822,43 +2862,31 @@ class TriangleSystem {
         }
 
         const { n1, n2, n3 } = this.system;
-        const origin = { x: 0, y: 0 }; // Intelligence point (I)
-
+        const origin = { x: 0, y: 0 };
+        
         const subsystems = {
-            ss1: [n1, n3, origin], // Red: N1-N3-I
-            ss2: [n1, n2, origin], // Blue: N1-N2-I
-            ss3: [n2, n3, origin]  // Green: N2-N3-I
+            ss1: [n1, n3, origin],
+            ss2: [n1, n2, origin],
+            ss3: [n2, n3, origin]
         };
 
         const circumcenters = {};
         const EPSILON = 1e-10;
 
-        for (const [key, trianglePoints] of Object.entries(subsystems)) {
+        for (const [key, [p1, p2, p3]] of Object.entries(subsystems)) {
             try {
-                const [p1, p2, p3] = trianglePoints;
-
-                // Calculate side lengths
+                // Check if equilateral
                 const a = this.calculateDistance(p1, p2);
                 const b = this.calculateDistance(p2, p3);
                 const c = this.calculateDistance(p3, p1);
-
-                // Check if the subsystem triangle is equilateral
+                
                 const isEquilateral = Math.abs(a - b) < EPSILON && Math.abs(b - c) < EPSILON;
-
-                console.log(`Subsystem ${key} sides:`, { a, b, c }, `Is Equilateral: ${isEquilateral}`);
-
-                let circumcenter;
-
+                
                 if (isEquilateral) {
-                    // For equilateral triangles, circumcenter coincides with centroid (origin)
-                    circumcenter = { x: 0, y: 0 };
-                    console.log(`Circumcenter of ${key} set to origin for equilateral subsystem.`);
+                    circumcenters[key] = { x: 0, y: 0 };
                 } else {
-                    // Calculate circumcenter using the helper function
-                    circumcenter = this.calculateCircumcenterForPoints(p1, p2, p3);
+                    circumcenters[key] = this.calculateCircumcenterForPoints(p1, p2, p3);
                 }
-
-                circumcenters[key] = circumcenter;
             } catch (error) {
                 console.error(`Error calculating circumcenter for ${key}:`, error);
                 circumcenters[key] = null;
@@ -2866,6 +2894,191 @@ class TriangleSystem {
         }
 
         return circumcenters;
+    }
+
+    /**
+     * Calculates the tangency point between a line and a circle
+     * 
+     * @param {Object} p1 - First point with x, y coordinates
+     * @param {Object} p2 - Second point with x, y coordinates
+     * @returns {Object} Tangency point with x, y coordinates
+     */
+    calculateTangencyPoint(p1, p2) {
+        // Input validation
+        if (!p1 || typeof p1.x === 'undefined' || typeof p1.y === 'undefined' ||
+            !p2 || typeof p2.x === 'undefined' || typeof p2.y === 'undefined') {
+            console.error('Invalid points passed to calculateTangencyPoint:', { p1, p2 });
+            return { x: 0, y: 0 };
+        }
+
+        // System property validation
+        if (!this.system || !this.system.incenter || typeof this.system.incircleRadius === 'undefined') {
+            console.error('Incenter or incircleRadius is undefined in system:', this.system);
+            return { x: 0, y: 0 };
+        }
+
+        try {
+            const { incenter, incircleRadius } = this.system;
+
+            // Calculate direction vector
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const sideLength = Math.sqrt(dx * dx + dy * dy);
+
+            // Handle zero-length vector
+            if (Math.abs(sideLength) < 1e-10) {
+                console.warn('Zero-length vector in calculateTangencyPoint');
+                return { x: p1.x, y: p1.y };
+            }
+
+            // Calculate projection point relative to incenter
+            const t = ((incenter.x - p1.x) * dx + (incenter.y - p1.y) * dy) / (sideLength * sideLength);
+            const projX = p1.x + t * dx;
+            const projY = p1.y + t * dy;
+
+            // Calculate direction from incenter to projection point
+            const dirX = projX - incenter.x;
+            const dirY = projY - incenter.y;
+            const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
+
+            // Handle zero direction length
+            if (Math.abs(dirLength) < 1e-10) {
+                console.warn('Zero direction length in calculateTangencyPoint');
+                return { x: p1.x, y: p1.y };
+            }
+
+            // Calculate and return tangent point relative to incenter
+            const result = {
+                x: incenter.x + (dirX / dirLength) * incircleRadius,
+                y: incenter.y + (dirY / dirLength) * incircleRadius
+            };
+
+            // Round near-zero values to zero
+            if (Math.abs(result.x) < 1e-10) result.x = 0;
+            if (Math.abs(result.y) < 1e-10) result.y = 0;
+
+            return result;
+
+        } catch (error) {
+            console.error('Error in calculateTangencyPoint:', error);
+            return { x: 0, y: 0 };
+        }
+    }
+
+    /**
+     * Calculates the circumcenter using circumcircle properties
+     * 
+     * @returns {Object} Object containing circumcenter coordinates and circumradius
+     */
+    calculateSubsystemCircumcenterUsingCircumcircle() {
+        // Validate system and vertices
+        if (!this.system || !this.system.n1 || !this.system.n2 || !this.system.n3) {
+            console.error('System or vertices not properly initialized');
+            return null;
+        }
+
+        const { n1, n2, n3 } = this.system;
+        const EPSILON = 1e-10;
+
+        try {
+            // Calculate side lengths using Math.hypot for better numerical stability
+            const a = Math.hypot(n2.x - n3.x, n2.y - n3.y); // Side opposite N1
+            const b = Math.hypot(n1.x - n3.x, n1.y - n3.y); // Side opposite N2
+            const c = Math.hypot(n1.x - n2.x, n1.y - n2.y); // Side opposite N3
+
+            // Check for degenerate triangle
+            if (a < EPSILON || b < EPSILON || c < EPSILON) {
+                console.warn('Degenerate triangle detected');
+                return null;
+            }
+
+            // Calculate semi-perimeter and area
+            const s = (a + b + c) / 2;
+            const area = Math.sqrt(Math.max(0, s * (s - a) * (s - b) * (s - c)));
+            
+            if (area < EPSILON) {
+                console.warn('Triangle has zero area');
+                return null;
+            }
+
+            // Calculate circumradius
+            const circumradius = (a * b * c) / (4 * area);
+
+            // Calculate midpoints with validation
+            const midpointN1N3 = this.calculateMidpoint(n1, n3);
+            const midpointN2N3 = this.calculateMidpoint(n2, n3);
+
+            // Calculate slopes with protection against division by zero
+            let slopeN1N3 = 0, slopeN2N3 = 0;
+            
+            if (Math.abs(n3.x - n1.x) > EPSILON) {
+                slopeN1N3 = (n3.y - n1.y) / (n3.x - n1.x);
+            } else {
+                slopeN1N3 = Infinity;
+            }
+            
+            if (Math.abs(n3.x - n2.x) > EPSILON) {
+                slopeN2N3 = (n3.y - n2.y) / (n3.x - n2.x);
+            } else {
+                slopeN2N3 = Infinity;
+            }
+
+            // Calculate perpendicular slopes
+            let perpSlope1 = Infinity, perpSlope2 = Infinity;
+            
+            if (Math.abs(slopeN1N3) > EPSILON) {
+                perpSlope1 = -1 / slopeN1N3;
+            } else if (slopeN1N3 === 0) {
+                perpSlope1 = Infinity;
+            }
+            
+            if (Math.abs(slopeN2N3) > EPSILON) {
+                perpSlope2 = -1 / slopeN2N3;
+            } else if (slopeN2N3 === 0) {
+                perpSlope2 = Infinity;
+            }
+
+            let circumcenter;
+
+            // Handle different slope cases
+            if (perpSlope1 !== Infinity && perpSlope2 !== Infinity) {
+                // Both slopes are finite
+                const x = (perpSlope1 * midpointN1N3.x - perpSlope2 * midpointN2N3.x + 
+                          midpointN2N3.y - midpointN1N3.y) / (perpSlope1 - perpSlope2);
+                const y = perpSlope1 * (x - midpointN1N3.x) + midpointN1N3.y;
+                circumcenter = { x, y };
+            } else if (perpSlope1 === Infinity) {
+                // First perpendicular is vertical
+                circumcenter = {
+                    x: midpointN1N3.x,
+                    y: perpSlope2 * (midpointN1N3.x - midpointN2N3.x) + midpointN2N3.y
+                };
+            } else {
+                // Second perpendicular is vertical
+                circumcenter = {
+                    x: midpointN2N3.x,
+                    y: perpSlope1 * (midpointN2N3.x - midpointN1N3.x) + midpointN1N3.y
+                };
+            }
+
+            // Round near-zero values
+            if (Math.abs(circumcenter.x) < EPSILON) circumcenter.x = 0;
+            if (Math.abs(circumcenter.y) < EPSILON) circumcenter.y = 0;
+
+            // Validate final result
+            if (isNaN(circumcenter.x) || isNaN(circumcenter.y) || 
+                !isFinite(circumcenter.x) || !isFinite(circumcenter.y)) {
+                console.error('Invalid circumcenter calculated:', circumcenter);
+                return null;
+            }
+
+            console.log('Calculated circumcenter and radius:', { circumcenter, circumradius });
+            return { circumcenter, circumradius };
+
+        } catch (error) {
+            console.error('Error in calculateSubsystemCircumcenterUsingCircumcircle:', error);
+            return null;
+        }
     }
 }
 
