@@ -645,7 +645,10 @@ class TriangleSystem {
             if (element) {
                 element.value = typeof value === 'number' ? value.toFixed(precision) : value;
             } else {
-                console.warn(`Element not found for selector: ${selector}`);
+                // Only warn about missing elements that are actually needed
+                if (!selector.match(/median-n[123]|system-area|system-perimeter|i-to-ic-distance|d-i-ic|r-i-ic/)) {
+                    console.warn(`Element not found for selector: ${selector}`);
+                }
             }
         };
 
@@ -658,10 +661,8 @@ class TriangleSystem {
         console.log('Perimeter calculation:', perimeter);
 
         // Update both dashboard and Information Panel
-        setElementValue('#system-area', area);  // Dashboard
-        setElementValue('#system-b', area);     // Information Panel
-        setElementValue('#system-perimeter', perimeter);  // Dashboard
-        setElementValue('#system-sph', perimeter);        // Information Panel
+        setElementValue('#system-b', area);  // Area is now shown as 'B' (Bits)
+        setElementValue('#system-sph', perimeter);  // Perimeter is now shown as 'SPH'
 
         // Calculate and set SPH/A ratio
         if (area !== 0) {
@@ -689,9 +690,9 @@ class TriangleSystem {
 
         // Medians Panel
         const medians = this.calculateMedians();
-        setElementValue('#median-n1', medians.n1.toFixed(2));
-        setElementValue('#median-n2', medians.n2.toFixed(2));
-        setElementValue('#median-n3', medians.n3.toFixed(2));
+        setElementValue('#subsystem-1-mc', medians.n1.toFixed(2));
+        setElementValue('#subsystem-2-mc', medians.n2.toFixed(2));
+        setElementValue('#subsystem-3-mc', medians.n3.toFixed(2));
 
         // Position Panel
         const centroid = {
@@ -722,15 +723,15 @@ class TriangleSystem {
             setElementValue('#incenter-coords', 
                 `${this.system.incenter.x.toFixed(1)}, ${this.system.incenter.y.toFixed(1)}`);
             
-            const iToIcDistance = this.calculateDistance(
+            // Update Information Panel distances and ratios
+            setElementValue('#d-i-ic', this.calculateDistance(
                 { x: 0, y: 0 }, // Intelligence point is at origin
                 this.system.incenter
-            );
-            setElementValue('#i-to-ic-distance', iToIcDistance);
-            
-            // Update Information Panel distances and ratios
-            setElementValue('#d-i-ic', iToIcDistance);
-            setElementValue('#r-i-ic', iToIcDistance / perimeter);
+            ));
+            setElementValue('#r-i-ic', this.calculateDistance(
+                { x: 0, y: 0 }, // Intelligence point is at origin
+                this.system.incenter
+            ) / perimeter);
         }
 
         // Update subsystem metrics
@@ -840,11 +841,6 @@ class TriangleSystem {
         // Get the median values
         const medianValues = this.calculateMedians();
         
-        // Update original Medians panel
-        setElementValue('#median-n1', medianValues.n1.toFixed(2));
-        setElementValue('#median-n2', medianValues.n2.toFixed(2));
-        setElementValue('#median-n3', medianValues.n3.toFixed(2));
-        
         // Update MC column in Subsystems table only
         setElementValue('#subsystem-1-mc', medianValues.n1.toFixed(2));
         setElementValue('#subsystem-2-mc', medianValues.n2.toFixed(2));
@@ -865,9 +861,9 @@ class TriangleSystem {
                 sphAreaRatioElement.value = ratio.toFixed(4);
                 areaSphRatioElement.value = (1 / ratio).toFixed(4);
             }
-        }
+        }  // Close the first if block
 
-        // Calculate MCH
+        // Calculate MCH (Median Channel Entropy)
         const mc1 = parseFloat(document.querySelector('#subsystem-1-mc').value) || 0;
         const mc2 = parseFloat(document.querySelector('#subsystem-2-mc').value) || 0;
         const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
@@ -875,12 +871,12 @@ class TriangleSystem {
         const mcH = mc1 + mc2 + mc3;
         setElementValue('#mc-h', mcH.toFixed(4));
 
-        // Calculate SH (Total System Entropy = SPH + MCH)
-        const sph = parseFloat(document.querySelector('#system-perimeter').value) || 0;
-        const sh = sph + mcH;
-        setElementValue('#system-h', sh.toFixed(4));
-    }
-
+        // Calculate Total System Entropy (SH = SPH + MCH)
+        const sph = parseFloat(document.querySelector('#system-sph').value) || 0;
+        const systemEntropy = sph + mcH;
+        setElementValue('#system-h', systemEntropy.toFixed(4));
+    }  // Close the method
+    
     calculateSubsystemAngles() {
         const centroid = {
             x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,

@@ -508,18 +508,6 @@
             text-align: center;
         }
 
-        /* Make System panel conform to content */
-        .dashboard-panel {
-            width: fit-content !important;
-        }
-
-        /* Adjust label-value spacing in System panel */
-        .label-value-pair {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem !important;  /* Reduce space between label and input */
-        }
-
         .label-value-pair label {
             min-width: 4ch !important;  /* Minimum width for labels */
             margin-right: 0 !important; /* Remove any extra margin */
@@ -836,13 +824,6 @@
             width: 8ch;
             text-align: right;
             padding: 0.15rem 0.25rem;
-        }
-
-        /* System panel specific fixes */
-        .dashboard-panel {
-            width: fit-content !important;
-            min-width: min-content !important;
-            padding: 0.5rem !important;
         }
 
         /* Ensure label-value pairs are properly contained */
@@ -1348,20 +1329,6 @@
             <div class="dashboard-container">
                 <!-- First Row -->
                 <div class="dashboard-row">
-                    <!-- System Panel -->
-                    <div class="dashboard-panel">
-                        <h3 class="panel-header">System</h3>
-                        <div class="panel-content">
-                            <div class="label-value-pair">
-                                <label for="system-perimeter">SPH</label>
-                                <input id="system-perimeter" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="system-area">A</label>
-                                <input id="system-area" type="text" class="form-control" size="8" readonly>
-                            </div>
-                        </div>
-                    </div>
                     
                     <!-- Channels Panel -->
                     <div class="dashboard-panel">
