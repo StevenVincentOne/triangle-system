@@ -656,9 +656,13 @@ class TriangleSystem {
         // Calculate and set SPH/A ratio
         if (area !== 0) {
             const sphAreaRatio = perimeter / area;
-            setElementValue('#sph-area-ratio', sphAreaRatio);
-        } else {
-            setElementValue('#sph-area-ratio', '---');
+            setElementValue('#sph-area-ratio', sphAreaRatio.toFixed(4));
+        }
+
+        // Where SPH/A is already being calculated, add:
+        const sphAreaRatio = parseFloat(document.getElementById('sph-area-ratio').value);
+        if (!isNaN(sphAreaRatio) && sphAreaRatio !== 0) {
+            setElementValue('#area-sph-ratio', (1 / sphAreaRatio).toFixed(4));
         }
 
         // Nodes Panel
@@ -835,6 +839,23 @@ class TriangleSystem {
         setElementValue('#subsystem-1-mc', medianValues.n1.toFixed(2));
         setElementValue('#subsystem-2-mc', medianValues.n2.toFixed(2));
         setElementValue('#subsystem-3-mc', medianValues.n3.toFixed(2));
+
+        // Get the elements first with null checks
+        const sphAreaRatioElement = document.getElementById('sph-area-ratio');
+        const areaSphRatioElement = document.getElementById('area-sph-ratio');
+
+        // Only proceed if both elements exist
+        if (sphAreaRatioElement && areaSphRatioElement) {
+            // Use the system's existing values instead of reading from DOM
+            const sphValue = this.system.sph;
+            const areaValue = this.system.area;
+            
+            if (sphValue && areaValue && areaValue !== 0) {
+                const ratio = sphValue / areaValue;
+                sphAreaRatioElement.value = ratio.toFixed(4);
+                areaSphRatioElement.value = (1 / ratio).toFixed(4);
+            }
+        }
     }
 
     calculateSubsystemAngles() {
