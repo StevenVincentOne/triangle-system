@@ -1377,25 +1377,6 @@
                         </div>
                     </div>
                     
-                    <!-- Medians Panel -->
-                    <div class="dashboard-panel">
-                        <h3 class="panel-header">Medians</h3>
-                        <div class="panel-content">
-                            <div class="label-value-pair">
-                                <label for="median-n1">MC1</label>
-                                <input id="median-n1" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="median-n2">MC2</label>
-                                <input id="median-n2" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="median-n3">MC3</label>
-                                <input id="median-n3" type="text" class="form-control" size="8" readonly>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Nodes Panel -->
                     <div class="dashboard-panel">
                         <h3 class="panel-header">Nodes</h3>
@@ -1425,32 +1406,36 @@
                                 <thead>
                                     <tr>
                                         <th>Subsystems</th>
-                                        <th>∠</th>
-                                        <th>h</th>
                                         <th>A</th>
+                                        <th>∠</th>
+                                        <th>MC</th>
+                                        <th>h</th>
                                         <th>I (x,y)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>SS1</td>
-                                        <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                        <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-1-mc" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-1-centroid" type="text" class="form-control" size="16" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>SS2</td>
-                                        <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                        <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-2-mc" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-2-centroid" type="text" class="form-control" size="16" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>SS3</td>
-                                        <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                        <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
+                                        <td><input id="subsystem-3-mc" type="text" class="form-control" size="8" readonly></td>
+                                        <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
                                         <td><input id="subsystem-3-centroid" type="text" class="form-control" size="16" readonly></td>
                                     </tr>
                                 </tbody>
@@ -1612,6 +1597,9 @@
                     </div>
                     <div class="col-md-3">
                         <p>∠: Angle</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>MC: Median Channel</p>
                     </div>
                 </div>
             </div>

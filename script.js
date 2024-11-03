@@ -675,9 +675,9 @@ class TriangleSystem {
 
         // Medians Panel
         const medians = this.calculateMedians();
-        setElementValue('#median-n1', medians.n1);
-        setElementValue('#median-n2', medians.n2);
-        setElementValue('#median-n3', medians.n3);
+        setElementValue('#median-n1', medians.n1.toFixed(2));
+        setElementValue('#median-n2', medians.n2.toFixed(2));
+        setElementValue('#median-n3', medians.n3.toFixed(2));
 
         // Position Panel
         const centroid = {
@@ -822,6 +822,19 @@ class TriangleSystem {
         // const subsystemCircumcenters = this.calculateSubsystemCircumcenters();
         // ... remove debug logging ...
         // ... remove circumcenter updates ...
+
+        // Get the median values
+        const medianValues = this.calculateMedians();
+        
+        // Update original Medians panel
+        setElementValue('#median-n1', medianValues.n1.toFixed(2));
+        setElementValue('#median-n2', medianValues.n2.toFixed(2));
+        setElementValue('#median-n3', medianValues.n3.toFixed(2));
+        
+        // Update MC column in Subsystems table only
+        setElementValue('#subsystem-1-mc', medianValues.n1.toFixed(2));
+        setElementValue('#subsystem-2-mc', medianValues.n2.toFixed(2));
+        setElementValue('#subsystem-3-mc', medianValues.n3.toFixed(2));
     }
 
     calculateSubsystemAngles() {
