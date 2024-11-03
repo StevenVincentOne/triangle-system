@@ -656,7 +656,14 @@ class TriangleSystem {
         const perimeter = this.calculatePerimeter();
         setElementValue('#system-perimeter', perimeter);
         setElementValue('#system-area', area);
-        setElementValue('#subsystems-area', area / 3); // Each subsystem has equal area
+        
+        // Calculate and set SPH/A ratio
+        if (area !== 0) {
+            const sphAreaRatio = perimeter / area;
+            setElementValue('#sph-area-ratio', sphAreaRatio);
+        } else {
+            setElementValue('#sph-area-ratio', '---');
+        }
 
         // Nodes Panel
         const angles = this.calculateAngles();
