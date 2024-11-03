@@ -128,9 +128,6 @@ class TriangleSystem {
 
         // Add this line
         this.showEuler = false;  // New clean flag for Euler line
-
-        // Add to constructor
-        this.showExpo = false;  // New property for Exponential Point visibility
     }
 
     // Method to initialize all event listeners
@@ -149,7 +146,6 @@ class TriangleSystem {
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleSpecialCenters', property: 'showSpecialCenters' },  // Add this line
-            { id: 'toggleExpo', property: 'showExpo' }  // Add this line
         ];
 
         featureButtons.forEach(button => {
@@ -790,17 +786,6 @@ class TriangleSystem {
         if (ninePointCircle && ninePointCircle.center) {
             setElementValue('#nine-point-coords', 
                 `${ninePointCircle.center.x.toFixed(1)}, ${ninePointCircle.center.y.toFixed(1)}`);
-        }
-
-        // Update Exponential Point coordinates
-        const expPoint = this.calculateExponentialPoint();
-        if (expPoint) {
-            setElementValue('#exponential-coords', 
-                `${this.formatValue(this.roundToZero(expPoint.x))}, ${this.formatValue(this.roundToZero(expPoint.y))}`);
-            console.log("Updated Exponential Point coordinates:", expPoint);  // Debug log
-        } else {
-            setElementValue('#exponential-coords', 'undefined');
-            console.log("Could not calculate Exponential Point");  // Debug log
         }
 
         // Get the subsystem area (which is already calculated as system area / 3)
@@ -2629,87 +2614,6 @@ class TriangleSystem {
         console.log("Orthocircle drawn");
     }
 
-    /**
-     * Calculates the Exponential Point of the triangle.
-     * This point lies on the Euler line and is calculated using complex exponentials.
-     */
-    calculateExponentialPoint() {
-        try {
-            const { n1, n2, n3 } = this.system;
-            
-            if (!n1 || !n2 || !n3) {
-                console.warn("Cannot calculate Exponential Point: vertices not defined");
-                return null;
-            }
-            
-            // Step 1: Calculate side lengths a, b, c
-            const a = Math.sqrt(Math.pow(n2.x - n3.x, 2) + Math.pow(n2.y - n3.y, 2));
-            const b = Math.sqrt(Math.pow(n1.x - n3.x, 2) + Math.pow(n1.y - n3.y, 2));
-            const c = Math.sqrt(Math.pow(n1.x - n2.x, 2) + Math.pow(n1.y - n2.y, 2));
-            
-            // Step 2: Calculate semi-perimeter s and area K using Heron's formula
-            const s = (a + b + c) / 2;
-            const K = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-            
-            // Step 3: Calculate circumradius R
-            const R = (a * b * c) / (4 * K);
-            
-            // Step 4: Calculate cosines and sines of angles
-            const cosA = (b * b + c * c - a * a) / (2 * b * c);
-            const cosB = (a * a + c * c - b * b) / (2 * a * c);
-            const cosC = (a * a + b * b - c * c) / (2 * a * b);
-            
-            const sinA = Math.sqrt(1 - cosA * cosA);
-            const sinB = Math.sqrt(1 - cosB * cosB);
-            const sinC = Math.sqrt(1 - cosC * cosC);
-            
-            // Step 5: Calculate weighted coordinates without direct R scaling
-            const x_weighted = n1.x * cosA + n2.x * cosB + n3.x * cosC;
-            const y_weighted = n1.y * sinA + n2.y * sinB + n3.y * sinC;
-            
-            // Step 6: Scale down by perimeter for stability
-            const x_E = (x_weighted / (a + b + c)) * R;
-            const y_E = (y_weighted / (a + b + c)) * R;
-            
-            console.log("Triangle sides:", { a, b, c });
-            console.log("Area and circumradius:", { K, R });
-            console.log("Angles (degrees):", { 
-                A: Math.acos(cosA) * 180/Math.PI,
-                B: Math.acos(cosB) * 180/Math.PI,
-                C: Math.acos(cosC) * 180/Math.PI
-            });
-            console.log("Exponential Point:", { x: x_E, y: y_E });
-            
-            return { x: x_E, y: y_E };
-            
-        } catch (error) {
-            console.error("Error calculating Exponential Point:", error);
-            return null;
-        }
-    }
-
-    // Update drawExponentialPoint method
-    drawExponentialPoint(ctx) {
-        if (!this.showExpo) return;
-        
-        const expPoint = this.calculateExponentialPoint();
-        if (!expPoint) return;
-        
-        // Draw the point in brighter neon orange
-        ctx.fillStyle = '#FF9933';  // Brighter orange
-        ctx.beginPath();
-        ctx.arc(expPoint.x, expPoint.y, 4, 0, 2 * Math.PI);  // Smaller dot size to match N and O
-        ctx.fill();
-        
-        // Label 'E' in same color with matching font size
-        ctx.fillStyle = '#FF9933';
-        ctx.font = '12px Arial';  // Smaller font to match N and O
-        ctx.save();
-        ctx.scale(1, -1);
-        ctx.fillText('E', expPoint.x + 8, -expPoint.y);  // Adjusted offset to match other labels
-        ctx.restore();
-    }
-
     calculateCentroid() {
         const { n1, n2, n3 } = this.system;
         return {
@@ -2848,15 +2752,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleCircumcircleButton) {
         toggleCircumcircleButton.addEventListener('click', () => {
             triangleSystem.showCircumcircle = !triangleSystem.showCircumcircle;
-            triangleSystem.drawSystem();
-        });
-    }
-
-    // Add Exponential Point toggle
-    const toggleExpoButton = document.getElementById('toggleExpo');
-    if (toggleExpoButton) {
-        toggleExpoButton.addEventListener('click', () => {
-            triangleSystem.showExpo = !triangleSystem.showExpo;
             triangleSystem.drawSystem();
         });
     }
