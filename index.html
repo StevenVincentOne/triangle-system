@@ -1334,7 +1334,7 @@
                     <div class="dashboard-panel">
                         <h3 class="panel-header">System</h3>
                         <div class="d-flex justify-content-center gap-2">
-                            <!-- Nodes Panel First -->
+                            <!-- Nodes Panel -->
                             <div class="dashboard-panel" style="min-width: 300px;">
                                 <h3 class="panel-header">Nodes</h3>
                                 <div class="d-flex gap-3">
@@ -1372,7 +1372,7 @@
                                 </div>
                             </div>
 
-                            <!-- Channels Panel Second -->
+                            <!-- Channels Panel -->
                             <div class="dashboard-panel">
                                 <h3 class="panel-header">Channels</h3>
                                 <div class="panel-content">
@@ -1387,6 +1387,25 @@
                                     <div class="label-value-pair">
                                         <label for="channel-3">NC3</label>
                                         <input id="channel-3" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MC Panel -->
+                            <div class="dashboard-panel">
+                                <h3 class="panel-header">MC</h3>
+                                <div class="panel-content">
+                                    <div class="label-value-pair">
+                                        <label for="subsystem-1-mc">MC1</label>
+                                        <input id="subsystem-1-mc" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="subsystem-2-mc">MC2</label>
+                                        <input id="subsystem-2-mc" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="subsystem-3-mc">MC3</label>
+                                        <input id="subsystem-3-mc" type="text" class="form-control" size="8" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -1405,7 +1424,6 @@
                                     <th>SS</th>
                                     <th>Centroid</th>
                                     <th>∠</th>
-                                    <th>MC</th>
                                     <th>ssb</th>
                                     <th>ssh</th>
                                 </tr>
@@ -1415,7 +1433,6 @@
                                     <td>SS1</td>
                                     <td><input id="subsystem-1-centroid" type="text" class="form-control" size="9" readonly></td>
                                     <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                    <td><input id="subsystem-1-mc" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
@@ -1423,7 +1440,6 @@
                                     <td>SS2</td>
                                     <td><input id="subsystem-2-centroid" type="text" class="form-control" size="9" readonly></td>
                                     <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                    <td><input id="subsystem-2-mc" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
@@ -1431,7 +1447,6 @@
                                     <td>SS3</td>
                                     <td><input id="subsystem-3-centroid" type="text" class="form-control" size="9" readonly></td>
                                     <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                    <td><input id="subsystem-3-mc" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
