@@ -644,17 +644,24 @@ class TriangleSystem {
             const element = document.querySelector(selector);
             if (element) {
                 element.value = typeof value === 'number' ? value.toFixed(precision) : value;
+            } else {
+                console.warn(`Element not found for selector: ${selector}`);
             }
         };
 
-        // System Panel
+        // Calculate system values
         const area = this.calculateArea();
         const perimeter = this.calculatePerimeter();
-        setElementValue('#system-perimeter', perimeter);
-        setElementValue('#system-area', area);
         
-        // Add this line to update the new SPH field
-        setElementValue('#system-sph', perimeter);
+        // Debug log to check values
+        console.log('Area calculation:', area);
+        console.log('Perimeter calculation:', perimeter);
+
+        // Update both dashboard and Information Panel
+        setElementValue('#system-area', area);  // Dashboard
+        setElementValue('#system-b', area);     // Information Panel
+        setElementValue('#system-perimeter', perimeter);  // Dashboard
+        setElementValue('#system-sph', perimeter);        // Information Panel
 
         // Calculate and set SPH/A ratio
         if (area !== 0) {
@@ -1476,11 +1483,13 @@ class TriangleSystem {
 
     calculateArea() {
         const { n1, n2, n3 } = this.system;
-        return Math.abs(
-            (n1.x * (n2.y - n3.y) +
-                n2.x * (n3.y - n1.y) +
-                n3.x * (n1.y - n2.y)) / 2
-        );
+        // Area calculation using the formula: |Ax(By - Cy) + Bx(Cy - Ay) + Cx(Ay - By)| / 2
+        const area = Math.abs(
+            n1.x * (n2.y - n3.y) +
+            n2.x * (n3.y - n1.y) +
+            n3.x * (n1.y - n2.y)
+        ) / 2;
+        return area;
     }
 
     calculateLengths() {
