@@ -1200,6 +1200,15 @@
         .subsystems-table td:nth-child(6) input { /* O column */
             min-width: 120px;
         }
+
+        .column-header {
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #444;
+        }
     </style>
 </head>
 <body>
@@ -1530,8 +1539,9 @@
                 <div id="information-panel" class="bg-dark p-2 rounded">
                     <h3 class="panel-header">Information Panel</h3>
                     <div class="info-content d-flex gap-2">
-                        <!-- Entropy column (moved to first position) -->
+                        <!-- System column -->
                         <div class="info-column">
+                            <div class="column-header">System</div>
                             <div class="label-value-pair">
                                 <label for="mc-h">MCH</label>
                                 <input id="mc-h" type="text" class="form-control" size="8" readonly>
@@ -1542,8 +1552,9 @@
                             </div>
                         </div>
 
-                        <!-- Ratios column (moved to middle) -->
+                        <!-- System Ratios column -->
                         <div class="info-column">
+                            <div class="column-header">System Ratios</div>
                             <div class="label-value-pair">
                                 <label for="sph-area-ratio">SPH/A</label>
                                 <input id="sph-area-ratio" type="text" class="form-control" size="8" readonly>
@@ -1554,8 +1565,9 @@
                             </div>
                         </div>
 
-                        <!-- d(M,T) and r(M,T) column (stays in last position) -->
+                        <!-- Position column -->
                         <div class="info-column">
+                            <div class="column-header">Position</div>
                             <div class="label-value-pair">
                                 <label for="d-m-t-n1">d(M,T) N1</label>
                                 <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
