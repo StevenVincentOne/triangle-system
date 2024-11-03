@@ -825,9 +825,9 @@ class TriangleSystem {
         // Calculate and update subsystem centroids
         const centroids = this.calculateSubsystemCentroids();
         const formatCoord = (x, y) => {
-            const xStr = x.toFixed(1).padStart(6);
-            const yStr = y.toFixed(1).padStart(6);
-            return `${xStr}, ${yStr}`;
+            const xStr = x.toFixed(1);  // Remove padStart
+            const yStr = y.toFixed(1);  // Remove padStart
+            return `${xStr},${yStr}`;   // No spaces, just comma
         };
         setElementValue('#subsystem-1-centroid', formatCoord(centroids.ss1.x, centroids.ss1.y));
         setElementValue('#subsystem-2-centroid', formatCoord(centroids.ss2.x, centroids.ss2.y));
