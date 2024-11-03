@@ -684,9 +684,9 @@ class TriangleSystem {
 
         // Channels (Edges) Panel
         const lengths = this.calculateLengths();
-        setElementValue('#edge-nc1', lengths.l1); // NC1 (Red): N1 to N3
-        setElementValue('#edge-nc2', lengths.l2); // NC2 (Blue): N1 to N2
-        setElementValue('#edge-nc3', lengths.l3); // NC3 (Green): N2 to N3
+        setElementValue('#channel-1', lengths.l1); // NC1 (Red): N1 to N3
+        setElementValue('#channel-2', lengths.l2); // NC2 (Blue): N1 to N2
+        setElementValue('#channel-3', lengths.l3); // NC3 (Green): N2 to N3
 
         // Medians Panel
         const medians = this.calculateMedians();
