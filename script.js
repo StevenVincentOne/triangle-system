@@ -856,6 +856,14 @@ class TriangleSystem {
                 areaSphRatioElement.value = (1 / ratio).toFixed(4);
             }
         }
+
+        // Calculate MCh (sum of MC values from subsystems)
+        const mc1 = parseFloat(document.querySelector('#subsystem-1-mc').value) || 0;
+        const mc2 = parseFloat(document.querySelector('#subsystem-2-mc').value) || 0;
+        const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
+        
+        const mcH = mc1 + mc2 + mc3;
+        setElementValue('#mc-h', mcH.toFixed(4));
     }
 
     calculateSubsystemAngles() {
