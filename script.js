@@ -653,6 +653,9 @@ class TriangleSystem {
         setElementValue('#system-perimeter', perimeter);
         setElementValue('#system-area', area);
         
+        // Add this line to update the new SPH field
+        setElementValue('#system-sph', perimeter);
+
         // Calculate and set SPH/A ratio
         if (area !== 0) {
             const sphAreaRatio = perimeter / area;
