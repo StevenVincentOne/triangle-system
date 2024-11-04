@@ -890,14 +890,25 @@ class TriangleSystem {
         setElementValue('#subsystem-3-mc', mc3.toFixed(2));  // Add this line
 
         // Calculate ratios
-        if (area !== 0) {
+        if (area !== 0 && systemEntropy !== 0 && sph !== 0 && mcH !== 0) {
+            // X/B ratios
             const shBRatio = systemEntropy / area;
             const sphBRatio = sph / area;
             const mchBRatio = mcH / area;
             
+            // B/X ratios
+            const bShRatio = area / systemEntropy;
+            const bSphRatio = area / sph;
+            const bMchRatio = area / mcH;
+            
+            // Update displays
             setElementValue('#sh-b-ratio', shBRatio.toFixed(4));
             setElementValue('#sph-b-ratio', sphBRatio.toFixed(4));
             setElementValue('#mch-b-ratio', mchBRatio.toFixed(4));
+            
+            setElementValue('#b-sh-ratio', bShRatio.toFixed(4));
+            setElementValue('#b-sph-ratio', bSphRatio.toFixed(4));
+            setElementValue('#b-mch-ratio', bMchRatio.toFixed(4));
         }
     }  // Close the method
     
