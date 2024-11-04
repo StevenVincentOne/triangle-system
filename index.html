@@ -1505,6 +1505,44 @@
                     </div>
                 </div>
 
+                <!-- After the first dashboard-row (containing System panel) and before Subsystems -->
+                <div class="dashboard-row mt-2">
+                    <div class="dashboard-panel">
+                        <h3 class="panel-header">System Entropy and Resource</h3>
+                        <div class="d-flex justify-content-center gap-2">
+                            <!-- Resource Panel -->
+                            <div class="dashboard-panel">
+                                <h3 class="panel-header">Resource</h3>
+                                <div class="panel-content">
+                                    <div class="label-value-pair">
+                                        <label for="system-b">B</label>
+                                        <input id="system-b" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Entropy Panel -->
+                            <div class="dashboard-panel">
+                                <h3 class="panel-header">Entropy</h3>
+                                <div class="panel-content">
+                                    <div class="label-value-pair">
+                                        <label for="system-h">H</label>
+                                        <input id="system-h" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="system-sph">SPH</label>
+                                        <input id="system-sph" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="system-mch">MCH</label>
+                                        <input id="system-mch" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- New Subsystems Row -->
                 <div class="dashboard-row">
                     <!-- Move Subsystems Panel here -->
