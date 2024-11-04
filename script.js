@@ -869,14 +869,19 @@ class TriangleSystem {
         const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
         
         const mcH = mc1 + mc2 + mc3;
-        setElementValue('#system-mch', mcH.toFixed(2));  // Changed from 4 to 2
-        setElementValue('#mc-h', mcH.toFixed(2));        // Changed from 4 to 2
+        setElementValue('#system-mch', mcH.toFixed(2));  // Update SH panel
+
+        // Only try to update mc-h if it exists (it's been removed from Info Panel)
+        const mcHElement = document.querySelector('#mc-h');
+        if (mcHElement) {
+            setElementValue('#mc-h', mcH.toFixed(2));
+        }
 
         // Calculate Total System Entropy (SH = SPH + MCH)
         const sph = parseFloat(document.querySelector('#system-sph').value) || 0;
         const systemEntropy = sph + mcH;
-        setElementValue('#system-h', systemEntropy.toFixed(2));  // Changed from 4 to 2
-        setElementValue('#system-sph', sph.toFixed(2));  // Make sure SPH also shows 2 decimals
+        setElementValue('#system-h', systemEntropy.toFixed(2));
+        setElementValue('#system-sph', sph.toFixed(2));
 
         // Update MC values display
         setElementValue('#subsystem-1-mc', mc1.toFixed(2));  // Add this line

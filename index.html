@@ -1213,6 +1213,37 @@
             min-width: 10ch !important;
             box-sizing: border-box !important;
         }
+
+        /* Update Centers panel input styling */
+        .position-panel input[type="text"].form-control {
+            width: 12ch !important;          /* Increase from 8ch to 12ch */
+            min-width: 12ch !important;      /* Match the width */
+            text-align: center !important;   /* Keep center alignment */
+            padding: 2px 4px !important;     /* Add some padding */
+            font-family: monospace !important; /* Use monospace for better alignment */
+            box-sizing: border-box !important;
+        }
+
+        /* Adjust the label-value pair container to accommodate wider inputs */
+        .position-panel .label-value-pair {
+            min-width: auto !important;      /* Remove fixed min-width */
+            gap: 0.5rem !important;          /* Consistent spacing */
+            margin-right: 1rem !important;   /* Space between pairs */
+        }
+
+        /* Ensure labels don't compress */
+        .position-panel .label-value-pair label {
+            white-space: nowrap !important;
+            flex: 0 0 auto !important;
+        }
+
+        /* Adjust row spacing */
+        .position-row {
+            margin-bottom: 0.75rem !important;
+            justify-content: flex-start !important;
+            flex-wrap: wrap !important;
+            gap: 1rem !important;
+        }
     </style>
 </head>
 <body>
@@ -1520,41 +1551,9 @@
                 <div class="dashboard-row">
                     <!-- Position Panel -->
                     <div class="dashboard-panel position-panel">
-                        <h3 class="panel-header">Position</h3>
+                        <h3 class="panel-header">Centers</h3>
                         <div class="panel-content">
-                            <!-- Midpoints Row -->
-                            <div class="position-row">
-                                <div class="label-value-pair">
-                                    <label for="mid1-coords">M1 (x,y)</label>
-                                    <input id="mid1-coords" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="mid2-coords">M2 (x,y)</label>
-                                    <input id="mid2-coords" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="mid3-coords">M3 (x,y)</label>
-                                    <input id="mid3-coords" type="text" class="form-control" size="8" readonly>
-                                </div>
-                            </div>
-                            
-                            <!-- Tangents Row -->
-                            <div class="position-row">
-                                <div class="label-value-pair">
-                                    <label for="tan1-coords">T1 (x,y)</label>
-                                    <input id="tan1-coords" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="tan2-coords">T2 (x,y)</label>
-                                    <input id="tan2-coords" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="tan3-coords">T3 (x,y)</label>
-                                    <input id="tan3-coords" type="text" class="form-control" size="8" readonly>
-                                </div>
-                            </div>
-                            
-                            <!-- Centers Row -->
+                            <!-- First Row - Intelligence, Incenter, and Special Centers -->
                             <div class="position-row">
                                 <div class="label-value-pair">
                                     <label for="centroid-coords">I (x,y)</label>
@@ -1575,6 +1574,34 @@
                                 <div class="label-value-pair">
                                     <label for="nine-point-coords">N (x,y)</label>
                                     <input id="nine-point-coords" type="text" class="form-control" size="8" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Second Row - Midpoints and Tangents -->
+                            <div class="position-row">
+                                <div class="label-value-pair">
+                                    <label for="mid1-coords">M1 (x,y)</label>
+                                    <input id="mid1-coords" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="mid2-coords">M2 (x,y)</label>
+                                    <input id="mid2-coords" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="mid3-coords">M3 (x,y)</label>
+                                    <input id="mid3-coords" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="tan1-coords">T1 (x,y)</label>
+                                    <input id="tan1-coords" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="tan2-coords">T2 (x,y)</label>
+                                    <input id="tan2-coords" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="tan3-coords">T3 (x,y)</label>
+                                    <input id="tan3-coords" type="text" class="form-control" size="8" readonly>
                                 </div>
                             </div>
                         </div>
