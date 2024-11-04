@@ -869,13 +869,19 @@ class TriangleSystem {
         const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
         
         const mcH = mc1 + mc2 + mc3;
-        setElementValue('#system-mch', mcH.toFixed(4));  // Update both locations
-        setElementValue('#mc-h', mcH.toFixed(4));        // Keep updating info panel too
+        setElementValue('#system-mch', mcH.toFixed(2));  // Changed from 4 to 2
+        setElementValue('#mc-h', mcH.toFixed(2));        // Changed from 4 to 2
 
         // Calculate Total System Entropy (SH = SPH + MCH)
         const sph = parseFloat(document.querySelector('#system-sph').value) || 0;
         const systemEntropy = sph + mcH;
-        setElementValue('#system-h', systemEntropy.toFixed(4));
+        setElementValue('#system-h', systemEntropy.toFixed(2));  // Changed from 4 to 2
+        setElementValue('#system-sph', sph.toFixed(2));  // Make sure SPH also shows 2 decimals
+
+        // Update MC values display
+        setElementValue('#subsystem-1-mc', mc1.toFixed(2));  // Add this line
+        setElementValue('#subsystem-2-mc', mc2.toFixed(2));  // Add this line
+        setElementValue('#subsystem-3-mc', mc3.toFixed(2));  // Add this line
     }  // Close the method
     
     calculateSubsystemAngles() {
