@@ -869,7 +869,8 @@ class TriangleSystem {
         const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
         
         const mcH = mc1 + mc2 + mc3;
-        setElementValue('#mc-h', mcH.toFixed(4));
+        setElementValue('#system-mch', mcH.toFixed(4));  // Update both locations
+        setElementValue('#mc-h', mcH.toFixed(4));        // Keep updating info panel too
 
         // Calculate Total System Entropy (SH = SPH + MCH)
         const sph = parseFloat(document.querySelector('#system-sph').value) || 0;
