@@ -1509,35 +1509,29 @@
                 <div class="dashboard-row mt-2">
                     <div class="dashboard-panel">
                         <h3 class="panel-header">System Entropy and Resource</h3>
-                        <div class="d-flex justify-content-center gap-2">
-                            <!-- Resource Panel -->
-                            <div class="dashboard-panel">
-                                <h3 class="panel-header">Resource</h3>
-                                <div class="panel-content">
-                                    <div class="label-value-pair">
-                                        <label for="system-b">B</label>
-                                        <input id="system-b" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                </div>
+                        <div class="d-flex justify-content-center gap-4">
+                            <!-- Resource (B) value -->
+                            <div class="label-value-pair">
+                                <label for="system-b-copy">B</label>
+                                <input id="system-b-copy" type="text" class="form-control" size="12" readonly>
                             </div>
                             
-                            <!-- Entropy Panel -->
-                            <div class="dashboard-panel">
-                                <h3 class="panel-header">Entropy</h3>
-                                <div class="panel-content">
-                                    <div class="label-value-pair">
-                                        <label for="system-h">H</label>
-                                        <input id="system-h" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                    <div class="label-value-pair">
-                                        <label for="system-sph">SPH</label>
-                                        <input id="system-sph" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                    <div class="label-value-pair">
-                                        <label for="system-mch">MCH</label>
-                                        <input id="system-mch" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                </div>
+                            <!-- SH/B ratio -->
+                            <div class="label-value-pair">
+                                <label for="sh-b-ratio">SH/B</label>
+                                <input id="sh-b-ratio" type="text" class="form-control" size="12" readonly>
+                            </div>
+
+                            <!-- SPH/B ratio -->
+                            <div class="label-value-pair">
+                                <label for="sph-b-ratio">SPH/B</label>
+                                <input id="sph-b-ratio" type="text" class="form-control" size="12" readonly>
+                            </div>
+
+                            <!-- MCH/B ratio -->
+                            <div class="label-value-pair">
+                                <label for="mch-b-ratio">MCH/B</label>
+                                <input id="mch-b-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                         </div>
                     </div>
