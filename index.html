@@ -1190,6 +1190,29 @@
             margin-bottom: 0.5rem;
             border-bottom: 1px solid #444;
         }
+
+        .compact-panel .label-value-pair {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+        }
+
+        .compact-panel .label-value-pair label {
+            padding-right: 4px !important;
+        }
+
+        .dashboard-panel .panel-content.compact-panel .label-value-pair input {
+            width: 10ch !important;      /* Reduced from 12ch to 10ch */
+            min-width: 10ch !important;  /* Match the width */
+            text-align: right !important;
+            padding-right: 4px !important;
+        }
+
+        /* Override any conflicting styles */
+        .compact-panel input[type="text"].form-control {
+            width: 10ch !important;
+            min-width: 10ch !important;
+            box-sizing: border-box !important;
+        }
     </style>
 </head>
 <body>
@@ -1432,18 +1455,18 @@
                             <!-- SB Panel (New) -->
                             <div class="dashboard-panel">
                                 <h3 class="panel-header">SB</h3>
-                                <div class="panel-content">
+                                <div class="panel-content compact-panel">
                                     <div class="label-value-pair">
                                         <label for="system-b">B</label>
-                                        <input id="system-b" type="text" class="form-control" size="8" readonly>
+                                        <input id="system-b" type="text" class="form-control" size="10" readonly>
                                     </div>
                                     <div class="label-value-pair">
                                         <label for="system-b1">B1</label>
-                                        <input id="system-b1" type="text" class="form-control" size="8" readonly>
+                                        <input id="system-b1" type="text" class="form-control" size="10" readonly>
                                     </div>
                                     <div class="label-value-pair">
                                         <label for="system-b2">B2</label>
-                                        <input id="system-b2" type="text" class="form-control" size="8" readonly>
+                                        <input id="system-b2" type="text" class="form-control" size="10" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -1567,27 +1590,6 @@
                 <div id="information-panel" class="bg-dark p-2 rounded">
                     <h3 class="panel-header">Information Panel</h3>
                     <div class="info-content d-flex gap-2">
-                        <!-- System column -->
-                        <div class="info-column">
-                            <div class="column-header">System</div>
-                            <div class="label-value-pair">
-                                <label for="system-h">SH</label>
-                                <input id="system-h" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="system-sph">SPH</label>
-                                <input id="system-sph" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="mc-h">MCH</label>
-                                <input id="mc-h" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="system-b">B</label>
-                                <input id="system-b" type="text" class="form-control" size="8" readonly>
-                            </div>
-                        </div>
-
                         <!-- System Ratios column -->
                         <div class="info-column">
                             <div class="column-header">System Ratios</div>
