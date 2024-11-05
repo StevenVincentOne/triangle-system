@@ -1478,18 +1478,18 @@
 
                             <!-- SH Panel (New) -->
                             <div class="dashboard-panel">
-                                <h3 class="panel-header">SH</h3>
+                                <h3 class="panel-header">H (Entropy)</h3>
                                 <div class="panel-content">
                                     <div class="label-value-pair">
-                                        <label for="system-h">SH</label>
+                                        <label for="system-h">H</label>
                                         <input id="system-h" type="text" class="form-control" size="8" readonly>
                                     </div>
                                     <div class="label-value-pair">
-                                        <label for="system-sph">SPH</label>
+                                        <label for="system-sph">HP</label>
                                         <input id="system-sph" type="text" class="form-control" size="8" readonly>
                                     </div>
                                     <div class="label-value-pair">
-                                        <label for="system-mch">MCH</label>
+                                        <label for="system-mch">HMC</label>
                                         <input id="system-mch" type="text" class="form-control" size="8" readonly>
                                     </div>
                                 </div>
@@ -1497,18 +1497,18 @@
 
                             <!-- SB Panel (New) -->
                             <div class="dashboard-panel">
-                                <h3 class="panel-header">SB</h3>
+                                <h3 class="panel-header">C (Capacity)</h3>
                                 <div class="panel-content compact-panel">
                                     <div class="label-value-pair">
-                                        <label for="system-b">B</label>
+                                        <label for="system-b">C</label>
                                         <input id="system-b" type="text" class="form-control" size="10" readonly>
                                     </div>
                                     <div class="label-value-pair">
-                                        <label for="sph-area-ratio">SPH/B</label>
+                                        <label for="sph-area-ratio">HP/C</label>
                                         <input id="sph-area-ratio" type="text" class="form-control" size="10" readonly>
                                     </div>
                                     <div class="label-value-pair">
-                                        <label for="area-sph-ratio">B/SPH</label>
+                                        <label for="area-sph-ratio">C/HP</label>
                                         <input id="area-sph-ratio" type="text" class="form-control" size="10" readonly>
                                     </div>
                                 </div>
@@ -1530,31 +1530,31 @@
                             
                             <!-- SH ratios -->
                             <div class="label-value-pair">
-                                <label for="sh-b-ratio">SH/C</label>
+                                <label for="sh-b-ratio">H/C</label>
                                 <input id="sh-b-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="b-sh-ratio">C/SH</label>
+                                <label for="b-sh-ratio">C/H</label>
                                 <input id="b-sh-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
 
                             <!-- SPH ratios -->
                             <div class="label-value-pair">
-                                <label for="sph-b-ratio">SPH/C</label>
+                                <label for="sph-b-ratio">HP/C</label>
                                 <input id="sph-b-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="b-sph-ratio">C/SPH</label>
+                                <label for="b-sph-ratio">C/HP</label>
                                 <input id="b-sph-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
 
                             <!-- MCH ratios -->
                             <div class="label-value-pair">
-                                <label for="mch-b-ratio">MCH/C</label>
+                                <label for="mch-b-ratio">HMC/C</label>
                                 <input id="mch-b-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="b-mch-ratio">C/MCH</label>
+                                <label for="b-mch-ratio">C/HMC</label>
                                 <input id="b-mch-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                         </div>
@@ -1576,6 +1576,7 @@
                                     <th>ssc</th>
                                     <th>ssh/ssc</th>
                                     <th>ssc/ssh</th>
+                                    <th>ssh/H</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1587,6 +1588,7 @@
                                     <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-1-ratio" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-1-inverse-ratio" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-1-entropy-ratio" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
                                 <tr>
                                     <td>SS2</td>
@@ -1596,6 +1598,7 @@
                                     <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-2-ratio" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-2-inverse-ratio" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-2-entropy-ratio" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
                                 <tr>
                                     <td>SS3</td>
@@ -1605,6 +1608,7 @@
                                     <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-3-ratio" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-3-inverse-ratio" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-3-entropy-ratio" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1715,7 +1719,7 @@
 
             <!-- Legends Panel -->
             <div class="legends-panel bg-dark p-2 rounded">
-                <h3 class="panel-header">Legends</h3>
+                <h3 class="panel-header">Legend</h3>
                 <div class="row">
                     <div class="col-md-3">
                         <p>∠: Angle</p>
@@ -1727,23 +1731,20 @@
                         <p>C: Capacity (Area)</p>
                     </div>
                     <div class="col-md-3">
+                        <p>H: Entropy, Total System Entropy (HP + HMC), Length (px)</p>
+                    </div>
+                    <div class="col-md-3">
                         <p>h: Subsystem Entropy</p>
                     </div>
                     <div class="col-md-3">
-                        <p>H: System Entropy</p>
+                        <p>HMC: Median Channel Entropy</p>
                     </div>
                     <div class="col-md-3">
-                        <p>MC: Median Channel</p>
+                        <p>HP: System Perimeter Entropy</p>
                     </div>
                     <div class="col-md-3">
-                        <p>MCH: Median Channel Entropy</p>
-                    </div>
-                    <div class="col-md-3">
-                        <p>SH: Total System Entropy</p>
-                    </div>
-                    <div class="col-md-3">
-                        <p>SPH: System Perimeter Entropy</p>
-                    </div>
+                    <p>MC: Median Channel</p>
+                </div>
                     <div class="col-md-3">
                         <p>SS: Subsystem</p>
                     </div>
