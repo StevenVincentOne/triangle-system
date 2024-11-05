@@ -747,13 +747,16 @@ class TriangleSystem {
             const area = this.subsystemAreas[i-1];
             const perimeter = subsystemPerimeters[i-1];
             
-            // Calculate ssh/ssc ratio (if area is not zero)
+            // Calculate both ratios (if perimeter is not zero)
             const ratio = area !== 0 ? perimeter / area : 0;
+            const inverseRatio = perimeter !== 0 ? area / perimeter : 0;
             
+            // Update displays
             setElementValue(`#subsystem-${i}-angle`, subsystemAngles[i-1].toFixed(2));
             setElementValue(`#subsystem-${i}-area`, area.toFixed(2));
             setElementValue(`#subsystem-${i}-perimeter`, perimeter.toFixed(2));
             setElementValue(`#subsystem-${i}-ratio`, ratio.toFixed(4));
+            setElementValue(`#subsystem-${i}-inverse-ratio`, inverseRatio.toFixed(4));
         }
 
         // Information Panel Updates
