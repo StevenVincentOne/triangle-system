@@ -1508,41 +1508,41 @@
                 <!-- After the first dashboard-row (containing System panel) and before Subsystems -->
                 <div class="dashboard-row mt-2">
                     <div class="dashboard-panel">
-                        <h3 class="panel-header">System Entropy and Resource</h3>
+                        <h3 class="panel-header">System Entropy and Capacity</h3>
                         <div class="d-flex justify-content-center gap-4">
                             <!-- Resource (B) value -->
                             <div class="label-value-pair">
-                                <label for="system-b-copy">B</label>
+                                <label for="system-b-copy">C</label>
                                 <input id="system-b-copy" type="text" class="form-control" size="12" readonly>
                             </div>
                             
                             <!-- SH ratios -->
                             <div class="label-value-pair">
-                                <label for="sh-b-ratio">SH/B</label>
+                                <label for="sh-b-ratio">SH/C</label>
                                 <input id="sh-b-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="b-sh-ratio">B/SH</label>
+                                <label for="b-sh-ratio">C/SH</label>
                                 <input id="b-sh-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
 
                             <!-- SPH ratios -->
                             <div class="label-value-pair">
-                                <label for="sph-b-ratio">SPH/B</label>
+                                <label for="sph-b-ratio">SPH/C</label>
                                 <input id="sph-b-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="b-sph-ratio">B/SPH</label>
+                                <label for="b-sph-ratio">C/SPH</label>
                                 <input id="b-sph-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
 
                             <!-- MCH ratios -->
                             <div class="label-value-pair">
-                                <label for="mch-b-ratio">MCH/B</label>
+                                <label for="mch-b-ratio">MCH/C</label>
                                 <input id="mch-b-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="b-mch-ratio">B/MCH</label>
+                                <label for="b-mch-ratio">C/MCH</label>
                                 <input id="b-mch-ratio" type="text" class="form-control" size="12" readonly>
                             </div>
                         </div>
@@ -1560,7 +1560,7 @@
                                     <th>SS</th>
                                     <th>Centroid</th>
                                     <th>∠</th>
-                                    <th>ssb</th>
+                                    <th>ssc</th>
                                     <th>ssh</th>
                                 </tr>
                             </thead>
@@ -1701,7 +1701,10 @@
                         <p>∠: Angle</p>
                     </div>
                     <div class="col-md-3">
-                        <p>B: Bits, or Area</p>
+                        <p>B: Bits (Resource)</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>C: Capacity (Area)</p>
                     </div>
                     <div class="col-md-3">
                         <p>h: Subsystem Entropy</p>
@@ -1709,8 +1712,6 @@
                     <div class="col-md-3">
                         <p>H: System Entropy</p>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-md-3">
                         <p>MC: Median Channel</p>
                     </div>
@@ -1723,13 +1724,14 @@
                     <div class="col-md-3">
                         <p>SPH: System Perimeter Entropy</p>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-md-3">
                         <p>SS: Subsystem</p>
                     </div>
                     <div class="col-md-3">
-                        <p>ssb: Subsystem Bits (Area)</p>
+                        <p>ssb: Subsystem Bits (Resource)</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p>ssc: Subsystem Capacity (Area)</p>
                     </div>
                     <div class="col-md-3">
                         <p>ssh: Subsystem Entropy (Perimeter)</p>
