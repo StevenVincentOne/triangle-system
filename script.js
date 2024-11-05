@@ -137,6 +137,14 @@ class TriangleSystem {
         
         // Bind save preset handler
         document.getElementById('save-preset').addEventListener('click', () => this.savePreset());
+
+        // Initialize both dropdowns
+        this.initializePresets();
+        this.initializeAnimations();
+        
+        // Update both dropdowns
+        this.updatePresetsDropdown();
+        this.updateAnimationsDropdown();
     }
 
     initializePresets() {
@@ -3099,6 +3107,111 @@ class TriangleSystem {
             alert('Error renaming preset. Please try again.');
         }
     }
+
+    updateAnimationsDropdown() {
+        const animationsList = document.getElementById('animationsList');
+        if (!animationsList) {
+            console.error('Animations list element not found');
+            return;
+        }
+        
+        try {
+            // Clear existing items
+            animationsList.innerHTML = '';
+            
+            // Get animations from storage
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            
+            // Sort animations alphabetically by name (case-insensitive)
+            const sortedAnimations = Object.entries(animations)
+                .sort(([nameA], [nameB]) => nameA.toLowerCase().localeCompare(nameB.toLowerCase()));
+            
+            // Add animations to dropdown
+            sortedAnimations.forEach(([name, values]) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.className = 'dropdown-item';
+                a.href = '#';
+                
+                // Create span for the text content
+                const textSpan = document.createElement('span');
+                textSpan.textContent = name;
+                
+                // Create button container for edit and delete
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'preset-buttons';
+                
+                // Create edit button
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-secondary btn-sm';
+                editBtn.textContent = '✎';
+                editBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const newName = prompt('Enter new name for animation:', name);
+                    if (newName && newName !== name) {
+                        this.renameAnimation(name, newName, values);
+                    }
+                });
+                
+                // Create delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-danger btn-sm';
+                deleteBtn.textContent = '×';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.deleteAnimation(name);
+                });
+                
+                // Append buttons to container
+                buttonContainer.appendChild(editBtn);
+                buttonContainer.appendChild(deleteBtn);
+                
+                // Append in correct order
+                a.appendChild(textSpan);
+                a.appendChild(buttonContainer);
+                li.appendChild(a);
+                animationsList.appendChild(li);
+                
+                // Add click handler for loading animation
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.loadAnimation(name, values);
+                });
+            });
+            
+        } catch (error) {
+            console.error('Error updating animations dropdown:', error);
+        }
+    }
+
+    renameAnimation(oldName, newName, values) {
+        try {
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            delete animations[oldName];
+            animations[newName] = values;
+            localStorage.setItem('userAnimations', JSON.stringify(animations));
+            this.updateAnimationsDropdown();
+            console.log(`Renamed animation from "${oldName}" to "${newName}"`);
+        } catch (error) {
+            console.error('Error renaming animation:', error);
+            alert('Error renaming animation. Please try again.');
+        }
+    }
+
+    deleteAnimation(name) {
+        try {
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            delete animations[name];
+            localStorage.setItem('userAnimations', JSON.stringify(animations));
+            this.updateAnimationsDropdown();
+            console.log(`Deleted animation "${name}"`);
+        } catch (error) {
+            console.error('Error deleting animation:', error);
+            alert('Error deleting animation. Please try again.');
+        }
+    }
 }
 
 // Outside the class - DOM initialization
@@ -3296,6 +3409,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         #userPresetsList .dropdown-item {
             padding-right: 0.5rem !important;
+        }
+
+        /* Add to your existing styles */
+        #animationsList {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        #animationsList .dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0.15rem 0.5rem !important;
+            margin: 0 !important;
+            font-size: 0.875rem !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            width: 100% !important;
+        }
+
+        /* Make both dropdowns the same size */
+        #userPresetsDropdown,
+        #animationsDropdown {
+            width: 120px !important;
+            font-size: 0.875rem !important;
         }
     `;
     document.head.appendChild(style);

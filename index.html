@@ -1313,6 +1313,47 @@
         .animation-panel-end {
             min-width: 120px;
         }
+
+        /* Add to your existing styles */
+        .feature-buttons-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-buttons-container .btn {
+            min-width: 90px;
+            text-align: center;
+        }
+
+        /* Style for active feature buttons */
+        .feature-buttons-container .btn.btn-info {
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+            color: #000;
+        }
+
+        /* Add to your existing styles */
+        .preset-buttons-container {
+            background-color: #1a1e2c;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .preset-buttons-container .btn {
+            min-width: 90px;
+            text-align: center;
+        }
+
+        /* Ensure consistent button styling */
+        .btn-secondary {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -1348,8 +1389,26 @@
                                 <!-- User presets will be added here dynamically -->
                             </ul>
                         </div>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="animationsDropdown" data-bs-toggle="dropdown">
+                                Animations
+                            </button>
+                            <ul class="dropdown-menu" id="animationsList">
+                                <!-- Animations will be added here dynamically -->
+                            </ul>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Add after manual controls, before canvas section -->
+            <div class="preset-buttons-container d-flex justify-content-center gap-2 mb-2">
+                <button id="equilateral" class="btn btn-secondary btn-sm">Equilateral</button>
+                <button id="isosceles" class="btn btn-secondary btn-sm">Isosceles</button>
+                <button id="scalene" class="btn btn-secondary btn-sm">Scalene</button>
+                <button id="right" class="btn btn-secondary btn-sm">Right</button>
+                <button id="acute" class="btn btn-secondary btn-sm">Acute</button>
+                <button id="obtuse" class="btn btn-secondary btn-sm">Obtuse</button>
             </div>
 
             <!-- Canvas and Animation Controls -->
@@ -1409,6 +1468,25 @@
                     <ul class="dropdown-menu" id="animationsList">
                         <!-- Animation presets will be added here -->
                     </ul>
+                </div>
+            </div>
+
+            <!-- Add this section after the canvas and animation controls -->
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <!-- Feature Toggle Buttons -->
+                <div class="feature-buttons-container d-flex flex-wrap justify-content-center gap-2">
+                    <button id="toggleCentroid" class="btn btn-secondary btn-sm">Centroid</button>
+                    <button id="toggleIncenter" class="btn btn-secondary btn-sm">Incenter</button>
+                    <button id="toggleMidpoints" class="btn btn-secondary btn-sm">Midpoints</button>
+                    <button id="toggleTangents" class="btn btn-secondary btn-sm">Tangents</button>
+                    <button id="toggleMedians" class="btn btn-secondary btn-sm">Medians</button>
+                    <button id="toggleSubsystems" class="btn btn-secondary btn-sm">Subsystems</button>
+                    <button id="toggleEuler" class="btn btn-secondary btn-sm">Euler</button>
+                    <button id="toggleCircumcircle" class="btn btn-secondary btn-sm">Circumcircle</button>
+                    <button id="toggleOrthocircle" class="btn btn-secondary btn-sm">Orthocircle</button>
+                    <button id="toggleNinePointCircle" class="btn btn-secondary btn-sm">Nine-Point</button>
+                    <button id="toggleIncircle" class="btn btn-secondary btn-sm">Incircle</button>
+                    <button id="toggleSpecialCenters" class="btn btn-secondary btn-sm">Special Centers</button>
                 </div>
             </div>
         </div>
