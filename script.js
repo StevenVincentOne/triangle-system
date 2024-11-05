@@ -883,48 +883,63 @@ class TriangleSystem {
         const mc1 = parseFloat(document.querySelector('#subsystem-1-mc').value) || 0;
         const mc2 = parseFloat(document.querySelector('#subsystem-2-mc').value) || 0;
         const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
-        
         const mcH = mc1 + mc2 + mc3;
-        setElementValue('#system-mch', mcH.toFixed(2));  // Update SH panel
+        setElementValue('#system-mch', mcH.toFixed(2));
 
-        // Only try to update mc-h if it exists (it's been removed from Info Panel)
+        // Get System Perimeter Entropy (HP)
+        const hp = parseFloat(document.querySelector('#system-sph').value) || 0;
+
+        // Calculate Total System Entropy (H = HP + MCH)
+        const totalSystemEntropy = hp + mcH;
+        setElementValue('#system-h', totalSystemEntropy.toFixed(2));
+
+        // Get system capacity (C) value - SINGLE DECLARATION
+        const systemCapacity = parseFloat(document.querySelector('#system-b').value) || 0;
+        
+        // Update System Entropy and Capacity panel
+        if (systemCapacity !== 0) {
+            // Update the C value copy
+            setElementValue('#system-b-copy', systemCapacity.toFixed(2));
+
+            // Calculate and update all ratios if we have valid values
+            if (totalSystemEntropy !== 0) {
+                // H/C and C/H ratios
+                setElementValue('#sh-b-ratio', (totalSystemEntropy / systemCapacity).toFixed(4));
+                setElementValue('#b-sh-ratio', (systemCapacity / totalSystemEntropy).toFixed(4));
+                
+                // HP/C and C/HP ratios
+                if (hp !== 0) {
+                    setElementValue('#sph-b-ratio', (hp / systemCapacity).toFixed(4));
+                    setElementValue('#b-sph-ratio', (systemCapacity / hp).toFixed(4));
+                }
+                
+                // HMC/C and C/HMC ratios
+                if (mcH !== 0) {
+                    setElementValue('#mch-b-ratio', (mcH / systemCapacity).toFixed(4));
+                    setElementValue('#b-mch-ratio', (systemCapacity / mcH).toFixed(4));
+                }
+            }
+        }
+
+        // Calculate and update ssh/H ratios for each subsystem
+        for (let i = 1; i <= 3; i++) {
+            const perimeter = subsystemPerimeters[i-1];
+            const sshHRatio = totalSystemEntropy !== 0 ? perimeter / totalSystemEntropy : 0;
+            setElementValue(`#subsystem-${i}-entropy-ratio`, sshHRatio.toFixed(4));
+        }
+
+        // Only try to update mc-h if it exists
         const mcHElement = document.querySelector('#mc-h');
         if (mcHElement) {
             setElementValue('#mc-h', mcH.toFixed(2));
         }
 
-        // Calculate Total System Entropy (SH = SPH + MCH)
-        const sph = parseFloat(document.querySelector('#system-sph').value) || 0;
-        const systemEntropy = sph + mcH;
-        setElementValue('#system-h', systemEntropy.toFixed(2));
-        setElementValue('#system-sph', sph.toFixed(2));
+        // Remove these duplicate lines
+        // const sph = parseFloat(document.querySelector('#system-sph').value) || 0;
+        // const totalSystemEntropy = sph + mcH;  // This was the duplicate declaration
 
-        // Update MC values display
-        setElementValue('#subsystem-1-mc', mc1.toFixed(2));  // Add this line
-        setElementValue('#subsystem-2-mc', mc2.toFixed(2));  // Add this line
-        setElementValue('#subsystem-3-mc', mc3.toFixed(2));  // Add this line
-
-        // Calculate ratios
-        if (area !== 0 && systemEntropy !== 0 && sph !== 0 && mcH !== 0) {
-            // X/B ratios
-            const shBRatio = systemEntropy / area;
-            const sphBRatio = sph / area;
-            const mchBRatio = mcH / area;
-            
-            // B/X ratios
-            const bShRatio = area / systemEntropy;
-            const bSphRatio = area / sph;
-            const bMchRatio = area / mcH;
-            
-            // Update displays
-            setElementValue('#sh-b-ratio', shBRatio.toFixed(4));
-            setElementValue('#sph-b-ratio', sphBRatio.toFixed(4));
-            setElementValue('#mch-b-ratio', mchBRatio.toFixed(4));
-            
-            setElementValue('#b-sh-ratio', bShRatio.toFixed(4));
-            setElementValue('#b-sph-ratio', bSphRatio.toFixed(4));
-            setElementValue('#b-mch-ratio', bMchRatio.toFixed(4));
-        }
+        // Continue with the rest of the method using the already calculated totalSystemEntropy
+        // ... rest of the code ...
     }  // Close the method
     
     calculateSubsystemAngles() {
@@ -2498,8 +2513,8 @@ class TriangleSystem {
         ctx.setLineDash([]);  // Reset dash pattern
         
         // Draw the center point
-        ctx.fillStyle = '#FF69B4';
         ctx.beginPath();
+        ctx.fillStyle = '#FF69B4';
         ctx.arc(ninePointCircle.center.x, ninePointCircle.center.y, 4, 0, 2 * Math.PI);
         ctx.fill();
 
