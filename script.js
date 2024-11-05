@@ -131,6 +131,163 @@ class TriangleSystem {
 
         // Initialize subsystem metrics
         this.subsystemAreas = [0, 0, 0];  // Initialize array for three subsystems
+        
+        // Initialize presets storage
+        this.initializePresets();
+        
+        // Bind save preset handler
+        document.getElementById('save-preset').addEventListener('click', () => this.savePreset());
+    }
+
+    initializePresets() {
+        // Initialize storage if it doesn't exist
+        if (!localStorage.getItem('userPresets')) {
+            localStorage.setItem('userPresets', JSON.stringify({}));
+        }
+        
+        // Update presets dropdown
+        this.updatePresetsDropdown();
+    }
+
+    savePreset() {
+        // Get current NC values
+        const nc1 = document.getElementById('manual-nc1').value;
+        const nc2 = document.getElementById('manual-nc2').value;
+        const nc3 = document.getElementById('manual-nc3').value;
+
+        // Validate values
+        if (!nc1 || !nc2 || !nc3) {
+            alert('Please enter all NC values before saving a preset.');
+            return;
+        }
+
+        // Prompt for preset name
+        const presetName = prompt('Enter a name for this preset:');
+        if (!presetName) return; // User cancelled
+
+        try {
+            // Get existing presets
+            const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+            
+            // Add new preset
+            presets[presetName] = {
+                nc1: parseFloat(nc1),
+                nc2: parseFloat(nc2),
+                nc3: parseFloat(nc3),
+                timestamp: Date.now() // Add timestamp for sorting
+            };
+            
+            // Save back to localStorage
+            localStorage.setItem('userPresets', JSON.stringify(presets));
+            
+            // Update dropdown
+            this.updatePresetsDropdown();
+            
+            console.log(`Saved preset: ${presetName}`, presets[presetName]); // Debug log
+            alert('Preset saved successfully!');
+        } catch (error) {
+            console.error('Error saving preset:', error);
+            alert('Error saving preset. Please try again.');
+        }
+    }
+
+    updatePresetsDropdown() {
+        const presetsList = document.getElementById('userPresetsList');
+        if (!presetsList) {
+            console.error('Presets list element not found');
+            return;
+        }
+
+        try {
+            // Clear existing items
+            presetsList.innerHTML = '';
+            
+            // Get presets from storage
+            const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+            
+            // Sort presets by timestamp (newest first)
+            const sortedPresets = Object.entries(presets)
+                .sort(([,a], [,b]) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            // Add presets to dropdown
+            sortedPresets.forEach(([name, values]) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.className = 'dropdown-item';
+                a.href = '#';
+                
+                // Create span for the text content
+                const textSpan = document.createElement('span');
+                const ncValues = `(${values.nc1}, ${values.nc2}, ${values.nc3})`;
+                textSpan.textContent = `${name} ${ncValues}`;
+                
+                // Create delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-danger';
+                deleteBtn.textContent = '×';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.deletePreset(name);
+                });
+                
+                // Append in correct order
+                a.appendChild(textSpan);
+                a.appendChild(deleteBtn);
+                li.appendChild(a);
+                presetsList.appendChild(li);
+                
+                // Add click handler for loading preset
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.loadPreset(name, values);
+                });
+            });
+            
+            console.log('Updated presets dropdown with', Object.keys(presets).length, 'items'); // Debug log
+        } catch (error) {
+            console.error('Error updating presets dropdown:', error);
+        }
+    }
+
+    loadPreset(name, values) {
+        try {
+            // Set input values
+            document.getElementById('manual-nc1').value = values.nc1;
+            document.getElementById('manual-nc2').value = values.nc2;
+            document.getElementById('manual-nc3').value = values.nc3;
+            
+            // Trigger apply
+            document.getElementById('apply-manual').click();
+            
+            console.log(`Loaded preset: ${name}`, values); // Debug log
+        } catch (error) {
+            console.error('Error loading preset:', error);
+            alert('Error loading preset. Please try again.');
+        }
+    }
+
+    deletePreset(name) {
+        if (!confirm(`Are you sure you want to delete the preset "${name}"?`)) return;
+
+        try {
+            // Get existing presets
+            const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+            
+            // Delete preset
+            delete presets[name];
+            
+            // Save back to localStorage
+            localStorage.setItem('userPresets', JSON.stringify(presets));
+            
+            // Update dropdown
+            this.updatePresetsDropdown();
+            
+            console.log(`Deleted preset: ${name}`); // Debug log
+        } catch (error) {
+            console.error('Error deleting preset:', error);
+            alert('Error deleting preset. Please try again.');
+        }
     }
 
     // Method to initialize all event listeners
@@ -2108,26 +2265,53 @@ class TriangleSystem {
     }
 
     saveCurrentConfig() {
-        console.log('Saving current configuration');
+        console.log('Starting save configuration process');
+        
+        // Get current NC values
+        const nc1 = document.getElementById('manual-nc1')?.value;
+        const nc2 = document.getElementById('manual-nc2')?.value;
+        const nc3 = document.getElementById('manual-nc3')?.value;
         
         // Get current triangle configuration
         const config = {
             n1: { x: this.system.n1.x, y: this.system.n1.y },
             n2: { x: this.system.n2.x, y: this.system.n2.y },
-            n3: { x: this.system.n3.x, y: this.system.n3.y }
+            n3: { x: this.system.n3.x, y: this.system.n3.y },
+            nc1: parseFloat(nc1),
+            nc2: parseFloat(nc2),
+            nc3: parseFloat(nc3),
+            timestamp: Date.now()
         };
 
-        // Prompt for preset name
+        // Single prompt for preset name
         const name = prompt('Enter a name for this preset:');
         
         if (name) {
-            // Save to user presets
-            this.userPresets[name] = config;
-            localStorage.setItem('userPresets', JSON.stringify(this.userPresets));
-            console.log('Saved preset:', name);
-            
-            // Update dropdown
-            this.initializeUserPresets();
+            try {
+                // Get existing presets
+                const existingPresets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+                
+                // Add new preset
+                existingPresets[name] = config;
+                
+                // Save to localStorage
+                localStorage.setItem('userPresets', JSON.stringify(existingPresets));
+                
+                console.log('Preset saved successfully:', name, config);
+                
+                // Update dropdown immediately
+                this.updatePresetsDropdown();
+                
+                // Show confirmation only once
+                alert('Preset saved successfully!');
+                
+                return; // Ensure we exit the function here
+            } catch (error) {
+                console.error('Error saving preset:', error);
+                alert('Error saving preset. Please try again.');
+            }
+        } else {
+            console.log('Save cancelled by user');
         }
     }
 
@@ -2914,6 +3098,143 @@ document.addEventListener('DOMContentLoaded', () => {
             width: auto !important;
             text-align: center !important;
             font-family: monospace !important;  /* For better alignment of numbers */
+        }
+
+        /* Add these styles to your existing <style> section */
+        #userPresetsDropdown {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.75rem;
+        }
+
+        #userPresetsList {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0.25rem 0;
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        #userPresetsList li {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        #userPresetsList .dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0.15rem 0.5rem !important;
+            margin: 0 !important;
+            font-size: 0.875rem !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;  /* Prevent wrapping */
+        }
+
+        #userPresetsList .btn-danger {
+            padding: 0 0.25rem !important;
+            font-size: 0.75rem !important;
+            line-height: 1 !important;
+            margin-left: 0.5rem !important;
+            height: 1.2rem !important;
+            float: none !important;  /* Remove float */
+            display: inline-flex !important;
+            align-items: center !important;
+        }
+
+        /* Ensure dropdown menu has proper dark theme */
+        .dropdown-menu {
+            background-color: #2c2c2c;
+            border-color: #444;
+        }
+
+        .dropdown-item {
+            color: #fff;
+        }
+
+        .dropdown-item:hover {
+            background-color: #444;
+            color: #fff;
+        }
+
+        /* Dropdown specific styles */
+        .dropdown-menu {
+            padding: 0.25rem 0 !important;  /* Reduced padding top/bottom */
+        }
+
+        #userPresetsList {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        #userPresetsList li {
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 0.5 !important;  /* Reduced line height */
+        }
+
+        #userPresetsList .dropdown-item {
+            padding: 0.15rem 0.5rem !important;  /* Reduced padding top/bottom */
+            margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            font-size: 0.875rem !important;
+            line-height: 0.5 !important;  /* Match li line-height */
+        }
+
+        #userPresetsList .btn-danger {
+            padding: 0 0.25rem !important;
+            font-size: 0.75rem !important;
+            line-height: 1 !important;
+            margin-left: 0.5rem !important;
+            height: 1.2rem !important;  /* Match line height */
+        }
+
+        /* Ensure the list items don't wrap */
+        #userPresetsList li {
+            margin: 0 !important;
+            padding: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        /* Make dropdown wide enough to fit content */
+        .dropdown-menu {
+            min-width: max-content !important;
+        }
+
+        /* Dropdown item container */
+        #userPresetsList li {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Dropdown item styling */
+        #userPresetsList .dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0.15rem 0.5rem !important;
+            margin: 0 !important;
+            font-size: 0.875rem !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            width: 100% !important;
+        }
+
+        /* Text content wrapper */
+        #userPresetsList .dropdown-item span {
+            flex: 1 !important;
+            margin-right: 0.5rem !important;
+        }
+
+        /* Delete button styling */
+        #userPresetsList .btn-danger {
+            font-size: 0.75rem !important;
+            padding: 0 0.25rem !important;
+            line-height: 1 !important;
+            height: 1.2rem !important;
+            flex-shrink: 0 !important;
+            margin: 0 !important;
         }
     `;
     document.head.appendChild(style);

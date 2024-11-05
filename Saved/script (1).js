@@ -1,3 +1,30 @@
+/**
+ * Helper class to handle complex numbers
+ */
+class Complex {
+    constructor(re, im) {
+        this.re = re;
+        this.im = im;
+    }
+    
+    add(other) {
+        return new Complex(this.re + other.re, this.im + other.im);
+    }
+    
+    subtract(other) {
+        return new Complex(this.re - other.re, this.im - other.im);
+    }
+    
+    multiply(scalar) {
+        return new Complex(this.re * scalar, this.im * scalar);
+    }
+    
+    exp() {
+        const expRe = Math.exp(this.re);
+        return new Complex(expRe * Math.cos(this.im), expRe * Math.sin(this.im));
+    }
+}
+
 class TriangleSystem {
     constructor(canvas) {
         this.canvas = canvas;
@@ -111,13 +138,14 @@ class TriangleSystem {
             { id: 'toggleIncenter', property: 'showIncenter' },
             { id: 'toggleMidpoints', property: 'showMidpoints' },
             { id: 'toggleTangents', property: 'showTangents' },
-            { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleMedians', property: 'showMedians' },
             { id: 'toggleSubsystems', property: 'showSubsystems' },
             { id: 'toggleEuler', property: 'showEuler' },
-            { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleCircumcircle', property: 'showCircumcircle' },
-            { id: 'toggleOrthocircle', property: 'showOrthocircle' }  // Add this line
+            { id: 'toggleOrthocircle', property: 'showOrthocircle' },
+            { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
+            { id: 'toggleIncircle', property: 'showIncircle' },
+            { id: 'toggleSpecialCenters', property: 'showSpecialCenters' },  // Add this line
         ];
 
         featureButtons.forEach(button => {
@@ -394,7 +422,7 @@ class TriangleSystem {
             
             rawTriangle = {
                 n1: { x: offset, y: height },    // Top vertex (should give us 60°)
-                n2: { x: n2x, y: n2y },          // Right vertex (35°)
+                n2: { x: n2x, y: n2y },          // Right vertex (35)
                 n3: { x: n3x, y: n3y }           // Left vertex (85°)
             };
         }
@@ -547,73 +575,57 @@ class TriangleSystem {
         this.calculateNinePointCenter();
     }
 
+    /**
+     * Calculates the Orthocenter of the triangle.
+     * 
+     * @returns {Object|null} An object containing the x and y coordinates of the orthocenter,
+     *                        or null if the orthocenter cannot be determined.
+     */
     calculateOrthocenter() {
-        const n1 = this.system.n1;
-        const n2 = this.system.n2;
-        const n3 = this.system.n3;
-        
-        // Add debug logging
-        console.log("Calculating orthocenter for points:", { n1, n2, n3 });
-        
-        if (this.areCollinear(n1, n2, n3)) {
-            console.warn("Cannot calculate orthocenter: points are collinear");
-            return null;
-        }
-        
-        try {
-            // Calculate slopes of sides
-            const m12 = this.calculateSlope(n1, n2);
-            const m23 = this.calculateSlope(n2, n3);
-            const m31 = this.calculateSlope(n3, n1);
-            
-            console.log("Side slopes:", { m12, m23, m31 });
-            
-            // Calculate slopes of altitudes (perpendicular to sides)
-            const ma1 = m23 !== 0 ? (-1 / m23) : Infinity;  // From n1 to side 23
-            const ma2 = m31 !== 0 ? (-1 / m31) : Infinity;  // From n2 to side 31
-            
-            console.log("Altitude slopes:", { ma1, ma2 });
-            
-            // Calculate y-intercepts or x-coordinates of altitudes
-            let b1, b2;
-            if (ma1 !== Infinity) {
-                b1 = n1.y - ma1 * n1.x;
-            } else {
-                b1 = n1.x; // x-coordinate for vertical line
-            }
+        const { n1, n2, n3 } = this.system;
+        const EPSILON = 1e-10;
+        const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
 
-            if (ma2 !== Infinity) {
-                b2 = n2.y - ma2 * n2.x;
-            } else {
-                b2 = n2.x; // x-coordinate for vertical line
-            }
-            
-            console.log("Intercepts:", { b1, b2 });
-            
-            let x, y;
-            if (ma1 !== Infinity && ma2 !== Infinity) {
-                // Both altitudes are not vertical
-                x = (b2 - b1) / (ma1 - ma2);
-                y = ma1 * x + b1;
-            } else if (ma1 === Infinity) {
-                // First altitude is vertical
-                x = b1;
-                y = ma2 * x + b2;
-            } else if (ma2 === Infinity) {
-                // Second altitude is vertical
-                x = b2;
-                y = ma1 * x + b1;
-            } else {
-                throw new Error("Cannot determine orthocenter: both altitudes are vertical");
-            }
-            
-            console.log("Calculated orthocenter:", { x, y });
-            return { x, y };
-            
-        } catch (error) {
-            console.error("Error calculating orthocenter:", error);
+        console.log("Calculating orthocenter for points:", { n1, n2, n3 });
+
+        // Calculate the slopes of sides n1-n2 and n2-n3
+        const slopeAB = this.calculateSlope(n1, n2);
+        const slopeBC = this.calculateSlope(n2, n3);
+
+        // Calculate the slopes of the altitudes
+        const slopeAltitudeA = Math.abs(slopeBC) < EPSILON ? Infinity : -1 / slopeBC; // Altitude from n1
+        const slopeAltitudeB = Math.abs(slopeAB) < EPSILON ? Infinity : -1 / slopeAB; // Altitude from n3
+
+        // Calculate the y-intercepts of the altitudes
+        const interceptA = n1.y - slopeAltitudeA * n1.x;
+        const interceptB = n3.y - slopeAltitudeB * n3.x;
+
+        let orthocenter;
+
+        if (Math.abs(slopeAltitudeA - slopeAltitudeB) < EPSILON) {
+            console.warn("Altitudes are parallel. Orthocenter is undefined.");
             return null;
         }
+
+        if (slopeAltitudeA === Infinity) {
+            // Altitude A is vertical
+            const x = roundNearZero(n1.x);
+            const y = roundNearZero(slopeAltitudeB * x + interceptB);
+            orthocenter = { x, y };
+        } else if (slopeAltitudeB === Infinity) {
+            // Altitude B is vertical
+            const x = roundNearZero(n3.x);
+            const y = roundNearZero(slopeAltitudeA * x + interceptA);
+            orthocenter = { x, y };
+        } else {
+            // Calculate intersection point of the two altitudes
+            const x = roundNearZero((interceptB - interceptA) / (slopeAltitudeA - slopeAltitudeB));
+            const y = roundNearZero(slopeAltitudeA * x + interceptA);
+            orthocenter = { x, y };
+        }
+
+        console.log("Calculated orthocenter:", orthocenter);
+        return orthocenter;
     }
 
     calculateNinePointCenter() {
@@ -632,15 +644,37 @@ class TriangleSystem {
             const element = document.querySelector(selector);
             if (element) {
                 element.value = typeof value === 'number' ? value.toFixed(precision) : value;
+            } else {
+                // Only warn about missing elements that are actually needed
+                if (!selector.match(/median-n[123]|system-area|system-perimeter|i-to-ic-distance|d-i-ic|r-i-ic/)) {
+                    console.warn(`Element not found for selector: ${selector}`);
+                }
             }
         };
 
-        // System Panel
+        // Calculate system values
         const area = this.calculateArea();
         const perimeter = this.calculatePerimeter();
-        setElementValue('#system-perimeter', perimeter);
-        setElementValue('#system-area', area);
-        setElementValue('#subsystems-area', area / 3); // Each subsystem has equal area
+        
+        // Debug log to check values
+        console.log('Area calculation:', area);
+        console.log('Perimeter calculation:', perimeter);
+
+        // Update both dashboard and Information Panel
+        setElementValue('#system-b', area);  // Area is now shown as 'B' (Bits)
+        setElementValue('#system-sph', perimeter);  // Perimeter is now shown as 'SPH'
+
+        // Calculate and set SPH/A ratio
+        if (area !== 0) {
+            const sphAreaRatio = perimeter / area;
+            setElementValue('#sph-area-ratio', sphAreaRatio.toFixed(4));
+        }
+
+        // Where SPH/A is already being calculated, add:
+        const sphAreaRatio = parseFloat(document.getElementById('sph-area-ratio').value);
+        if (!isNaN(sphAreaRatio) && sphAreaRatio !== 0) {
+            setElementValue('#area-sph-ratio', (1 / sphAreaRatio).toFixed(4));
+        }
 
         // Nodes Panel
         const angles = this.calculateAngles();
@@ -650,15 +684,15 @@ class TriangleSystem {
 
         // Channels (Edges) Panel
         const lengths = this.calculateLengths();
-        setElementValue('#edge-nc1', lengths.l1); // NC1 (Red): N1 to N3
-        setElementValue('#edge-nc2', lengths.l2); // NC2 (Blue): N1 to N2
-        setElementValue('#edge-nc3', lengths.l3); // NC3 (Green): N2 to N3
+        setElementValue('#channel-1', lengths.l1); // NC1 (Red): N1 to N3
+        setElementValue('#channel-2', lengths.l2); // NC2 (Blue): N1 to N2
+        setElementValue('#channel-3', lengths.l3); // NC3 (Green): N2 to N3
 
         // Medians Panel
         const medians = this.calculateMedians();
-        setElementValue('#median-n1', medians.n1);
-        setElementValue('#median-n2', medians.n2);
-        setElementValue('#median-n3', medians.n3);
+        setElementValue('#subsystem-1-mc', medians.n1.toFixed(2));
+        setElementValue('#subsystem-2-mc', medians.n2.toFixed(2));
+        setElementValue('#subsystem-3-mc', medians.n3.toFixed(2));
 
         // Position Panel
         const centroid = {
@@ -689,15 +723,15 @@ class TriangleSystem {
             setElementValue('#incenter-coords', 
                 `${this.system.incenter.x.toFixed(1)}, ${this.system.incenter.y.toFixed(1)}`);
             
-            const iToIcDistance = this.calculateDistance(
+            // Update Information Panel distances and ratios
+            setElementValue('#d-i-ic', this.calculateDistance(
                 { x: 0, y: 0 }, // Intelligence point is at origin
                 this.system.incenter
-            );
-            setElementValue('#i-to-ic-distance', iToIcDistance);
-            
-            // Update Information Panel distances and ratios
-            setElementValue('#d-i-ic', iToIcDistance);
-            setElementValue('#r-i-ic', iToIcDistance / perimeter);
+            ));
+            setElementValue('#r-i-ic', this.calculateDistance(
+                { x: 0, y: 0 }, // Intelligence point is at origin
+                this.system.incenter
+            ) / perimeter);
         }
 
         // Update subsystem metrics
@@ -768,8 +802,93 @@ class TriangleSystem {
             setElementValue('#nine-point-coords', 
                 `${ninePointCircle.center.x.toFixed(1)}, ${ninePointCircle.center.y.toFixed(1)}`);
         }
-    }
 
+        // Get the subsystem area (which is already calculated as system area / 3)
+        const subsystemArea = area / 3;  // Using the existing 'area' variable
+
+        // Update subsystem areas
+        setElementValue('#subsystem-1-area', subsystemArea.toFixed(2));
+        setElementValue('#subsystem-2-area', subsystemArea.toFixed(2));
+        setElementValue('#subsystem-3-area', subsystemArea.toFixed(2));
+
+        // Add CSS dynamically to ensure input fields are wide enough
+        const style = document.createElement('style');
+        style.textContent = `
+            .subsystems-table input[type="text"] {
+                min-width: 90px !important;  /* Increase from current width */
+                width: auto !important;
+                text-align: right;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Calculate and update subsystem centroids
+        const centroids = this.calculateSubsystemCentroids();
+        const formatCoord = (x, y) => {
+            const xStr = x.toFixed(1);  // Remove padStart
+            const yStr = y.toFixed(1);  // Remove padStart
+            return `${xStr},${yStr}`;   // No spaces, just comma
+        };
+        setElementValue('#subsystem-1-centroid', formatCoord(centroids.ss1.x, centroids.ss1.y));
+        setElementValue('#subsystem-2-centroid', formatCoord(centroids.ss2.x, centroids.ss2.y));
+        setElementValue('#subsystem-3-centroid', formatCoord(centroids.ss3.x, centroids.ss3.y));
+
+        // Remove all subsystem circumcenter related code
+        // const subsystemCircumcenters = this.calculateSubsystemCircumcenters();
+        // ... remove debug logging ...
+        // ... remove circumcenter updates ...
+
+        // Get the median values
+        const medianValues = this.calculateMedians();
+        
+        // Update MC column in Subsystems table only
+        setElementValue('#subsystem-1-mc', medianValues.n1.toFixed(2));
+        setElementValue('#subsystem-2-mc', medianValues.n2.toFixed(2));
+        setElementValue('#subsystem-3-mc', medianValues.n3.toFixed(2));
+
+        // Get the elements first with null checks
+        const sphAreaRatioElement = document.getElementById('sph-area-ratio');
+        const areaSphRatioElement = document.getElementById('area-sph-ratio');
+
+        // Only proceed if both elements exist
+        if (sphAreaRatioElement && areaSphRatioElement) {
+            // Use the system's existing values instead of reading from DOM
+            const sphValue = this.system.sph;
+            const areaValue = this.system.area;
+            
+            if (sphValue && areaValue && areaValue !== 0) {
+                const ratio = sphValue / areaValue;
+                sphAreaRatioElement.value = ratio.toFixed(4);
+                areaSphRatioElement.value = (1 / ratio).toFixed(4);
+            }
+        }  // Close the first if block
+
+        // Calculate MCH (Median Channel Entropy)
+        const mc1 = parseFloat(document.querySelector('#subsystem-1-mc').value) || 0;
+        const mc2 = parseFloat(document.querySelector('#subsystem-2-mc').value) || 0;
+        const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
+        
+        const mcH = mc1 + mc2 + mc3;
+        setElementValue('#system-mch', mcH.toFixed(2));  // Update SH panel
+
+        // Only try to update mc-h if it exists (it's been removed from Info Panel)
+        const mcHElement = document.querySelector('#mc-h');
+        if (mcHElement) {
+            setElementValue('#mc-h', mcH.toFixed(2));
+        }
+
+        // Calculate Total System Entropy (SH = SPH + MCH)
+        const sph = parseFloat(document.querySelector('#system-sph').value) || 0;
+        const systemEntropy = sph + mcH;
+        setElementValue('#system-h', systemEntropy.toFixed(2));
+        setElementValue('#system-sph', sph.toFixed(2));
+
+        // Update MC values display
+        setElementValue('#subsystem-1-mc', mc1.toFixed(2));  // Add this line
+        setElementValue('#subsystem-2-mc', mc2.toFixed(2));  // Add this line
+        setElementValue('#subsystem-3-mc', mc3.toFixed(2));  // Add this line
+    }  // Close the method
+    
     calculateSubsystemAngles() {
         const centroid = {
             x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
@@ -922,7 +1041,7 @@ class TriangleSystem {
         if (this.showMidpoints) this.drawMidpoints(this.ctx);
         if (this.showMedians) this.drawMedians(this.ctx);
         if (this.showIncircle) this.drawIncircle(this.ctx);
-        if (this.showIncenter) this.drawIncenterPoint(this.ctx);  // New separate method for incenter
+        if (this.showIncenter) this.drawIncenter(this.ctx);  // New separate method for incenter
         if (this.showTangents) this.drawTangents(this.ctx);
         if (this.showCentroid) this.drawCentroid(this.ctx);
         
@@ -970,91 +1089,89 @@ class TriangleSystem {
 
         this.ctx.restore();  // Restore context state
 
-        // Draw special centers and Euler line
+        // Draw special centers if enabled
         if (this.showSpecialCenters) {
-            // Draw Euler line first (so it appears behind the points)
-            if (this.system.circumcenter && this.system.orthocenter) {
-                this.ctx.strokeStyle = 'rgba(255, 105, 180, 0.5)'; // Pink with 0.5 opacity
-                this.ctx.setLineDash([5, 5]);  // Match other dotted lines
-                this.ctx.lineWidth = 1;  // Match other lines
-                
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.system.circumcenter.x, this.system.circumcenter.y);
-                this.ctx.lineTo(this.system.orthocenter.x, this.system.orthocenter.y);
-                this.ctx.stroke();
-                
-                // Reset line style
-                this.ctx.setLineDash([]);
-            }
+            console.log("Drawing special centers with state:", {
+                showSpecialCenters: this.showSpecialCenters,
+                orthocenter: this.system.orthocenter
+            });
 
-            // Draw Circumcenter (O)
-            if (this.system.circumcenter) {
-                this.ctx.beginPath();
-                this.ctx.arc(this.system.circumcenter.x, this.system.circumcenter.y, 
-                            4, 0, 2 * Math.PI);
-                this.ctx.fillStyle = '#FF69B4';
-                this.ctx.fill();
-                
-                // Label O
-                this.ctx.save();
-                this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#fff';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText('O', 
-                    this.system.circumcenter.x + 10, 
-                    -this.system.circumcenter.y);
-                this.ctx.restore();
-            }
-
-            // Draw Orthocenter (H)
+            // Draw orthocenter point and label
             if (this.system.orthocenter) {
                 this.ctx.beginPath();
                 this.ctx.fillStyle = '#FF69B4';  // Pink color
-                this.ctx.arc(this.system.orthocenter.x, this.system.orthocenter.y, 4, 0, 2 * Math.PI);
+                this.ctx.arc(
+                    this.system.orthocenter.x,
+                    this.system.orthocenter.y,
+                    4,
+                    0,
+                    2 * Math.PI
+                );
                 this.ctx.fill();
-                
-                // Label H
+
+                // Label 'H' for orthocenter
                 this.ctx.save();
                 this.ctx.scale(1, -1);  // Flip text right-side up
-                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.fillStyle = '#FF69B4';
                 this.ctx.font = '12px Arial';
                 this.ctx.fillText('H', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
                 this.ctx.restore();
             }
+        }
 
-            // Draw Nine-Point Center (N)
-            if (this.system.ninePointCenter) {
-                this.ctx.beginPath();
-                this.ctx.arc(this.system.ninePointCenter.x, this.system.ninePointCenter.y, 
-                            4, 0, 2 * Math.PI);
-                this.ctx.fillStyle = '#FF69B4';
-                this.ctx.fill();
-                
-                // Label N
-                this.ctx.save();
-                this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#fff';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText('N', 
-                    this.system.ninePointCenter.x + 10, 
-                    -this.system.ninePointCenter.y);
-                this.ctx.restore();
-            }
+        // Draw Orthocircle if enabled (after special centers)
+        if (this.showOrthocircle) {
+            this.drawOrthocircle(this.ctx);
         }
 
         // Draw Nine-Point Circle
         if (this.showNinePointCircle) {
-            this.drawNinePointCircle(this.ctx);
+            const ninePointCircle = this.calculateNinePointCircle();
+            if (ninePointCircle && ninePointCircle.center && ninePointCircle.radius) {
+                // Draw the circle
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = '#FFFFFF';  // White
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.lineWidth = 1;
+                this.ctx.arc(
+                    ninePointCircle.center.x,
+                    ninePointCircle.center.y,
+                    ninePointCircle.radius,
+                    0,
+                    2 * Math.PI
+                );
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+
+                // Draw the center point
+                this.ctx.beginPath();
+                this.ctx.fillStyle = '#FFFFFF';  // White
+                this.ctx.arc(
+                    ninePointCircle.center.x,
+                    ninePointCircle.center.y,
+                    4,
+                    0,
+                    2 * Math.PI
+                );
+                this.ctx.fill();
+
+                // Label 'N'
+                this.ctx.save();
+                this.ctx.scale(1, -1);
+                this.ctx.fillStyle = '#FFFFFF';  // White
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+                this.ctx.restore();
+            }
         }
 
         if (this.showCircumcircle) {
             this.drawCircumcircle(this.ctx);
         }
 
-        // Draw orthocircle if enabled
-        if (this.showOrthocircle) {
-            console.log("Drawing orthocircle...");
-            this.drawOrthocircle(this.ctx);
+        // Draw Exponential Point if enabled
+        if (this.showExpo) {
+            this.drawExponentialPoint(this.ctx);
         }
     }
 
@@ -1231,21 +1348,23 @@ class TriangleSystem {
      * @param {CanvasRenderingContext2D} ctx 
      */
     drawCentroid(ctx) {
-        const centroidX = (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3;
-        const centroidY = (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3;
-
-        // Changed color from orange to white
-        ctx.fillStyle = 'white';
+        if (!this.showCentroid) return;
+        
+        const centroid = this.calculateCentroid();
+        if (!centroid) return;
+        
+        // Draw the point in white with radius 4
+        ctx.fillStyle = '#FFFFFF';  // Changed from #00FF00 to white
         ctx.beginPath();
-        ctx.arc(centroidX, centroidY, 6, 0, 2 * Math.PI);
+        ctx.arc(centroid.x, centroid.y, 4, 0, 2 * Math.PI);
         ctx.fill();
-
-        // Label remains white and changed from 'Centroid' to 'I'
-        ctx.fillStyle = 'white';
+        
+        // Label 'I' in white with 12px font
+        ctx.fillStyle = '#FFFFFF';  // Changed from #00FF00 to white
         ctx.font = '12px Arial';
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText('I', centroidX + 10, -centroidY);  // Changed label text
+        ctx.fillText('I', centroid.x + 8, -centroid.y);
         ctx.restore();
     }
 
@@ -1254,38 +1373,58 @@ class TriangleSystem {
      * @param {CanvasRenderingContext2D} ctx 
      */
     drawSubsystems(ctx) {
+        if (!this.showSubsystems) return;
+        
         const { n1, n2, n3 } = this.system;
-        const centroid = {
-            x: (n1.x + n2.x + n3.x) / 3,
-            y: (n1.y + n2.y + n3.y) / 3
-        };
+        const origin = { x: 0, y: 0 };
 
-        // Draw SS1 (Red, Left Subsystem: N1-N3-I)
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
-        ctx.beginPath();
-        ctx.moveTo(n1.x, n1.y);
-        ctx.lineTo(n3.x, n3.y);
-        ctx.lineTo(centroid.x, centroid.y);
-        ctx.closePath();
-        ctx.fill();
+        // Draw SS1 region (Red)
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+        this.ctx.beginPath();
+        this.ctx.moveTo(n1.x, n1.y);
+        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.lineTo(origin.x, origin.y);
+        this.ctx.closePath();
+        this.ctx.fill();
 
-        // Draw SS2 (Blue, Right Subsystem: N1-N2-I)
-        ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
-        ctx.beginPath();
-        ctx.moveTo(n1.x, n1.y);
-        ctx.lineTo(n2.x, n2.y);
-        ctx.lineTo(centroid.x, centroid.y);
-        ctx.closePath();
-        ctx.fill();
+        // Draw SS2 region (Blue)
+        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+        this.ctx.beginPath();
+        this.ctx.moveTo(n1.x, n1.y);
+        this.ctx.lineTo(n2.x, n2.y);
+        this.ctx.lineTo(origin.x, origin.y);
+        this.ctx.closePath();
+        this.ctx.fill();
 
-        // Draw SS3 (Green, Base Subsystem: N2-N3-I)
-        ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
-        ctx.beginPath();
-        ctx.moveTo(n2.x, n2.y);
-        ctx.lineTo(n3.x, n3.y);
-        ctx.lineTo(centroid.x, centroid.y);
-        ctx.closePath();
-        ctx.fill();
+        // Draw SS3 region (Green)
+        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
+        this.ctx.beginPath();
+        this.ctx.moveTo(n2.x, n2.y);
+        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.lineTo(origin.x, origin.y);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        // Draw centroids
+        const centroids = this.calculateSubsystemCentroids();
+        
+        // Draw SS1 centroid (Red)
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+        this.ctx.beginPath();
+        this.ctx.arc(centroids.ss1.x, centroids.ss1.y, 4, 0, 2 * Math.PI);
+        this.ctx.fill();
+        
+        // Draw SS2 centroid (Blue)
+        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';
+        this.ctx.beginPath();
+        this.ctx.arc(centroids.ss2.x, centroids.ss2.y, 4, 0, 2 * Math.PI);
+        this.ctx.fill();
+        
+        // Draw SS3 centroid (Green)
+        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+        this.ctx.beginPath();
+        this.ctx.arc(centroids.ss3.x, centroids.ss3.y, 4, 0, 2 * Math.PI);
+        this.ctx.fill();
     }
 
     calculateTangents() {
@@ -1352,11 +1491,13 @@ class TriangleSystem {
 
     calculateArea() {
         const { n1, n2, n3 } = this.system;
-        return Math.abs(
-            (n1.x * (n2.y - n3.y) +
-                n2.x * (n3.y - n1.y) +
-                n3.x * (n1.y - n2.y)) / 2
-        );
+        // Area calculation using the formula: |Ax(By - Cy) + Bx(Cy - Ay) + Cx(Ay - By)| / 2
+        const area = Math.abs(
+            n1.x * (n2.y - n3.y) +
+            n2.x * (n3.y - n1.y) +
+            n3.x * (n1.y - n2.y)
+        ) / 2;
+        return area;
     }
 
     calculateLengths() {
@@ -1396,10 +1537,7 @@ class TriangleSystem {
      * @returns {number} The distance between point1 and point2.
      */
     calculateDistance(point1, point2) {
-        if (!point1 || !point2) return 0;
-        const dx = point2.x - point1.x;
-        const dy = point2.y - point1.y;
-        return Math.sqrt(dx * dx + dy * dy);
+        return Math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2);
     }
 
     // Placeholder methods for drawAngles and drawEdgeLengths
@@ -1522,21 +1660,24 @@ class TriangleSystem {
     }
 
     // Add new method for drawing just the incenter point
-    drawIncenterPoint(ctx) {
-        if (!this.system.incenter) return;
+    drawIncenter(ctx) {
+        if (!this.showIncenter) return;
         
-        // Match incircle color
-        ctx.fillStyle = 'cyan';
+        const incenter = this.calculateIncenter();
+        if (!incenter) return;
+        
+        // Draw the point with smaller radius
+        ctx.fillStyle = '#00FFFF';  // Keep the cyan color
         ctx.beginPath();
-        ctx.arc(this.system.incenter.x, this.system.incenter.y, 6, 0, 2 * Math.PI);
+        ctx.arc(incenter.x, incenter.y, 4, 0, 2 * Math.PI);  // Reduced from 5 to 4
         ctx.fill();
-
-        // Add label
-        ctx.fillStyle = 'white';
-        ctx.font = '12px Arial';
+        
+        // Label 'IC' with smaller font size
+        ctx.fillStyle = '#00FFFF';
+        ctx.font = '12px Arial';  // Reduced from 14px to 12px
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText('IC', this.system.incenter.x + 10, -this.system.incenter.y);
+        ctx.fillText('IC', incenter.x + 10, -incenter.y);
         ctx.restore();
     }
 
@@ -2189,90 +2330,91 @@ class TriangleSystem {
     // Helper method to calculate circumcenter
     calculateCircumcenter() {
         const { n1, n2, n3 } = this.system;
-        
-        // Calculate perpendicular bisector parameters
-        const d = 2 * (n1.x * (n2.y - n3.y) + n2.x * (n3.y - n1.y) + n3.x * (n1.y - n2.y));
-        
-        // Calculate circumcenter coordinates
-        const x = ((n1.x * n1.x + n1.y * n1.y) * (n2.y - n3.y) + 
-                  (n2.x * n2.x + n2.y * n2.y) * (n3.y - n1.y) + 
-                  (n3.x * n3.x + n3.y * n3.y) * (n1.y - n2.y)) / d;
-                  
-        const y = ((n1.x * n1.x + n1.y * n1.y) * (n3.x - n2.x) + 
-                  (n2.x * n2.x + n2.y * n2.y) * (n1.x - n3.x) + 
-                  (n3.x * n3.x + n3.y * n3.y) * (n2.x - n1.x)) / d;
-                  
-        return { x, y };
+        const EPSILON = 1e-10;
+        const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
+
+        console.log("Calculating circumcenter for points:", { n1, n2, n3 });
+
+        // Calculate the midpoints of sides n1-n2 and n2-n3
+        const midAB = this.calculateMidpoint(n1, n2);
+        const midBC = this.calculateMidpoint(n2, n3);
+
+        // Calculate the slopes of sides n1-n2 and n2-n3
+        const slopeAB = this.calculateSlope(n1, n2);
+        const slopeBC = this.calculateSlope(n2, n3);
+
+        // Calculate the slopes of the perpendicular bisectors
+        const perpSlopeAB = slopeAB !== Infinity ? -1 / slopeAB : 0;
+        const perpSlopeBC = slopeBC !== Infinity ? -1 / slopeBC : 0;
+
+        // Calculate the y-intercepts of the perpendicular bisectors
+        const interceptAB = midAB.y - perpSlopeAB * midAB.x;
+        const interceptBC = midBC.y - perpSlopeBC * midBC.x;
+
+        let circumcenter;
+
+        if (Math.abs(perpSlopeAB - perpSlopeBC) < EPSILON) {
+            console.warn("Perpendicular bisectors are parallel. Circumcenter is undefined.");
+            return null;
+        }
+
+        if (perpSlopeAB === Infinity) {
+            // First bisector is vertical
+            const x = roundNearZero(midAB.x);
+            const y = roundNearZero(perpSlopeBC * x + interceptBC);
+            circumcenter = { x, y };
+        } else if (perpSlopeBC === Infinity) {
+            // Second bisector is vertical
+            const x = roundNearZero(midBC.x);
+            const y = roundNearZero(perpSlopeAB * x + interceptAB);
+            circumcenter = { x, y };
+        } else {
+            // Calculate intersection point of the two perpendicular bisectors
+            const x = roundNearZero((interceptBC - interceptAB) / (perpSlopeAB - perpSlopeBC));
+            const y = roundNearZero(perpSlopeAB * x + interceptAB);
+            circumcenter = { x, y };
+        }
+
+        console.log("Calculated circumcenter:", circumcenter);
+        return circumcenter;
     }
 
     // Helper method to calculate orthocenter
     calculateOrthocenter() {
-        const n1 = this.system.n1;
-        const n2 = this.system.n2;
-        const n3 = this.system.n3;
+        const { n1, n2, n3 } = this.system;
         
-        // Add debug logging
-        console.log("Calculating orthocenter for points:", { n1, n2, n3 });
+        // Calculate slopes of sides
+        const slope12 = (n2.y - n1.y) / (n2.x - n1.x);
+        const slope23 = (n3.y - n2.y) / (n3.x - n2.x);
+        const slope31 = (n1.y - n3.y) / (n1.x - n3.x);
         
-        if (this.areCollinear(n1, n2, n3)) {
-            console.warn("Cannot calculate orthocenter: points are collinear");
-            return null;
+        // Calculate slopes of altitudes (perpendicular to sides)
+        const altSlope1 = slope23 !== 0 ? -1 / slope23 : Infinity;
+        const altSlope2 = slope31 !== 0 ? -1 / slope31 : Infinity;
+        
+        // Calculate y-intercepts for altitude lines
+        const b1 = n1.y - altSlope1 * n1.x;
+        const b2 = n2.y - altSlope2 * n2.x;
+        
+        // Calculate intersection of altitudes
+        let orthocenter;
+        if (altSlope1 === Infinity) {
+            orthocenter = {
+                x: n1.x,
+                y: altSlope2 * n1.x + b2
+            };
+        } else if (altSlope2 === Infinity) {
+            orthocenter = {
+                x: n2.x,
+                y: altSlope1 * n2.x + b1
+            };
+        } else {
+            const x = (b2 - b1) / (altSlope1 - altSlope2);
+            const y = altSlope1 * x + b1;
+            orthocenter = { x, y };
         }
         
-        try {
-            // Calculate slopes of sides
-            const m12 = this.calculateSlope(n1, n2);
-            const m23 = this.calculateSlope(n2, n3);
-            const m31 = this.calculateSlope(n3, n1);
-            
-            console.log("Side slopes:", { m12, m23, m31 });
-            
-            // Calculate slopes of altitudes (perpendicular to sides)
-            const ma1 = m23 !== 0 ? (-1 / m23) : Infinity;  // From n1 to side 23
-            const ma2 = m31 !== 0 ? (-1 / m31) : Infinity;  // From n2 to side 31
-            
-            console.log("Altitude slopes:", { ma1, ma2 });
-            
-            // Calculate y-intercepts or x-coordinates of altitudes
-            let b1, b2;
-            if (ma1 !== Infinity) {
-                b1 = n1.y - ma1 * n1.x;
-            } else {
-                b1 = n1.x; // x-coordinate for vertical line
-            }
-
-            if (ma2 !== Infinity) {
-                b2 = n2.y - ma2 * n2.x;
-            } else {
-                b2 = n2.x; // x-coordinate for vertical line
-            }
-            
-            console.log("Intercepts:", { b1, b2 });
-            
-            let x, y;
-            if (ma1 !== Infinity && ma2 !== Infinity) {
-                // Both altitudes are not vertical
-                x = (b2 - b1) / (ma1 - ma2);
-                y = ma1 * x + b1;
-            } else if (ma1 === Infinity) {
-                // First altitude is vertical
-                x = b1;
-                y = ma2 * x + b2;
-            } else if (ma2 === Infinity) {
-                // Second altitude is vertical
-                x = b2;
-                y = ma1 * x + b1;
-            } else {
-                throw new Error("Cannot determine orthocenter: both altitudes are vertical");
-            }
-            
-            console.log("Calculated orthocenter:", { x, y });
-            return { x, y };
-            
-        } catch (error) {
-            console.error("Error calculating orthocenter:", error);
-            return null;
-        }
+        return orthocenter;
     }
 
     // Add method to draw nine-point circle
@@ -2387,41 +2529,68 @@ class TriangleSystem {
     }
 
     drawTriangle() {
-        // Draw the base triangle
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#FFFFFF';  // White lines
+        const { n1, n2, n3 } = this.system;
+        
+        // Draw edges
+        this.ctx.strokeStyle = '#FFFFFF';
         this.ctx.lineWidth = 2;
-        
-        // Move to first vertex
-        this.ctx.moveTo(this.system.n1.x, this.system.n1.y);
-        
-        // Draw lines to other vertices
-        this.ctx.lineTo(this.system.n2.x, this.system.n2.y);
-        this.ctx.lineTo(this.system.n3.x, this.system.n3.y);
-        this.ctx.lineTo(this.system.n1.x, this.system.n1.y);
-        
+        this.ctx.beginPath();
+        this.ctx.moveTo(n1.x, n1.y);
+        this.ctx.lineTo(n2.x, n2.y);
+        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.closePath();
         this.ctx.stroke();
-        
-        // Draw vertices
-        [this.system.n1, this.system.n2, this.system.n3].forEach((node, index) => {
+
+        // Draw vertices with N1, N2, N3 labels
+        [n1, n2, n3].forEach((node, index) => {
+            // Draw vertex point
+            this.ctx.fillStyle = '#FFFFFF';
             this.ctx.beginPath();
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.arc(node.x, node.y, 4, 0, 2 * Math.PI);
+            this.ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI);
             this.ctx.fill();
-            
-            // Add labels N1, N2, N3
+
+            // Draw Node labels (N1, N2, N3)
             this.ctx.save();
-            this.ctx.scale(1, -1);  // Flip text right-side up
+            this.ctx.scale(1, -1); // Flip y-axis for text
             this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.font = '12px Arial';
+            this.ctx.font = '14px Arial';
             this.ctx.fillText(`N${index + 1}`, node.x + 10, -node.y);
             this.ctx.restore();
         });
+
+        // Draw Median Channels (if enabled)
+        if (this.showMedians) {
+            const origin = { x: 0, y: 0 }; // I point
+            
+            // Draw lines from I to each vertex
+            [n1, n2, n3].forEach((node, index) => {
+                this.ctx.strokeStyle = '#AAAAAA'; // Gray color for medians
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(origin.x, origin.y);
+                this.ctx.lineTo(node.x, node.y);
+                this.ctx.stroke();
+
+                // Optionally label the median channels (MC1, MC2, MC3)
+                const midpoint = {
+                    x: (origin.x + node.x) / 2,
+                    y: (origin.y + node.y) / 2
+                };
+                
+                this.ctx.save();
+                this.ctx.scale(1, -1);
+                this.ctx.fillStyle = '#AAAAAA';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText(`MC${index + 1}`, midpoint.x + 5, -midpoint.y);
+                this.ctx.restore();
+            });
+        }
     }
 
     // Helper functions for orthocenter calculation
     calculateSlope(p1, p2) {
-        if (Math.abs(p2.x - p1.x) < 1e-10) {  // Using epsilon for floating-point comparison
+        const EPSILON = 1e-10;
+        if (Math.abs(p2.x - p1.x) < EPSILON) {
             return Infinity; // Vertical line
         }
         return (p2.y - p1.y) / (p2.x - p1.x);
@@ -2511,6 +2680,123 @@ class TriangleSystem {
         
         console.log("Orthocircle drawn");
     }
+
+    calculateCentroid() {
+        const { n1, n2, n3 } = this.system;
+        return {
+            x: (n1.x + n2.x + n3.x) / 3,
+            y: (n1.y + n2.y + n3.y) / 3
+        };
+    }
+
+    calculateIncenter() {
+        const { n1, n2, n3 } = this.system;
+        const angles = this.calculateAngles();
+        
+        // Calculate incenter using angle bisector theorem
+        const sinA1 = Math.sin(angles.n1 * Math.PI / 180);
+        const sinA2 = Math.sin(angles.n2 * Math.PI / 180);
+        const sinA3 = Math.sin(angles.n3 * Math.PI / 180);
+        
+        const denominator = sinA1 + sinA2 + sinA3;
+        
+        return {
+            x: (n1.x * sinA1 + n2.x * sinA2 + n3.x * sinA3) / denominator,
+            y: (n1.y * sinA1 + n2.y * sinA2 + n3.y * sinA3) / denominator
+        };
+    }
+
+    calculateSubsystemCentroids() {
+        const { n1, n2, n3 } = this.system;
+        const origin = { x: 0, y: 0 };  // Intelligence point (I)
+
+        const centroids = {
+            // SS1 (Red): triangle formed by N1, N3, and I
+            ss1: {
+                x: (n1.x + n3.x + origin.x) / 3,
+                y: (n1.y + n3.y + origin.y) / 3
+            },
+            // SS2 (Blue): triangle formed by N1, N2, and I
+            ss2: {
+                x: (n1.x + n2.x + origin.x) / 3,
+                y: (n1.y + n2.y + origin.y) / 3
+            },
+            // SS3 (Green): triangle formed by N2, N3, and I
+            ss3: {
+                x: (n2.x + n3.x + origin.x) / 3,
+                y: (n2.y + n3.y + origin.y) / 3
+            }
+        };
+
+        return centroids;
+    }
+
+    /**
+     * Calculates the Circumcenter for any three given points.
+     * 
+     * @param {Object} p1 - First point with properties x and y.
+     * @param {Object} p2 - Second point with properties x and y.
+     * @param {Object} p3 - Third point with properties x and y.
+     * @returns {Object|null} Circumcenter with properties x and y, or null if undefined.
+     */
+    calculateCircumcenterForPoints(p1, p2, p3) {
+        // Validate input points
+        if (!p1 || !p2 || !p3 || 
+            typeof p1.x === 'undefined' || typeof p1.y === 'undefined' ||
+            typeof p2.x === 'undefined' || typeof p2.y === 'undefined' ||
+            typeof p3.x === 'undefined' || typeof p3.y === 'undefined') {
+            console.error("Invalid points passed to calculateCircumcenterForPoints:", { p1, p2, p3 });
+            return null;
+        }
+
+        try {
+            // Calculate midpoints
+            const midAB = this.calculateMidpoint(p1, p2);
+            const midBC = this.calculateMidpoint(p2, p3);
+
+            // Calculate slopes
+            const slopeAB = this.calculateSlope(p1, p2);
+            const slopeBC = this.calculateSlope(p2, p3);
+
+            // Calculate perpendicular slopes
+            const perpSlopeAB = slopeAB !== Infinity ? -1 / slopeAB : 0;
+            const perpSlopeBC = slopeBC !== Infinity ? -1 / slopeBC : 0;
+
+            // Calculate intercepts
+            const interceptAB = midAB.y - perpSlopeAB * midAB.x;
+            const interceptBC = midBC.y - perpSlopeBC * midBC.x;
+
+            const EPSILON = 1e-10;
+            if (Math.abs(perpSlopeAB - perpSlopeBC) < EPSILON) {
+                console.warn("Perpendicular bisectors are parallel.");
+                return null;
+            }
+
+            let circumcenter;
+            if (perpSlopeAB === Infinity) {
+                const x = midAB.x;
+                const y = perpSlopeBC * x + interceptBC;
+                circumcenter = { x, y };
+            } else if (perpSlopeBC === Infinity) {
+                const x = midBC.x;
+                const y = perpSlopeAB * x + interceptAB;
+                circumcenter = { x, y };
+            } else {
+                const x = (interceptBC - interceptAB) / (perpSlopeAB - perpSlopeBC);
+                const y = perpSlopeAB * x + interceptAB;
+                circumcenter = { x, y };
+            }
+
+            // Round near-zero values
+            if (Math.abs(circumcenter.x) < EPSILON) circumcenter.x = 0;
+            if (Math.abs(circumcenter.y) < EPSILON) circumcenter.y = 0;
+
+            return circumcenter;
+        } catch (error) {
+            console.error("Error in calculateCircumcenterForPoints:", error);
+            return null;
+        }
+    }
 }
 
 // Outside the class - DOM initialization
@@ -2537,7 +2823,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    
-    
+    // Add CSS dynamically to ensure coordinate input fields are wide enough
+    const style = document.createElement('style');
+    style.textContent = `
+        /* General subsystem table input styling */
+        .subsystems-table input[type="text"] {
+            min-width: 90px !important;
+            width: auto !important;
+            text-align: right;
+        }
+
+        /* Coordinate input fields (for all x,y positions) */
+        input[type="text"].form-control[size="15"] {
+            min-width: 120px !important;
+            width: auto !important;
+            text-align: center !important;
+            font-family: monospace !important;  /* For better alignment of numbers */
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Update the HTML size attributes
+    document.querySelectorAll('.subsystems-table td:nth-child(5) input, .subsystems-table td:nth-child(6) input').forEach(input => {
+        input.setAttribute('size', '15');
+    });
 });
 
