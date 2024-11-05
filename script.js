@@ -197,7 +197,7 @@ class TriangleSystem {
             console.error('Presets list element not found');
             return;
         }
-
+        
         try {
             // Clear existing items
             presetsList.innerHTML = '';
@@ -205,9 +205,9 @@ class TriangleSystem {
             // Get presets from storage
             const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
             
-            // Sort presets by timestamp (newest first)
+            // Sort presets alphabetically by name (case-insensitive)
             const sortedPresets = Object.entries(presets)
-                .sort(([,a], [,b]) => (b.timestamp || 0) - (a.timestamp || 0));
+                .sort(([nameA], [nameB]) => nameA.toLowerCase().localeCompare(nameB.toLowerCase()));
             
             // Add presets to dropdown
             sortedPresets.forEach(([name, values]) => {
@@ -265,7 +265,7 @@ class TriangleSystem {
                 });
             });
             
-            console.log('Updated presets dropdown with', Object.keys(presets).length, 'items'); // Debug log
+            console.log('Updated presets dropdown with', Object.keys(presets).length, 'items');
         } catch (error) {
             console.error('Error updating presets dropdown:', error);
         }
