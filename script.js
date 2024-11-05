@@ -59,7 +59,7 @@ class TriangleSystem {
         // Then initialize controls
         this.initializeEventListeners();
         this.initializeManualControls();
-        this.initializeAnimationControls();  // Add this line
+        this.initializeAnimations();  // Changed from initializeAnimationControls
         
         // Draw initial state
         this.drawSystem();
@@ -2092,112 +2092,109 @@ class TriangleSystem {
         };
     }
 
-    initializeAnimationControls() {
-        console.log('Initializing animation controls');
-        
-        // Make animation end fields editable and set initial values
-        ['animation-nc1-end', 'animation-nc2-end', 'animation-nc3-end'].forEach(id => {
-            const input = document.getElementById(id);
-            if (input) {
-                input.readOnly = false;  // Make editable
-                
-                // Set initial values based on current triangle state
-                const nc = id.includes('nc1') ? this.calculateDistance(this.system.n1, this.system.n3) :
-                          id.includes('nc2') ? this.calculateDistance(this.system.n1, this.system.n2) :
-                          this.calculateDistance(this.system.n2, this.system.n3);
-                
-                input.value = nc.toFixed(2);  // Display with 2 decimal places
-                console.log(`Initialized ${id} with value ${input.value}`);
-            } else {
-                console.error(`Animation input field ${id} not found`);
-            }
-        });
+    initializeAnimations() {
+        // Get the animations dropdown list element
+        const animationsList = document.getElementById('animationsList');
+        if (!animationsList) {
+            console.error('Animations list element not found');
+            return;
+        }
 
-        // Set up animate button
-        const animateButton = document.getElementById('animate-button');
-        if (animateButton) {
-            animateButton.addEventListener('click', () => {
-                console.log('Animate button clicked');
-                this.startAnimation();
+        try {
+            // Clear existing items
+            animationsList.innerHTML = '';
+            
+            // Get saved animations from localStorage
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            
+            // Sort animation names alphabetically
+            const sortedNames = Object.keys(animations).sort();
+            
+            // Add each animation to the dropdown
+            sortedNames.forEach(name => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.className = 'dropdown-item';
+                a.href = '#';
+                
+                // Create span for the text content
+                const textSpan = document.createElement('span');
+                textSpan.textContent = name;
+                
+                // Create button container
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'preset-buttons';
+                
+                // Create delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-danger btn-sm';
+                deleteBtn.textContent = '×';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (confirm(`Delete animation "${name}"?`)) {
+                        this.deleteAnimation(name);
+                    }
+                });
+                
+                // Add click handler for loading animation
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.loadAnimation(name);
+                });
+                
+                // Assemble the dropdown item
+                buttonContainer.appendChild(deleteBtn);
+                a.appendChild(textSpan);
+                a.appendChild(buttonContainer);
+                li.appendChild(a);
+                animationsList.appendChild(li);
             });
-            console.log('Animate button listener added');
+        } catch (error) {
+            console.error('Error initializing animations dropdown:', error);
         }
     }
 
-    startAnimation() {
-        console.log('Starting animation');
-        
-        // Check for input fields existence first
-        const nc1Input = document.getElementById('animation-nc1-end');
-        const nc2Input = document.getElementById('animation-nc2-end');
-        const nc3Input = document.getElementById('animation-nc3-end');
+    // Add this method to handle loading animations
+    loadAnimation(name) {
+        try {
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            const animation = animations[name];
+            
+            if (!animation) {
+                console.error(`Animation "${name}" not found`);
+                return;
+            }
 
-        if (!nc1Input || !nc2Input || !nc3Input) {
-            console.error('Missing animation input fields');
-            return;
+            // Set end state values
+            const nc1Input = document.getElementById('animation-nc1-end');
+            const nc2Input = document.getElementById('animation-nc2-end');
+            const nc3Input = document.getElementById('animation-nc3-end');
+
+            if (nc1Input && nc2Input && nc3Input) {
+                nc1Input.value = animation.endState.nc1;
+                nc2Input.value = animation.endState.nc2;
+                nc3Input.value = animation.endState.nc3;
+            }
+
+            console.log(`Loaded animation "${name}"`);
+        } catch (error) {
+            console.error('Error loading animation:', error);
         }
-
-        // Get current state
-        const currentState = {
-            nc1: this.calculateDistance(this.system.n1, this.system.n3),  // NC1 maps to red edge (N1-N3)
-            nc2: this.calculateDistance(this.system.n1, this.system.n2),  // NC2 maps to blue edge (N1-N2)
-            nc3: this.calculateDistance(this.system.n2, this.system.n3)   // NC3 maps to green edge (N2-N3)
-        };
-
-        // If we're already animating, use the stored end state
-        if (this.isAnimating) {
-            this.animationStartState = currentState;
-            this.animationStartTime = performance.now();
-            requestAnimationFrame(this.animate.bind(this));
-            return;
-        }
-
-        // Get end state values from input fields
-        const endState = {
-            nc1: parseFloat(nc1Input.value) || currentState.nc1,
-            nc2: parseFloat(nc2Input.value) || currentState.nc2,
-            nc3: parseFloat(nc3Input.value) || currentState.nc3
-        };
-
-        console.log('Animation states:', {
-            start: currentState,
-            end: endState
-        });
-
-        // Store the states
-        this.animationStartState = currentState;
-        this.animationEndState = endState;
-        this.animationStartTime = performance.now();
-        this.animationDuration = 2000;
-        this.isAnimating = true;
-
-        requestAnimationFrame(this.animate.bind(this));
     }
 
-    animate(currentTime) {
-        if (!this.isAnimating) return;
-
-        const progress = (currentTime - this.animationStartTime) / this.animationDuration;
-
-        if (progress >= 1) {
-            this.isAnimating = false;
-            // Update triangle with final values
-            this.updateTriangleFromEdges(
-                this.animationEndState.nc1,
-                this.animationEndState.nc2,
-                this.animationEndState.nc3
-            );
-            return;
+    // Add this method to handle deleting animations
+    deleteAnimation(name) {
+        try {
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            delete animations[name];
+            localStorage.setItem('userAnimations', JSON.stringify(animations));
+            this.initializeAnimations();
+            console.log(`Deleted animation "${name}"`);
+        } catch (error) {
+            console.error('Error deleting animation:', error);
+            alert('Error deleting animation. Please try again.');
         }
-
-        // Calculate current values
-        const currentNC1 = this.animationStartState.nc1 + (this.animationEndState.nc1 - this.animationStartState.nc1) * progress;
-        const currentNC2 = this.animationStartState.nc2 + (this.animationEndState.nc2 - this.animationStartState.nc2) * progress;
-        const currentNC3 = this.animationStartState.nc3 + (this.animationEndState.nc3 - this.animationStartState.nc3) * progress;
-
-        // Update triangle with current values
-        this.updateTriangleFromEdges(currentNC1, currentNC2, currentNC3);
-        requestAnimationFrame(this.animate.bind(this));
     }
 
     updateAnimationEndFields() {
@@ -3197,19 +3194,6 @@ class TriangleSystem {
         } catch (error) {
             console.error('Error renaming animation:', error);
             alert('Error renaming animation. Please try again.');
-        }
-    }
-
-    deleteAnimation(name) {
-        try {
-            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
-            delete animations[name];
-            localStorage.setItem('userAnimations', JSON.stringify(animations));
-            this.updateAnimationsDropdown();
-            console.log(`Deleted animation "${name}"`);
-        } catch (error) {
-            console.error('Error deleting animation:', error);
-            alert('Error deleting animation. Please try again.');
         }
     }
 }
