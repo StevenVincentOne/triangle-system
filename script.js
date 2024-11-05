@@ -128,6 +128,9 @@ class TriangleSystem {
 
         // Add this line
         this.showEuler = false;  // New clean flag for Euler line
+
+        // Initialize subsystem metrics
+        this.subsystemAreas = [0, 0, 0];  // Initialize array for three subsystems
     }
 
     // Method to initialize all event listeners
@@ -738,10 +741,19 @@ class TriangleSystem {
         // Update subsystem metrics
         const subsystemAngles = this.calculateSubsystemAngles();
         const subsystemPerimeters = this.calculateSubsystemPerimeters();
+        this.subsystemAreas = this.calculateSubsystemAreas();  // Update the class property
         
         for (let i = 1; i <= 3; i++) {
-            setElementValue(`#subsystem-${i}-angle`, subsystemAngles[i-1]);
-            setElementValue(`#subsystem-${i}-perimeter`, subsystemPerimeters[i-1]);
+            const area = this.subsystemAreas[i-1];
+            const perimeter = subsystemPerimeters[i-1];
+            
+            // Calculate ssh/ssc ratio (if area is not zero)
+            const ratio = area !== 0 ? perimeter / area : 0;
+            
+            setElementValue(`#subsystem-${i}-angle`, subsystemAngles[i-1].toFixed(2));
+            setElementValue(`#subsystem-${i}-area`, area.toFixed(2));
+            setElementValue(`#subsystem-${i}-perimeter`, perimeter.toFixed(2));
+            setElementValue(`#subsystem-${i}-ratio`, ratio.toFixed(4));
         }
 
         // Information Panel Updates
@@ -958,6 +970,28 @@ class TriangleSystem {
             this.calculateDistance(this.system.n3, centroid) +
             this.calculateDistance(centroid, this.system.n2)
         ];
+    }
+
+    calculateSubsystemAreas() {
+        const { n1, n2, n3 } = this.system;
+        const origin = { x: 0, y: 0 };  // Intelligence point (I)
+
+        return [
+            // SS1 (triangle formed by N1, N3, and I)
+            this.calculateTriangleArea(n1, n3, origin),
+            // SS2 (triangle formed by N1, N2, and I)
+            this.calculateTriangleArea(n1, n2, origin),
+            // SS3 (triangle formed by N2, N3, and I)
+            this.calculateTriangleArea(n2, n3, origin)
+        ];
+    }
+
+    calculateTriangleArea(p1, p2, p3) {
+        return Math.abs(
+            (p1.x * (p2.y - p3.y) +
+             p2.x * (p3.y - p1.y) +
+             p3.x * (p1.y - p2.y)) / 2
+        );  // Fixed parentheses here
     }
 
     updateInformationPanel() {

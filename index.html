@@ -1244,6 +1244,18 @@
             flex-wrap: wrap !important;
             gap: 1rem !important;
         }
+
+        .subsystems-table td:last-child {
+            min-width: 90px;  /* Match other columns */
+            width: auto;
+        }
+
+        .subsystems-table input[type="text"].form-control {
+            width: 100%;
+            min-width: 100%;
+            box-sizing: border-box;
+            text-align: right;  /* Right-align all numbers */
+        }
     </style>
 </head>
 <body>
@@ -1562,6 +1574,7 @@
                                     <th>∠</th>
                                     <th>ssc</th>
                                     <th>ssh</th>
+                                    <th>ssh/ssc</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1571,6 +1584,7 @@
                                     <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                     <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-1-ratio" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
                                 <tr>
                                     <td>SS2</td>
@@ -1578,6 +1592,7 @@
                                     <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                     <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-2-ratio" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
                                 <tr>
                                     <td>SS3</td>
@@ -1585,6 +1600,7 @@
                                     <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                     <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
                                     <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
+                                    <td><input id="subsystem-3-ratio" type="text" class="form-control" size="8" readonly></td>
                                 </tr>
                             </tbody>
                         </table>
