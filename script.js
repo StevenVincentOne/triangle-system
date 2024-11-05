@@ -145,6 +145,28 @@ class TriangleSystem {
         // Update both dropdowns
         this.updatePresetsDropdown();
         this.updateAnimationsDropdown();
+
+        // Add to your initialization code
+        const animateButtonEnd = document.getElementById('animate-button-end');
+        const saveAnimationButtonEnd = document.getElementById('save-animation-end');
+
+        if (animateButtonEnd) {
+            animateButtonEnd.addEventListener('click', () => {
+                const mainAnimateButton = document.getElementById('animate-button');
+                if (mainAnimateButton) {
+                    mainAnimateButton.click();
+                }
+            });
+        }
+
+        if (saveAnimationButtonEnd) {
+            saveAnimationButtonEnd.addEventListener('click', () => {
+                const mainSaveButton = document.getElementById('save-animation');
+                if (mainSaveButton) {
+                    mainSaveButton.click();
+                }
+            });
+        }
     }
 
     initializePresets() {
@@ -489,6 +511,32 @@ class TriangleSystem {
         } else {
             console.error('Export Image button not found');
         }
+
+        // Animation button handlers
+        const animateButtons = ['animate-button', 'animate-button-end'];
+        const saveAnimationButtons = ['save-animation', 'save-animation-end'];
+
+        // Add click handlers for both sets of animate buttons
+        animateButtons.forEach(buttonId => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('click', () => {
+                    console.log('Animate button clicked');
+                    this.startAnimation();
+                });
+            }
+        });
+
+        // Add click handlers for both sets of save buttons
+        saveAnimationButtons.forEach(buttonId => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('click', () => {
+                    console.log('Save Animation button clicked');
+                    this.saveCurrentAnimation();
+                });
+            }
+        });
     }
 
     onMouseDown(event) {
@@ -3194,6 +3242,120 @@ class TriangleSystem {
         } catch (error) {
             console.error('Error renaming animation:', error);
             alert('Error renaming animation. Please try again.');
+        }
+    }
+
+    // Add or update the startAnimation method
+    startAnimation() {
+        try {
+            // Get end state values
+            const nc1End = parseFloat(document.getElementById('animation-nc1-end').value);
+            const nc2End = parseFloat(document.getElementById('animation-nc2-end').value);
+            const nc3End = parseFloat(document.getElementById('animation-nc3-end').value);
+
+            if (isNaN(nc1End) || isNaN(nc2End) || isNaN(nc3End)) {
+                console.error('Invalid end state values');
+                return;
+            }
+
+            // Get start state values from current triangle
+            const currentLengths = this.calculateLengths();
+            const startState = {
+                nc1: currentLengths.l1,
+                nc2: currentLengths.l2,
+                nc3: currentLengths.l3
+            };
+
+            // Animation parameters
+            const duration = 1000; // 1 second
+            const startTime = performance.now();
+
+            // Animation function
+            const animate = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Calculate current values using linear interpolation
+                const current = {
+                    nc1: startState.nc1 + (nc1End - startState.nc1) * progress,
+                    nc2: startState.nc2 + (nc2End - startState.nc2) * progress,
+                    nc3: startState.nc3 + (nc3End - startState.nc3) * progress
+                };
+
+                // Update triangle with current values using existing updateTriangleFromEdges method
+                this.updateTriangleFromEdges(current.nc1, current.nc2, current.nc3);
+
+                // Continue animation if not complete
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            };
+
+            // Start animation
+            requestAnimationFrame(animate);
+        } catch (error) {
+            console.error('Error in startAnimation:', error);
+        }
+    }
+
+    // Add or update the saveCurrentAnimation method
+    saveCurrentAnimation() {
+        try {
+            const name = prompt('Enter a name for this animation:');
+            if (!name) return;
+
+            // Get current state for start values
+            const currentLengths = this.calculateLengths();
+            
+            // Get end state values from inputs
+            const endState = {
+                nc1: parseFloat(document.getElementById('animation-nc1-end').value),
+                nc2: parseFloat(document.getElementById('animation-nc2-end').value),
+                nc3: parseFloat(document.getElementById('animation-nc3-end').value)
+            };
+
+            // Save animation to localStorage
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            animations[name] = {
+                startState: {
+                    nc1: currentLengths.l1,
+                    nc2: currentLengths.l2,
+                    nc3: currentLengths.l3
+                },
+                endState: endState
+            };
+
+            localStorage.setItem('userAnimations', JSON.stringify(animations));
+            this.initializeAnimations();
+            console.log(`Saved animation "${name}"`);
+        } catch (error) {
+            console.error('Error saving animation:', error);
+            alert('Error saving animation. Please try again.');
+        }
+    }
+
+    // Add this method to update triangle dimensions
+    updateTriangle(nc1, nc2, nc3) {
+        try {
+            // Update manual control inputs to match current state
+            const manualNc1Input = document.getElementById('manual-nc1');
+            const manualNc2Input = document.getElementById('manual-nc2');
+            const manualNc3Input = document.getElementById('manual-nc3');
+
+            if (manualNc1Input && manualNc2Input && manualNc3Input) {
+                manualNc1Input.value = nc1.toFixed(2);
+                manualNc2Input.value = nc2.toFixed(2);
+                manualNc3Input.value = nc3.toFixed(2);
+            }
+
+            // Apply the new dimensions
+            this.applyManualInput(nc1, nc2, nc3);
+            
+            // Update the display
+            this.drawSystem();
+            this.updateDashboard();
+        } catch (error) {
+            console.error('Error in updateTriangle:', error);
         }
     }
 }
