@@ -221,9 +221,26 @@ class TriangleSystem {
                 const ncValues = `(${values.nc1}, ${values.nc2}, ${values.nc3})`;
                 textSpan.textContent = `${name} ${ncValues}`;
                 
+                // Create button container for edit and delete
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'preset-buttons';
+                
+                // Create edit button
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-secondary btn-sm';
+                editBtn.textContent = '✎';
+                editBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const newName = prompt('Enter new name for preset:', name);
+                    if (newName && newName !== name) {
+                        this.renamePreset(name, newName, values);
+                    }
+                });
+                
                 // Create delete button
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-danger';
+                deleteBtn.className = 'btn btn-danger btn-sm';
                 deleteBtn.textContent = '×';
                 deleteBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -231,9 +248,13 @@ class TriangleSystem {
                     this.deletePreset(name);
                 });
                 
+                // Append buttons to container
+                buttonContainer.appendChild(editBtn);
+                buttonContainer.appendChild(deleteBtn);
+                
                 // Append in correct order
                 a.appendChild(textSpan);
-                a.appendChild(deleteBtn);
+                a.appendChild(buttonContainer);
                 li.appendChild(a);
                 presetsList.appendChild(li);
                 
@@ -3056,6 +3077,28 @@ class TriangleSystem {
             return null;
         }
     }
+
+    renamePreset(oldName, newName, values) {
+        try {
+            // Get existing presets
+            const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+            
+            // Delete old name and add with new name
+            delete presets[oldName];
+            presets[newName] = values;
+            
+            // Save back to localStorage
+            localStorage.setItem('userPresets', JSON.stringify(presets));
+            
+            // Update dropdown
+            this.updatePresetsDropdown();
+            
+            console.log(`Renamed preset from "${oldName}" to "${newName}"`);
+        } catch (error) {
+            console.error('Error renaming preset:', error);
+            alert('Error renaming preset. Please try again.');
+        }
+    }
 }
 
 // Outside the class - DOM initialization
@@ -3235,6 +3278,24 @@ document.addEventListener('DOMContentLoaded', () => {
             height: 1.2rem !important;
             flex-shrink: 0 !important;
             margin: 0 !important;
+        }
+
+        /* Add to your existing styles */
+        .preset-buttons {
+            display: flex !important;
+            gap: 0.25rem !important;
+            margin-left: 0.5rem !important;
+        }
+
+        #userPresetsList .btn-secondary {
+            font-size: 0.75rem !important;
+            padding: 0 0.25rem !important;
+            line-height: 1 !important;
+            height: 1.2rem !important;
+        }
+
+        #userPresetsList .dropdown-item {
+            padding-right: 0.5rem !important;
         }
     `;
     document.head.appendChild(style);
