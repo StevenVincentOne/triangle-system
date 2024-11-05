@@ -1462,23 +1462,16 @@
                             <label for="animation-nc3-end">NC3</label>
                             <input id="animation-nc3-end" type="text" class="form-control manual-input" maxlength="6">
                         </div>
+                        <!-- Add new animation buttons -->
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <button id="animate-button-end" class="btn btn-info btn-sm">Animate</button>
+                            <button id="save-animation-end" class="btn btn-info btn-sm">Save</button>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Animation Controls below canvas -->
-            <div class="d-flex justify-content-center gap-2 mt-2">
-                <button id="animate-button" class="btn btn-info">Animate</button>
-                <button id="save-animation" class="btn btn-info">Save</button>
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="animationsDropdown" data-bs-toggle="dropdown">
-                        Animations
-                    </button>
-                    <ul class="dropdown-menu" id="animationsList">
-                        <!-- Animation presets will be added here -->
-                    </ul>
-                </div>
-            </div>
+            
 
             <!-- Add this section after the canvas and animation controls -->
             <div class="d-flex justify-content-center gap-2 mt-3">
