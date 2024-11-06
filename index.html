@@ -1363,6 +1363,27 @@
         #animation-controls input {
             width: 80px;
         }
+
+        /* Add to your existing styles section */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .checkbox-group .form-check-input {
+            margin-top: 0;
+        }
+
+        .checkbox-group .form-check-label {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -1388,6 +1409,16 @@
                         <input id="manual-nc3" type="text" class="form-control manual-input" maxlength="6" size="8">
                     </div>
                     <div class="button-group d-flex align-items-center gap-2">
+                        <div class="checkbox-group d-flex align-items-center gap-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="applyToStart" checked>
+                                <label class="form-check-label" for="applyToStart">Start</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="applyToEnd">
+                                <label class="form-check-label" for="applyToEnd">End</label>
+                            </div>
+                        </div>
                         <button id="apply-manual" class="btn btn-info">Apply</button>
                         <button id="save-preset" class="btn btn-info">Save</button>
                         <div class="dropdown">
