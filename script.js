@@ -1997,18 +1997,10 @@ class TriangleSystem {
     }
 
     initializeManualControls() {
-        // Get references to manual input fields
         const nc1Input = document.getElementById('manual-nc1');
         const nc2Input = document.getElementById('manual-nc2');
         const nc3Input = document.getElementById('manual-nc3');
         const applyButton = document.getElementById('apply-manual');
-
-        // Ensure fields are editable
-        [nc1Input, nc2Input, nc3Input].forEach(input => {
-            if (input) {
-                input.readOnly = false;
-            }
-        });
 
         const updateTriangle = () => {
             const nc1 = parseFloat(nc1Input.value);
@@ -2016,16 +2008,31 @@ class TriangleSystem {
             const nc3 = parseFloat(nc3Input.value);
             
             if (!isNaN(nc1) && !isNaN(nc2) && !isNaN(nc3)) {
+                // Update triangle geometry
                 this.updateTriangleFromEdges(nc1, nc2, nc3);
+                
+                // Update animation fields based on checkbox states
+                const startChecked = document.getElementById('applyToStart')?.checked;
+                const endChecked = document.getElementById('applyToEnd')?.checked;
+                
+                if (startChecked) {
+                    document.getElementById('animation-nc1-start').value = nc1.toFixed(2);
+                    document.getElementById('animation-nc2-start').value = nc2.toFixed(2);
+                    document.getElementById('animation-nc3-start').value = nc3.toFixed(2);
+                }
+                
+                if (endChecked) {
+                    document.getElementById('animation-nc1-end').value = nc1.toFixed(2);
+                    document.getElementById('animation-nc2-end').value = nc2.toFixed(2);
+                    document.getElementById('animation-nc3-end').value = nc3.toFixed(2);
+                }
             }
         };
 
-        // Add click listener to Apply button
-        if (applyButton) {
-            applyButton.addEventListener('click', updateTriangle);
-        }
+        // Add click handler for the Apply button
+        applyButton.addEventListener('click', updateTriangle);
 
-        // Add keypress listeners to each input
+        // Add keypress handlers for Enter key
         const handleEnterKey = (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -2103,12 +2110,13 @@ class TriangleSystem {
         this.centerTriangle();
 
         // Update all derived points and features
-        this.updateDerivedPoints();  // Add this line to update all features
+        this.updateDerivedPoints();
 
         // Update rendering and dashboard
         this.drawSystem();
         this.updateDashboard();
-        this.updateAnimationFields();  // Add this
+        // Remove this line to prevent automatic animation field updates
+        // this.updateAnimationFields();  
     }
 
     centerTriangle() {
