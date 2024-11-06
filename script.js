@@ -64,7 +64,6 @@ class TriangleSystem {
         // Draw initial state
         this.drawSystem();
         this.updateDashboard();
-        this.updateAnimationEndFields();  // Add this
         
         // Update the title and dropdown container in the HTML
         const manualTitle = document.querySelector('.manual-title');
@@ -303,15 +302,23 @@ class TriangleSystem {
 
     loadPreset(name, values) {
         try {
-            // Set input values
+            // Set manual input values
             document.getElementById('manual-nc1').value = values.nc1;
             document.getElementById('manual-nc2').value = values.nc2;
             document.getElementById('manual-nc3').value = values.nc3;
             
-            // Trigger apply
-            document.getElementById('apply-manual').click();
+            // Update triangle geometry
+            this.system.n1 = { x: values.n1.x, y: values.n1.y };
+            this.system.n2 = { x: values.n2.x, y: values.n2.y };
+            this.system.n3 = { x: values.n3.x, y: values.n3.y };
             
-            console.log(`Loaded preset: ${name}`, values); // Debug log
+            // Update display without affecting animation fields
+            this.drawSystem();
+            this.updateDashboard();
+            
+            // Do NOT update animation fields automatically
+            
+            console.log(`Loaded preset: ${name}`, values);
         } catch (error) {
             console.error('Error loading preset:', error);
             alert('Error loading preset. Please try again.');
@@ -1026,7 +1033,6 @@ class TriangleSystem {
         setElementValue('#r-m-t-n3', rMT.n3);
 
         this.updateManualFields();
-        this.updateAnimationEndFields();  // Make sure this line is here
 
         // Update vertex coordinates in Position panel
         document.getElementById('node1-coords').value = `${n1.x.toFixed(1)}, ${n1.y.toFixed(1)}`;
@@ -2051,34 +2057,23 @@ class TriangleSystem {
     }
 
     handleManualUpdate() {
-        console.log('Handling manual update');
-        // Get values from manual input fields
         const nc1 = parseFloat(document.getElementById('manual-nc1').value);
         const nc2 = parseFloat(document.getElementById('manual-nc2').value);
         const nc3 = parseFloat(document.getElementById('manual-nc3').value);
 
-        console.log('Manual input values:', { nc1, nc2, nc3 });
-
-        // Validate inputs are numbers
+        // Validate inputs
         if (isNaN(nc1) || isNaN(nc2) || isNaN(nc3)) {
             alert('Please enter valid numbers for all edges');
             return;
         }
 
-        // Validate positive numbers
-        if (nc1 <= 0 || nc2 <= 0 || nc3 <= 0) {
-            alert('Edge lengths must be positive numbers');
-            return;
-        }
-
-        // Check triangle inequality
-        if (!this.validateTriangleInequality(nc1, nc2, nc3)) {
-            alert('The sum of any two sides must be greater than the third side');
-            return;
-        }
-
         // Update triangle with new edge lengths
         this.updateTriangleFromEdges(nc1, nc2, nc3);
+        
+        // Only update manual fields and dashboard
+        this.updateDashboard();
+        
+        // Do NOT automatically update animation fields
     }
 
     validateTriangleInequality(a, b, c) {
