@@ -106,44 +106,50 @@ class TriangleDatabase {
     getAllInputValues() {
         const values = {};
         
+        // Helper function to clean label text while preserving ratios
+        const cleanLabel = (text) => {
+            return text
+                .replace(/[()]/g, '')         // remove parentheses
+                .replace(/[,]/g, '')          // remove commas
+                .replace(/\s+/g, '_')         // replace spaces with underscores
+                .replace(/∠/g, 'Angle')       // replace angle symbol with 'Angle'
+                .replace(/°/g, 'deg')         // replace degree symbol with 'deg'
+                .replace(/\//g, '_to_')       // replace / with _to_
+                .replace(/[^\w\s-_]/g, '');   // remove any other special characters while keeping underscores
+        };
+
         // Get all input fields with labels
         document.querySelectorAll('.label-value-pair').forEach(pair => {
             const label = pair.querySelector('label');
             const input = pair.querySelector('input');
             
             if (label && input && input.value) {
-                // Get label text and clean it for use as column name
-                let columnName = label.textContent
-                    .trim()
-                    .toLowerCase()
-                    .replace(/[()]/g, '')  // remove parentheses
-                    .replace(/[,]/g, '')   // remove commas
-                    .replace(/\s+/g, '_'); // replace spaces with underscores
+                // Get original label text and clean it
+                let columnName = cleanLabel(label.textContent.trim());
                 
                 // Handle coordinate pairs (x,y)
                 if (input.value.includes(',')) {
                     const [x, y] = input.value.split(',').map(v => parseFloat(v.trim()));
-                    values[`${columnName}_x`] = x || 0;
-                    values[`${columnName}_y`] = y || 0;
+                    values[`${columnName}_X`] = x || 0;
+                    values[`${columnName}_Y`] = y || 0;
                 } else {
                     values[columnName] = parseFloat(input.value) || input.value;
                 }
             }
         });
 
-        // Get subsystems table values
+        // Get subsystems table values with preserved ratio formatting
         document.querySelectorAll('.subsystems-table tr').forEach((row, index) => {
             if (index === 0) return; // Skip header row
             
             const inputs = row.querySelectorAll('input');
-            const ssNum = row.cells[0].textContent.toLowerCase(); // ss1, ss2, or ss3
+            const ssNum = row.cells[0].textContent; // SS1, SS2, or SS3
             
             inputs.forEach((input, colIndex) => {
                 if (input.value) {
-                    // Get column header as name
                     const headerCell = document.querySelector(`.subsystems-table th:nth-child(${colIndex + 2})`);
                     if (headerCell) {
-                        const columnName = `${ssNum}_${headerCell.textContent.trim().toLowerCase()}`;
+                        const columnName = `${ssNum}_${cleanLabel(headerCell.textContent)}`;
                         values[columnName] = parseFloat(input.value) || input.value;
                     }
                 }
