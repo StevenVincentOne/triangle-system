@@ -236,6 +236,8 @@ class TriangleSystem {
         this.showCircumcenter = false;  // Add new property
         this.showCircumcircle = false;  // Rename existing property
         this.showOrtho = false;  // Change from showSpecialCenters
+        this.showNinePointCenter = false;  // Add new property
+        this.showNinePointCircle = false;  // Rename existing property
 
         // Initialize with default triangle first
         this.initializeSystem('equilateral');
@@ -572,6 +574,7 @@ class TriangleSystem {
             { id: 'toggleEuler', property: 'showEuler' },
             { id: 'toggleCircumcenter', property: 'showCircumcenter' },
             { id: 'toggleOrthocircle', property: 'showOrtho' },
+            { id: 'toggleNinePointCenter', property: 'showNinePointCenter' },
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleCircumcircle', property: 'showCircumcircle' },
@@ -1650,26 +1653,11 @@ class TriangleSystem {
             this.drawOrthocircle(this.ctx);
         }
 
-        // Draw Nine-Point Circle
-        if (this.showNinePointCircle) {
+        // Separate drawing of nine-point center and circle
+        if (this.showNinePointCenter) {
             const ninePointCircle = this.calculateNinePointCircle();
-            if (ninePointCircle && ninePointCircle.center && ninePointCircle.radius) {
-                // Draw the circle
-                this.ctx.beginPath();
-                this.ctx.strokeStyle = '#FFFFFF';  // White
-                this.ctx.setLineDash([5, 5]);
-                this.ctx.lineWidth = 1;
-                this.ctx.arc(
-                    ninePointCircle.center.x,
-                    ninePointCircle.center.y,
-                    ninePointCircle.radius,
-                    0,
-                    2 * Math.PI
-                );
-                this.ctx.stroke();
-                this.ctx.setLineDash([]);
-
-                // Draw the center point
+            if (ninePointCircle && ninePointCircle.center) {
+                // Draw just the center point
                 this.ctx.beginPath();
                 this.ctx.fillStyle = '#FFFFFF';  // White
                 this.ctx.arc(
@@ -1684,10 +1672,30 @@ class TriangleSystem {
                 // Label 'N'
                 this.ctx.save();
                 this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#FFFFFF';  // White
+                this.ctx.fillStyle = '#FFFFFF';
                 this.ctx.font = '12px Arial';
                 this.ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
                 this.ctx.restore();
+            }
+        }
+
+        if (this.showNinePointCircle) {
+            const ninePointCircle = this.calculateNinePointCircle();
+            if (ninePointCircle && ninePointCircle.center && ninePointCircle.radius) {
+                // Draw just the circle
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = '#FFFFFF';  // White
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.lineWidth = 1;
+                this.ctx.arc(
+                    ninePointCircle.center.x,
+                    ninePointCircle.center.y,
+                    ninePointCircle.radius,
+                    0,
+                    2 * Math.PI
+                );
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
             }
         }
 
