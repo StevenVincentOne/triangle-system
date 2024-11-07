@@ -76,35 +76,12 @@ class TriangleDatabase {
             // Get all input values
             const inputValues = this.getAllInputValues();
             
-            // Get current triangle vertex positions
-            const vertices = {
-                n1_x: stateData.vertices.n1.x,
-                n1_y: stateData.vertices.n1.y,
-                n2_x: stateData.vertices.n2.x,
-                n2_y: stateData.vertices.n2.y,
-                n3_x: stateData.vertices.n3.x,
-                n3_y: stateData.vertices.n3.y
-            };
-
-            // Create flattened record
+            // Create record
             const record = {
                 name,
                 description,
                 timestamp: new Date().toISOString(),
-                ...vertices,
-                ...inputValues,
-                // Visualization states
-                showConnections: stateData.showConnections,
-                showAreas: stateData.showAreas,
-                showMidpoints: stateData.showMidpoints,
-                showIncircle: stateData.showIncircle,
-                showIncenter: stateData.showIncenter,
-                showMedians: stateData.showMedians,
-                showCentroid: stateData.showCentroid,
-                showTangents: stateData.showTangents,
-                showSubsystems: stateData.showSubsystems,
-                showCircumcircle: stateData.showCircumcircle,
-                showOrthocircle: stateData.showOrthocircle
+                ...inputValues
             };
 
             const db = await this.init();
@@ -129,30 +106,48 @@ class TriangleDatabase {
     getAllInputValues() {
         const values = {};
         
-        // Get all numeric inputs from the dashboard
-        document.querySelectorAll('.dashboard input[type="number"]').forEach(input => {
-            if (input.id) {
-                values[input.id] = parseFloat(input.value) || 0;
+        // Get all input fields with labels
+        document.querySelectorAll('.label-value-pair').forEach(pair => {
+            const label = pair.querySelector('label');
+            const input = pair.querySelector('input');
+            
+            if (label && input && input.value) {
+                // Get label text and clean it for use as column name
+                let columnName = label.textContent
+                    .trim()
+                    .toLowerCase()
+                    .replace(/[()]/g, '')  // remove parentheses
+                    .replace(/[,]/g, '')   // remove commas
+                    .replace(/\s+/g, '_'); // replace spaces with underscores
+                
+                // Handle coordinate pairs (x,y)
+                if (input.value.includes(',')) {
+                    const [x, y] = input.value.split(',').map(v => parseFloat(v.trim()));
+                    values[`${columnName}_x`] = x || 0;
+                    values[`${columnName}_y`] = y || 0;
+                } else {
+                    values[columnName] = parseFloat(input.value) || input.value;
+                }
             }
         });
 
-        // Get all checkbox states
-        document.querySelectorAll('.dashboard input[type="checkbox"]').forEach(checkbox => {
-            if (checkbox.id) {
-                values[checkbox.id] = checkbox.checked;
-            }
-        });
-
-        // Get current triangle edge lengths
-        values.nc1 = parseFloat(document.getElementById('animation-nc1-start').value) || 0;
-        values.nc2 = parseFloat(document.getElementById('animation-nc2-start').value) || 0;
-        values.nc3 = parseFloat(document.getElementById('animation-nc3-start').value) || 0;
-
-        // Get subsystem values
-        document.querySelectorAll('.subsystems-table input').forEach(input => {
-            if (input.id) {
-                values[input.id] = parseFloat(input.value) || 0;
-            }
+        // Get subsystems table values
+        document.querySelectorAll('.subsystems-table tr').forEach((row, index) => {
+            if (index === 0) return; // Skip header row
+            
+            const inputs = row.querySelectorAll('input');
+            const ssNum = row.cells[0].textContent.toLowerCase(); // ss1, ss2, or ss3
+            
+            inputs.forEach((input, colIndex) => {
+                if (input.value) {
+                    // Get column header as name
+                    const headerCell = document.querySelector(`.subsystems-table th:nth-child(${colIndex + 2})`);
+                    if (headerCell) {
+                        const columnName = `${ssNum}_${headerCell.textContent.trim().toLowerCase()}`;
+                        values[columnName] = parseFloat(input.value) || input.value;
+                    }
+                }
+            });
         });
 
         console.log('Collected input values:', values);
@@ -1222,7 +1217,7 @@ class TriangleSystem {
         const dMT = {
             n1: this.calculateDistance(midpoints.m2, tangentPoints[2]), // For NC2 (Blue)
             n2: this.calculateDistance(midpoints.m3, tangentPoints[0]), // For NC3 (Green)
-            n3: this.calculateDistance(midpoints.m1, tangentPoints[1])  // For NC1 (Red)
+            n3: this.calculateDistance(midpoints.m1, tangentPoints[1])   // For NC1 (Red)
         };
 
         // Calculate r(M,T) ratios (distance divided by total perimeter)
