@@ -1527,21 +1527,32 @@
             <!-- Add this section after the canvas and animation controls -->
             <div class="d-flex justify-content-center gap-2 mt-3">
                 <!-- Feature Toggle Buttons -->
-                <div class="feature-buttons-container d-flex flex-wrap justify-content-center gap-2">
-                    <button id="toggleCentroid" class="btn btn-secondary btn-sm">Centroid</button>
-                    <button id="toggleIncenter" class="btn btn-secondary btn-sm">Incenter</button>
-                    <button id="toggleOrtho" class="btn btn-secondary btn-sm">Ortho</button>
-                    <button id="toggleMidpoints" class="btn btn-secondary btn-sm">Midpoints</button>
-                    <button id="toggleCircumcenter" class="btn btn-secondary btn-sm">Circumcenter</button>
-                    <button id="toggleCircumcircle" class="btn btn-secondary btn-sm">Circumcircle</button>
-                    <button id="toggleNinePointCenter" class="btn btn-secondary btn-sm">Nine-Point Center</button>
-                    <button id="toggleNinePointCircle" class="btn btn-secondary btn-sm">Nine-Point Circle</button>
-                    <button id="toggleTangents" class="btn btn-secondary btn-sm">Tangents</button>
-                    <button id="toggleMedians" class="btn btn-secondary btn-sm">Medians</button>
-                    <button id="toggleSubsystems" class="btn btn-secondary btn-sm">Subsystems</button>
-                    <button id="toggleEuler" class="btn btn-secondary btn-sm">Euler</button>
-                    <button id="toggleOrthocircle" class="btn btn-secondary btn-sm">Orthocircle</button>
-                    <button id="toggleIncircle" class="btn btn-secondary btn-sm">Incircle</button>
+                <div class="feature-buttons-container d-flex flex-column align-items-center gap-2">
+                    <!-- Centers Row -->
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <button id="toggleCentroid" class="btn btn-secondary btn-sm">Centroid</button>
+                        <button id="toggleIncenter" class="btn btn-secondary btn-sm">Incenter</button>
+                        <button id="toggleCircumcenter" class="btn btn-secondary btn-sm">Circumcenter</button>
+                        <button id="toggleNinePointCenter" class="btn btn-secondary btn-sm">Nine-Point Center</button>
+                        <button id="toggleOrthocenter" class="btn btn-secondary btn-sm">Orthocenter</button>
+                        <button id="toggleEuler" class="btn btn-secondary btn-sm">Euler</button>
+                    </div>
+                    
+                    <!-- Circles Row -->
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <button id="toggleIncircle" class="btn btn-secondary btn-sm">Incircle</button>
+                        <button id="toggleCircumcircle" class="btn btn-secondary btn-sm">Circumcircle</button>
+                        <button id="toggleNinePointCircle" class="btn btn-secondary btn-sm">Nine-Point Circle</button>
+                        <button id="toggleOrthocircle" class="btn btn-secondary btn-sm">Orthocircle</button>
+                    </div>
+
+                    <!-- Other Features Row -->
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <button id="toggleMidpoints" class="btn btn-secondary btn-sm">Midpoints</button>
+                        <button id="toggleTangents" class="btn btn-secondary btn-sm">Tangents</button>
+                        <button id="toggleMedians" class="btn btn-secondary btn-sm">Medians</button>
+                        <button id="toggleSubsystems" class="btn btn-secondary btn-sm">Subsystems</button>
+                    </div>
                 </div>
             </div>
         </div>

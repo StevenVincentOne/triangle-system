@@ -564,7 +564,7 @@ class TriangleSystem {
     initializeEventListeners() {
         // Feature Toggle Buttons
         const featureButtons = [
-            { id: 'toggleOrtho', property: 'showSpecialCenters' },  // Updated ID but keep same property
+            { id: 'toggleOrthocenter', property: 'showSpecialCenters' },  // Updated ID and text
             { id: 'toggleCentroid', property: 'showCentroid' },
             { id: 'toggleIncenter', property: 'showIncenter' },
             { id: 'toggleMidpoints', property: 'showMidpoints' },
@@ -2188,12 +2188,6 @@ class TriangleSystem {
         this.system.n3.y += dy;
 
         this.system.intelligence = { x: 0, y: 0 };
-        
-        // Update derived points after centering
-        this.updateDerivedPoints();
-        this.drawSystem();
-        this.updateDashboard();
-        this.updateAnimationFields();  // Add this
     }
 
     handleDrag(e) {
