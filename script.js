@@ -109,14 +109,12 @@ class TriangleDatabase {
         // Helper function to clean label text
         const cleanLabel = (text) => {
             return text
-                .replace(/[()]/g, '')         // remove parentheses
-                .replace(/[,]/g, '')          // remove commas
-                .replace(/\s+/g, '_')         // replace spaces with underscores
-                .replace(/∠/g, 'Angle')       // replace angle symbol with 'Angle'
-                .replace(/°/g, 'deg')         // replace degree symbol with 'deg'
-                .replace(/\//g, '_to_')       // replace / with _to_
-                .replace(/[^\w\s-_]/g, '')    // remove special characters
-                .replace(/_xy$/, '');         // remove _xy suffix for coordinates
+                .replace(/[()]/g, '')     // remove parentheses
+                .replace(/[,]/g, '')      // remove commas
+                .replace(/\s+/g, '_')     // replace spaces with underscores
+                .replace(/∠/g, 'Angle')   // replace angle symbol with 'Angle'
+                .replace(/°/g, 'deg')     // replace degree symbol with 'deg'
+                .replace(/[^\w\s-]/g, ''); // remove any other special characters
         };
 
         // Get all input fields with labels
@@ -131,8 +129,6 @@ class TriangleDatabase {
                 // Handle coordinate pairs (x,y)
                 if (input.value.includes(',')) {
                     const [x, y] = input.value.split(',').map(v => parseFloat(v.trim()));
-                    // Remove any _xy suffix and add _X and _Y
-                    columnName = columnName.replace(/_xy$/, '');
                     values[`${columnName}_X`] = x || 0;
                     values[`${columnName}_Y`] = y || 0;
                 } else {
@@ -141,12 +137,12 @@ class TriangleDatabase {
             }
         });
 
-        // Get subsystems table values with preserved ratio formatting
+        // Get subsystems table values
         document.querySelectorAll('.subsystems-table tr').forEach((row, index) => {
             if (index === 0) return; // Skip header row
             
             const inputs = row.querySelectorAll('input');
-            const ssNum = row.cells[0].textContent; // SS1, SS2, or SS3
+            const ssNum = row.cells[0].textContent; // Preserve case: SS1, SS2, SS3
             
             inputs.forEach((input, colIndex) => {
                 if (input.value) {
@@ -238,7 +234,7 @@ class TriangleSystem {
         this.isDragging = false;
         this.draggedNode = null;
         this.showCircumcircle = false;
-        this.showOrthocircle = false;
+        this.showOrtho = false;  // Change from showSpecialCenters
 
         // Initialize with default triangle first
         this.initializeSystem('equilateral');
@@ -565,6 +561,7 @@ class TriangleSystem {
     initializeEventListeners() {
         // Feature Toggle Buttons
         const featureButtons = [
+            { id: 'toggleOrtho', property: 'showSpecialCenters' },  // Updated ID but keep same property
             { id: 'toggleCentroid', property: 'showCentroid' },
             { id: 'toggleIncenter', property: 'showIncenter' },
             { id: 'toggleMidpoints', property: 'showMidpoints' },
@@ -573,10 +570,9 @@ class TriangleSystem {
             { id: 'toggleSubsystems', property: 'showSubsystems' },
             { id: 'toggleEuler', property: 'showEuler' },
             { id: 'toggleCircumcircle', property: 'showCircumcircle' },
-            { id: 'toggleOrthocircle', property: 'showOrthocircle' },
+            { id: 'toggleOrthocircle', property: 'showOrtho' },
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleIncircle', property: 'showIncircle' },
-            { id: 'toggleSpecialCenters', property: 'showSpecialCenters' },  // Add this line
         ];
 
         featureButtons.forEach(button => {
@@ -1648,7 +1644,7 @@ class TriangleSystem {
         }
 
         // Draw Orthocircle if enabled (after special centers)
-        if (this.showOrthocircle) {
+        if (this.showOrtho) {
             this.drawOrthocircle(this.ctx);
         }
 
