@@ -233,7 +233,8 @@ class TriangleSystem {
         this.showSubsystems = false;
         this.isDragging = false;
         this.draggedNode = null;
-        this.showCircumcircle = false;
+        this.showCircumcenter = false;  // Add new property
+        this.showCircumcircle = false;  // Rename existing property
         this.showOrtho = false;  // Change from showSpecialCenters
 
         // Initialize with default triangle first
@@ -569,10 +570,11 @@ class TriangleSystem {
             { id: 'toggleMedians', property: 'showMedians' },
             { id: 'toggleSubsystems', property: 'showSubsystems' },
             { id: 'toggleEuler', property: 'showEuler' },
-            { id: 'toggleCircumcircle', property: 'showCircumcircle' },
+            { id: 'toggleCircumcenter', property: 'showCircumcenter' },
             { id: 'toggleOrthocircle', property: 'showOrtho' },
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleIncircle', property: 'showIncircle' },
+            { id: 'toggleCircumcircle', property: 'showCircumcircle' },
         ];
 
         featureButtons.forEach(button => {
@@ -1685,6 +1687,30 @@ class TriangleSystem {
                 this.ctx.fillStyle = '#FFFFFF';  // White
                 this.ctx.font = '12px Arial';
                 this.ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+                this.ctx.restore();
+            }
+        }
+
+        if (this.showCircumcenter) {
+            const circumcenter = this.calculateCircumcenter();
+            if (circumcenter) {
+                this.ctx.beginPath();
+                this.ctx.fillStyle = '#00FF00';  // Green color
+                this.ctx.arc(
+                    circumcenter.x,
+                    circumcenter.y,
+                    4,
+                    0,
+                    2 * Math.PI
+                );
+                this.ctx.fill();
+
+                // Label 'O' for circumcenter
+                this.ctx.save();
+                this.ctx.scale(1, -1);
+                this.ctx.fillStyle = '#00FF00';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('O', circumcenter.x + 10, -circumcenter.y);
                 this.ctx.restore();
             }
         }
@@ -2991,7 +3017,7 @@ class TriangleSystem {
         
         const circumcircle = this.calculateCircumcircle();
         
-        // Draw the circle
+        // Draw only the circle, not the center point
         ctx.strokeStyle = '#00FF00';  // Bright neon green
         ctx.setLineDash([5, 5]);  // Dashed line
         ctx.beginPath();
@@ -3004,20 +3030,6 @@ class TriangleSystem {
         );
         ctx.stroke();
         ctx.setLineDash([]);  // Reset dash pattern
-        
-        // Draw the center point
-        ctx.fillStyle = '#00FF00';
-        ctx.beginPath();
-        ctx.arc(circumcircle.center.x, circumcircle.center.y, 4, 0, 2 * Math.PI);
-        ctx.fill();
-
-        // Add label 'O'
-        ctx.fillStyle = '#00FF00';
-        ctx.font = '12px Arial';
-        ctx.save();
-        ctx.scale(1, -1);  // Flip text right-side up
-        ctx.fillText('O', circumcircle.center.x + 10, -circumcircle.center.y);
-        ctx.restore();
     }
 
     drawEulerLine(ctx) {
