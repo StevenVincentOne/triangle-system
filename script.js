@@ -25,6 +25,189 @@ class Complex {
     }
 }
 
+// Add this before the TriangleSystem class definition
+class TriangleDatabase {
+    constructor() {
+        this.dbName = 'TriangleResearchDB';
+        this.version = 1;
+        this.init();
+    }
+
+    async init() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.version);
+            
+            request.onerror = () => {
+                console.error('Database error:', request.error);
+                reject(request.error);
+            };
+            
+            request.onupgradeneeded = (event) => {
+                console.log('Initializing database...');
+                const db = event.target.result;
+                
+                // Create store for triangle states
+                if (!db.objectStoreNames.contains('triangleStates')) {
+                    const stateStore = db.createObjectStore('triangleStates', { 
+                        keyPath: 'id', 
+                        autoIncrement: true 
+                    });
+                    
+                    // Add indexes
+                    stateStore.createIndex('timestamp', 'timestamp');
+                    stateStore.createIndex('name', 'name');
+                }
+            };
+            
+            request.onsuccess = () => {
+                console.log('Database initialized successfully');
+                resolve(request.result);
+            };
+        });
+    }
+
+    async saveState(stateData) {
+        try {
+            const name = prompt('Enter a name for this triangle state:');
+            if (!name) return null;
+            
+            const description = prompt('Enter a description (optional):');
+            
+            // Get all input values
+            const inputValues = this.getAllInputValues();
+            
+            // Get current triangle vertex positions
+            const vertices = {
+                n1_x: stateData.vertices.n1.x,
+                n1_y: stateData.vertices.n1.y,
+                n2_x: stateData.vertices.n2.x,
+                n2_y: stateData.vertices.n2.y,
+                n3_x: stateData.vertices.n3.x,
+                n3_y: stateData.vertices.n3.y
+            };
+
+            // Create flattened record
+            const record = {
+                name,
+                description,
+                timestamp: new Date().toISOString(),
+                ...vertices,
+                ...inputValues,
+                // Visualization states
+                showConnections: stateData.showConnections,
+                showAreas: stateData.showAreas,
+                showMidpoints: stateData.showMidpoints,
+                showIncircle: stateData.showIncircle,
+                showIncenter: stateData.showIncenter,
+                showMedians: stateData.showMedians,
+                showCentroid: stateData.showCentroid,
+                showTangents: stateData.showTangents,
+                showSubsystems: stateData.showSubsystems,
+                showCircumcircle: stateData.showCircumcircle,
+                showOrthocircle: stateData.showOrthocircle
+            };
+
+            const db = await this.init();
+            const transaction = db.transaction(['triangleStates'], 'readwrite');
+            const store = transaction.objectStore('triangleStates');
+            
+            const id = await new Promise((resolve, reject) => {
+                const request = store.add(record);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+
+            console.log(`Saved triangle state "${name}" with ID: ${id}`, record);
+            return id;
+        } catch (error) {
+            console.error('Error saving triangle state:', error);
+            alert('Error saving triangle state. Please try again.');
+            return null;
+        }
+    }
+
+    getAllInputValues() {
+        const values = {};
+        
+        // Get all numeric inputs from the dashboard
+        document.querySelectorAll('.dashboard input[type="number"]').forEach(input => {
+            if (input.id) {
+                values[input.id] = parseFloat(input.value) || 0;
+            }
+        });
+
+        // Get all checkbox states
+        document.querySelectorAll('.dashboard input[type="checkbox"]').forEach(checkbox => {
+            if (checkbox.id) {
+                values[checkbox.id] = checkbox.checked;
+            }
+        });
+
+        // Get current triangle edge lengths
+        values.nc1 = parseFloat(document.getElementById('animation-nc1-start').value) || 0;
+        values.nc2 = parseFloat(document.getElementById('animation-nc2-start').value) || 0;
+        values.nc3 = parseFloat(document.getElementById('animation-nc3-start').value) || 0;
+
+        // Get subsystem values
+        document.querySelectorAll('.subsystems-table input').forEach(input => {
+            if (input.id) {
+                values[input.id] = parseFloat(input.value) || 0;
+            }
+        });
+
+        console.log('Collected input values:', values);
+        return values;
+    }
+
+    async exportToCSV() {
+        try {
+            const db = await this.init();
+            const transaction = db.transaction(['triangleStates'], 'readonly');
+            const store = transaction.objectStore('triangleStates');
+            
+            const data = await new Promise((resolve, reject) => {
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+
+            if (data.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            // Get all unique columns
+            const columns = new Set();
+            data.forEach(record => {
+                Object.keys(record).forEach(key => columns.add(key));
+            });
+
+            // Create CSV
+            const headers = Array.from(columns);
+            const rows = data.map(record => 
+                headers.map(header => {
+                    const value = record[header] ?? '';
+                    return typeof value === 'string' ? `"${value}"` : value;
+                }).join(',')
+            );
+            const csv = [headers.join(','), ...rows].join('\n');
+
+            // Download file
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `triangle_research_${new Date().toISOString()}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            alert('Error exporting data. Please check the console for details.');
+        }
+    }
+}
+
 class TriangleSystem {
     constructor(canvas) {
         this.canvas = canvas;
@@ -166,6 +349,32 @@ class TriangleSystem {
                 }
             });
         }
+
+        // Initialize database
+        this.db = new TriangleDatabase();
+        
+        // Add save button listener
+        document.getElementById('saveState').addEventListener('click', () => {
+            // Collect current triangle state data
+            const stateData = {
+                vertices: {
+                    n1: { x: this.system.n1.x, y: this.system.n1.y },
+                    n2: { x: this.system.n2.x, y: this.system.n2.y },
+                    n3: { x: this.system.n3.x, y: this.system.n3.y }
+                },
+                // Add any other specific triangle data you want to save
+                showConnections: this.showConnections,
+                showAreas: this.showAreas,
+                // ... other visualization states ...
+            };
+            
+            this.db.saveState(stateData);
+        });
+
+        // Add export button listener
+        document.getElementById('exportData').addEventListener('click', () => {
+            this.db.exportToCSV();
+        });
     }
 
     initializePresets() {
@@ -3646,6 +3855,26 @@ document.addEventListener('DOMContentLoaded', () => {
         #animationsDropdown {
             width: 120px !important;
             font-size: 0.875rem !important;
+        }
+
+        /* Export container button spacing */
+        .export-container button {
+            margin-right: 0.5rem !important;
+        }
+        
+        .export-container button:last-child {
+            margin-right: 0 !important;
+        }
+
+        /* Save State button styling */
+        #saveState {
+            background-color: #198754 !important;  /* Bootstrap success green */
+            border-color: #198754 !important;
+        }
+
+        #saveState:hover {
+            background-color: #157347 !important;
+            border-color: #146c43 !important;
         }
     `;
     document.head.appendChild(style);
