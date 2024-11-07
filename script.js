@@ -1816,11 +1816,10 @@ class TriangleSystem {
     }
 
     calculateLengths() {
-        const { n1, n2, n3 } = this.system;
         return {
-            l1: this.calculateDistance(n1, n3),  // NC1 (Red)
-            l2: this.calculateDistance(n1, n2),  // NC2 (Blue)
-            l3: this.calculateDistance(n2, n3)   // NC3 (Green)
+            l1: this.calculateDistance(this.system.n1, this.system.n3),  // NC1
+            l2: this.calculateDistance(this.system.n1, this.system.n2),  // NC2
+            l3: this.calculateDistance(this.system.n2, this.system.n3)   // NC3
         };
     }
 
@@ -2144,7 +2143,6 @@ class TriangleSystem {
     }
 
     initializeAnimations() {
-        // Get the animations dropdown list element
         const animationsList = document.getElementById('animationsList');
         if (!animationsList) {
             console.error('Animations list element not found');
@@ -2188,10 +2186,11 @@ class TriangleSystem {
                     }
                 });
                 
-                // Add click handler for loading animation
+                // Add click handler for loading animation - FIXED HERE
                 a.addEventListener('click', (e) => {
                     e.preventDefault();
-                    this.loadAnimation(name);
+                    const animationData = animations[name];  // Get the animation data
+                    this.loadAnimationPreset(name, animationData);  // Pass both name and data
                 });
                 
                 // Assemble the dropdown item
@@ -2201,12 +2200,14 @@ class TriangleSystem {
                 li.appendChild(a);
                 animationsList.appendChild(li);
             });
+
+            console.log('Initialized animations dropdown with', sortedNames.length, 'items');
         } catch (error) {
             console.error('Error initializing animations dropdown:', error);
         }
     }
 
-    // Add this method to handle loading animations
+    // Remove or update the old loadAnimation method
     loadAnimation(name) {
         try {
             const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
@@ -2217,34 +2218,10 @@ class TriangleSystem {
                 return;
             }
 
-            // Set end state values
-            const nc1Input = document.getElementById('animation-nc1-end');
-            const nc2Input = document.getElementById('animation-nc2-end');
-            const nc3Input = document.getElementById('animation-nc3-end');
-
-            if (nc1Input && nc2Input && nc3Input) {
-                nc1Input.value = animation.endState.nc1;
-                nc2Input.value = animation.endState.nc2;
-                nc3Input.value = animation.endState.nc3;
-            }
-
-            console.log(`Loaded animation "${name}"`);
+            // Call the proper loading method
+            this.loadAnimationPreset(name, animation);
         } catch (error) {
             console.error('Error loading animation:', error);
-        }
-    }
-
-    // Add this method to handle deleting animations
-    deleteAnimation(name) {
-        try {
-            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
-            delete animations[name];
-            localStorage.setItem('userAnimations', JSON.stringify(animations));
-            this.initializeAnimations();
-            console.log(`Deleted animation "${name}"`);
-        } catch (error) {
-            console.error('Error deleting animation:', error);
-            alert('Error deleting animation. Please try again.');
         }
     }
 
@@ -2400,51 +2377,52 @@ class TriangleSystem {
     }
 
     saveCurrentAnimation() {
-        console.log('Saving current animation');
-        
-        // Get current triangle configuration for start state
-        const startConfig = {
-            n1: { x: this.system.n1.x, y: this.system.n1.y },
-            n2: { x: this.system.n2.x, y: this.system.n2.y },
-            n3: { x: this.system.n3.x, y: this.system.n3.y }
-        };
+        try {
+            const name = prompt('Enter a name for this animation:');
+            if (!name) return;
 
-        // Get end state from animation inputs
-        const nc1Input = document.getElementById('animation-nc1-end');
-        const nc2Input = document.getElementById('animation-nc2-end');
-        const nc3Input = document.getElementById('animation-nc3-end');
-
-        if (!nc1Input || !nc2Input || !nc3Input) {
-            console.error('Missing animation input fields');
-            return;
-        }
-
-        const endState = {
-            nc1: parseFloat(nc1Input.value),
-            nc2: parseFloat(nc2Input.value),
-            nc3: parseFloat(nc3Input.value)
-        };
-
-        // Validate inputs
-        if (isNaN(endState.nc1) || isNaN(endState.nc2) || isNaN(endState.nc3)) {
-            alert('Please enter valid numbers for all edge lengths');
-            return;
-        }
-
-        // Prompt for animation name
-        const name = prompt('Enter a name for this animation:');
-        
-        if (name) {
-            // Save both states
-            this.userAnimations[name] = {
-                startConfig,
-                endState
+            // Get start values from start input fields
+            const startState = {
+                nc1: parseFloat(document.getElementById('animation-nc1-start').value),
+                nc2: parseFloat(document.getElementById('animation-nc2-start').value),
+                nc3: parseFloat(document.getElementById('animation-nc3-start').value)
             };
-            localStorage.setItem('userAnimations', JSON.stringify(this.userAnimations));
-            console.log('Saved animation:', name);
-            
-            // Update dropdown if it exists
-            this.initializeUserAnimations();
+
+            // Get end values from end input fields
+            const endState = {
+                nc1: parseFloat(document.getElementById('animation-nc1-end').value),
+                nc2: parseFloat(document.getElementById('animation-nc2-end').value),
+                nc3: parseFloat(document.getElementById('animation-nc3-end').value)
+            };
+
+            // Validate all values
+            if (Object.values(startState).some(isNaN) || Object.values(endState).some(isNaN)) {
+                alert('Please ensure all animation values are valid numbers');
+                return;
+            }
+
+            // Create animation data
+            const animationData = {
+                start: startState,
+                end: endState
+            };
+
+            console.log('Saving animation with values:', {
+                name,
+                start: startState,
+                end: endState
+            });
+
+            // Save to localStorage
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            animations[name] = animationData;
+            localStorage.setItem('userAnimations', JSON.stringify(animations));
+
+            this.initializeAnimations();
+            console.log(`Successfully saved animation "${name}"`, animationData);
+        } catch (error) {
+            console.error('Error saving animation:', error);
+            alert('Error saving animation. Please try again.');
         }
     }
 
@@ -2779,7 +2757,7 @@ class TriangleSystem {
         ctx.arc(ninePointCircle.center.x, ninePointCircle.center.y, 4, 0, 2 * Math.PI);
         ctx.fill();
 
-        // Add label 'N'
+        // Label 'N'
         ctx.fillStyle = '#FF69B4';
         ctx.font = '12px Arial';
         ctx.save();
@@ -3251,24 +3229,30 @@ class TriangleSystem {
     // Add or update the startAnimation method
     startAnimation() {
         try {
-            // Get end state values
-            const nc1End = parseFloat(document.getElementById('animation-nc1-end').value);
-            const nc2End = parseFloat(document.getElementById('animation-nc2-end').value);
-            const nc3End = parseFloat(document.getElementById('animation-nc3-end').value);
+            // Get start values from input fields
+            const startState = {
+                nc1: parseFloat(document.getElementById('animation-nc1-start').value),
+                nc2: parseFloat(document.getElementById('animation-nc2-start').value),
+                nc3: parseFloat(document.getElementById('animation-nc3-start').value)
+            };
 
-            if (isNaN(nc1End) || isNaN(nc2End) || isNaN(nc3End)) {
-                console.error('Invalid end state values');
+            // Get end values from input fields
+            const endState = {
+                nc1: parseFloat(document.getElementById('animation-nc1-end').value),
+                nc2: parseFloat(document.getElementById('animation-nc2-end').value),
+                nc3: parseFloat(document.getElementById('animation-nc3-end').value)
+            };
+
+            // Validate all values
+            if (Object.values(startState).some(isNaN) || Object.values(endState).some(isNaN)) {
+                console.error('Invalid animation values');
+                alert('Please ensure all animation values are valid numbers');
                 return;
             }
 
-            // Get start state values from current triangle
-            const currentLengths = this.calculateLengths();
-            const startState = {
-                nc1: currentLengths.l1,
-                nc2: currentLengths.l2,
-                nc3: currentLengths.l3
-            };
-
+            // First reset to start position
+            this.updateTriangleFromEdges(startState.nc1, startState.nc2, startState.nc3);
+            
             // Animation parameters
             const duration = 1000; // 1 second
             const startTime = performance.now();
@@ -3280,12 +3264,12 @@ class TriangleSystem {
 
                 // Calculate current values using linear interpolation
                 const current = {
-                    nc1: startState.nc1 + (nc1End - startState.nc1) * progress,
-                    nc2: startState.nc2 + (nc2End - startState.nc2) * progress,
-                    nc3: startState.nc3 + (nc3End - startState.nc3) * progress
+                    nc1: startState.nc1 + (endState.nc1 - startState.nc1) * progress,
+                    nc2: startState.nc2 + (endState.nc2 - startState.nc2) * progress,
+                    nc3: startState.nc3 + (endState.nc3 - startState.nc3) * progress
                 };
 
-                // Update triangle with current values using existing updateTriangleFromEdges method
+                // Update triangle with current values
                 this.updateTriangleFromEdges(current.nc1, current.nc2, current.nc3);
 
                 // Continue animation if not complete
@@ -3298,42 +3282,70 @@ class TriangleSystem {
             requestAnimationFrame(animate);
         } catch (error) {
             console.error('Error in startAnimation:', error);
+            alert('Error starting animation. Please check the console for details.');
         }
     }
 
-    // Add or update the saveCurrentAnimation method
-    saveCurrentAnimation() {
+    loadAnimationPreset(name, values) {
         try {
-            const name = prompt('Enter a name for this animation:');
-            if (!name) return;
-
-            // Get current state for start values
-            const currentLengths = this.calculateLengths();
+            console.log('Loading animation preset:', name);
+            console.log('Values received:', values);
             
-            // Get end state values from inputs
-            const endState = {
-                nc1: parseFloat(document.getElementById('animation-nc1-end').value),
-                nc2: parseFloat(document.getElementById('animation-nc2-end').value),
-                nc3: parseFloat(document.getElementById('animation-nc3-end').value)
-            };
+            // First update end fields if they exist in the preset
+            if (values.end) {
+                console.log('Setting end values:', values.end);
+                const endFields = {
+                    'animation-nc1-end': values.end.nc1,
+                    'animation-nc2-end': values.end.nc2,
+                    'animation-nc3-end': values.end.nc3
+                };
 
-            // Save animation to localStorage
-            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
-            animations[name] = {
-                startState: {
-                    nc1: currentLengths.l1,
-                    nc2: currentLengths.l2,
-                    nc3: currentLengths.l3
-                },
-                endState: endState
-            };
+                Object.entries(endFields).forEach(([id, value]) => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.value = Number(value).toFixed(2);
+                        console.log(`Set ${id} to ${input.value}`);
+                    }
+                });
+            }
+            
+            // Then update start fields and triangle position
+            if (values.start) {
+                console.log('Setting start values:', values.start);
+                
+                // Update start input fields
+                const startFields = {
+                    'animation-nc1-start': values.start.nc1,
+                    'animation-nc2-start': values.start.nc2,
+                    'animation-nc3-start': values.start.nc3
+                };
 
-            localStorage.setItem('userAnimations', JSON.stringify(animations));
-            this.initializeAnimations();
-            console.log(`Saved animation "${name}"`);
+                Object.entries(startFields).forEach(([id, value]) => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.value = Number(value).toFixed(2);
+                        console.log(`Set ${id} to ${input.value}`);
+                    }
+                });
+
+                // Update the current triangle to match start state
+                console.log('Updating triangle with start values:', values.start);
+                this.updateTriangleFromEdges(
+                    values.start.nc1,
+                    values.start.nc2,
+                    values.start.nc3
+                );
+            }
+            
+            // Redraw and update
+            this.drawSystem();
+            this.updateDashboard();
+            
+            console.log('Successfully loaded animation preset');
         } catch (error) {
-            console.error('Error saving animation:', error);
-            alert('Error saving animation. Please try again.');
+            console.error('Error loading animation preset:', error);
+            console.error('Error details:', error.message);
+            alert('Error loading animation preset. Please check the console for details.');
         }
     }
 
@@ -3359,6 +3371,57 @@ class TriangleSystem {
             this.updateDashboard();
         } catch (error) {
             console.error('Error in updateTriangle:', error);
+        }
+    }
+
+    saveAnimation(name) {
+        try {
+            // Get start values from current triangle state
+            const startValues = {
+                nc1: this.calculateDistance(this.system.n1, this.system.n3),
+                nc2: this.calculateDistance(this.system.n1, this.system.n2),
+                nc3: this.calculateDistance(this.system.n2, this.system.n3)
+            };
+
+            // Get end values from inputs
+            const endValues = {
+                nc1: parseFloat(document.getElementById('animation-nc1-end').value),
+                nc2: parseFloat(document.getElementById('animation-nc2-end').value),
+                nc3: parseFloat(document.getElementById('animation-nc3-end').value)
+            };
+
+            // Validate all values
+            if (Object.values(startValues).some(isNaN) || Object.values(endValues).some(isNaN)) {
+                alert('Please ensure all animation values are valid numbers');
+                return;
+            }
+
+            // Log the values being saved
+            console.log('Saving animation with values:', {
+                name,
+                start: startValues,
+                end: endValues
+            });
+
+            // Get existing animations
+            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+            
+            // Save both start and end values
+            animations[name] = {
+                start: startValues,
+                end: endValues
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('userAnimations', JSON.stringify(animations));
+            
+            // Update dropdown
+            this.updateAnimationsDropdown();
+            
+            console.log('Successfully saved animation:', name);
+        } catch (error) {
+            console.error('Error saving animation:', error);
+            alert('Error saving animation. Please try again.');
         }
     }
 }
