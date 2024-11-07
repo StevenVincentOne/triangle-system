@@ -106,7 +106,7 @@ class TriangleDatabase {
     getAllInputValues() {
         const values = {};
         
-        // Helper function to clean label text while preserving ratios
+        // Helper function to clean label text
         const cleanLabel = (text) => {
             return text
                 .replace(/[()]/g, '')         // remove parentheses
@@ -115,7 +115,8 @@ class TriangleDatabase {
                 .replace(/∠/g, 'Angle')       // replace angle symbol with 'Angle'
                 .replace(/°/g, 'deg')         // replace degree symbol with 'deg'
                 .replace(/\//g, '_to_')       // replace / with _to_
-                .replace(/[^\w\s-_]/g, '');   // remove any other special characters while keeping underscores
+                .replace(/[^\w\s-_]/g, '')    // remove special characters
+                .replace(/_xy$/, '');         // remove _xy suffix for coordinates
         };
 
         // Get all input fields with labels
@@ -130,6 +131,8 @@ class TriangleDatabase {
                 // Handle coordinate pairs (x,y)
                 if (input.value.includes(',')) {
                     const [x, y] = input.value.split(',').map(v => parseFloat(v.trim()));
+                    // Remove any _xy suffix and add _X and _Y
+                    columnName = columnName.replace(/_xy$/, '');
                     values[`${columnName}_X`] = x || 0;
                     values[`${columnName}_Y`] = y || 0;
                 } else {
