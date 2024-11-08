@@ -80,7 +80,14 @@ class TriangleDatabase {
             const record = {
                 name,
                 description,
-                timestamp: new Date().toISOString(),
+                timestamp: new Date().toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                }),
                 ...inputValues
             };
 
@@ -109,12 +116,14 @@ class TriangleDatabase {
         // Helper function to clean label text
         const cleanLabel = (text) => {
             return text
-                .replace(/[()]/g, '')     // remove parentheses
-                .replace(/[,]/g, '')      // remove commas
-                .replace(/\s+/g, '_')     // replace spaces with underscores
-                .replace(/∠/g, 'Angle')   // replace angle symbol with 'Angle'
-                .replace(/°/g, 'deg')     // replace degree symbol with 'deg'
-                .replace(/[^\w\s-]/g, ''); // remove any other special characters
+                .replace(/[()]/g, '')         // remove parentheses
+                .replace(/[,]/g, '')          // remove commas
+                .replace(/\s+/g, '_')         // replace spaces with underscores
+                .replace(/∠/g, 'Angle')       // replace angle symbol with 'Angle'
+                .replace(/°/g, 'deg')         // replace degree symbol with 'deg'
+                .replace(/\//g, '_to_')       // replace / with _to_
+                .replace(/[^\w\s-_]/g, '')    // remove special characters
+                .replace(/_xy$/, '');         // remove _xy suffix for coordinates
         };
 
         // Get all input fields with labels
@@ -129,6 +138,8 @@ class TriangleDatabase {
                 // Handle coordinate pairs (x,y)
                 if (input.value.includes(',')) {
                     const [x, y] = input.value.split(',').map(v => parseFloat(v.trim()));
+                    // Remove any _xy suffix and add _X and _Y
+                    columnName = columnName.replace(/_xy$/, '');
                     values[`${columnName}_X`] = x || 0;
                     values[`${columnName}_Y`] = y || 0;
                 } else {
@@ -137,12 +148,12 @@ class TriangleDatabase {
             }
         });
 
-        // Get subsystems table values
+        // Get subsystems table values with preserved ratio formatting
         document.querySelectorAll('.subsystems-table tr').forEach((row, index) => {
             if (index === 0) return; // Skip header row
             
             const inputs = row.querySelectorAll('input');
-            const ssNum = row.cells[0].textContent; // Preserve case: SS1, SS2, SS3
+            const ssNum = row.cells[0].textContent; // SS1, SS2, or SS3
             
             inputs.forEach((input, colIndex) => {
                 if (input.value) {
