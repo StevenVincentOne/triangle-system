@@ -1432,6 +1432,13 @@ class TriangleSystem {
             setElementValue('#subsystem-2-hst', subtrianglePerimeter.toFixed(2));
             setElementValue('#subsystem-3-hst', subtrianglePerimeter.toFixed(2));
 
+            // Update subcenter coordinates using existing calculateSubcircle method
+            const subcircle = this.calculateSubcircle();
+            if (subcircle && subcircle.center) {
+                setElementValue('#subcenter-coords', 
+                    `${subcircle.center.x.toFixed(1)}, ${subcircle.center.y.toFixed(1)}`);
+            }
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
