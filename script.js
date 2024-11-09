@@ -1924,9 +1924,11 @@ class TriangleSystem {
         if (!this.showIncircle) return;
 
         ctx.strokeStyle = 'cyan';
+        ctx.setLineDash([5, 5]);  // Add dashed line
         ctx.beginPath();
         ctx.arc(this.system.incenter.x, this.system.incenter.y, this.system.incircleRadius, 0, 2 * Math.PI);
         ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
     }
 
     /**
@@ -3765,10 +3767,12 @@ class TriangleSystem {
         
         // Draw the circle in white
         ctx.strokeStyle = '#FFFFFF';
+        ctx.setLineDash([5, 5]);  // Add dashed line
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
         ctx.stroke();
+        ctx.setLineDash([]);  // Reset dash pattern
     }
 
     calculateSubcircle() {
