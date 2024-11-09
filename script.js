@@ -1952,14 +1952,14 @@ class TriangleSystem {
         const centroid = this.calculateCentroid();
         if (!centroid) return;
         
-        // Draw the point in white with radius 4
-        ctx.fillStyle = '#FFFFFF';  // Changed from #00FF00 to white
+        // Already using white for both the point and label
+        ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
         ctx.arc(centroid.x, centroid.y, 4, 0, 2 * Math.PI);
         ctx.fill();
         
-        // Label 'I' in white with 12px font
-        ctx.fillStyle = '#FFFFFF';  // Changed from #00FF00 to white
+        // Label 'I' also in white
+        ctx.fillStyle = '#FFFFFF';
         ctx.font = '12px Arial';
         ctx.save();
         ctx.scale(1, -1);
@@ -3693,8 +3693,8 @@ class TriangleSystem {
         
         const centroids = this.calculateSubsystemCentroids();
         
-        // Draw the subtriangle in bright red
-        ctx.strokeStyle = '#ff0000';
+        // Draw the subtriangle in white
+        ctx.strokeStyle = '#ffffff';  // Changed from #ff0000 to white
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(centroids.ss1.x, centroids.ss1.y);
@@ -3703,8 +3703,8 @@ class TriangleSystem {
         ctx.closePath();
         ctx.stroke();
         
-        // Optional: Fill with semi-transparent red
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+        // Optional: Fill with semi-transparent white
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';  // Changed from red to white
         ctx.fill();
     }
 }
