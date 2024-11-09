@@ -1697,7 +1697,7 @@ class TriangleSystem {
             // Draw orthocenter point and label
             if (this.system.orthocenter) {
                 this.ctx.beginPath();
-                this.ctx.fillStyle = '#FF69B4';  // Pink color
+                this.ctx.fillStyle = '#FF0000';  // Pink color
                 this.ctx.arc(
                     this.system.orthocenter.x,
                     this.system.orthocenter.y,
@@ -1710,7 +1710,7 @@ class TriangleSystem {
                 // Label 'H' for orthocenter
                 this.ctx.save();
                 this.ctx.scale(1, -1);  // Flip text right-side up
-                this.ctx.fillStyle = '#FF69B4';
+                this.ctx.fillStyle = '#FF0000';
                 this.ctx.font = '12px Arial';
                 this.ctx.fillText('H', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
                 this.ctx.restore();
@@ -1728,7 +1728,7 @@ class TriangleSystem {
             if (ninePointCircle && ninePointCircle.center) {
                 // Draw just the center point
                 this.ctx.beginPath();
-                this.ctx.fillStyle = '#FFFFFF';  // White
+                this.ctx.fillStyle = '#FF00FF';  // White
                 this.ctx.arc(
                     ninePointCircle.center.x,
                     ninePointCircle.center.y,
@@ -1741,7 +1741,7 @@ class TriangleSystem {
                 // Label 'N'
                 this.ctx.save();
                 this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.fillStyle = '#FF00FF';
                 this.ctx.font = '12px Arial';
                 this.ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
                 this.ctx.restore();
@@ -1753,7 +1753,7 @@ class TriangleSystem {
             if (ninePointCircle && ninePointCircle.center && ninePointCircle.radius) {
                 // Draw just the circle
                 this.ctx.beginPath();
-                this.ctx.strokeStyle = '#FFFFFF';  // White
+                this.ctx.strokeStyle = '#FF00FF';  // White
                 this.ctx.setLineDash([5, 5]);
                 this.ctx.lineWidth = 1;
                 this.ctx.arc(
@@ -3059,7 +3059,7 @@ class TriangleSystem {
         const ninePointCircle = this.calculateNinePointCircle();
         
         // Draw the circle
-        ctx.strokeStyle = '#FF69B4';  // Hot pink
+        ctx.strokeStyle = '#FF00FF';  // Hot pink
         ctx.setLineDash([5, 5]);  // Dashed line
         ctx.beginPath();
         ctx.arc(
@@ -3074,12 +3074,12 @@ class TriangleSystem {
         
         // Draw the center point
         ctx.beginPath();
-        ctx.fillStyle = '#FF69B4';
+        ctx.fillStyle = '#FF00FF';
         ctx.arc(ninePointCircle.center.x, ninePointCircle.center.y, 4, 0, 2 * Math.PI);
         ctx.fill();
 
         // Label 'N'
-        ctx.fillStyle = '#FF69B4';
+        ctx.fillStyle = '#FF00FF';
         ctx.font = '12px Arial';
         ctx.save();
         ctx.scale(1, -1);  // Flip text right-side up
@@ -3283,7 +3283,7 @@ class TriangleSystem {
         
         ctx.save();
         ctx.beginPath();
-        ctx.strokeStyle = '#FF69B4';  // Pink color to match orthocenter
+        ctx.strokeStyle = '#FF0000';  // Pink color to match orthocenter
         ctx.setLineDash([5, 5]);     // Dashed line
         ctx.lineWidth = 1;
         
