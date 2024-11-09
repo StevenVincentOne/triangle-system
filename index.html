@@ -1734,7 +1734,49 @@
                 </div>
             </div>
 
-            <!-- After the first dashboard-row (containing System panel) and before Subsystems -->
+            <!-- Add new row for Subtriangle panel -->
+            <div class="dashboard-row mt-2">
+                <div class="dashboard-panel">
+                    <h3 class="panel-header">Subtriangle</h3>
+                    <div class="d-flex justify-content-center gap-4">
+                        <!-- Nodes Column -->
+                        <div class="panel-content">
+                            <h4 class="column-header">Nodes</h4>
+                            <div class="label-value-pair">
+                                <label for="ss1-coords">SS1 (x,y)</label>
+                                <input id="ss1-coords" type="text" class="form-control" size="12" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="ss2-coords">SS2 (x,y)</label>
+                                <input id="ss2-coords" type="text" class="form-control" size="12" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="ss3-coords">SS3 (x,y)</label>
+                                <input id="ss3-coords" type="text" class="form-control" size="12" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Subchannels Column -->
+                        <div class="panel-content">
+                            <h4 class="column-header">Subchannels</h4>
+                            <div class="label-value-pair">
+                                <label for="sc1-length">SC1</label>
+                                <input id="sc1-length" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="sc2-length">SC2</label>
+                                <input id="sc2-length" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="sc3-length">SC3</label>
+                                <input id="sc3-length" type="text" class="form-control" size="8" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing System Entropy and Capacity panel row -->
             <div class="dashboard-row mt-2">
                 <div class="dashboard-panel">
                     <h3 class="panel-header">System Entropy and Capacity</h3>
