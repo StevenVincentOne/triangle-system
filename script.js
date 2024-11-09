@@ -575,13 +575,14 @@ class TriangleSystem {
     initializeEventListeners() {
         // Feature Toggle Buttons
         const featureButtons = [
-            { id: 'toggleOrthocenter', property: 'showSpecialCenters' },  // Updated ID and text
+            { id: 'toggleOrthocenter', property: 'showSpecialCenters' },
             { id: 'toggleCentroid', property: 'showCentroid' },
             { id: 'toggleIncenter', property: 'showIncenter' },
             { id: 'toggleMidpoints', property: 'showMidpoints' },
             { id: 'toggleTangents', property: 'showTangents' },
             { id: 'toggleMedians', property: 'showMedians' },
             { id: 'toggleSubsystems', property: 'showSubsystems' },
+            { id: 'toggleSubtriangle', property: 'showSubtriangle' },  // New button
             { id: 'toggleEuler', property: 'showEuler' },
             { id: 'toggleCircumcenter', property: 'showCircumcenter' },
             { id: 'toggleOrthocircle', property: 'showOrtho' },
@@ -1417,6 +1418,17 @@ class TriangleSystem {
             setElementValue('#subsystem-2-sc', this.calculateDistance(centroids.ss1, centroids.ss2).toFixed(2)); // SS1 to SS2
             setElementValue('#subsystem-3-sc', this.calculateDistance(centroids.ss2, centroids.ss3).toFixed(2)); // SS2 to SS3
 
+            // Calculate HST (Entropy of Subtriangle) - sum of SC values
+            const sc1 = parseFloat(document.querySelector('#subsystem-1-sc').value) || 0;
+            const sc2 = parseFloat(document.querySelector('#subsystem-2-sc').value) || 0;
+            const sc3 = parseFloat(document.querySelector('#subsystem-3-sc').value) || 0;
+            const subtrianglePerimeter = sc1 + sc2 + sc3;
+
+            // Update HST values
+            setElementValue('#subsystem-1-hst', subtrianglePerimeter.toFixed(2));
+            setElementValue('#subsystem-2-hst', subtrianglePerimeter.toFixed(2));
+            setElementValue('#subsystem-3-hst', subtrianglePerimeter.toFixed(2));
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -1757,6 +1769,9 @@ class TriangleSystem {
         if (this.showExpo) {
             this.drawExponentialPoint(this.ctx);
         }
+
+        // Draw Subtriangle if enabled
+        this.drawSubtriangle(this.ctx);
     }
 
     drawNode(ctx, node, color, label) {
@@ -2079,8 +2094,7 @@ class TriangleSystem {
         const area = Math.abs(
             n1.x * (n2.y - n3.y) +
             n2.x * (n3.y - n1.y) +
-            n3.x * (n1.y - n2.y)
-        ) / 2;
+            n3.x * (n1.y - n2.y)) / 2;
         return area;
     }
 
@@ -3672,6 +3686,26 @@ class TriangleSystem {
             console.error('Error saving animation:', error);
             alert('Error saving animation. Please try again.');
         }
+    }
+
+    drawSubtriangle(ctx) {
+        if (!this.showSubtriangle) return;
+        
+        const centroids = this.calculateSubsystemCentroids();
+        
+        // Draw the subtriangle in bright red
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(centroids.ss1.x, centroids.ss1.y);
+        ctx.lineTo(centroids.ss2.x, centroids.ss2.y);
+        ctx.lineTo(centroids.ss3.x, centroids.ss3.y);
+        ctx.closePath();
+        ctx.stroke();
+        
+        // Optional: Fill with semi-transparent red
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+        ctx.fill();
     }
 }
 
