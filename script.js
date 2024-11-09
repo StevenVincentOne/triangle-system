@@ -1108,304 +1108,319 @@ class TriangleSystem {
     }
 
     updateDashboard() {
-        // Helper function to set element value and handle missing elements
-        const setElementValue = (selector, value, precision = 2) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.value = typeof value === 'number' ? value.toFixed(precision) : value;
-            } else {
-                // Only warn about missing elements that are actually needed
-                if (!selector.match(/median-n[123]|system-area|system-perimeter|i-to-ic-distance|d-i-ic|r-i-ic/)) {
-                    console.warn(`Element not found for selector: ${selector}`);
+        try {
+            // Helper function to set element value and handle missing elements
+            const setElementValue = (selector, value, precision = 2) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.value = typeof value === 'number' ? value.toFixed(precision) : value;
+                } else {
+                    // Only warn about missing elements that are actually needed
+                    if (!selector.match(/median-n[123]|system-area|system-perimeter|i-to-ic-distance|d-i-ic|r-i-ic/)) {
+                        console.warn(`Element not found for selector: ${selector}`);
+                    }
                 }
+            };
+
+            // Calculate system values
+            const area = this.calculateArea();
+            const perimeter = this.calculatePerimeter();
+            
+            // Debug log to check values
+            console.log('Area calculation:', area);
+            console.log('Perimeter calculation:', perimeter);
+
+            // Update both dashboard and Information Panel
+            setElementValue('#system-b', area.toFixed(2));
+            setElementValue('#system-b-copy', area.toFixed(2));
+            setElementValue('#system-sph', perimeter);  // Perimeter is now shown as 'SPH'
+
+            // Calculate and set SPH/A ratio
+            if (area !== 0) {
+                const sphAreaRatio = perimeter / area;
+                setElementValue('#sph-area-ratio', sphAreaRatio.toFixed(4));
             }
-        };
 
-        // Calculate system values
-        const area = this.calculateArea();
-        const perimeter = this.calculatePerimeter();
-        
-        // Debug log to check values
-        console.log('Area calculation:', area);
-        console.log('Perimeter calculation:', perimeter);
-
-        // Update both dashboard and Information Panel
-        setElementValue('#system-b', area.toFixed(2));
-        setElementValue('#system-b-copy', area.toFixed(2));
-        setElementValue('#system-sph', perimeter);  // Perimeter is now shown as 'SPH'
-
-        // Calculate and set SPH/A ratio
-        if (area !== 0) {
-            const sphAreaRatio = perimeter / area;
-            setElementValue('#sph-area-ratio', sphAreaRatio.toFixed(4));
-        }
-
-        // Where SPH/A is already being calculated, add:
-        const sphAreaRatio = parseFloat(document.getElementById('sph-area-ratio').value);
-        if (!isNaN(sphAreaRatio) && sphAreaRatio !== 0) {
-            setElementValue('#area-sph-ratio', (1 / sphAreaRatio).toFixed(4));
-        }
-
-        // Nodes Panel
-        const angles = this.calculateAngles();
-        setElementValue('#node-n1-angle', angles.n1);
-        setElementValue('#node-n2-angle', angles.n2);
-        setElementValue('#node-n3-angle', angles.n3);
-
-        // Channels (Edges) Panel
-        const lengths = this.calculateLengths();
-        setElementValue('#channel-1', lengths.l1); // NC1 (Red): N1 to N3
-        setElementValue('#channel-2', lengths.l2); // NC2 (Blue): N1 to N2
-        setElementValue('#channel-3', lengths.l3); // NC3 (Green): N2 to N3
-
-        // Medians Panel
-        const medians = this.calculateMedians();
-        setElementValue('#subsystem-1-mc', medians.n1.toFixed(2));
-        setElementValue('#subsystem-2-mc', medians.n2.toFixed(2));
-        setElementValue('#subsystem-3-mc', medians.n3.toFixed(2));
-
-        // Position Panel
-        const centroid = {
-            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
-            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
-        };
-        
-        // Update vertex coordinates
-        setElementValue('#node1-coords', `${this.system.n1.x.toFixed(1)}, ${this.system.n1.y.toFixed(1)}`);
-        setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
-        setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
-        
-        // Update midpoint coordinates
-        setElementValue('#mid1-coords', `${this.system.midpoints.m1.x.toFixed(1)}, ${this.system.midpoints.m1.y.toFixed(1)}`);
-        setElementValue('#mid2-coords', `${this.system.midpoints.m2.x.toFixed(1)}, ${this.system.midpoints.m2.y.toFixed(1)}`);
-        setElementValue('#mid3-coords', `${this.system.midpoints.m3.x.toFixed(1)}, ${this.system.midpoints.m3.y.toFixed(1)}`);
-        
-        // Update tangent point coordinates
-        if (this.system.TangencyPoints && this.system.TangencyPoints.length === 3) {
-            setElementValue('#tan1-coords', `${this.system.TangencyPoints[0].x.toFixed(1)}, ${this.system.TangencyPoints[0].y.toFixed(1)}`);
-            setElementValue('#tan2-coords', `${this.system.TangencyPoints[1].x.toFixed(1)}, ${this.system.TangencyPoints[1].y.toFixed(1)}`);
-            setElementValue('#tan3-coords', `${this.system.TangencyPoints[2].x.toFixed(1)}, ${this.system.TangencyPoints[2].y.toFixed(1)}`);
-        }
-        
-        setElementValue('#centroid-coords', `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
-        
-        if (this.system.incenter) {
-            setElementValue('#incenter-coords', 
-                `${this.system.incenter.x.toFixed(1)}, ${this.system.incenter.y.toFixed(1)}`);
-            
-            // Update Information Panel distances and ratios
-            setElementValue('#d-i-ic', this.calculateDistance(
-                { x: 0, y: 0 }, // Intelligence point is at origin
-                this.system.incenter
-            ));
-            setElementValue('#r-i-ic', this.calculateDistance(
-                { x: 0, y: 0 }, // Intelligence point is at origin
-                this.system.incenter
-            ) / perimeter);
-        }
-
-        // Update subsystem metrics
-        const subsystemAngles = this.calculateSubsystemAngles();
-        const subsystemPerimeters = this.calculateSubsystemPerimeters();
-        this.subsystemAreas = this.calculateSubsystemAreas();  // Update the class property
-        
-        for (let i = 1; i <= 3; i++) {
-            const area = this.subsystemAreas[i-1];
-            const perimeter = subsystemPerimeters[i-1];
-            
-            // Calculate both ratios (if perimeter is not zero)
-            const ratio = area !== 0 ? perimeter / area : 0;
-            const inverseRatio = perimeter !== 0 ? area / perimeter : 0;
-            
-            // Update displays
-            setElementValue(`#subsystem-${i}-angle`, subsystemAngles[i-1].toFixed(2));
-            setElementValue(`#subsystem-${i}-area`, area.toFixed(2));
-            setElementValue(`#subsystem-${i}-perimeter`, perimeter.toFixed(2));
-            setElementValue(`#subsystem-${i}-ratio`, ratio.toFixed(4));
-            setElementValue(`#subsystem-${i}-inverse-ratio`, inverseRatio.toFixed(4));
-        }
-
-        // Information Panel Updates
-        const { n1, n2, n3, incenter } = this.system;
-        
-        // Calculate midpoints (M) for each edge
-        const midpoints = this.calculateMidpoints();
-        
-        // Calculate tangent points (T)
-        const tangentPoints = this.calculateTangents();
-        
-        // Calculate d(M,T) distances for each node
-        const dMT = {
-            n1: this.calculateDistance(midpoints.m2, tangentPoints[2]), // For NC2 (Blue)
-            n2: this.calculateDistance(midpoints.m3, tangentPoints[0]), // For NC3 (Green)
-            n3: this.calculateDistance(midpoints.m1, tangentPoints[1])   // For NC1 (Red)
-        };
-
-        // Calculate r(M,T) ratios (distance divided by total perimeter)
-        const rMT = {
-            n1: dMT.n1 / perimeter,
-            n2: dMT.n2 / perimeter,
-            n3: dMT.n3 / perimeter
-        };
-
-        // Update Information Panel
-        setElementValue('#d-m-t-n1', dMT.n1);
-        setElementValue('#d-m-t-n2', dMT.n2);
-        setElementValue('#d-m-t-n3', dMT.n3);
-        
-        setElementValue('#r-m-t-n1', rMT.n1);
-        setElementValue('#r-m-t-n2', rMT.n2);
-        setElementValue('#r-m-t-n3', rMT.n3);
-
-        this.updateManualFields();
-
-        // Update vertex coordinates in Position panel
-        document.getElementById('node1-coords').value = `${n1.x.toFixed(1)}, ${n1.y.toFixed(1)}`;
-        document.getElementById('node2-coords').value = `${n2.x.toFixed(1)}, ${n2.y.toFixed(1)}`;
-        document.getElementById('node3-coords').value = `${n3.x.toFixed(1)}, ${n3.y.toFixed(1)}`;
-
-        // Update circumcenter coordinates
-        if (this.system.circumcenter) {
-            const { x, y } = this.system.circumcenter;
-            document.getElementById('circumcenter-coords').value = `${x.toFixed(1)}, ${y.toFixed(1)}`;
-        }
-
-        // Update orthocenter coordinates
-        const orthocenter = this.calculateOrthocenter();
-        if (orthocenter) {
-            setElementValue('#orthocenter-coords', 
-                `${orthocenter.x.toFixed(1)}, ${orthocenter.y.toFixed(1)}`);
-        }
-
-        // Update nine-point center coordinates
-        const ninePointCircle = this.calculateNinePointCircle();
-        if (ninePointCircle && ninePointCircle.center) {
-            setElementValue('#nine-point-coords', 
-                `${ninePointCircle.center.x.toFixed(1)}, ${ninePointCircle.center.y.toFixed(1)}`);
-        }
-
-        // Get the subsystem area (which is already calculated as system area / 3)
-        const subsystemArea = area / 3;  // Using the existing 'area' variable
-
-        // Update subsystem areas
-        setElementValue('#subsystem-1-area', subsystemArea.toFixed(2));
-        setElementValue('#subsystem-2-area', subsystemArea.toFixed(2));
-        setElementValue('#subsystem-3-area', subsystemArea.toFixed(2));
-
-        // Add CSS dynamically to ensure input fields are wide enough
-        const style = document.createElement('style');
-        style.textContent = `
-            .subsystems-table input[type="text"] {
-                min-width: 90px !important;  /* Increase from current width */
-                width: auto !important;
-                text-align: right;
+            // Where SPH/A is already being calculated, add:
+            const sphAreaRatio = parseFloat(document.getElementById('sph-area-ratio').value);
+            if (!isNaN(sphAreaRatio) && sphAreaRatio !== 0) {
+                setElementValue('#area-sph-ratio', (1 / sphAreaRatio).toFixed(4));
             }
-        `;
-        document.head.appendChild(style);
 
-        // Calculate and update subsystem centroids
-        const centroids = this.calculateSubsystemCentroids();
-        const formatCoord = (x, y) => {
-            const xStr = x.toFixed(1);  // Remove padStart
-            const yStr = y.toFixed(1);  // Remove padStart
-            return `${xStr},${yStr}`;   // No spaces, just comma
-        };
-        setElementValue('#subsystem-1-centroid', formatCoord(centroids.ss1.x, centroids.ss1.y));
-        setElementValue('#subsystem-2-centroid', formatCoord(centroids.ss2.x, centroids.ss2.y));
-        setElementValue('#subsystem-3-centroid', formatCoord(centroids.ss3.x, centroids.ss3.y));
+            // Nodes Panel
+            const angles = this.calculateAngles();
+            setElementValue('#node-n1-angle', angles.n1);
+            setElementValue('#node-n2-angle', angles.n2);
+            setElementValue('#node-n3-angle', angles.n3);
 
-        // Remove all subsystem circumcenter related code
-        // const subsystemCircumcenters = this.calculateSubsystemCircumcenters();
-        // ... remove debug logging ...
-        // ... remove circumcenter updates ...
+            // Channels (Edges) Panel
+            const lengths = this.calculateLengths();
+            setElementValue('#channel-1', lengths.l1); // NC1 (Red): N1 to N3
+            setElementValue('#channel-2', lengths.l2); // NC2 (Blue): N1 to N2
+            setElementValue('#channel-3', lengths.l3); // NC3 (Green): N2 to N3
 
-        // Get the median values
-        const medianValues = this.calculateMedians();
-        
-        // Update MC column in Subsystems table only
-        setElementValue('#subsystem-1-mc', medianValues.n1.toFixed(2));
-        setElementValue('#subsystem-2-mc', medianValues.n2.toFixed(2));
-        setElementValue('#subsystem-3-mc', medianValues.n3.toFixed(2));
+            // Medians Panel
+            const medians = this.calculateMedians();
+            setElementValue('#subsystem-1-mc', medians.n1.toFixed(2));
+            setElementValue('#subsystem-2-mc', medians.n2.toFixed(2));
+            setElementValue('#subsystem-3-mc', medians.n3.toFixed(2));
 
-        // Get the elements first with null checks
-        const sphAreaRatioElement = document.getElementById('sph-area-ratio');
-        const areaSphRatioElement = document.getElementById('area-sph-ratio');
-
-        // Only proceed if both elements exist
-        if (sphAreaRatioElement && areaSphRatioElement) {
-            // Use the system's existing values instead of reading from DOM
-            const sphValue = this.system.sph;
-            const areaValue = this.system.area;
+            // Position Panel
+            const centroid = {
+                x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+                y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+            };
             
-            if (sphValue && areaValue && areaValue !== 0) {
-                const ratio = sphValue / areaValue;
-                sphAreaRatioElement.value = ratio.toFixed(4);
-                areaSphRatioElement.value = (1 / ratio).toFixed(4);
+            // Update vertex coordinates
+            setElementValue('#node1-coords', `${this.system.n1.x.toFixed(1)}, ${this.system.n1.y.toFixed(1)}`);
+            setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
+            setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
+            
+            // Update midpoint coordinates
+            setElementValue('#mid1-coords', `${this.system.midpoints.m1.x.toFixed(1)}, ${this.system.midpoints.m1.y.toFixed(1)}`);
+            setElementValue('#mid2-coords', `${this.system.midpoints.m2.x.toFixed(1)}, ${this.system.midpoints.m2.y.toFixed(1)}`);
+            setElementValue('#mid3-coords', `${this.system.midpoints.m3.x.toFixed(1)}, ${this.system.midpoints.m3.y.toFixed(1)}`);
+            
+            // Update tangent point coordinates
+            if (this.system.TangencyPoints && this.system.TangencyPoints.length === 3) {
+                setElementValue('#tan1-coords', `${this.system.TangencyPoints[0].x.toFixed(1)}, ${this.system.TangencyPoints[0].y.toFixed(1)}`);
+                setElementValue('#tan2-coords', `${this.system.TangencyPoints[1].x.toFixed(1)}, ${this.system.TangencyPoints[1].y.toFixed(1)}`);
+                setElementValue('#tan3-coords', `${this.system.TangencyPoints[2].x.toFixed(1)}, ${this.system.TangencyPoints[2].y.toFixed(1)}`);
             }
-        }  // Close the first if block
-
-        // Calculate MCH (Median Channel Entropy)
-        const mc1 = parseFloat(document.querySelector('#subsystem-1-mc').value) || 0;
-        const mc2 = parseFloat(document.querySelector('#subsystem-2-mc').value) || 0;
-        const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
-        const mcH = mc1 + mc2 + mc3;
-        setElementValue('#system-mch', mcH.toFixed(2));
-
-        // Get System Perimeter Entropy (HP)
-        const hp = parseFloat(document.querySelector('#system-sph').value) || 0;
-
-        // Calculate Total System Entropy (H = HP + MCH)
-        const totalSystemEntropy = hp + mcH;
-        setElementValue('#system-h', totalSystemEntropy.toFixed(2));
-
-        // Get system capacity (C) value - SINGLE DECLARATION
-        const systemCapacity = parseFloat(document.querySelector('#system-b').value) || 0;
-        
-        // Update System Entropy and Capacity panel
-        if (systemCapacity !== 0) {
-            // Update the C value copy
-            setElementValue('#system-b-copy', systemCapacity.toFixed(2));
-
-            // Calculate and update all ratios if we have valid values
-            if (totalSystemEntropy !== 0) {
-                // H/C and C/H ratios
-                setElementValue('#sh-b-ratio', (totalSystemEntropy / systemCapacity).toFixed(4));
-                setElementValue('#b-sh-ratio', (systemCapacity / totalSystemEntropy).toFixed(4));
+            
+            setElementValue('#centroid-coords', `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
+            
+            if (this.system.incenter) {
+                setElementValue('#incenter-coords', 
+                    `${this.system.incenter.x.toFixed(1)}, ${this.system.incenter.y.toFixed(1)}`);
                 
-                // HP/C and C/HP ratios
-                if (hp !== 0) {
-                    setElementValue('#sph-b-ratio', (hp / systemCapacity).toFixed(4));
-                    setElementValue('#b-sph-ratio', (systemCapacity / hp).toFixed(4));
-                }
+                // Update Information Panel distances and ratios
+                setElementValue('#d-i-ic', this.calculateDistance(
+                    { x: 0, y: 0 }, // Intelligence point is at origin
+                    this.system.incenter
+                ));
+                setElementValue('#r-i-ic', this.calculateDistance(
+                    { x: 0, y: 0 }, // Intelligence point is at origin
+                    this.system.incenter
+                ) / perimeter);
+            }
+
+            // Update subsystem metrics
+            const subsystemAngles = this.calculateSubsystemAngles();
+            const subsystemPerimeters = this.calculateSubsystemPerimeters();
+            this.subsystemAreas = this.calculateSubsystemAreas();  // Update the class property
+            
+            for (let i = 1; i <= 3; i++) {
+                const area = this.subsystemAreas[i-1];
+                const perimeter = subsystemPerimeters[i-1];
                 
-                // HMC/C and C/HMC ratios
-                if (mcH !== 0) {
-                    setElementValue('#mch-b-ratio', (mcH / systemCapacity).toFixed(4));
-                    setElementValue('#b-mch-ratio', (systemCapacity / mcH).toFixed(4));
+                // Calculate both ratios (if perimeter is not zero)
+                const ratio = area !== 0 ? perimeter / area : 0;
+                const inverseRatio = perimeter !== 0 ? area / perimeter : 0;
+                
+                // Update displays
+                setElementValue(`#subsystem-${i}-angle`, subsystemAngles[i-1].toFixed(2));
+                setElementValue(`#subsystem-${i}-area`, area.toFixed(2));
+                setElementValue(`#subsystem-${i}-perimeter`, perimeter.toFixed(2));
+                setElementValue(`#subsystem-${i}-ratio`, ratio.toFixed(4));
+                setElementValue(`#subsystem-${i}-inverse-ratio`, inverseRatio.toFixed(4));
+            }
+
+            // Information Panel Updates
+            const { n1, n2, n3, incenter } = this.system;
+            
+            // Calculate midpoints (M) for each edge
+            const midpoints = this.calculateMidpoints();
+            
+            // Calculate tangent points (T)
+            const tangentPoints = this.calculateTangents();
+            
+            // Calculate d(M,T) distances for each node
+            const dMT = {
+                n1: this.calculateDistance(midpoints.m2, tangentPoints[2]), // For NC2 (Blue)
+                n2: this.calculateDistance(midpoints.m3, tangentPoints[0]), // For NC3 (Green)
+                n3: this.calculateDistance(midpoints.m1, tangentPoints[1])   // For NC1 (Red)
+            };
+
+            // Calculate r(M,T) ratios (distance divided by total perimeter)
+            const rMT = {
+                n1: dMT.n1 / perimeter,
+                n2: dMT.n2 / perimeter,
+                n3: dMT.n3 / perimeter
+            };
+
+            // Update Information Panel
+            setElementValue('#d-m-t-n1', dMT.n1);
+            setElementValue('#d-m-t-n2', dMT.n2);
+            setElementValue('#d-m-t-n3', dMT.n3);
+            
+            setElementValue('#r-m-t-n1', rMT.n1);
+            setElementValue('#r-m-t-n2', rMT.n2);
+            setElementValue('#r-m-t-n3', rMT.n3);
+
+            this.updateManualFields();
+
+            // Update vertex coordinates in Position panel
+            document.getElementById('node1-coords').value = `${n1.x.toFixed(1)}, ${n1.y.toFixed(1)}`;
+            document.getElementById('node2-coords').value = `${n2.x.toFixed(1)}, ${n2.y.toFixed(1)}`;
+            document.getElementById('node3-coords').value = `${n3.x.toFixed(1)}, ${n3.y.toFixed(1)}`;
+
+            // Update circumcenter coordinates
+            if (this.system.circumcenter) {
+                const { x, y } = this.system.circumcenter;
+                document.getElementById('circumcenter-coords').value = `${x.toFixed(1)}, ${y.toFixed(1)}`;
+            }
+
+            // Update orthocenter coordinates
+            const orthocenter = this.calculateOrthocenter();
+            if (orthocenter) {
+                setElementValue('#orthocenter-coords', 
+                    `${orthocenter.x.toFixed(1)}, ${orthocenter.y.toFixed(1)}`);
+            }
+
+            // Update nine-point center coordinates
+            const ninePointCircle = this.calculateNinePointCircle();
+            if (ninePointCircle && ninePointCircle.center) {
+                setElementValue('#nine-point-coords', 
+                    `${ninePointCircle.center.x.toFixed(1)}, ${ninePointCircle.center.y.toFixed(1)}`);
+            }
+
+            // Get the subsystem area (which is already calculated as system area / 3)
+            const subsystemArea = area / 3;  // Using the existing 'area' variable
+
+            // Update subsystem areas
+            setElementValue('#subsystem-1-area', subsystemArea.toFixed(2));
+            setElementValue('#subsystem-2-area', subsystemArea.toFixed(2));
+            setElementValue('#subsystem-3-area', subsystemArea.toFixed(2));
+
+            // Add CSS dynamically to ensure input fields are wide enough
+            const style = document.createElement('style');
+            style.textContent = `
+                .subsystems-table input[type="text"] {
+                    min-width: 90px !important;  /* Increase from current width */
+                    width: auto !important;
+                    text-align: right;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Calculate and update subsystem centroids
+            const centroids = this.calculateSubsystemCentroids();
+            const formatCoord = (x, y) => {
+                const xStr = x.toFixed(1);  // Remove padStart
+                const yStr = y.toFixed(1);  // Remove padStart
+                return `${xStr},${yStr}`;   // No spaces, just comma
+            };
+            setElementValue('#subsystem-1-centroid', formatCoord(centroids.ss1.x, centroids.ss1.y));
+            setElementValue('#subsystem-2-centroid', formatCoord(centroids.ss2.x, centroids.ss2.y));
+            setElementValue('#subsystem-3-centroid', formatCoord(centroids.ss3.x, centroids.ss3.y));
+
+            // Remove all subsystem circumcenter related code
+            // const subsystemCircumcenters = this.calculateSubsystemCircumcenters();
+            // ... remove debug logging ...
+            // ... remove circumcenter updates ...
+
+            // Get the median values
+            const medianValues = this.calculateMedians();
+            
+            // Update MC column in Subsystems table only
+            setElementValue('#subsystem-1-mc', medianValues.n1.toFixed(2));
+            setElementValue('#subsystem-2-mc', medianValues.n2.toFixed(2));
+            setElementValue('#subsystem-3-mc', medianValues.n3.toFixed(2));
+
+            // Get the elements first with null checks
+            const sphAreaRatioElement = document.getElementById('sph-area-ratio');
+            const areaSphRatioElement = document.getElementById('area-sph-ratio');
+
+            // Only proceed if both elements exist
+            if (sphAreaRatioElement && areaSphRatioElement) {
+                // Use the system's existing values instead of reading from DOM
+                const sphValue = this.system.sph;
+                const areaValue = this.system.area;
+                
+                if (sphValue && areaValue && areaValue !== 0) {
+                    const ratio = sphValue / areaValue;
+                    sphAreaRatioElement.value = ratio.toFixed(4);
+                    areaSphRatioElement.value = (1 / ratio).toFixed(4);
+                }
+            }  // Close the first if block
+
+            // Calculate MCH (Median Channel Entropy)
+            const mc1 = parseFloat(document.querySelector('#subsystem-1-mc').value) || 0;
+            const mc2 = parseFloat(document.querySelector('#subsystem-2-mc').value) || 0;
+            const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
+            const mcH = mc1 + mc2 + mc3;
+            setElementValue('#system-mch', mcH.toFixed(2));
+
+            // Get System Perimeter Entropy (HP)
+            const hp = parseFloat(document.querySelector('#system-sph').value) || 0;
+
+            // Calculate Total System Entropy (H = HP + MCH)
+            const totalSystemEntropy = hp + mcH;
+            setElementValue('#system-h', totalSystemEntropy.toFixed(2));
+
+            // Get system capacity (C) value - SINGLE DECLARATION
+            const systemCapacity = parseFloat(document.querySelector('#system-b').value) || 0;
+            
+            // Update System Entropy and Capacity panel
+            if (systemCapacity !== 0) {
+                // Update the C value copy
+                setElementValue('#system-b-copy', systemCapacity.toFixed(2));
+
+                // Calculate and update all ratios if we have valid values
+                if (totalSystemEntropy !== 0) {
+                    // H/C and C/H ratios
+                    setElementValue('#sh-b-ratio', (totalSystemEntropy / systemCapacity).toFixed(4));
+                    setElementValue('#b-sh-ratio', (systemCapacity / totalSystemEntropy).toFixed(4));
+                    
+                    // HP/C and C/HP ratios
+                    if (hp !== 0) {
+                        setElementValue('#sph-b-ratio', (hp / systemCapacity).toFixed(4));
+                        setElementValue('#b-sph-ratio', (systemCapacity / hp).toFixed(4));
+                    }
+                    
+                    // HMC/C and C/HMC ratios
+                    if (mcH !== 0) {
+                        setElementValue('#mch-b-ratio', (mcH / systemCapacity).toFixed(4));
+                        setElementValue('#b-mch-ratio', (systemCapacity / mcH).toFixed(4));
+                    }
                 }
             }
+
+            // Calculate and update ssh/H ratios for each subsystem
+            for (let i = 1; i <= 3; i++) {
+                const perimeter = subsystemPerimeters[i-1];
+                const sshHRatio = totalSystemEntropy !== 0 ? perimeter / totalSystemEntropy : 0;
+                setElementValue(`#subsystem-${i}-entropy-ratio`, sshHRatio.toFixed(4));
+            }
+
+            // Only try to update mc-h if it exists
+            const mcHElement = document.querySelector('#mc-h');
+            if (mcHElement) {
+                setElementValue('#mc-h', mcH.toFixed(2));
+            }
+
+            // Calculate subchannels (distances between centroids)
+            const subchannels = {
+                sc1: this.calculateDistance(centroids.ss1, centroids.ss3), // SS1 to SS3
+                sc2: this.calculateDistance(centroids.ss1, centroids.ss2), // SS1 to SS2
+                sc3: this.calculateDistance(centroids.ss2, centroids.ss3)  // SS2 to SS3
+            };
+
+            // Update subchannel values in the table
+            setElementValue('#subsystem-1-sc', subchannels.sc1.toFixed(2));
+            setElementValue('#subsystem-2-sc', subchannels.sc2.toFixed(2));
+            setElementValue('#subsystem-3-sc', subchannels.sc3.toFixed(2));
+
+            // Add subchannel calculations right after the existing centroid updates
+            setElementValue('#subsystem-1-sc', this.calculateDistance(centroids.ss1, centroids.ss3).toFixed(2)); // SS1 to SS3
+            setElementValue('#subsystem-2-sc', this.calculateDistance(centroids.ss1, centroids.ss2).toFixed(2)); // SS1 to SS2
+            setElementValue('#subsystem-3-sc', this.calculateDistance(centroids.ss2, centroids.ss3).toFixed(2)); // SS2 to SS3
+
+        } catch (error) {
+            console.error('Error updating dashboard:', error);
         }
-
-        // Calculate and update ssh/H ratios for each subsystem
-        for (let i = 1; i <= 3; i++) {
-            const perimeter = subsystemPerimeters[i-1];
-            const sshHRatio = totalSystemEntropy !== 0 ? perimeter / totalSystemEntropy : 0;
-            setElementValue(`#subsystem-${i}-entropy-ratio`, sshHRatio.toFixed(4));
-        }
-
-        // Only try to update mc-h if it exists
-        const mcHElement = document.querySelector('#mc-h');
-        if (mcHElement) {
-            setElementValue('#mc-h', mcH.toFixed(2));
-        }
-
-        // Remove these duplicate lines
-        // const sph = parseFloat(document.querySelector('#system-sph').value) || 0;
-        // const totalSystemEntropy = sph + mcH;  // This was the duplicate declaration
-
-        // Continue with the rest of the method using the already calculated totalSystemEntropy
-        // ... rest of the code ...
-    }  // Close the method
+    }
     
     calculateSubsystemAngles() {
         const centroid = {
