@@ -250,6 +250,7 @@ class TriangleSystem {
         this.showNinePointCenter = false;  // Add new property
         this.showNinePointCircle = false;  // Rename existing property
         this.showSubcircle = false;
+        this.showSubcenter = false;  // Add this line with other show* properties
 
         // Initialize with default triangle first
         this.initializeSystem('equilateral');
@@ -772,6 +773,23 @@ class TriangleSystem {
                     this.saveCurrentAnimation();
                 });
             }
+        });
+
+        // Add Subcenter toggle
+        document.getElementById('toggleSubcenter').addEventListener('click', () => {
+            this.showSubcenter = !this.showSubcenter;
+            document.getElementById('toggleSubcenter').classList.toggle('btn-info');
+            
+            // Always calculate and show coordinates when enabled
+            if (this.showSubcenter) {
+                const subcircle = this.calculateSubcircle();
+                if (subcircle && subcircle.center) {
+                    this.setElementValue('#subcenter-coords', 
+                        `${subcircle.center.x.toFixed(1)}, ${subcircle.center.y.toFixed(1)}`);
+                }
+            }
+            
+            this.drawSystem();  // Changed from this.draw() to this.drawSystem()
         });
     }
 
@@ -1784,12 +1802,20 @@ class TriangleSystem {
         }
 
         // Draw Subtriangle if enabled
-        this.drawSubtriangle(this.ctx);
+        if (this.showSubtriangle) {
+            this.drawSubtriangle(this.ctx);
+        }
 
-        // Add this line
+        // Draw Subcenter if enabled
+        if (this.showSubcenter) {
+            this.drawSubcenter(this.ctx);
+        }
+
+        // Draw Subcircle if enabled
         if (this.showSubcircle) {
             this.drawSubcircle(this.ctx);
         }
+
     }
 
     drawNode(ctx, node, color, label) {
@@ -3800,6 +3826,39 @@ class TriangleSystem {
             center: center,
             radius: radius
         };
+    }
+
+    /**
+     * Draws the subcenter of the triangle (center of the subcircle).
+     * @param {CanvasRenderingContext2D} ctx 
+     */
+    drawSubcenter(ctx) {
+        if (!this.showSubcenter) return;
+        
+        const subcircle = this.calculateSubcircle();
+        if (!subcircle || !subcircle.center) return;
+        
+        // Draw the point in white (matching the subcircle color)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(subcircle.center.x, subcircle.center.y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Label 'SC' in white
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '12px Arial';
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.fillText('SC', subcircle.center.x + 10, -subcircle.center.y);
+        ctx.restore();
+    }
+
+    // Add helper function inside the class
+    setElementValue(selector, value) {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.value = value;
+        }
     }
 }
 
