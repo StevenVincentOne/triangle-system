@@ -220,13 +220,13 @@ class TriangleDatabase {
 }
 
 class TriangleSystem {
-    constructor(canvas) {
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
+    constructor(canvasId) {
+        this.canvas = canvasId;
+        this.ctx = canvasId.getContext('2d');
         
         // Set up canvas dimensions
-        this.canvas.width = canvas.clientWidth;
-        this.canvas.height = canvas.clientHeight;
+        this.canvas.width = canvasId.clientWidth;
+        this.canvas.height = canvasId.clientHeight;
         
         // Transform to center origin and flip y-axis correctly
         this.ctx.translate(this.canvas.width/2, this.canvas.height/2);
@@ -249,6 +249,7 @@ class TriangleSystem {
         this.showOrtho = false;  // Change from showSpecialCenters
         this.showNinePointCenter = false;  // Add new property
         this.showNinePointCircle = false;  // Rename existing property
+        this.showSubcircle = false;
 
         // Initialize with default triangle first
         this.initializeSystem('equilateral');
@@ -590,6 +591,7 @@ class TriangleSystem {
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleCircumcircle', property: 'showCircumcircle' },
+            { id: 'toggleSubcircle', property: 'showSubcircle' },  // New toggle
         ];
 
         featureButtons.forEach(button => {
@@ -597,6 +599,7 @@ class TriangleSystem {
             if (element) {
                 console.log(`Initializing ${button.id} button`);  // Add debug log
                 element.addEventListener('click', () => {
+                    console.log(`Toggle ${button.id}: ${!this[button.property]}`); // Add this line
                     this[button.property] = !this[button.property];
                     console.log(`Euler state: ${this.showEuler}`);  // Add debug log
                     element.classList.toggle('btn-info', this[button.property]);
@@ -1611,6 +1614,9 @@ class TriangleSystem {
         if (this.showIncenter) this.drawIncenter(this.ctx);  // New separate method for incenter
         if (this.showTangents) this.drawTangents(this.ctx);
         if (this.showCentroid) this.drawCentroid(this.ctx);
+        if (this.showSubsystems) this.drawSubsystems(this.ctx);
+        if (this.showSubtriangle) this.drawSubtriangle(this.ctx);
+        if (this.showSubcircle) this.drawSubcircle(this.ctx);
         
         // Always draw angles
         this.drawAngles(this.ctx);
@@ -1772,6 +1778,11 @@ class TriangleSystem {
 
         // Draw Subtriangle if enabled
         this.drawSubtriangle(this.ctx);
+
+        // Add this line
+        if (this.showSubcircle) {
+            this.drawSubcircle(this.ctx);
+        }
     }
 
     drawNode(ctx, node, color, label) {
@@ -3706,6 +3717,82 @@ class TriangleSystem {
         // Optional: Fill with semi-transparent white
         ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';  // Changed from red to white
         ctx.fill();
+    }
+
+    /**
+     * Draws the circle that passes through the subsystem centroids
+     * @param {CanvasRenderingContext2D} ctx 
+     */
+    drawSubcircle(ctx) {
+        if (!this.showSubcircle) return;
+        
+        // Use the calculateSubcircle method instead of direct calculation
+        const { center, radius } = this.calculateSubcircle();
+        if (!center || !radius) return;
+        
+        // Draw the circle in white
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+
+    calculateSubcircle() {
+        // Get the centroids of the subsystems which will be our vertices
+        const centroids = this.calculateSubsystemCentroids();
+        const ss1 = centroids.ss1;
+        const ss2 = centroids.ss2;
+        const ss3 = centroids.ss3;
+
+        // Calculate the perpendicular bisectors
+        const midpoint1 = {
+            x: (ss1.x + ss2.x) / 2,
+            y: (ss1.y + ss2.y) / 2
+        };
+        const midpoint2 = {
+            x: (ss2.x + ss3.x) / 2,
+            y: (ss2.y + ss3.y) / 2
+        };
+
+        // Calculate direction vectors of the sides
+        const dir1 = {
+            x: ss2.x - ss1.x,
+            y: ss2.y - ss1.y
+        };
+        const dir2 = {
+            x: ss3.x - ss2.x,
+            y: ss3.y - ss2.y
+        };
+
+        // Calculate perpendicular vectors
+        const perp1 = {
+            x: -dir1.y,
+            y: dir1.x
+        };
+        const perp2 = {
+            x: -dir2.y,
+            y: dir2.x
+        };
+
+        // Solve for intersection of perpendicular bisectors
+        const t = ((midpoint2.x - midpoint1.x) * perp2.y - (midpoint2.y - midpoint1.y) * perp2.x) /
+                  (perp1.x * perp2.y - perp1.y * perp2.x);
+
+        const center = {
+            x: midpoint1.x + t * perp1.x,
+            y: midpoint1.y + t * perp1.y
+        };
+
+        // Calculate radius as distance to any centroid
+        const radius = Math.sqrt(
+            Math.pow(center.x - ss1.x, 2) + Math.pow(center.y - ss1.y, 2)
+        );
+
+        return {
+            center: center,
+            radius: radius
+        };
     }
 }
 
