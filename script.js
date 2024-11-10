@@ -2155,11 +2155,12 @@ class TriangleSystem {
     calculateMedians() {
         const { n1, n2, n3 } = this.system;
         const midpoints = this.calculateMidpoints();
+        const MEDIAN_CHANNEL_RATIO = 2/3;  // MC is always 2/3 of median length
         
         return {
-            n1: this.calculateDistance(n1, midpoints.m3),  // N1 to midpoint of base (N2-N3)
-            n2: this.calculateDistance(n2, midpoints.m1),  // N2 to midpoint of left side (N1-N3)
-            n3: this.calculateDistance(n3, midpoints.m2)   // N3 to midpoint of right side (N1-N2)
+            n1: this.calculateDistance(n1, midpoints.m3) * MEDIAN_CHANNEL_RATIO,  // N1 to centroid
+            n2: this.calculateDistance(n2, midpoints.m1) * MEDIAN_CHANNEL_RATIO,  // N2 to centroid
+            n3: this.calculateDistance(n3, midpoints.m2) * MEDIAN_CHANNEL_RATIO   // N3 to centroid
         };
     }
 
