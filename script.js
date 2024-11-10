@@ -1390,8 +1390,8 @@ class TriangleSystem {
                 }
                 
                 // HP/C and C/HP ratios
-                if (hp !== 0) {
-                    setElementValue('#sph-area-ratio', (hp / systemCapacity).toFixed(4));  // Changed from sph-b-ratio
+                if (hp !== 0 && systemCapacity !== 0) {
+                    setElementValue('#sph-area-ratio', (hp / systemCapacity).toFixed(4));
                     setElementValue('#b-sph-ratio', (systemCapacity / hp).toFixed(4));
                 }
                 
@@ -1465,9 +1465,9 @@ class TriangleSystem {
                 }
                 
                 // HP/C and C/HP ratios
-                if (hp !== 0) {
+                if (hp !== 0 && systemCapacity !== 0) {
                     setElementValue('#sph-area-ratio', (hp / capacity).toFixed(4));
-                    setElementValue('#b-sph-ratio', (capacity / hp).toFixed(4));
+                    setElementValue('#b-sph-ratio', (systemCapacity / hp).toFixed(4));
                 }
                 
                 // HMC/C and C/HMC ratios
