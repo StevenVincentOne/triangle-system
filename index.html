@@ -1450,71 +1450,19 @@
             align-items: center;
         }
 
-        <!-- Replace the existing Subtriangle panel (around line 1772) with: -->
-        <div class="dashboard-row mt-2">
-            <div class="dashboard-panel">
-                <h3 class="panel-header">Subtriangle</h3>
-                <div class="d-flex flex-column gap-3">
-                    <!-- First section: Nodes and Subchannels -->
-                    <div class="d-flex flex-column">
-                        <!-- Headers row -->
-                        <div class="d-flex justify-content-center">
-                            <div style="width: 60%"><h4 class="column-header text-center">Nodes</h4></div>
-                            <div style="width: 40%"><h4 class="column-header text-center">Subchannels</h4></div>
-                        </div>
-                        
-                        <!-- Single row of data -->
-                        <div class="d-flex justify-content-center align-items-center gap-3">
-                            <!-- Nodes -->
-                            <label for="ss1-coords">SS1 (x,y)</label>
-                            <input id="ss1-coords" type="text" class="form-control" size="12" readonly>
-                            
-                            <label for="ss2-coords">SS2 (x,y)</label>
-                            <input id="ss2-coords" type="text" class="form-control" size="12" readonly>
-                            
-                            <label for="ss3-coords">SS3 (x,y)</label>
-                            <input id="ss3-coords" type="text" class="form-control" size="12" readonly>
-                            
-                            <!-- Subchannels -->
-                            <label for="sc1-length">SC1</label>
-                            <input id="sc1-length" type="text" class="form-control" size="8" readonly>
-                            
-                            <label for="sc2-length">SC2</label>
-                            <input id="sc2-length" type="text" class="form-control" size="8" readonly>
-                            
-                            <label for="sc3-length">SC3</label>
-                            <input id="sc3-length" type="text" class="form-control" size="8" readonly>
-                        </div>
-                    </div>
+        /* System Entropy and Capacity panel */
+        .dashboard-row mt-0 {
+            margin-top: 0 !important;
+        }
 
-                    <!-- Second section: Entropy and Capacity -->
-                    <div class="d-flex flex-column">
-                        <h4 class="column-header text-center">Entropy and Capacity</h4>
-                        <div class="d-flex justify-content-center align-items-center gap-3">
-                            <div class="label-value-pair">
-                                <label for="subtriangle-hst">HST</label>
-                                <input id="subtriangle-hst" type="text" class="form-control" size="12" readonly>
-                            </div>
-                            
-                            <div class="label-value-pair">
-                                <label for="subtriangle-cst">CST</label>
-                                <input id="subtriangle-cst" type="text" class="form-control" size="12" readonly>
-                            </div>
-                            
-                            <div class="label-value-pair">
-                                <label for="hst-cst-ratio">HST/CST</label>
-                                <input id="hst-cst-ratio" type="text" class="form-control" size="12" readonly>
-                            </div>
-                            
-                            <div class="label-value-pair">
-                                <label for="cst-hst-ratio">CST/HST</label>
-                                <input id="cst-hst-ratio" type="text" class="form-control" size="12" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        .dashboard-panel mt-0 {
+            margin-top: 0 !important;
+        }
+
+        .dashboard-panel.mt-0 {
+            border-top: none !important;
+            border-radius: 0 !important;
+        }
     </style>
 </head>
 <body>
@@ -1761,41 +1709,15 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- SH Panel (New) -->
-                        <div class="dashboard-panel">
-                            <h3 class="panel-header">H (Entropy)</h3>
-                            <div class="panel-content">
-                                <div class="label-value-pair">
-                                    <label for="system-h">H</label>
-                                    <input id="system-h" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="system-sph">HP</label>
-                                    <input id="system-sph" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="system-mch">HMC</label>
-                                    <input id="system-mch" type="text" class="form-control" size="8" readonly>
-                                </div>
-                            </div>
-                        </div>
-
+                    </div>
+                </div>
                         <!-- SB Panel (New) -->
                         <div class="dashboard-panel">
                             <h3 class="panel-header">C (Capacity)</h3>
                             <div class="panel-content compact-panel">
                                 <div class="label-value-pair">
-                                    <label for="system-b">C</label>
-                                    <input id="system-b" type="text" class="form-control" size="10" readonly>
-                                </div>
-                                <div class="label-value-pair">
                                     <label for="sph-area-ratio">HP/C</label>
                                     <input id="sph-area-ratio" type="text" class="form-control" size="10" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="area-sph-ratio">C/HP</label>
-                                    <input id="area-sph-ratio" type="text" class="form-control" size="10" readonly>
                                 </div>
                             </div>
                         </div>
@@ -1803,6 +1725,65 @@
                 </div>
             </div>
 
+            <!-- Existing System Entropy and Capacity panel row -->
+            <div class="dashboard-row mt-0">  <!-- Remove mt-2 -->
+                <div class="dashboard-panel mt-0 border-top-0 rounded-top-0">
+                    <h3 class="panel-header">System Entropy and Capacity</h3>
+                    <!-- First row: Main values -->
+                    <div class="d-flex justify-content-center gap-4 mb-3">
+                        <div class="label-value-pair">
+                            <label for="system-h">H</label>
+                            <input id="system-h" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="system-sph">HP</label>
+                            <input id="system-sph" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="system-mch">HMC</label>
+                            <input id="system-mch" type="text" class="form-control" size="8" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="system-b-copy">C</label>
+                            <input id="system-b-copy" type="text" class="form-control" size="12" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Second row: Ratios -->
+                    <div class="d-flex justify-content-center gap-4">
+                        <!-- SH ratios -->
+                        <div class="label-value-pair">
+                            <label for="sh-b-ratio">H/C</label>
+                            <input id="sh-b-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="b-sh-ratio">C/H</label>
+                            <input id="b-sh-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        
+                        <!-- SPH ratios -->
+                        <div class="label-value-pair">
+                            <label for="sph-b-ratio">HP/C</label>
+                            <input id="sph-b-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="b-sph-ratio">C/HP</label>
+                            <input id="b-sph-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        
+                        <!-- MCH ratios -->
+                        <div class="label-value-pair">
+                            <label for="mch-b-ratio">HMC/C</label>
+                            <input id="mch-b-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="b-mch-ratio">C/HMC</label>
+                            <input id="b-mch-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Add new row for Subtriangle panel -->
             <div class="dashboard-row mt-2">
                 <div class="dashboard-panel">
@@ -1869,49 +1850,7 @@
                 </div>
             </div>
 
-            <!-- Existing System Entropy and Capacity panel row -->
-            <div class="dashboard-row mt-2">
-                <div class="dashboard-panel">
-                    <h3 class="panel-header">System Entropy and Capacity</h3>
-                    <div class="d-flex justify-content-center gap-4">
-                        <!-- Resource (B) value -->
-                        <div class="label-value-pair">
-                            <label for="system-b-copy">C</label>
-                            <input id="system-b-copy" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        
-                        <!-- SH ratios -->
-                        <div class="label-value-pair">
-                            <label for="sh-b-ratio">H/C</label>
-                            <input id="sh-b-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="b-sh-ratio">C/H</label>
-                            <input id="b-sh-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-
-                        <!-- SPH ratios -->
-                        <div class="label-value-pair">
-                            <label for="sph-b-ratio">HP/C</label>
-                            <input id="sph-b-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="b-sph-ratio">C/HP</label>
-                            <input id="b-sph-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-
-                        <!-- MCH ratios -->
-                        <div class="label-value-pair">
-                            <label for="mch-b-ratio">HMC/C</label>
-                            <input id="mch-b-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="b-mch-ratio">C/HMC</label>
-                            <input id="b-mch-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
             <!-- New Subsystems Row -->
             <div class="dashboard-row">
