@@ -1153,21 +1153,18 @@ class TriangleSystem {
             console.log('Perimeter calculation:', perimeter);
 
             // Update both dashboard and Information Panel
-            setElementValue('#system-b', area.toFixed(2));
-            setElementValue('#system-b-copy', area.toFixed(2));
+            
+            setElementValue('#system-b-copy', area.toFixed(2));  // Keep original ID
             setElementValue('#system-sph', perimeter);  // Perimeter is now shown as 'SPH'
 
             // Calculate and set SPH/A ratio
             if (area !== 0) {
                 const sphAreaRatio = perimeter / area;
-                setElementValue('#sph-area-ratio', sphAreaRatio.toFixed(4));
+                setElementValue('#sph-area-ratio', sphAreaRatio.toFixed(4));  // Changed from #sph-b-ratio
+                setElementValue('#b-sph-ratio', (1 / sphAreaRatio).toFixed(4));
             }
 
-            // Where SPH/A is already being calculated, add:
-            const sphAreaRatio = parseFloat(document.getElementById('sph-area-ratio').value);
-            if (!isNaN(sphAreaRatio) && sphAreaRatio !== 0) {
-                setElementValue('#area-sph-ratio', (1 / sphAreaRatio).toFixed(4));
-            }
+
 
             // Nodes Panel
             const angles = this.calculateAngles();
@@ -1367,45 +1364,41 @@ class TriangleSystem {
                 }
             }  // Close the first if block
 
-            // Calculate MCH (Median Channel Entropy)
-            const mc1 = parseFloat(document.querySelector('#subsystem-1-mc').value) || 0;
-            const mc2 = parseFloat(document.querySelector('#subsystem-2-mc').value) || 0;
-            const mc3 = parseFloat(document.querySelector('#subsystem-3-mc').value) || 0;
+            // Calculate MCH (Median Channel Entropy) - Update selectors to match HTML
+            const mc1 = parseFloat(document.querySelector('#subsystem-1-mc')?.value) || 0;
+            const mc2 = parseFloat(document.querySelector('#subsystem-2-mc')?.value) || 0;
+            const mc3 = parseFloat(document.querySelector('#subsystem-3-mc')?.value) || 0;
             const mcH = mc1 + mc2 + mc3;
             setElementValue('#system-mch', mcH.toFixed(2));
 
-            // Get System Perimeter Entropy (HP)
-            const hp = parseFloat(document.querySelector('#system-sph').value) || 0;
+            // Get System Perimeter Entropy (HP) - Update selector to match HTML
+            const hp = parseFloat(document.querySelector('#system-sph')?.value) || 0;
 
             // Calculate Total System Entropy (H = HP + MCH)
             const totalSystemEntropy = hp + mcH;
             setElementValue('#system-h', totalSystemEntropy.toFixed(2));
 
-            // Get system capacity (C) value - SINGLE DECLARATION
-            const systemCapacity = parseFloat(document.querySelector('#system-b').value) || 0;
-            
-            // Update System Entropy and Capacity panel
-            if (systemCapacity !== 0) {
-                // Update the C value copy
-                setElementValue('#system-b-copy', systemCapacity.toFixed(2));
+            // Get system capacity (C) value - Update selector to match HTML
+            const systemCapacity = parseFloat(document.querySelector('#system-b-copy')?.value) || 0;
 
-                // Calculate and update all ratios if we have valid values
+            // Calculate ratios only if elements exist
+            if (systemCapacity !== 0) {
+                // H/C and C/H ratios
                 if (totalSystemEntropy !== 0) {
-                    // H/C and C/H ratios
                     setElementValue('#sh-b-ratio', (totalSystemEntropy / systemCapacity).toFixed(4));
                     setElementValue('#b-sh-ratio', (systemCapacity / totalSystemEntropy).toFixed(4));
-                    
-                    // HP/C and C/HP ratios
-                    if (hp !== 0) {
-                        setElementValue('#sph-b-ratio', (hp / systemCapacity).toFixed(4));
-                        setElementValue('#b-sph-ratio', (systemCapacity / hp).toFixed(4));
-                    }
-                    
-                    // HMC/C and C/HMC ratios
-                    if (mcH !== 0) {
-                        setElementValue('#mch-b-ratio', (mcH / systemCapacity).toFixed(4));
-                        setElementValue('#b-mch-ratio', (systemCapacity / mcH).toFixed(4));
-                    }
+                }
+                
+                // HP/C and C/HP ratios
+                if (hp !== 0) {
+                    setElementValue('#sph-area-ratio', (hp / systemCapacity).toFixed(4));  // Changed from sph-b-ratio
+                    setElementValue('#b-sph-ratio', (systemCapacity / hp).toFixed(4));
+                }
+                
+                // HMC/C and C/HMC ratios
+                if (mcH !== 0) {
+                    setElementValue('#mch-b-ratio', (mcH / systemCapacity).toFixed(4));
+                    setElementValue('#b-mch-ratio', (systemCapacity / mcH).toFixed(4));
                 }
             }
 
@@ -1455,6 +1448,33 @@ class TriangleSystem {
             if (subcircle && subcircle.center) {
                 setElementValue('#subcenter-coords', 
                     `${subcircle.center.x.toFixed(1)}, ${subcircle.center.y.toFixed(1)}`);
+            }
+
+            // Calculate new Capacity (C) value using area
+            const capacity = this.calculateArea();
+            
+            // Update capacity value in System Entropy and Capacity panel
+            setElementValue('#system-b-copy', capacity.toFixed(2));  // Keep original ID
+
+            // Calculate and update ratios using the new capacity value
+            if (capacity !== 0) {
+                // H/C and C/H ratios
+                if (totalSystemEntropy !== 0) {
+                    setElementValue('#sh-b-ratio', (totalSystemEntropy / capacity).toFixed(4));
+                    setElementValue('#b-sh-ratio', (capacity / totalSystemEntropy).toFixed(4));
+                }
+                
+                // HP/C and C/HP ratios
+                if (hp !== 0) {
+                    setElementValue('#sph-area-ratio', (hp / capacity).toFixed(4));
+                    setElementValue('#b-sph-ratio', (capacity / hp).toFixed(4));
+                }
+                
+                // HMC/C and C/HMC ratios
+                if (mcH !== 0) {
+                    setElementValue('#mch-b-ratio', (mcH / capacity).toFixed(4));
+                    setElementValue('#b-mch-ratio', (capacity / mcH).toFixed(4));
+                }
             }
 
         } catch (error) {
