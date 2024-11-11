@@ -1131,6 +1131,11 @@ class TriangleSystem {
 
     updateDashboard() {
         try {
+            if (!this.isSystemInitialized()) {
+                console.log('System not fully initialized, skipping dashboard update');
+                return;
+            }
+
             // Helper function to set element value and handle missing elements
             const setElementValue = (selector, value, precision = 2) => {
                 const element = document.querySelector(selector);
@@ -1330,14 +1335,7 @@ class TriangleSystem {
                 const yStr = y.toFixed(1);  // Remove padStart
                 return `${xStr},${yStr}`;   // No spaces, just comma
             };
-            setElementValue('#subsystem-1-centroid', formatCoord(centroids.ss1.x, centroids.ss1.y));
-            setElementValue('#subsystem-2-centroid', formatCoord(centroids.ss2.x, centroids.ss2.y));
-            setElementValue('#subsystem-3-centroid', formatCoord(centroids.ss3.x, centroids.ss3.y));
-
-            // Remove all subsystem circumcenter related code
-            // const subsystemCircumcenters = this.calculateSubsystemCircumcenters();
-            // ... remove debug logging ...
-            // ... remove circumcenter updates ...
+        
 
             // Get the median values
             const medianValues = this.calculateMedians();
@@ -1474,6 +1472,52 @@ class TriangleSystem {
                 if (mcH !== 0) {
                     setElementValue('#mch-b-ratio', (mcH / capacity).toFixed(4));
                     setElementValue('#b-mch-ratio', (capacity / mcH).toFixed(4));
+                }
+            }
+
+            // Update Subtriangle Panel
+            // Calculate centroids for each subsystem and store them
+            const subtriangleCentroids = {
+                ss1: this.calculateSubsystemCentroid(1),
+                ss2: this.calculateSubsystemCentroid(2),
+                ss3: this.calculateSubsystemCentroid(3)
+            };
+
+            // Only update if we have valid centroids
+            if (subtriangleCentroids.ss1.x !== 0 || subtriangleCentroids.ss1.y !== 0) {
+                // Update centroid coordinates display
+                setElementValue('#subsystem-1-centroid', 
+                    `${subtriangleCentroids.ss1.x.toFixed(1)}, ${subtriangleCentroids.ss1.y.toFixed(1)}`);
+                setElementValue('#subsystem-2-centroid', 
+                    `${subtriangleCentroids.ss2.x.toFixed(1)}, ${subtriangleCentroids.ss2.y.toFixed(1)}`);
+                setElementValue('#subsystem-3-centroid', 
+                    `${subtriangleCentroids.ss3.x.toFixed(1)}, ${subtriangleCentroids.ss3.y.toFixed(1)}`);
+
+                // Calculate subchannels (distances between centroids)
+                const subchannelDistances = {
+                    sc1: this.calculateDistance(subtriangleCentroids.ss2, subtriangleCentroids.ss3),
+                    sc2: this.calculateDistance(subtriangleCentroids.ss1, subtriangleCentroids.ss3),
+                    sc3: this.calculateDistance(subtriangleCentroids.ss1, subtriangleCentroids.ss2)
+                };
+
+                // Update subchannel values
+                setElementValue('#subchannel-1', subchannelDistances.sc1.toFixed(2));
+                setElementValue('#subchannel-2', subchannelDistances.sc2.toFixed(2));
+                setElementValue('#subchannel-3', subchannelDistances.sc3.toFixed(2));
+
+                // Calculate HST and CST
+                const subtriangle_hst = subchannelDistances.sc1 + 
+                                      subchannelDistances.sc2 + 
+                                      subchannelDistances.sc3;
+                const subtriangle_cst = this.calculateSubtriangleArea(subtriangleCentroids);
+
+                setElementValue('#subtriangle-hst', subtriangle_hst.toFixed(2));
+                setElementValue('#subtriangle-cst', subtriangle_cst.toFixed(2));
+
+                // Update ratios
+                if (subtriangle_cst !== 0 && subtriangle_hst !== 0) {
+                    setElementValue('#hst-cst-ratio', (subtriangle_hst / subtriangle_cst).toFixed(4));
+                    setElementValue('#cst-hst-ratio', (subtriangle_cst / subtriangle_hst).toFixed(4));
                 }
             }
 
@@ -1629,213 +1673,221 @@ class TriangleSystem {
     }
 
     drawSystem() {
-        // Clear the canvas
-        this.ctx.clearRect(-this.canvas.width/2, -this.canvas.height/2, 
-                           this.canvas.width, this.canvas.height);
-
-        // Draw base triangle first
-        this.drawTriangle();
-
-        // Draw Euler line if enabled
-        if (this.showEuler) {
-            console.log("Drawing Euler line");
-            this.drawEulerLine(this.ctx);
-        }
-
-        // Draw axes for reference
-        this.drawAxes(this.ctx);
-        
-        // Draw edges first
-        this.drawEdges(this.ctx);
-        
-        // Draw nodes on top
-        this.drawNodes(this.ctx);
-        
-        // Draw features
-        if (this.showSubsystems) this.drawSubsystems(this.ctx);
-        if (this.showMidpoints) this.drawMidpoints(this.ctx);
-        if (this.showMedians) this.drawMedians(this.ctx);
-        if (this.showIncircle) this.drawIncircle(this.ctx);
-        if (this.showIncenter) this.drawIncenter(this.ctx);  // New separate method for incenter
-        if (this.showTangents) this.drawTangents(this.ctx);
-        if (this.showCentroid) this.drawCentroid(this.ctx);
-        if (this.showSubsystems) this.drawSubsystems(this.ctx);
-        if (this.showSubtriangle) this.drawSubtriangle(this.ctx);
-        if (this.showSubcircle) this.drawSubcircle(this.ctx);
-        
-        // Always draw angles
-        this.drawAngles(this.ctx);
-
-        // Draw edge length labels
-        this.ctx.save();  // Save current context state
-        
-        // Reset text orientation and scale for labels
-        this.ctx.scale(1, -1);  // Flip back for text
-        
-        this.ctx.font = '14px Arial';
-        this.ctx.fillStyle = 'white';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-
-        // Calculate edge midpoints
-        const nc1Mid = this.calculateMidpoint(this.system.n1, this.system.n3);
-        const nc2Mid = this.calculateMidpoint(this.system.n1, this.system.n2);
-        const nc3Mid = this.calculateMidpoint(this.system.n2, this.system.n3);
-
-        // Calculate edge lengths
-        const nc1Length = this.calculateDistance(this.system.n1, this.system.n3).toFixed(2);
-        const nc2Length = this.calculateDistance(this.system.n1, this.system.n2).toFixed(2);
-        const nc3Length = this.calculateDistance(this.system.n2, this.system.n3).toFixed(2);
-
-        // Calculate offset directions for each edge
-        const offset = 25; // Adjust this value to position labels further or closer
-
-        // NC1 label (left edge)
-        const nc1Angle = Math.atan2(this.system.n1.y - this.system.n3.y, this.system.n1.x - this.system.n3.x);
-        const nc1OffsetX = -offset * Math.sin(nc1Angle);
-        const nc1OffsetY = offset * Math.cos(nc1Angle);
-        this.ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
-
-        // NC2 label (right edge)
-        const nc2Angle = Math.atan2(this.system.n1.y - this.system.n2.y, this.system.n1.x - this.system.n2.x);
-        const nc2OffsetX = offset * Math.sin(nc2Angle);
-        const nc2OffsetY = -offset * Math.cos(nc2Angle);
-        this.ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
-
-        // NC3 label (bottom edge)
-        this.ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
-
-        this.ctx.restore();  // Restore context state
-
-        // Draw special centers if enabled
-        if (this.showSpecialCenters) {
-            console.log("Drawing special centers with state:", {
-                showSpecialCenters: this.showSpecialCenters,
-                orthocenter: this.system.orthocenter
-            });
-
-            // Draw orthocenter point and label
-            if (this.system.orthocenter) {
-                this.ctx.beginPath();
-                this.ctx.fillStyle = '#FF0000';  // Pink color
-                this.ctx.arc(
-                    this.system.orthocenter.x,
-                    this.system.orthocenter.y,
-                    4,
-                    0,
-                    2 * Math.PI
-                );
-                this.ctx.fill();
-
-                // Label 'H' for orthocenter
-                this.ctx.save();
-                this.ctx.scale(1, -1);  // Flip text right-side up
-                this.ctx.fillStyle = '#FF0000';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText('H', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
-                this.ctx.restore();
+        try {
+            if (!this.isSystemInitialized()) {
+                return;
             }
-        }
 
-        // Draw Orthocircle if enabled (after special centers)
-        if (this.showOrtho) {
-            this.drawOrthocircle(this.ctx);
-        }
+            // Clear canvas
+            this.ctx.clearRect(-this.canvas.width/2, -this.canvas.height/2, 
+                              this.canvas.width, this.canvas.height);
 
-        // Separate drawing of nine-point center and circle
-        if (this.showNinePointCenter) {
-            const ninePointCircle = this.calculateNinePointCircle();
-            if (ninePointCircle && ninePointCircle.center) {
-                // Draw just the center point
-                this.ctx.beginPath();
-                this.ctx.fillStyle = '#FF00FF';  // White
-                this.ctx.arc(
-                    ninePointCircle.center.x,
-                    ninePointCircle.center.y,
-                    4,
-                    0,
-                    2 * Math.PI
-                );
-                this.ctx.fill();
+            // Draw base triangle first
+            this.drawTriangle();
 
-                // Label 'N'
-                this.ctx.save();
-                this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#FF00FF';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
-                this.ctx.restore();
+            // Draw Euler line if enabled
+            if (this.showEuler) {
+                console.log("Drawing Euler line");
+                this.drawEulerLine(this.ctx);
             }
-        }
 
-        if (this.showNinePointCircle) {
-            const ninePointCircle = this.calculateNinePointCircle();
-            if (ninePointCircle && ninePointCircle.center && ninePointCircle.radius) {
-                // Draw just the circle
-                this.ctx.beginPath();
-                this.ctx.strokeStyle = '#FF00FF';  // White
-                this.ctx.setLineDash([5, 5]);
-                this.ctx.lineWidth = 1;
-                this.ctx.arc(
-                    ninePointCircle.center.x,
-                    ninePointCircle.center.y,
-                    ninePointCircle.radius,
-                    0,
-                    2 * Math.PI
-                );
-                this.ctx.stroke();
-                this.ctx.setLineDash([]);
+            // Draw axes for reference
+            this.drawAxes(this.ctx);
+            
+            // Draw edges first
+            this.drawEdges(this.ctx);
+            
+            // Draw nodes on top
+            this.drawNodes(this.ctx);
+            
+            // Draw features
+            if (this.showSubsystems) this.drawSubsystems(this.ctx);
+            if (this.showMidpoints) this.drawMidpoints(this.ctx);
+            if (this.showMedians) this.drawMedians(this.ctx);
+            if (this.showIncircle) this.drawIncircle(this.ctx);
+            if (this.showIncenter) this.drawIncenter(this.ctx);  // New separate method for incenter
+            if (this.showTangents) this.drawTangents(this.ctx);
+            if (this.showCentroid) this.drawCentroid(this.ctx);
+            if (this.showSubsystems) this.drawSubsystems(this.ctx);
+            if (this.showSubtriangle) this.drawSubtriangle(this.ctx);
+            if (this.showSubcircle) this.drawSubcircle(this.ctx);
+            
+            // Always draw angles
+            this.drawAngles(this.ctx);
+
+            // Draw edge length labels
+            this.ctx.save();  // Save current context state
+            
+            // Reset text orientation and scale for labels
+            this.ctx.scale(1, -1);  // Flip back for text
+            
+            this.ctx.font = '14px Arial';
+            this.ctx.fillStyle = 'white';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+
+            // Calculate edge midpoints
+            const nc1Mid = this.calculateMidpoint(this.system.n1, this.system.n3);
+            const nc2Mid = this.calculateMidpoint(this.system.n1, this.system.n2);
+            const nc3Mid = this.calculateMidpoint(this.system.n2, this.system.n3);
+
+            // Calculate edge lengths
+            const nc1Length = this.calculateDistance(this.system.n1, this.system.n3).toFixed(2);
+            const nc2Length = this.calculateDistance(this.system.n1, this.system.n2).toFixed(2);
+            const nc3Length = this.calculateDistance(this.system.n2, this.system.n3).toFixed(2);
+
+            // Calculate offset directions for each edge
+            const offset = 25; // Adjust this value to position labels further or closer
+
+            // NC1 label (left edge)
+            const nc1Angle = Math.atan2(this.system.n1.y - this.system.n3.y, this.system.n1.x - this.system.n3.x);
+            const nc1OffsetX = -offset * Math.sin(nc1Angle);
+            const nc1OffsetY = offset * Math.cos(nc1Angle);
+            this.ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
+
+            // NC2 label (right edge)
+            const nc2Angle = Math.atan2(this.system.n1.y - this.system.n2.y, this.system.n1.x - this.system.n2.x);
+            const nc2OffsetX = offset * Math.sin(nc2Angle);
+            const nc2OffsetY = -offset * Math.cos(nc2Angle);
+            this.ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
+
+            // NC3 label (bottom edge)
+            this.ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
+
+            this.ctx.restore();  // Restore context state
+
+            // Draw special centers if enabled
+            if (this.showSpecialCenters) {
+                console.log("Drawing special centers with state:", {
+                    showSpecialCenters: this.showSpecialCenters,
+                    orthocenter: this.system.orthocenter
+                });
+
+                // Draw orthocenter point and label
+                if (this.system.orthocenter) {
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = '#FF0000';  // Pink color
+                    this.ctx.arc(
+                        this.system.orthocenter.x,
+                        this.system.orthocenter.y,
+                        4,
+                        0,
+                        2 * Math.PI
+                    );
+                    this.ctx.fill();
+
+                    // Label 'H' for orthocenter
+                    this.ctx.save();
+                    this.ctx.scale(1, -1);  // Flip text right-side up
+                    this.ctx.fillStyle = '#FF0000';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.fillText('H', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
+                    this.ctx.restore();
+                }
             }
-        }
 
-        if (this.showCircumcenter) {
-            const circumcenter = this.calculateCircumcenter();
-            if (circumcenter) {
-                this.ctx.beginPath();
-                this.ctx.fillStyle = '#00FF00';  // Green color
-                this.ctx.arc(
-                    circumcenter.x,
-                    circumcenter.y,
-                    4,
-                    0,
-                    2 * Math.PI
-                );
-                this.ctx.fill();
-
-                // Label 'O' for circumcenter
-                this.ctx.save();
-                this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#00FF00';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText('O', circumcenter.x + 10, -circumcenter.y);
-                this.ctx.restore();
+            // Draw Orthocircle if enabled (after special centers)
+            if (this.showOrtho) {
+                this.drawOrthocircle(this.ctx);
             }
-        }
 
-        if (this.showCircumcircle) {
-            this.drawCircumcircle(this.ctx);
-        }
+            // Separate drawing of nine-point center and circle
+            if (this.showNinePointCenter) {
+                const ninePointCircle = this.calculateNinePointCircle();
+                if (ninePointCircle && ninePointCircle.center) {
+                    // Draw just the center point
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = '#FF00FF';  // White
+                    this.ctx.arc(
+                        ninePointCircle.center.x,
+                        ninePointCircle.center.y,
+                        4,
+                        0,
+                        2 * Math.PI
+                    );
+                    this.ctx.fill();
 
-        // Draw Exponential Point if enabled
-        if (this.showExpo) {
-            this.drawExponentialPoint(this.ctx);
-        }
+                    // Label 'N'
+                    this.ctx.save();
+                    this.ctx.scale(1, -1);
+                    this.ctx.fillStyle = '#FF00FF';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+                    this.ctx.restore();
+                }
+            }
 
-        // Draw Subtriangle if enabled
-        if (this.showSubtriangle) {
-            this.drawSubtriangle(this.ctx);
-        }
+            if (this.showNinePointCircle) {
+                const ninePointCircle = this.calculateNinePointCircle();
+                if (ninePointCircle && ninePointCircle.center && ninePointCircle.radius) {
+                    // Draw just the circle
+                    this.ctx.beginPath();
+                    this.ctx.strokeStyle = '#FF00FF';  // White
+                    this.ctx.setLineDash([5, 5]);
+                    this.ctx.lineWidth = 1;
+                    this.ctx.arc(
+                        ninePointCircle.center.x,
+                        ninePointCircle.center.y,
+                        ninePointCircle.radius,
+                        0,
+                        2 * Math.PI
+                    );
+                    this.ctx.stroke();
+                    this.ctx.setLineDash([]);
+                }
+            }
 
-        // Draw Subcenter if enabled
-        if (this.showSubcenter) {
-            this.drawSubcenter(this.ctx);
-        }
+            if (this.showCircumcenter) {
+                const circumcenter = this.calculateCircumcenter();
+                if (circumcenter) {
+                    this.ctx.beginPath();
+                    this.ctx.fillStyle = '#00FF00';  // Green color
+                    this.ctx.arc(
+                        circumcenter.x,
+                        circumcenter.y,
+                        4,
+                        0,
+                        2 * Math.PI
+                    );
+                    this.ctx.fill();
 
-        // Draw Subcircle if enabled
-        if (this.showSubcircle) {
-            this.drawSubcircle(this.ctx);
-        }
+                    // Label 'O' for circumcenter
+                    this.ctx.save();
+                    this.ctx.scale(1, -1);
+                    this.ctx.fillStyle = '#00FF00';
+                    this.ctx.font = '12px Arial';
+                    this.ctx.fillText('O', circumcenter.x + 10, -circumcenter.y);
+                    this.ctx.restore();
+                }
+            }
 
+            if (this.showCircumcircle) {
+                this.drawCircumcircle(this.ctx);
+            }
+
+            // Draw Exponential Point if enabled
+            if (this.showExpo) {
+                this.drawExponentialPoint(this.ctx);
+            }
+
+            // Draw Subtriangle if enabled
+            if (this.showSubtriangle) {
+                this.drawSubtriangle(this.ctx);
+            }
+
+            // Draw Subcenter if enabled
+            if (this.showSubcenter) {
+                this.drawSubcenter(this.ctx);
+            }
+
+            // Draw Subcircle if enabled
+            if (this.showSubcircle) {
+                this.drawSubcircle(this.ctx);
+            }
+
+        } catch (error) {
+            console.error('Error drawing system:', error);
+        }
     }
 
     drawNode(ctx, node, color, label) {
@@ -2043,16 +2095,17 @@ class TriangleSystem {
         const { n1, n2, n3 } = this.system;
         const origin = { x: 0, y: 0 };
 
-        // Draw SS1 region (Red)
+        // Update colors to match subsystem definitions
+        // Draw SS3 region (Red)
         this.ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
         this.ctx.beginPath();
-        this.ctx.moveTo(n1.x, n1.y);
-        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.moveTo(n3.x, n3.y);
+        this.ctx.lineTo(n1.x, n1.y);
         this.ctx.lineTo(origin.x, origin.y);
         this.ctx.closePath();
         this.ctx.fill();
 
-        // Draw SS2 region (Blue)
+        // Draw SS1 region (Blue)
         this.ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
         this.ctx.beginPath();
         this.ctx.moveTo(n1.x, n1.y);
@@ -2061,7 +2114,7 @@ class TriangleSystem {
         this.ctx.closePath();
         this.ctx.fill();
 
-        // Draw SS3 region (Green)
+        // Draw SS2 region (Green)
         this.ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
         this.ctx.beginPath();
         this.ctx.moveTo(n2.x, n2.y);
@@ -2070,23 +2123,23 @@ class TriangleSystem {
         this.ctx.closePath();
         this.ctx.fill();
 
-        // Draw centroids
+        // Draw centroids with matching colors
         const centroids = this.calculateSubsystemCentroids();
         
-        // Draw SS1 centroid (Red)
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+        // Draw SS1 centroid (Blue)
+        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss1.x, centroids.ss1.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
         
-        // Draw SS2 centroid (Blue)
-        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';
+        // Draw SS2 centroid (Green)
+        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss2.x, centroids.ss2.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
         
-        // Draw SS3 centroid (Green)
-        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+        // Draw SS3 centroid (Red)
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss3.x, centroids.ss3.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
@@ -2739,11 +2792,7 @@ class TriangleSystem {
                 nc3: parseFloat(document.getElementById('animation-nc3-end').value)
             };
 
-            // Validate all values
-            if (Object.values(startState).some(isNaN) || Object.values(endState).some(isNaN)) {
-                alert('Please ensure all animation values are valid numbers');
-                return;
-            }
+            
 
             // Create animation data
             const animationData = {
@@ -3351,28 +3400,38 @@ class TriangleSystem {
     }
 
     calculateSubsystemCentroids() {
-        const { n1, n2, n3 } = this.system;
-        const origin = { x: 0, y: 0 };  // Intelligence point (I)
+        // Check if system is initialized
+        if (!this.isSystemInitialized()) {
+            console.log('System not initialized for centroid calculations');
+            return {
+                ss1: { x: 0, y: 0 },
+                ss2: { x: 0, y: 0 },
+                ss3: { x: 0, y: 0 }
+            };
+        }
 
-        const centroids = {
-            // SS1 (Red): triangle formed by N1, N3, and I
-            ss1: {
-                x: (n1.x + n3.x + origin.x) / 3,
-                y: (n1.y + n3.y + origin.y) / 3
-            },
-            // SS2 (Blue): triangle formed by N1, N2, and I
-            ss2: {
-                x: (n1.x + n2.x + origin.x) / 3,
-                y: (n1.y + n2.y + origin.y) / 3
-            },
-            // SS3 (Green): triangle formed by N2, N3, and I
-            ss3: {
-                x: (n2.x + n3.x + origin.x) / 3,
-                y: (n2.y + n3.y + origin.y) / 3
-            }
-        };
+        // Ensure centroid exists
+        if (!this.system.centroid) {
+            this.system.centroid = {
+                x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+                y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+            };
+        }
 
-        return centroids;
+        try {
+            return {
+                ss1: this.calculateSubsystemCentroid(1),
+                ss2: this.calculateSubsystemCentroid(2),
+                ss3: this.calculateSubsystemCentroid(3)
+            };
+        } catch (error) {
+            console.error('Error calculating subsystem centroids:', error);
+            return {
+                ss1: { x: 0, y: 0 },
+                ss2: { x: 0, y: 0 },
+                ss3: { x: 0, y: 0 }
+            };
+        }
     }
 
     /**
@@ -3573,12 +3632,7 @@ class TriangleSystem {
                 nc3: parseFloat(document.getElementById('animation-nc3-end').value)
             };
 
-            // Validate all values
-            if (Object.values(startState).some(isNaN) || Object.values(endState).some(isNaN)) {
-                console.error('Invalid animation values');
-                alert('Please ensure all animation values are valid numbers');
-                return;
-            }
+            
 
             // First reset to start position
             this.updateTriangleFromEdges(startState.nc1, startState.nc2, startState.nc3);
@@ -3720,11 +3774,7 @@ class TriangleSystem {
                 nc3: parseFloat(document.getElementById('animation-nc3-end').value)
             };
 
-            // Validate all values
-            if (Object.values(startValues).some(isNaN) || Object.values(endValues).some(isNaN)) {
-                alert('Please ensure all animation values are valid numbers');
-                return;
-            }
+          
 
             // Log the values being saved
             console.log('Saving animation with values:', {
@@ -3758,15 +3808,19 @@ class TriangleSystem {
     drawSubtriangle(ctx) {
         if (!this.showSubtriangle) return;
         
-        const centroids = this.calculateSubsystemCentroids();
+        const subtriangleCentroids = {
+            ss1: this.calculateSubsystemCentroid(1),
+            ss2: this.calculateSubsystemCentroid(2),
+            ss3: this.calculateSubsystemCentroid(3)
+        };
         
         // Draw the subtriangle in white
         ctx.strokeStyle = '#ffffff';  // Changed from #ff0000 to white
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(centroids.ss1.x, centroids.ss1.y);
-        ctx.lineTo(centroids.ss2.x, centroids.ss2.y);
-        ctx.lineTo(centroids.ss3.x, centroids.ss3.y);
+        ctx.moveTo(subtriangleCentroids.ss1.x, subtriangleCentroids.ss1.y);
+        ctx.lineTo(subtriangleCentroids.ss2.x, subtriangleCentroids.ss2.y);
+        ctx.lineTo(subtriangleCentroids.ss3.x, subtriangleCentroids.ss3.y);
         ctx.closePath();
         ctx.stroke();
         
@@ -3797,60 +3851,61 @@ class TriangleSystem {
     }
 
     calculateSubcircle() {
-        // Get the centroids of the subsystems which will be our vertices
-        const centroids = this.calculateSubsystemCentroids();
-        const ss1 = centroids.ss1;
-        const ss2 = centroids.ss2;
-        const ss3 = centroids.ss3;
+        try {
+            if (!this.isSystemInitialized()) {
+                console.log('System not initialized for subcircle calculation');
+                return { center: null, radius: 0 };
+            }
 
-        // Calculate the perpendicular bisectors
-        const midpoint1 = {
-            x: (ss1.x + ss2.x) / 2,
-            y: (ss1.y + ss2.y) / 2
-        };
-        const midpoint2 = {
-            x: (ss2.x + ss3.x) / 2,
-            y: (ss2.y + ss3.y) / 2
-        };
+            const centroids = {
+                ss1: this.calculateSubsystemCentroid(1),
+                ss2: this.calculateSubsystemCentroid(2),
+                ss3: this.calculateSubsystemCentroid(3)
+            };
 
-        // Calculate direction vectors of the sides
-        const dir1 = {
-            x: ss2.x - ss1.x,
-            y: ss2.y - ss1.y
-        };
-        const dir2 = {
-            x: ss3.x - ss2.x,
-            y: ss3.y - ss2.y
-        };
+            // Verify centroids are valid
+            if (!centroids.ss1 || !centroids.ss2 || !centroids.ss3 ||
+                (centroids.ss1.x === 0 && centroids.ss1.y === 0) ||
+                (centroids.ss2.x === 0 && centroids.ss2.y === 0) ||
+                (centroids.ss3.x === 0 && centroids.ss3.y === 0)) {
+                console.log('Invalid centroids for subcircle calculation');
+                return { center: null, radius: 0 };
+            }
 
-        // Calculate perpendicular vectors
-        const perp1 = {
-            x: -dir1.y,
-            y: dir1.x
-        };
-        const perp2 = {
-            x: -dir2.y,
-            y: dir2.x
-        };
+            // Calculate circumcenter of the subtriangle formed by the centroids
+            const a = centroids.ss1;
+            const b = centroids.ss2;
+            const c = centroids.ss3;
 
-        // Solve for intersection of perpendicular bisectors
-        const t = ((midpoint2.x - midpoint1.x) * perp2.y - (midpoint2.y - midpoint1.y) * perp2.x) /
-                  (perp1.x * perp2.y - perp1.y * perp2.x);
+            // Calculate center using circumcenter formula
+            const d = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
+            
+            if (Math.abs(d) < 1e-10) {
+                console.log('Points are collinear, cannot form a circle');
+                return { center: null, radius: 0 };
+            }
 
-        const center = {
-            x: midpoint1.x + t * perp1.x,
-            y: midpoint1.y + t * perp1.y
-        };
+            const center = {
+                x: ((a.x * a.x + a.y * a.y) * (b.y - c.y) + 
+                    (b.x * b.x + b.y * b.y) * (c.y - a.y) + 
+                    (c.x * c.x + c.y * c.y) * (a.y - b.y)) / d,
+                y: ((a.x * a.x + a.y * a.y) * (c.x - b.x) + 
+                    (b.x * b.x + b.y * b.y) * (a.x - c.x) + 
+                    (c.x * c.x + c.y * c.y) * (b.x - a.x)) / d
+            };
 
-        // Calculate radius as distance to any centroid
-        const radius = Math.sqrt(
-            Math.pow(center.x - ss1.x, 2) + Math.pow(center.y - ss1.y, 2)
-        );
+            // Calculate radius as distance from center to any centroid
+            const radius = Math.sqrt(
+                Math.pow(center.x - a.x, 2) + 
+                Math.pow(center.y - a.y, 2)
+            );
 
-        return {
-            center: center,
-            radius: radius
-        };
+            return { center, radius };
+
+        } catch (error) {
+            console.error('Error calculating subcircle:', error);
+            return { center: null, radius: 0 };
+        }
     }
 
     /**
@@ -3858,22 +3913,33 @@ class TriangleSystem {
      * @param {CanvasRenderingContext2D} ctx 
      */
     drawSubcenter(ctx) {
-        if (!this.showSubcenter) return;
-        
+        if (!this.showSubcenter || !this.isSystemInitialized()) {
+            return;
+        }
+
         const subcircle = this.calculateSubcircle();
-        if (!subcircle || !subcircle.center) return;
-        
-        // Draw the point in white (matching the subcircle color)
-        ctx.fillStyle = '#FFFFFF';
+        if (!subcircle?.center) {
+            console.log('No valid subcenter to draw');
+            return;
+        }
+
+        // Draw subcenter point
         ctx.beginPath();
-        ctx.arc(subcircle.center.x, subcircle.center.y, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = '#FFFFFF'; 
+        ctx.arc(
+            subcircle.center.x,
+            subcircle.center.y,
+            4, // Point size
+            0,
+            2 * Math.PI
+        );
         ctx.fill();
-        
-        // Label 'SC' in white
+
+        // Label the subcenter
+        ctx.save();
+        ctx.scale(1, -1); // Flip text right-side up
         ctx.fillStyle = '#FFFFFF';
         ctx.font = '12px Arial';
-        ctx.save();
-        ctx.scale(1, -1);
         ctx.fillText('SC', subcircle.center.x + 10, -subcircle.center.y);
         ctx.restore();
     }
@@ -3884,6 +3950,75 @@ class TriangleSystem {
         if (element) {
             element.value = value;
         }
+    }
+
+    // Helper method to calculate subsystem centroid
+    calculateSubsystemCentroid(subsystemIndex) {
+        try {
+            const vertices = this.getSubsystemVertices(subsystemIndex);
+            if (!vertices || vertices.length === 0) {
+                console.error('No vertices found for subsystem:', subsystemIndex);
+                return { x: 0, y: 0 }; // Return default values if no vertices
+            }
+            
+            const x = vertices.reduce((sum, v) => sum + (v?.x || 0), 0) / vertices.length;
+            const y = vertices.reduce((sum, v) => sum + (v?.y || 0), 0) / vertices.length;
+            return { x, y };
+        } catch (error) {
+            console.error('Error calculating subsystem centroid:', error);
+            return { x: 0, y: 0 }; // Return default values on error
+        }
+    }
+
+    // Helper method to get vertices for a specific subsystem
+    getSubsystemVertices(subsystemIndex) {
+        if (!this.isSystemInitialized()) {
+            return null;
+        }
+
+        // Calculate centroid if not already set
+        if (!this.system.centroid) {
+            this.system.centroid = {
+                x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+                y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+            };
+        }
+
+        switch (subsystemIndex) {
+            case 1: return [this.system.n1, this.system.n2, this.system.centroid];
+            case 2: return [this.system.n2, this.system.n3, this.system.centroid];
+            case 3: return [this.system.n3, this.system.n1, this.system.centroid];
+            default: return null;
+        }
+    }
+
+    // Helper method to calculate area of triangle formed by three points
+    calculateSubtriangleArea(points) {
+        const { ss1, ss2, ss3 } = points;
+        return Math.abs(
+            (ss1.x * (ss2.y - ss3.y) +
+             ss2.x * (ss3.y - ss1.y) +
+             ss3.x * (ss1.y - ss2.y)) / 2
+        );
+    }
+
+    // Add this method to check if system is ready for calculations
+    isSystemInitialized() {
+        return Boolean(
+            this.system?.n1?.x !== undefined &&
+            this.system?.n1?.y !== undefined &&
+            this.system?.n2?.x !== undefined &&
+            this.system?.n2?.y !== undefined &&
+            this.system?.n3?.x !== undefined &&
+            this.system?.n3?.y !== undefined
+        );
+    }
+
+    // Add toggle method for subcenter
+    toggleSubcenter() {
+        this.showSubcenter = !this.showSubcenter;
+        console.log('Subcenter toggled:', this.showSubcenter);
+        this.drawSystem();
     }
 }
 
@@ -4135,5 +4270,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.subsystems-table td:nth-child(5) input, .subsystems-table td:nth-child(6) input').forEach(input => {
         input.setAttribute('size', '15');
     });
+
+    // Add event listener for subcenter toggle button
+    const toggleSubcenterButton = document.getElementById('toggleSubcenter');
+    if (toggleSubcenterButton) {
+        toggleSubcenterButton.addEventListener('click', function() {
+            triangleSystem.toggleSubcenter();
+        });
+    }
 });
 

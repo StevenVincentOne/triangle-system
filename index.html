@@ -1514,6 +1514,52 @@
             border: 1px solid #444 !important;
             color: #fff !important;
         }
+
+        /* Add to your existing styles */
+        .dashboard-panel {
+            background-color: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 1rem;
+        }
+
+        .panel-header {
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .column-header {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: normal;
+        }
+
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .label-value-pair label {
+            color: #fff;
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+
+        .form-control {
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 0.25rem 0.5rem;
+            text-align: right;
+        }
+
+        /* Specific to Subtriangle panel */
+        .subtriangle-panel .form-control {
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
@@ -1725,7 +1771,7 @@
 
                         <!-- Channels Panel -->
                         <div class="dashboard-panel">
-                            <h3 class="panel-header">Channels</h3>
+                            <h3 class="panel-header">Node Channels</h3>
                             <div class="panel-content">
                                 <div class="label-value-pair">
                                     <label for="channel-1">NC1</label>
@@ -1744,18 +1790,18 @@
 
                         <!-- MC Panel -->
                         <div class="dashboard-panel">
-                            <h3 class="panel-header">MC</h3>
+                            <h3 class="panel-header">I-Channels</h3>
                             <div class="panel-content">
                                 <div class="label-value-pair">
-                                    <label for="subsystem-1-mc">MC1</label>
+                                    <label for="subsystem-1-mc">IC1</label>
                                     <input id="subsystem-1-mc" type="text" class="form-control" size="8" readonly>
                                 </div>
                                 <div class="label-value-pair">
-                                    <label for="subsystem-2-mc">MC2</label>
+                                    <label for="subsystem-2-mc">IC2</label>
                                     <input id="subsystem-2-mc" type="text" class="form-control" size="8" readonly>
                                 </div>
                                 <div class="label-value-pair">
-                                    <label for="subsystem-3-mc">MC3</label>
+                                    <label for="subsystem-3-mc">IC3</label>
                                     <input id="subsystem-3-mc" type="text" class="form-control" size="8" readonly>
                                 </div>
                             </div>
@@ -1823,8 +1869,6 @@
                 </div>
             </div>
             
-            <!-- New Subsystems Row -->
-            <div class="dashboard-row">
                 <!-- Move Subsystems Panel here -->
                 <div class="dashboard-panel">
                     <h3 class="panel-header">Subsystems</h3>
@@ -1832,24 +1876,20 @@
                         <thead>
                             <tr>
                                 <th>SS</th>
-                                <th>Centroid</th>
                                 <th>∠</th>
-                                <th>SC</th>
-                                <th>HST</th>  <!-- New column -->
                                 <th>ssh</th>
                                 <th>ssc</th>
                                 <th>ssh/ssc</th>
                                 <th>ssc/ssh</th>
                                 <th>ssh/H</th>
+                                <th>H/ssh</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>SS1</td>
-                                <td><input id="subsystem-1-centroid" type="text" class="form-control" size="9" readonly></td>
                                 <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                 <td><input id="subsystem-1-sc" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-1-hst" type="text" class="form-control" size="8" readonly></td>  <!-- New input -->
                                 <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-1-ratio" type="text" class="form-control" size="8" readonly></td>
@@ -1858,10 +1898,8 @@
                             </tr>
                             <tr>
                                 <td>SS2</td>
-                                <td><input id="subsystem-2-centroid" type="text" class="form-control" size="9" readonly></td>
                                 <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                 <td><input id="subsystem-2-sc" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-2-hst" type="text" class="form-control" size="8" readonly></td>  <!-- New input -->
                                 <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-2-ratio" type="text" class="form-control" size="8" readonly></td>
@@ -1870,10 +1908,8 @@
                             </tr>
                             <tr>
                                 <td>SS3</td>
-                                <td><input id="subsystem-3-centroid" type="text" class="form-control" size="9" readonly></td>
                                 <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                 <td><input id="subsystem-3-sc" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-3-hst" type="text" class="form-control" size="8" readonly></td>  <!-- New input -->
                                 <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-3-ratio" type="text" class="form-control" size="8" readonly></td>
@@ -1884,71 +1920,79 @@
                     </table>
                 </div>
             </div>
-<!-- Add new row for Subtriangle panel -->
-<div class="dashboard-row mt-2">
-    <div class="dashboard-panel">
+            <!-- Subtriangle Panel -->
+<div class="dashboard-row">
+    <div class="dashboard-panel subtriangle-panel">
         <h3 class="panel-header">Subtriangle</h3>
+        
+        <!-- First Row: Nodes and Subchannels -->
         <div class="d-flex flex-column gap-3">
-            <!-- First section: Nodes and Subchannels -->
-            <div class="d-flex flex-column">
-                <!-- Headers row -->
-                <div class="d-flex justify-content-center">
-                    <div style="width: 60%"><h4 class="column-header text-center">Nodes</h4></div>
-                    <div style="width: 40%"><h4 class="column-header text-center">Subchannels</h4></div>
+            <!-- Headers -->
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1"><h4 class="column-header">Nodes</h4></div>
+                <div style="width: 30%;"><h4 class="column-header text-center">Subchannels</h4></div>
+            </div>
+
+            <!-- Values -->
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Nodes -->
+                <div class="d-flex gap-3 flex-grow-1">
+                    <div class="label-value-pair">
+                        <label>SS1 (x,y)</label>
+                        <input id="subsystem-1-centroid" type="text" class="form-control" size="15" readonly>
+                    </div>
+                    <div class="label-value-pair">
+                        <label>SS2 (x,y)</label>
+                        <input id="subsystem-2-centroid" type="text" class="form-control" size="15" readonly>
+                    </div>
+                    <div class="label-value-pair">
+                        <label>SS3 (x,y)</label>
+                        <input id="subsystem-3-centroid" type="text" class="form-control" size="15" readonly>
+                    </div>
                 </div>
-                
-                <!-- Single row of data -->
-                <div class="d-flex justify-content-center align-items-center gap-3">
-                    <!-- Nodes -->
-                    <label for="ss1-coords">SS1 (x,y)</label>
-                    <input id="ss1-coords" type="text" class="form-control" size="12" readonly>
-                    
-                    <label for="ss2-coords">SS2 (x,y)</label>
-                    <input id="ss2-coords" type="text" class="form-control" size="12" readonly>
-                    
-                    <label for="ss3-coords">SS3 (x,y)</label>
-                    <input id="ss3-coords" type="text" class="form-control" size="12" readonly>
-                    
-                    <!-- Subchannels -->
-                    <label for="sc1-length">SC1</label>
-                    <input id="sc1-length" type="text" class="form-control" size="8" readonly>
-                    
-                    <label for="sc2-length">SC2</label>
-                    <input id="sc2-length" type="text" class="form-control" size="8" readonly>
-                    
-                    <label for="sc3-length">SC3</label>
-                    <input id="sc3-length" type="text" class="form-control" size="8" readonly>
+
+                <!-- Subchannels -->
+                <div class="d-flex gap-3 ms-4">
+                    <div class="label-value-pair">
+                        <label>SC1</label>
+                        <input id="subchannel-1" type="text" class="form-control" size="8" readonly>
+                    </div>
+                    <div class="label-value-pair">
+                        <label>SC2</label>
+                        <input id="subchannel-2" type="text" class="form-control" size="8" readonly>
+                    </div>
+                    <div class="label-value-pair">
+                        <label>SC3</label>
+                        <input id="subchannel-3" type="text" class="form-control" size="8" readonly>
+                    </div>
                 </div>
             </div>
 
-            <!-- Second section: Entropy and Capacity -->
-            <div class="d-flex flex-column">
-                <h4 class="column-header text-center">Entropy and Capacity</h4>
-                <div class="d-flex justify-content-center align-items-center gap-3">
+            <!-- Second Row: Entropy and Capacity -->
+            <div class="mt-3">
+                <h4 class="column-header text-center mb-2">Entropy and Capacity</h4>
+                <div class="d-flex justify-content-center gap-3">
                     <div class="label-value-pair">
-                        <label for="subtriangle-hst">HST</label>
-                        <input id="subtriangle-hst" type="text" class="form-control" size="12" readonly>
+                        <label>HST</label>
+                        <input id="subtriangle-hst" type="text" class="form-control" size="8" readonly>
                     </div>
-                    
                     <div class="label-value-pair">
-                        <label for="subtriangle-cst">CST</label>
-                        <input id="subtriangle-cst" type="text" class="form-control" size="12" readonly>
+                        <label>CST</label>
+                        <input id="subtriangle-cst" type="text" class="form-control" size="8" readonly>
                     </div>
-                    
                     <div class="label-value-pair">
-                        <label for="hst-cst-ratio">HST/CST</label>
-                        <input id="hst-cst-ratio" type="text" class="form-control" size="12" readonly>
+                        <label>HST/CST</label>
+                        <input id="hst-cst-ratio" type="text" class="form-control" size="8" readonly>
                     </div>
-                    
                     <div class="label-value-pair">
-                        <label for="cst-hst-ratio">CST/HST</label>
-                        <input id="cst-hst-ratio" type="text" class="form-control" size="12" readonly>
+                        <label>CST/HST</label>
+                        <input id="cst-hst-ratio" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div>       
 
             <!-- Second Row -->
             <div class="dashboard-row">
