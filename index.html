@@ -1825,7 +1825,7 @@
                             <input id="system-sph" type="text" class="form-control" size="8" readonly>
                         </div>
                         <div class="label-value-pair">
-                            <label for="system-mch">HMC</label>
+                            <label for="system-mch">HIC</label>
                             <input id="system-mch" type="text" class="form-control" size="8" readonly>
                         </div>
                         <div class="label-value-pair">
@@ -1858,11 +1858,11 @@
                         
                         <!-- MCH ratios -->
                         <div class="label-value-pair">
-                            <label for="mch-b-ratio">HMC/C</label>
+                            <label for="mch-b-ratio">HIC/C</label>
                             <input id="mch-b-ratio" type="text" class="form-control" size="12" readonly>
                         </div>
                         <div class="label-value-pair">
-                            <label for="b-mch-ratio">C/HMC</label>
+                            <label for="b-mch-ratio">C/HIC</label>
                             <input id="b-mch-ratio" type="text" class="form-control" size="12" readonly>
                         </div>
                     </div>
@@ -1875,7 +1875,7 @@
                     <table class="subsystems-table">
                         <thead>
                             <tr>
-                                <th>SS</th>
+                                <th>ss</th>
                                 <th>∠</th>
                                 <th>ssh</th>
                                 <th>ssc</th>
@@ -1887,7 +1887,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>SS1</td>
+                                <td>ss1</td>
                                 <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                 <td><input id="subsystem-1-sc" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
@@ -1897,7 +1897,7 @@
                                 <td><input id="subsystem-1-entropy-ratio" type="text" class="form-control" size="8" readonly></td>
                             </tr>
                             <tr>
-                                <td>SS2</td>
+                                <td>ss2</td>
                                 <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                 <td><input id="subsystem-2-sc" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
@@ -1907,7 +1907,7 @@
                                 <td><input id="subsystem-2-entropy-ratio" type="text" class="form-control" size="8" readonly></td>
                             </tr>
                             <tr>
-                                <td>SS3</td>
+                                <td>ss3</td>
                                 <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
                                 <td><input id="subsystem-3-sc" type="text" class="form-control" size="8" readonly></td>
                                 <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
@@ -1938,15 +1938,15 @@
                 <!-- Nodes -->
                 <div class="d-flex gap-3 flex-grow-1">
                     <div class="label-value-pair">
-                        <label>SS1 (x,y)</label>
+                        <label>ssi1 (x,y)</label>
                         <input id="subsystem-1-centroid" type="text" class="form-control" size="15" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label>SS2 (x,y)</label>
+                        <label>ssi2 (x,y)</label>
                         <input id="subsystem-2-centroid" type="text" class="form-control" size="15" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label>SS3 (x,y)</label>
+                        <label>ssi3 (x,y)</label>
                         <input id="subsystem-3-centroid" type="text" class="form-control" size="15" readonly>
                     </div>
                 </div>
@@ -1954,15 +1954,15 @@
                 <!-- Subchannels -->
                 <div class="d-flex gap-3 ms-4">
                     <div class="label-value-pair">
-                        <label>SC1</label>
+                        <label>sc1</label>
                         <input id="subchannel-1" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label>SC2</label>
+                        <label>sc2</label>
                         <input id="subchannel-2" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label>SC3</label>
+                        <label>sc3</label>
                         <input id="subchannel-3" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
@@ -1973,19 +1973,19 @@
                 <h4 class="column-header text-center mb-2">Entropy and Capacity</h4>
                 <div class="d-flex justify-content-center gap-3">
                     <div class="label-value-pair">
-                        <label>HST</label>
+                        <label>hst</label>
                         <input id="subtriangle-hst" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label>CST</label>
+                        <label>cst</label>
                         <input id="subtriangle-cst" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label>HST/CST</label>
+                        <label>hst/cst</label>
                         <input id="hst-cst-ratio" type="text" class="form-control" size="8" readonly>
                     </div>
                     <div class="label-value-pair">
-                        <label>CST/HST</label>
+                        <label>cst/hst</label>
                         <input id="cst-hst-ratio" type="text" class="form-control" size="8" readonly>
                     </div>
                 </div>
@@ -2007,12 +2007,12 @@
                                 <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="incenter-coords">IC (x,y)</label>
+                                <label for="incenter-coords">ICP (x,y)</label>
                                 <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
                             </div>
                             <!-- Add new Subcenter input -->
                             <div class="label-value-pair">
-                                <label for="subcenter-coords">SC (x,y)</label>
+                                <label for="subcenter-coords">SP (x,y)</label>
                                 <input id="subcenter-coords" type="text" class="form-control" size="8" readonly>
                             </div>
                             <div class="label-value-pair">
@@ -2020,11 +2020,11 @@
                                 <input id="circumcenter-coords" type="text" class="form-control" size="8" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="orthocenter-coords">H (x,y)</label>
+                                <label for="orthocenter-coords">HO (x,y)</label>
                                 <input id="orthocenter-coords" type="text" class="form-control" size="8" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="nine-point-coords">N (x,y)</label>
+                                <label for="nine-point-coords">NP (x,y)</label>
                                 <input id="nine-point-coords" type="text" class="form-control" size="8" readonly>
                             </div>
                         </div>
@@ -2119,25 +2119,61 @@
                     <p>B: Bits (Resource)</p>
                 </div>
                 <div class="col-md-3">
-                    <p>C: Capacity (Area)</p>
+                    <p>C: Capacity (Area), measured in B (Bits)</p>
                 </div>
                 <div class="col-md-3">
-                    <p>H: Entropy, Total System Entropy (HP + HMC), Length (px)</p>
+                    <p>cst: Capacity of the Subtriangle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>H: Entropy, Total System Entropy (HP + HIC), measured as Length in pixels</p>
                 </div>
                 <div class="col-md-3">
                     <p>h: Subsystem Entropy</p>
                 </div>
                 <div class="col-md-3">
-                    <p>HMC: Median Channel Entropy</p>
+                    <p>HO: Orthocenter of the Orthocircle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>HIC: Intelligence Channel Entropy</p>
                 </div>
                 <div class="col-md-3">
                     <p>HP: System Perimeter Entropy</p>
                 </div>
                 <div class="col-md-3">
-                <p>MC: Median Channel</p>
-            </div>
+                    <p>hst: Entropy of the Subtriangle</p>
+                </div>
                 <div class="col-md-3">
-                    <p>SS: Subsystem</p>
+                    <p>I: centroid, Intelligence of the system</p>
+                </div>
+                <div class="col-md-3">
+                    <p>IC: I-Channel or Intelligence Channel (distance from the centroid I to theNode N)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>ICP: Incenter Point of the Incircle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>M: Midpoint (between two Nodes)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>N: Node (vertex)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>NC: Node Channel (distance between two Nodes)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>NP: Nine-Point Center</p>
+                </div>
+                <div class="col-md-3">
+                    <p>O: Circumcenter of the Circumcircle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>sc: Subchannel of the Subtriangle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>SP: Subcenter Point of the Subcircle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>ss: Subsystem</p>
                 </div>
                 <div class="col-md-3">
                     <p>ssb: Subsystem Bits (Resource)</p>
@@ -2147,6 +2183,15 @@
                 </div>
                 <div class="col-md-3">
                     <p>ssh: Subsystem Entropy (Perimeter)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>ssi: Subsystem Centroid, Subtriangle Node</p>
+                </div>
+                <div class="col-md-3">
+                    <p>st: Subtriangle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>T: Tangent point of Incircle</p>
                 </div>
             </div>
         </div>
