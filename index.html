@@ -1597,34 +1597,38 @@
                         </div>
                         <button id="apply-manual" class="btn btn-info">Apply</button>
                         <button id="save-preset" class="btn btn-info">Save</button>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown">
-                                User Presets
-                            </button>
-                            <ul class="dropdown-menu" id="userPresetsList">
-                                <!-- User presets will be added here dynamically -->
-                            </ul>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="animationsDropdown" data-bs-toggle="dropdown">
-                                Animations
-                            </button>
-                            <ul class="dropdown-menu" id="animationsList">
-                                <!-- Animations will be added here dynamically -->
-                            </ul>
-                        </div>
+                        <!-- Dropdowns removed from here -->
                     </div>
                 </div>
             </div>
 
-            <!-- Add after manual controls, before canvas section -->
+            <!-- Preset buttons and dropdowns container -->
             <div class="preset-buttons-container d-flex justify-content-center gap-2 mb-2">
+                <!-- Standard preset buttons -->
                 <button id="equilateral" class="btn btn-secondary btn-sm">Equilateral</button>
                 <button id="isosceles" class="btn btn-secondary btn-sm">Isosceles</button>
                 <button id="scalene" class="btn btn-secondary btn-sm">Scalene</button>
                 <button id="right" class="btn btn-secondary btn-sm">Right</button>
                 <button id="acute" class="btn btn-secondary btn-sm">Acute</button>
                 <button id="obtuse" class="btn btn-secondary btn-sm">Obtuse</button>
+                
+                <!-- Moved dropdowns -->
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown">
+                        User Presets
+                    </button>
+                    <ul class="dropdown-menu" id="userPresetsList">
+                        <!-- User presets will be added here dynamically -->
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="animationsDropdown" data-bs-toggle="dropdown">
+                        Animations
+                    </button>
+                    <ul class="dropdown-menu" id="animationsList">
+                        <!-- Animations will be added here dynamically -->
+                    </ul>
+                </div>
             </div>
 
             <!-- Canvas and Animation Controls -->
