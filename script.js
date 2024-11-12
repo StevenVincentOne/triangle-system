@@ -1523,6 +1523,9 @@ class TriangleSystem {
                 }
             }
 
+            // Update IC fields
+            this.updateICFields();
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -4063,6 +4066,30 @@ class TriangleSystem {
         this.showSubcenter = !this.showSubcenter;
         console.log('Subcenter toggled:', this.showSubcenter);
         this.drawSystem();
+    }
+
+    // Add new method to update IC fields
+    updateICFields() {
+        // Calculate IC values (distance from centroid to each vertex)
+        const centroid = {
+            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+        };
+
+        const icValues = {
+            'manual-ic1': this.calculateDistance(centroid, this.system.n1),  // IC1 to Node 1
+            'manual-ic2': this.calculateDistance(centroid, this.system.n2),  // IC2 to Node 2
+            'manual-ic3': this.calculateDistance(centroid, this.system.n3)   // IC3 to Node 3
+        };
+
+        // Update each IC field while preserving editability
+        Object.entries(icValues).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input && !input.matches(':focus')) {
+                input.value = value.toFixed(2);
+                input.readOnly = false;
+            }
+        });
     }
 }
 
