@@ -4104,42 +4104,265 @@ class TriangleSystem {
     }
 
     /**
-     * Updates the triangle based on IC values.
-     * @param {number} ic1 - Distance from centroid to Node 1
-     * @param {number} ic2 - Distance from centroid to Node 2
-     * @param {number} ic3 - Distance from centroid to Node 3
+     * Updates the triangle based on IC values using an iterative approach
+     * to maintain the exact submitted IC value.
+     * @param {number} targetIC1 - Desired distance from centroid to Node 1
+     * @param {number} targetIC2 - Desired distance from centroid to Node 2
+     * @param {number} targetIC3 - Desired distance from centroid to Node 3
      */
-    updateTriangleFromIC(ic1, ic2, ic3) {
-        // Assuming centroid is at (0,0)
-        const centroid = { x: 0, y: 0 };
-
-        // Define angles for node placement (e.g., Node 1 at 90°, Node 2 at 210°, Node 3 at 330°)
+    updateTriangleFromIC(targetIC1, targetIC2, targetIC3) {
+        // Store current IC values
+        const centroid = this.calculateCentroid();
+        const currentIC1 = this.calculateDistance(centroid, this.system.n1);
+        const currentIC2 = this.calculateDistance(centroid, this.system.n2);
+        const currentIC3 = this.calculateDistance(centroid, this.system.n3);
+        
+        // Determine which IC value changed by finding largest difference
+        const changes = [
+            Math.abs(targetIC1 - currentIC1),
+            Math.abs(targetIC2 - currentIC2),
+            Math.abs(targetIC3 - currentIC3)
+        ];
+        
+        const maxChangeIndex = changes.indexOf(Math.max(...changes));
+        const targetValue = [targetIC1, targetIC2, targetIC3][maxChangeIndex];
+        
+        // Store the ratios of the unchanged IC values relative to each other
+        let ratio12, ratio23, ratio13;
+        if (maxChangeIndex === 0) {
+            // IC1 changed, preserve IC2/IC3 ratio
+            ratio23 = currentIC2 / currentIC3;
+        } else if (maxChangeIndex === 1) {
+            // IC2 changed, preserve IC1/IC3 ratio
+            ratio13 = currentIC1 / currentIC3;
+        } else {
+            // IC3 changed, preserve IC1/IC2 ratio
+            ratio12 = currentIC1 / currentIC2;
+        }
+        
+        // Initial positioning with 120° angles
         const angles = [90, 210, 330]; // Degrees
-
-        // Calculate node positions based on IC values and angles
-        this.system.n1 = {
-            x: ic1 * Math.cos(angles[0] * Math.PI / 180),
-            y: ic1 * Math.sin(angles[0] * Math.PI / 180)
-        };
-        this.system.n2 = {
-            x: ic2 * Math.cos(angles[1] * Math.PI / 180),
-            y: ic2 * Math.sin(angles[1] * Math.PI / 180)
-        };
-        this.system.n3 = {
-            x: ic3 * Math.cos(angles[2] * Math.PI / 180),
-            y: ic3 * Math.sin(angles[2] * Math.PI / 180)
-        };
-
-        // Adjust to ensure centroid is correct
+        
+        // Iterative adjustment
+        const maxIterations = 100;
+        let iteration = 0;
+        const epsilon = 0.001;
+        
+        while (iteration < maxIterations) {
+            // Update centroid
+            const currentCentroid = this.calculateCentroid();
+            
+            // Get current IC values
+            const currIC1 = this.calculateDistance(currentCentroid, this.system.n1);
+            const currIC2 = this.calculateDistance(currentCentroid, this.system.n2);
+            const currIC3 = this.calculateDistance(currentCentroid, this.system.n3);
+            
+            // Check if target IC is achieved
+            const targetNode = this.system[`n${maxChangeIndex + 1}`];
+            const currentTargetIC = this.calculateDistance(currentCentroid, targetNode);
+            
+            if (Math.abs(currentTargetIC - targetValue) < epsilon) {
+                break;
+            }
+            
+            // Calculate scaling factors
+            const targetScale = targetValue / currentTargetIC;
+            
+            // Adjust the target node
+            const dx = targetNode.x - currentCentroid.x;
+            const dy = targetNode.y - currentCentroid.y;
+            targetNode.x = currentCentroid.x + dx * targetScale;
+            targetNode.y = currentCentroid.y + dy * targetScale;
+            
+            // Adjust other nodes while maintaining their ratio
+            if (maxChangeIndex === 0) {
+                // Adjust n2 and n3 maintaining their ratio
+                const desiredIC2 = currIC2 * Math.sqrt(targetScale);
+                const desiredIC3 = desiredIC2 / ratio23;
+                
+                this.adjustNodePosition(2, desiredIC2, currentCentroid);
+                this.adjustNodePosition(3, desiredIC3, currentCentroid);
+            } else if (maxChangeIndex === 1) {
+                // Adjust n1 and n3 maintaining their ratio
+                const desiredIC1 = currIC1 * Math.sqrt(targetScale);
+                const desiredIC3 = desiredIC1 / ratio13;
+                
+                this.adjustNodePosition(1, desiredIC1, currentCentroid);
+                this.adjustNodePosition(3, desiredIC3, currentCentroid);
+            } else {
+                // Adjust n1 and n2 maintaining their ratio
+                const desiredIC1 = currIC1 * Math.sqrt(targetScale);
+                const desiredIC2 = desiredIC1 / ratio12;
+                
+                this.adjustNodePosition(1, desiredIC1, currentCentroid);
+                this.adjustNodePosition(2, desiredIC2, currentCentroid);
+            }
+            
+            iteration++;
+        }
+        
+        // Final adjustments
         this.adjustTriangleToOrigin();
-
-        // Recalculate NC fields
         this.updateManualFields();
-
-        // Recalculate other derived fields
         this.updateDerivedPoints();
+    }
 
-        // Optionally, recalculate medians and midpoints if used elsewhere
+    /**
+     * Helper method to adjust a node's position to achieve desired IC value
+     * @param {number} nodeIndex - Index of node to adjust (1, 2, or 3)
+     * @param {number} desiredIC - Desired IC value
+     * @param {Object} centroid - Current centroid position
+     */
+    adjustNodePosition(nodeIndex, desiredIC, centroid) {
+        const node = this.system[`n${nodeIndex}`];
+        const currentIC = this.calculateDistance(centroid, node);
+        const scale = desiredIC / currentIC;
+        
+        const dx = node.x - centroid.x;
+        const dy = node.y - centroid.y;
+        
+        node.x = centroid.x + dx * scale;
+        node.y = centroid.y + dy * scale;
+    }
+
+    /**
+     * Updates triangle to satisfy multiple IC/NC constraints
+     * @param {Object} constraints - Object containing target values and their priorities
+     * Example: {
+     *   ic: { value1: 193.21, value2: 193.21, value3: null, priority: 1 },
+     *   nc: { value1: null, value2: null, value3: 193.21, priority: 1 }
+     * }
+     */
+    updateTriangleWithConstraints(constraints) {
+        const maxIterations = 100;
+        let iteration = 0;
+        const epsilon = 0.001;
+        
+        // Sort constraints by priority
+        const activeConstraints = [];
+        
+        // Add IC constraints
+        if (constraints.ic) {
+            if (constraints.ic.value1 !== null) {
+                activeConstraints.push({
+                    type: 'ic',
+                    index: 1,
+                    value: constraints.ic.value1,
+                    priority: constraints.ic.priority
+                });
+            }
+            // Similar for value2 and value3
+        }
+        
+        // Add NC constraints
+        if (constraints.nc) {
+            if (constraints.nc.value3 !== null) {
+                activeConstraints.push({
+                    type: 'nc',
+                    index: 3,
+                    value: constraints.nc.value3,
+                    priority: constraints.nc.priority
+                });
+            }
+            // Similar for value1 and value2
+        }
+        
+        // Sort by priority (higher priority first)
+        activeConstraints.sort((a, b) => b.priority - a.priority);
+        
+        while (iteration < maxIterations) {
+            let maxError = 0;
+            
+            // Apply each constraint while trying to maintain others
+            for (const constraint of activeConstraints) {
+                if (constraint.type === 'ic') {
+                    const currentIC = this.getICValue(constraint.index);
+                    const error = Math.abs(currentIC - constraint.value);
+                    maxError = Math.max(maxError, error);
+                    
+                    if (error > epsilon) {
+                        this.adjustICValueMaintainingOthers(
+                            constraint.index,
+                            constraint.value,
+                            activeConstraints.filter(c => c !== constraint)
+                        );
+                    }
+                } else if (constraint.type === 'nc') {
+                    const currentNC = this.getNCValue(constraint.index);
+                    const error = Math.abs(currentNC - constraint.value);
+                    maxError = Math.max(maxError, error);
+                    
+                    if (error > epsilon) {
+                        this.adjustNCValueMaintainingOthers(
+                            constraint.index,
+                            constraint.value,
+                            activeConstraints.filter(c => c !== constraint)
+                        );
+                    }
+                }
+            }
+            
+            // Check if all constraints are satisfied within epsilon
+            if (maxError < epsilon) {
+                break;
+            }
+            
+            iteration++;
+        }
+        
+        // Final adjustments
+        this.adjustTriangleToOrigin();
+        this.updateManualFields();
+        this.updateDerivedPoints();
+    }
+    
+    /**
+     * Adjusts an IC value while trying to maintain other constraints
+     */
+    adjustICValueMaintainingOthers(index, targetValue, otherConstraints) {
+        const centroid = this.calculateCentroid();
+        const node = this.system[`n${index}`];
+        const currentIC = this.calculateDistance(centroid, node);
+        const scale = targetValue / currentIC;
+        
+        // First, adjust the target IC
+        const dx = node.x - centroid.x;
+        const dy = node.y - centroid.y;
+        node.x = centroid.x + dx * scale;
+        node.y = centroid.y + dy * scale;
+        
+        // Then adjust other nodes to maintain other constraints
+        for (const constraint of otherConstraints) {
+            if (constraint.type === 'ic') {
+                this.adjustNodePosition(constraint.index, constraint.value, centroid);
+            } else if (constraint.type === 'nc') {
+                this.adjustNCValue(constraint.index, constraint.value);
+            }
+        }
+    }
+    
+    /**
+     * Helper method to get current IC value
+     */
+    getICValue(index) {
+        const centroid = this.calculateCentroid();
+        return this.calculateDistance(centroid, this.system[`n${index}`]);
+    }
+    
+    /**
+     * Helper method to get current NC value
+     */
+    getNCValue(index) {
+        const nodes = {
+            1: [2, 3],
+            2: [1, 3],
+            3: [1, 2]
+        };
+        const [n1, n2] = nodes[index];
+        return this.calculateDistance(
+            this.system[`n${n1}`],
+            this.system[`n${n2}`]
+        );
     }
 }
 
