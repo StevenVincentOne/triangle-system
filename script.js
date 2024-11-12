@@ -1526,6 +1526,9 @@ class TriangleSystem {
             // Update IC fields
             this.updateICFields();
 
+            // Add this line with the other update calls
+            this.updateAngleFields();
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -4363,6 +4366,60 @@ class TriangleSystem {
             this.system[`n${n1}`],
             this.system[`n${n2}`]
         );
+    }
+
+    updateAngleFields() {
+        try {
+            // Calculate current angles
+            const angles = this.calculateAngles();
+            
+            // Update input fields if they're not currently being edited
+            const angleInputs = {
+                'angle-n1': angles.n1,
+                'angle-n2': angles.n2,
+                'angle-n3': angles.n3
+            };
+
+            Object.entries(angleInputs).forEach(([id, value]) => {
+                const input = document.getElementById(id);
+                if (input && !input.matches(':focus')) {
+                    input.value = value.toFixed(1);
+                }
+            });
+        } catch (error) {
+            console.error('Error updating angle fields:', error);
+        }
+    }
+
+    // Helper method to calculate angles in degrees
+    calculateAngles() {
+        const n1 = this.system.n1;
+        const n2 = this.system.n2;
+        const n3 = this.system.n3;
+
+        // Calculate vectors
+        const v12 = { x: n2.x - n1.x, y: n2.y - n1.y };
+        const v13 = { x: n3.x - n1.x, y: n3.y - n1.y };
+        const v21 = { x: n1.x - n2.x, y: n1.y - n2.y };
+        const v23 = { x: n3.x - n2.x, y: n3.y - n2.y };
+        const v31 = { x: n1.x - n3.x, y: n1.y - n3.y };
+        const v32 = { x: n2.x - n3.x, y: n2.y - n3.y };
+
+        // Calculate angles in degrees
+        return {
+            n1: this.calculateAngle(v12, v13),
+            n2: this.calculateAngle(v21, v23),
+            n3: this.calculateAngle(v31, v32)
+        };
+    }
+
+    // Helper method to calculate angle between two vectors in degrees
+    calculateAngle(v1, v2) {
+        const dot = v1.x * v2.x + v1.y * v2.y;
+        const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+        const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+        const angleRad = Math.acos(dot / (mag1 * mag2));
+        return angleRad * (180 / Math.PI);
     }
 }
 
