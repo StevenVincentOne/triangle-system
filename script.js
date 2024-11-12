@@ -1142,10 +1142,7 @@ class TriangleSystem {
                 if (element) {
                     element.value = typeof value === 'number' ? value.toFixed(precision) : value;
                 } else {
-                    // Only warn about missing elements that are actually needed
-                    if (!selector.match(/median-n[123]|system-area|system-perimeter|i-to-ic-distance|d-i-ic|r-i-ic/)) {
-                        console.warn(`Element not found for selector: ${selector}`);
-                    }
+                    
                 }
             };
 
@@ -1436,7 +1433,10 @@ class TriangleSystem {
             const sc3 = parseFloat(document.querySelector('#subsystem-3-sc').value) || 0;
             const subtrianglePerimeter = sc1 + sc2 + sc3;
 
-            
+            // Update HST values
+            setElementValue('#subsystem-1-hst', subtrianglePerimeter.toFixed(2));
+            setElementValue('#subsystem-2-hst', subtrianglePerimeter.toFixed(2));
+            setElementValue('#subsystem-3-hst', subtrianglePerimeter.toFixed(2));
 
             // Update subcenter coordinates using existing calculateSubcircle method
             const subcircle = this.calculateSubcircle();
@@ -2436,68 +2436,37 @@ class TriangleSystem {
         nc1Input.addEventListener('keypress', handleEnterKey);
         nc2Input.addEventListener('keypress', handleEnterKey);
         nc3Input.addEventListener('keypress', handleEnterKey);
-
-        // Add IC input handling
-        const icInputs = ['manual-ic1', 'manual-ic2', 'manual-ic3'].map(id => 
-            document.getElementById(id));
-        
-        const updateFromIC = () => {
-            const ic1 = parseFloat(icInputs[0].value);
-            const ic2 = parseFloat(icInputs[1].value);
-            const ic3 = parseFloat(icInputs[2].value);
-            
-            if (!isNaN(ic1) && !isNaN(ic2) && !isNaN(ic3)) {
-                this.updateTriangleFromIC(ic1, ic2, ic3);
-            }
-        };
-
-        // Add event listeners for IC inputs
-        icInputs.forEach(input => {
-            input.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    updateFromIC();
-                }
-            });
-        });
     }
 
     updateManualFields() {
-        try {
-            // Update NC values as before
-            const nc1 = this.calculateDistance(this.system.n1, this.system.n3);  // red edge
-            const nc2 = this.calculateDistance(this.system.n1, this.system.n2);  // blue edge
-            const nc3 = this.calculateDistance(this.system.n2, this.system.n3);  // green edge
-            
-            // Calculate IC values only if centroid exists
-            let ic1 = 0, ic2 = 0, ic3 = 0;
-            if (this.system.centroid) {
-                ic1 = this.calculateDistance(this.system.n1, this.system.centroid);
-                ic2 = this.calculateDistance(this.system.n2, this.system.centroid);
-                ic3 = this.calculateDistance(this.system.n3, this.system.centroid);
-            }
-
-            // Update input fields if they exist and aren't focused
-            const updateIfNotFocused = (id, value) => {
-                const input = document.getElementById(id);
-                if (input && !input.matches(':focus')) {
-                    input.value = value.toFixed(2);
-                }
-            };
-
-            // Update NC fields
-            updateIfNotFocused('manual-nc1', nc1);
-            updateIfNotFocused('manual-nc2', nc2);
-            updateIfNotFocused('manual-nc3', nc3);
-
-            // Update IC fields
-            updateIfNotFocused('manual-ic1', ic1);
-            updateIfNotFocused('manual-ic2', ic2);
-            updateIfNotFocused('manual-ic3', ic3);
-
-        } catch (error) {
-            console.error('Error in updateManualFields:', error);
+        if (!this.isSystemInitialized()) {
+            console.log('System not fully initialized, skipping manual fields update');
+            return;
         }
+
+        // Update NC fields (existing code)
+        const nc1Input = document.getElementById('manual-nc1');
+        const nc2Input = document.getElementById('manual-nc2');
+        const nc3Input = document.getElementById('manual-nc3');
+        
+        // Get current IC values from the mc fields
+        const ic1 = document.getElementById('subsystem-1-mc')?.value || '0.00';
+        const ic2 = document.getElementById('subsystem-2-mc')?.value || '0.00';
+        const ic3 = document.getElementById('subsystem-3-mc')?.value || '0.00';
+
+        // Update IC input fields if they exist and aren't focused
+        const ic1Input = document.getElementById('manual-ic1');
+        const ic2Input = document.getElementById('manual-ic2');
+        const ic3Input = document.getElementById('manual-ic3');
+        
+        if (ic1Input && !ic1Input.matches(':focus')) ic1Input.value = ic1;
+        if (ic2Input && !ic2Input.matches(':focus')) ic2Input.value = ic2;
+        if (ic3Input && !ic3Input.matches(':focus')) ic3Input.value = ic3;
+
+        // Existing NC field updates...
+        if (nc1Input && !nc1Input.matches(':focus')) nc1Input.value = this.calculateDistance(this.system.n1, this.system.n3).toFixed(2);
+        if (nc2Input && !nc2Input.matches(':focus')) nc2Input.value = this.calculateDistance(this.system.n1, this.system.n2).toFixed(2);
+        if (nc3Input && !nc3Input.matches(':focus')) nc3Input.value = this.calculateDistance(this.system.n2, this.system.n3).toFixed(2);
     }
 
     handleManualUpdate() {
@@ -3990,9 +3959,6 @@ class TriangleSystem {
         const element = document.querySelector(selector);
         if (element) {
             element.value = value;
-        } else {
-            // Optional: log only during development
-            console.debug(`Element not found for selector: ${selector}`);
         }
     }
 
@@ -4063,91 +4029,6 @@ class TriangleSystem {
         this.showSubcenter = !this.showSubcenter;
         console.log('Subcenter toggled:', this.showSubcenter);
         this.drawSystem();
-    }
-
-    updateTriangleFromIC(ic1, ic2, ic3) {
-        // The centroid divides each median in the ratio 2:1
-        // We can use this to calculate node positions from IC lengths
-        
-        // First, verify the IC values form a valid configuration
-        if (!this.validateICConfiguration(ic1, ic2, ic3)) {
-            alert('Invalid I-Channel configuration');
-            return;
-        }
-
-        try {
-            // Calculate node positions based on IC lengths
-            // This is a complex geometric problem that requires solving a system of equations
-            // The centroid (I) is at (0,0), and we need to find positions for N1, N2, N3
-            // such that their distances to I match the given IC lengths
-            
-            // This is a simplified approach - you may need more sophisticated calculations
-            const angle1 = 2 * Math.PI / 3;
-            const angle2 = 4 * Math.PI / 3;
-            const angle3 = 0;
-
-            // Place nodes at calculated distances from centroid
-            this.system.n1 = {
-                x: ic1 * Math.cos(angle1),
-                y: ic1 * Math.sin(angle1)
-            };
-            this.system.n2 = {
-                x: ic2 * Math.cos(angle2),
-                y: ic2 * Math.sin(angle2)
-            };
-            this.system.n3 = {
-                x: ic3 * Math.cos(angle3),
-                y: ic3 * Math.sin(angle3)
-            };
-
-            // Update derived points and redraw
-            this.updateDerivedPoints();
-            this.drawSystem();
-            this.updateDashboard();
-            this.updateManualFields(); // Update NC values to match new configuration
-        } catch (error) {
-            console.error('Error updating triangle from IC:', error);
-            alert('Error updating triangle configuration');
-        }
-    }
-
-    validateICConfiguration(ic1, ic2, ic3) {
-        // Add validation rules for IC lengths
-        // This needs geometric constraints to ensure a valid triangle is possible
-        return (
-            ic1 > 0 && ic2 > 0 && ic3 > 0 &&
-            // Add additional validation as needed
-            true
-        );
-    }
-
-    // Update initializeManualControls to handle IC inputs
-    initializeManualControls() {
-        // ... existing NC input handling ...
-
-        // Add IC input handling
-        const icInputs = ['manual-ic1', 'manual-ic2', 'manual-ic3'].map(id => 
-            document.getElementById(id));
-        
-        const updateFromIC = () => {
-            const ic1 = parseFloat(icInputs[0].value);
-            const ic2 = parseFloat(icInputs[1].value);
-            const ic3 = parseFloat(icInputs[2].value);
-            
-            if (!isNaN(ic1) && !isNaN(ic2) && !isNaN(ic3)) {
-                this.updateTriangleFromIC(ic1, ic2, ic3);
-            }
-        };
-
-        // Add event listeners for IC inputs
-        icInputs.forEach(input => {
-            input.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    updateFromIC();
-                }
-            });
-        });
     }
 }
 
