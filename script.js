@@ -1509,8 +1509,8 @@ class TriangleSystem {
 
                 // Calculate HST and CST
                 const subtriangle_hst = subchannelDistances.sc1 + 
-                                      subchannelDistances.sc2 + 
-                                      subchannelDistances.sc3;
+                                          subchannelDistances.sc2 + 
+                                          subchannelDistances.sc3;
                 const subtriangle_cst = this.calculateSubtriangleArea(subtriangleCentroids);
 
                 setElementValue('#subtriangle-hst', subtriangle_hst.toFixed(2));
@@ -2437,6 +2437,9 @@ class TriangleSystem {
                             document.getElementById('animation-nc2-end').value = nc2.toFixed(2);
                             document.getElementById('animation-nc3-end').value = nc3.toFixed(2);
                         }
+
+                        // Update Dashboard
+                        this.updateDashboard();
                     }
                 };
 
@@ -2463,8 +2466,16 @@ class TriangleSystem {
                     const ic3 = parseFloat(ic3Input.value);
                     
                     if (!isNaN(ic1) && !isNaN(ic2) && !isNaN(ic3)) {
-                        // TODO: Implement IC update logic
-                        console.log('Updating IC values:', ic1, ic2, ic3);
+                        // Update triangle based on IC values
+                        this.updateTriangleFromIC(ic1, ic2, ic3);
+                        
+                        // Update Dashboard
+                        this.updateDashboard();
+                        
+                        // Redraw the system
+                        this.drawSystem();
+                    } else {
+                        alert('Please enter valid numbers for all IC fields.');
                     }
                 };
 
@@ -4090,6 +4101,45 @@ class TriangleSystem {
                 input.readOnly = false;
             }
         });
+    }
+
+    /**
+     * Updates the triangle based on IC values.
+     * @param {number} ic1 - Distance from centroid to Node 1
+     * @param {number} ic2 - Distance from centroid to Node 2
+     * @param {number} ic3 - Distance from centroid to Node 3
+     */
+    updateTriangleFromIC(ic1, ic2, ic3) {
+        // Assuming centroid is at (0,0)
+        const centroid = { x: 0, y: 0 };
+
+        // Define angles for node placement (e.g., Node 1 at 90°, Node 2 at 210°, Node 3 at 330°)
+        const angles = [90, 210, 330]; // Degrees
+
+        // Calculate node positions based on IC values and angles
+        this.system.n1 = {
+            x: ic1 * Math.cos(angles[0] * Math.PI / 180),
+            y: ic1 * Math.sin(angles[0] * Math.PI / 180)
+        };
+        this.system.n2 = {
+            x: ic2 * Math.cos(angles[1] * Math.PI / 180),
+            y: ic2 * Math.sin(angles[1] * Math.PI / 180)
+        };
+        this.system.n3 = {
+            x: ic3 * Math.cos(angles[2] * Math.PI / 180),
+            y: ic3 * Math.sin(angles[2] * Math.PI / 180)
+        };
+
+        // Adjust to ensure centroid is correct
+        this.adjustTriangleToOrigin();
+
+        // Recalculate NC fields
+        this.updateManualFields();
+
+        // Recalculate other derived fields
+        this.updateDerivedPoints();
+
+        // Optionally, recalculate medians and midpoints if used elsewhere
     }
 }
 
