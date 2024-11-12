@@ -775,22 +775,27 @@ class TriangleSystem {
             }
         });
 
-        // Add Subcenter toggle
-        document.getElementById('toggleSubcenter').addEventListener('click', () => {
-            this.showSubcenter = !this.showSubcenter;
-            document.getElementById('toggleSubcenter').classList.toggle('btn-info');
-            
-            // Always calculate and show coordinates when enabled
-            if (this.showSubcenter) {
-                const subcircle = this.calculateSubcircle();
-                if (subcircle && subcircle.center) {
-                    this.setElementValue('#subcenter-coords', 
-                        `${subcircle.center.x.toFixed(1)}, ${subcircle.center.y.toFixed(1)}`);
+        // Add Subcenter toggle with null check
+        const toggleSubcenterButton = document.getElementById('toggleSubcenter');
+        if (toggleSubcenterButton) {
+            toggleSubcenterButton.addEventListener('click', () => {
+                this.showSubcenter = !this.showSubcenter;
+                toggleSubcenterButton.classList.toggle('btn-info');
+                
+                // Always calculate and show coordinates when enabled
+                if (this.showSubcenter) {
+                    const subcircle = this.calculateSubcircle();
+                    if (subcircle && subcircle.center) {
+                        this.setElementValue('#subcenter-coords', 
+                            `${subcircle.center.x.toFixed(1)}, ${subcircle.center.y.toFixed(1)}`);
+                    }
                 }
-            }
-            
-            this.drawSystem();  // Changed from this.draw() to this.drawSystem()
-        });
+                
+                this.drawSystem();
+            });
+        } else {
+            console.warn('Subcenter toggle button not found');
+        }
     }
 
     onMouseDown(event) {
@@ -2390,83 +2395,112 @@ class TriangleSystem {
     }
 
     initializeManualControls() {
-        const nc1Input = document.getElementById('manual-nc1');
-        const nc2Input = document.getElementById('manual-nc2');
-        const nc3Input = document.getElementById('manual-nc3');
-        const applyButton = document.getElementById('apply-manual');
+        try {
+            // Get NC elements
+            const nc1Input = document.getElementById('manual-nc1');
+            const nc2Input = document.getElementById('manual-nc2');
+            const nc3Input = document.getElementById('manual-nc3');
+            const applyButton = document.getElementById('apply-manual');
 
-        const updateTriangle = () => {
-            const nc1 = parseFloat(nc1Input.value);
-            const nc2 = parseFloat(nc2Input.value);
-            const nc3 = parseFloat(nc3Input.value);
-            
-            if (!isNaN(nc1) && !isNaN(nc2) && !isNaN(nc3)) {
-                // Update triangle geometry
-                this.updateTriangleFromEdges(nc1, nc2, nc3);
+            // Get IC elements
+            const ic1Input = document.getElementById('manual-ic1');
+            const ic2Input = document.getElementById('manual-ic2');
+            const ic3Input = document.getElementById('manual-ic3');
+            const applyICButton = document.getElementById('apply-manual-ic');
+
+            // Verify NC elements exist before adding listeners
+            if (nc1Input && nc2Input && nc3Input && applyButton) {
+                const updateTriangle = () => {
+                    const nc1 = parseFloat(nc1Input.value);
+                    const nc2 = parseFloat(nc2Input.value);
+                    const nc3 = parseFloat(nc3Input.value);
+                    
+                    if (!isNaN(nc1) && !isNaN(nc2) && !isNaN(nc3)) {
+                        // Update triangle geometry
+                        this.updateTriangleFromEdges(nc1, nc2, nc3);
+                        
+                        // Update animation fields based on checkbox states
+                        const startChecked = document.getElementById('applyToStart')?.checked;
+                        const endChecked = document.getElementById('applyToEnd')?.checked;
+                        
+                        if (startChecked) {
+                            document.getElementById('animation-nc1-start').value = nc1.toFixed(2);
+                            document.getElementById('animation-nc2-start').value = nc2.toFixed(2);
+                            document.getElementById('animation-nc3-start').value = nc3.toFixed(2);
+                        }
+                        
+                        if (endChecked) {
+                            document.getElementById('animation-nc1-end').value = nc1.toFixed(2);
+                            document.getElementById('animation-nc2-end').value = nc2.toFixed(2);
+                            document.getElementById('animation-nc3-end').value = nc3.toFixed(2);
+                        }
+                    }
+                };
+
+                // Add NC event listeners
+                applyButton.addEventListener('click', updateTriangle);
                 
-                // Update animation fields based on checkbox states
-                const startChecked = document.getElementById('applyToStart')?.checked;
-                const endChecked = document.getElementById('applyToEnd')?.checked;
-                
-                if (startChecked) {
-                    document.getElementById('animation-nc1-start').value = nc1.toFixed(2);
-                    document.getElementById('animation-nc2-start').value = nc2.toFixed(2);
-                    document.getElementById('animation-nc3-start').value = nc3.toFixed(2);
-                }
-                
-                if (endChecked) {
-                    document.getElementById('animation-nc1-end').value = nc1.toFixed(2);
-                    document.getElementById('animation-nc2-end').value = nc2.toFixed(2);
-                    document.getElementById('animation-nc3-end').value = nc3.toFixed(2);
-                }
+                const handleEnterKey = (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        updateTriangle();
+                    }
+                };
+
+                nc1Input.addEventListener('keypress', handleEnterKey);
+                nc2Input.addEventListener('keypress', handleEnterKey);
+                nc3Input.addEventListener('keypress', handleEnterKey);
             }
-        };
 
-        // Add click handler for the Apply button
-        applyButton.addEventListener('click', updateTriangle);
+            // Verify IC elements exist before adding listeners
+            if (ic1Input && ic2Input && ic3Input && applyICButton) {
+                const updateIC = () => {
+                    const ic1 = parseFloat(ic1Input.value);
+                    const ic2 = parseFloat(ic2Input.value);
+                    const ic3 = parseFloat(ic3Input.value);
+                    
+                    if (!isNaN(ic1) && !isNaN(ic2) && !isNaN(ic3)) {
+                        // TODO: Implement IC update logic
+                        console.log('Updating IC values:', ic1, ic2, ic3);
+                    }
+                };
 
-        // Add keypress handlers for Enter key
-        const handleEnterKey = (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                updateTriangle();
+                // Add IC event listeners
+                applyICButton.addEventListener('click', updateIC);
+                
+                const handleICEnterKey = (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        updateIC();
+                    }
+                };
+
+                ic1Input.addEventListener('keypress', handleICEnterKey);
+                ic2Input.addEventListener('keypress', handleICEnterKey);
+                ic3Input.addEventListener('keypress', handleICEnterKey);
             }
-        };
 
-        nc1Input.addEventListener('keypress', handleEnterKey);
-        nc2Input.addEventListener('keypress', handleEnterKey);
-        nc3Input.addEventListener('keypress', handleEnterKey);
+        } catch (error) {
+            console.error('Error initializing manual controls:', error);
+        }
     }
 
     updateManualFields() {
-        if (!this.isSystemInitialized()) {
-            console.log('System not fully initialized, skipping manual fields update');
-            return;
-        }
+        // Get current edge lengths with correct mapping
+        const manualInputs = {
+            'manual-nc2': this.calculateDistance(this.system.n1, this.system.n2),  // NC2 maps to blue edge
+            'manual-nc1': this.calculateDistance(this.system.n1, this.system.n3),  // NC1 maps to red edge
+            'manual-nc3': this.calculateDistance(this.system.n2, this.system.n3)   // NC3 maps to green edge
+        };
 
-        // Update NC fields (existing code)
-        const nc1Input = document.getElementById('manual-nc1');
-        const nc2Input = document.getElementById('manual-nc2');
-        const nc3Input = document.getElementById('manual-nc3');
-        
-        // Get current IC values from the mc fields
-        const ic1 = document.getElementById('subsystem-1-mc')?.value || '0.00';
-        const ic2 = document.getElementById('subsystem-2-mc')?.value || '0.00';
-        const ic3 = document.getElementById('subsystem-3-mc')?.value || '0.00';
-
-        // Update IC input fields if they exist and aren't focused
-        const ic1Input = document.getElementById('manual-ic1');
-        const ic2Input = document.getElementById('manual-ic2');
-        const ic3Input = document.getElementById('manual-ic3');
-        
-        if (ic1Input && !ic1Input.matches(':focus')) ic1Input.value = ic1;
-        if (ic2Input && !ic2Input.matches(':focus')) ic2Input.value = ic2;
-        if (ic3Input && !ic3Input.matches(':focus')) ic3Input.value = ic3;
-
-        // Existing NC field updates...
-        if (nc1Input && !nc1Input.matches(':focus')) nc1Input.value = this.calculateDistance(this.system.n1, this.system.n3).toFixed(2);
-        if (nc2Input && !nc2Input.matches(':focus')) nc2Input.value = this.calculateDistance(this.system.n1, this.system.n2).toFixed(2);
-        if (nc3Input && !nc3Input.matches(':focus')) nc3Input.value = this.calculateDistance(this.system.n2, this.system.n3).toFixed(2);
+        // Update each field while preserving editability
+        Object.entries(manualInputs).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input && !input.matches(':focus')) {
+                input.value = value.toFixed(2);
+                input.readOnly = false;
+            }
+        });
     }
 
     handleManualUpdate() {

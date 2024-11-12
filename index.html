@@ -1570,9 +1570,9 @@
         <div class="visualization-container bg-dark p-2 rounded mb-2">
             <!-- Manual Controls (at top) -->
             <div id="manual-controls" class="bg-dark p-2 rounded mb-2">
-                <div class="manual-controls-container d-flex justify-content-center align-items-center gap-2">
-                    <label class="mb-0">Set Manual:</label>
-                    <!-- Node Channels -->
+                <!-- NC Controls (existing) -->
+                <div class="manual-controls-container d-flex justify-content-center align-items-center gap-2 mb-2">
+                    <label class="mb-0">Set Manual NC:</label>
                     <div class="manual-input-group">
                         <label for="manual-nc1">NC1</label>
                         <input id="manual-nc1" type="text" class="form-control manual-input" maxlength="6" size="8">
@@ -1585,8 +1585,24 @@
                         <label for="manual-nc3">NC3</label>
                         <input id="manual-nc3" type="text" class="form-control manual-input" maxlength="6" size="8">
                     </div>
-                    
-                    <!-- Intelligence Channels -->
+                    <div class="button-group d-flex align-items-center gap-2">
+                        <div class="checkbox-group d-flex align-items-center gap-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="applyToStart" checked>
+                                <label class="form-check-label" for="applyToStart">Start</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="applyToEnd">
+                                <label class="form-check-label" for="applyToEnd">End</label>
+                            </div>
+                        </div>
+                        <button id="apply-manual" class="btn btn-info">Apply NC</button>
+                    </div>
+                </div>
+
+                <!-- NEW: IC Controls -->
+                <div class="manual-controls-container d-flex justify-content-center align-items-center gap-2">
+                    <label class="mb-0">Set Manual IC:</label>
                     <div class="manual-input-group">
                         <label for="manual-ic1">IC1</label>
                         <input id="manual-ic1" type="text" class="form-control manual-input" maxlength="6" size="8">
@@ -1599,20 +1615,7 @@
                         <label for="manual-ic3">IC3</label>
                         <input id="manual-ic3" type="text" class="form-control manual-input" maxlength="6" size="8">
                     </div>
-
-                    <div class="checkbox-group d-flex align-items-center gap-2">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="applyToStart" checked>
-                            <label class="form-check-label" for="applyToStart">Start</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="applyToEnd">
-                            <label class="form-check-label" for="applyToEnd">End</label>
-                        </div>
-                    </div>
-                    <button id="apply-manual" class="btn btn-info">Apply</button>
-                    <button id="save-preset" class="btn btn-info">Save</button>
-                    <!-- Dropdowns removed from here -->
+                    <button id="apply-manual-ic" class="btn btn-info">Apply IC</button>
                 </div>
             </div>
 
@@ -1625,6 +1628,9 @@
                 <button id="right" class="btn btn-secondary btn-sm">Right</button>
                 <button id="acute" class="btn btn-secondary btn-sm">Acute</button>
                 <button id="obtuse" class="btn btn-secondary btn-sm">Obtuse</button>
+                
+                <!-- Add Save button -->
+                <button id="save-preset" class="btn btn-success btn-sm">Save Preset</button>
                 
                 <!-- Moved dropdowns -->
                 <div class="dropdown">
