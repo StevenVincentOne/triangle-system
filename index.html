@@ -1572,7 +1572,6 @@
             <div id="manual-controls" class="bg-dark p-2 rounded mb-2">
                 <div class="manual-controls-container d-flex justify-content-center align-items-center gap-2">
                     <label class="mb-0">Set Manual:</label>
-                    <!-- Node Channels -->
                     <div class="manual-input-group">
                         <label for="manual-nc1">NC1</label>
                         <input id="manual-nc1" type="text" class="form-control manual-input" maxlength="6" size="8">
@@ -1585,8 +1584,28 @@
                         <label for="manual-nc3">NC3</label>
                         <input id="manual-nc3" type="text" class="form-control manual-input" maxlength="6" size="8">
                     </div>
-                    
-                    <!-- Intelligence Channels -->
+                    <div class="button-group d-flex align-items-center gap-2">
+                        <div class="checkbox-group d-flex align-items-center gap-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="applyToStart" checked>
+                                <label class="form-check-label" for="applyToStart">Start</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="applyToEnd">
+                                <label class="form-check-label" for="applyToEnd">End</label>
+                            </div>
+                        </div>
+                        <button id="apply-manual" class="btn btn-info">Apply</button>
+                        <button id="save-preset" class="btn btn-info">Save</button>
+                        <!-- Dropdowns removed from here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add after the existing NC manual controls div -->
+            <div id="manual-ic-controls" class="bg-dark p-2 rounded mb-2">
+                <div class="manual-controls-container d-flex justify-content-center align-items-center gap-2">
+                    <label class="mb-0">Set I-Channels:</label>
                     <div class="manual-input-group">
                         <label for="manual-ic1">IC1</label>
                         <input id="manual-ic1" type="text" class="form-control manual-input" maxlength="6" size="8">
@@ -1599,20 +1618,9 @@
                         <label for="manual-ic3">IC3</label>
                         <input id="manual-ic3" type="text" class="form-control manual-input" maxlength="6" size="8">
                     </div>
-
-                    <div class="checkbox-group d-flex align-items-center gap-2">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="applyToStart" checked>
-                            <label class="form-check-label" for="applyToStart">Start</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="applyToEnd">
-                            <label class="form-check-label" for="applyToEnd">End</label>
-                        </div>
+                    <div class="button-group d-flex align-items-center gap-2">
+                        <button id="apply-manual-ic" class="btn btn-info">Apply IC</button>
                     </div>
-                    <button id="apply-manual" class="btn btn-info">Apply</button>
-                    <button id="save-preset" class="btn btn-info">Save</button>
-                    <!-- Dropdowns removed from here -->
                 </div>
             </div>
 
