@@ -334,7 +334,7 @@ class TriangleSystem {
         this.initializePresets();
         
         // Bind save preset handler
-        document.getElementById('save-preset').addEventListener('click', () => this.savePreset());
+        document.getElementById('save-preset').addEventListener('click', () => this.saveCurrentConfig());
 
         // Initialize both dropdowns
         this.initializePresets();
@@ -1526,9 +1526,6 @@ class TriangleSystem {
             // Update IC fields
             this.updateICFields();
 
-            // Add this line with the other update calls
-            this.updateAngleFields();
-
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -1784,12 +1781,12 @@ class TriangleSystem {
                     );
                     this.ctx.fill();
 
-                    // Label 'H' for orthocenter
+                    // Label 'HO' for orthocenter
                     this.ctx.save();
                     this.ctx.scale(1, -1);  // Flip text right-side up
                     this.ctx.fillStyle = '#FF0000';
                     this.ctx.font = '12px Arial';
-                    this.ctx.fillText('H', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
+                    this.ctx.fillText('HO', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
                     this.ctx.restore();
                 }
             }
@@ -2396,7 +2393,7 @@ class TriangleSystem {
         ctx.font = '12px Arial';  // Reduced from 14px to 12px
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText('IC', incenter.x + 10, -incenter.y);
+        ctx.fillText('ICP', incenter.x + 10, -incenter.y);
         ctx.restore();
     }
 
@@ -2784,6 +2781,12 @@ class TriangleSystem {
         const nc2 = document.getElementById('manual-nc2')?.value;
         const nc3 = document.getElementById('manual-nc3')?.value;
         
+        // Validate values
+        if (!nc1 || !nc2 || !nc3) {
+            alert('Please enter all NC values before saving a preset.');
+            return;
+        }
+
         // Get current triangle configuration
         const config = {
             n1: { x: this.system.n1.x, y: this.system.n1.y },
@@ -2814,10 +2817,7 @@ class TriangleSystem {
                 // Update dropdown immediately
                 this.updatePresetsDropdown();
                 
-                // Show confirmation only once
                 alert('Preset saved successfully!');
-                
-                return; // Ensure we exit the function here
             } catch (error) {
                 console.error('Error saving preset:', error);
                 alert('Error saving preset. Please try again.');
@@ -3216,7 +3216,7 @@ class TriangleSystem {
         ctx.font = '12px Arial';
         ctx.save();
         ctx.scale(1, -1);  // Flip text right-side up
-        ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+        ctx.fillText('NP', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
         ctx.restore();
     }
 
@@ -3984,9 +3984,9 @@ class TriangleSystem {
             return;
         }
 
-        // Draw subcenter point
+        // Draw subcenter point in white instead of orange
         ctx.beginPath();
-        ctx.fillStyle = '#FFFFFF'; 
+        ctx.fillStyle = '#FFFFFF';  // Changed from '#FFA500' to white
         ctx.arc(
             subcircle.center.x,
             subcircle.center.y,
@@ -3996,12 +3996,12 @@ class TriangleSystem {
         );
         ctx.fill();
 
-        // Label the subcenter
+        // Label the subcenter in white
         ctx.save();
         ctx.scale(1, -1); // Flip text right-side up
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = '#FFFFFF';  // Changed from '#FFA500' to white
         ctx.font = '12px Arial';
-        ctx.fillText('SC', subcircle.center.x + 10, -subcircle.center.y);
+        ctx.fillText('SP', subcircle.center.x + 10, -subcircle.center.y);
         ctx.restore();
     }
 
@@ -4367,60 +4367,6 @@ class TriangleSystem {
             this.system[`n${n2}`]
         );
     }
-
-    updateAngleFields() {
-        try {
-            // Calculate current angles
-            const angles = this.calculateAngles();
-            
-            // Update input fields if they're not currently being edited
-            const angleInputs = {
-                'angle-n1': angles.n1,
-                'angle-n2': angles.n2,
-                'angle-n3': angles.n3
-            };
-
-            Object.entries(angleInputs).forEach(([id, value]) => {
-                const input = document.getElementById(id);
-                if (input && !input.matches(':focus')) {
-                    input.value = value.toFixed(1);
-                }
-            });
-        } catch (error) {
-            console.error('Error updating angle fields:', error);
-        }
-    }
-
-    // Helper method to calculate angles in degrees
-    calculateAngles() {
-        const n1 = this.system.n1;
-        const n2 = this.system.n2;
-        const n3 = this.system.n3;
-
-        // Calculate vectors
-        const v12 = { x: n2.x - n1.x, y: n2.y - n1.y };
-        const v13 = { x: n3.x - n1.x, y: n3.y - n1.y };
-        const v21 = { x: n1.x - n2.x, y: n1.y - n2.y };
-        const v23 = { x: n3.x - n2.x, y: n3.y - n2.y };
-        const v31 = { x: n1.x - n3.x, y: n1.y - n3.y };
-        const v32 = { x: n2.x - n3.x, y: n2.y - n3.y };
-
-        // Calculate angles in degrees
-        return {
-            n1: this.calculateAngle(v12, v13),
-            n2: this.calculateAngle(v21, v23),
-            n3: this.calculateAngle(v31, v32)
-        };
-    }
-
-    // Helper method to calculate angle between two vectors in degrees
-    calculateAngle(v1, v2) {
-        const dot = v1.x * v2.x + v1.y * v2.y;
-        const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
-        const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
-        const angleRad = Math.acos(dot / (mag1 * mag2));
-        return angleRad * (180 / Math.PI);
-    }
 }
 
 // Outside the class - DOM initialization
@@ -4678,6 +4624,18 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleSubcenterButton.addEventListener('click', function() {
             triangleSystem.toggleSubcenter();
         });
+    }
+
+    // Update toggle button text if it exists
+    const specialCentersToggle = document.getElementById('toggleSpecialCenters');
+    if (specialCentersToggle) {
+        specialCentersToggle.textContent = 'Toggle Orthocenter (HO)';
+    }
+
+    // Update any tooltip or help text that might reference the orthocenter
+    const orthocenterElement = document.getElementById('orthocenter-coords');
+    if (orthocenterElement) {
+        orthocenterElement.title = 'HO: Orthocenter coordinates';
     }
 });
 
