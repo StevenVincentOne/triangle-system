@@ -1560,6 +1560,32 @@
         .subtriangle-panel .form-control {
             font-family: monospace;
         }
+
+        /* Inside the System Entropy and Capacity panel, after the existing ratios */
+        .d-flex justify-content-center gap-4 mt-3 {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* HP/HIC and HIC/HP ratios */
+        .label-value-pair {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 12ch;
+        }
+
+        .label-value-pair label {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .label-value-pair input {
+            width: 12ch;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -1890,6 +1916,39 @@
                             <input id="b-mch-ratio" type="text" class="form-control" size="12" readonly>
                         </div>
                     </div>
+
+                    <!-- Inside the System Entropy and Capacity panel, after the existing ratios -->
+                    <div class="d-flex justify-content-center gap-4 mt-3">
+                        <!-- HP/HIC and HIC/HP ratios -->
+                        <div class="label-value-pair">
+                            <label for="hp-hic-ratio">HP/HIC</label>
+                            <input id="hp-hic-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="hic-hp-ratio">HIC/HP</label>
+                            <input id="hic-hp-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        
+                        <!-- HP/H and H/HP ratios -->
+                        <div class="label-value-pair">
+                            <label for="hp-h-ratio">HP/H</label>
+                            <input id="hp-h-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="h-hp-ratio">H/HP</label>
+                            <input id="h-hp-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        
+                        <!-- HIC/H and H/HIC ratios -->
+                        <div class="label-value-pair">
+                            <label for="hic-h-ratio">HIC/H</label>
+                            <input id="hic-h-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label for="h-hic-ratio">H/HIC</label>
+                            <input id="h-hic-ratio" type="text" class="form-control" size="12" readonly>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -2110,8 +2169,6 @@
             </div>
         </div>
 
-        <!-- Separator -->
-        <div class="separator"></div>
 
         <!-- Information Panel -->
         <div class="dashboard-panel information-panel">
@@ -2156,6 +2213,8 @@
                 </div>
             </div>
         </div>
+<!-- Separator -->
+<div class="separator"></div>
 
         <!-- Legends Panel -->
         <div class="legends-panel bg-dark p-2 rounded">

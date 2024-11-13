@@ -1061,14 +1061,22 @@ class TriangleSystem {
         // Calculate orthocenter
         const orthocenter = this.calculateOrthocenter();
         this.system.orthocenter = orthocenter;
-        
-        console.log("Updated points:", {
-            circumcenter: this.system.circumcenter,
-            orthocenter: this.system.orthocenter
-        });
+
+        // Calculate subcenter
+        const subcircle = this.calculateSubcircle();
+        if (subcircle?.center) {
+            this.system.subcenter = subcircle.center;
+        }
         
         // Calculate nine-point center
         this.calculateNinePointCenter();
+
+        console.log("Updated all centers:", {
+            circumcenter: this.system.circumcenter,
+            orthocenter: this.system.orthocenter,
+            subcenter: this.system.subcenter,
+            ninePointCenter: this.system.ninePointCenter
+        });
     }
 
     /**
@@ -1525,6 +1533,34 @@ class TriangleSystem {
 
             // Update IC fields
             this.updateICFields();
+
+            // Add Euler Line measurements with proper element selection
+            const eulerMetrics = this.calculateEulerLineMetrics();
+            if (eulerMetrics) {
+                // Update using getElementById instead of setElementValue with '#'
+                document.getElementById('euler-line-length').value = eulerMetrics.eulerLineLength;
+                document.getElementById('o-i-ratio').value = eulerMetrics.oToIRatio;
+                document.getElementById('i-sp-ratio').value = eulerMetrics.iToSPRatio;
+                document.getElementById('sp-np-ratio').value = eulerMetrics.spToNPRatio;
+                document.getElementById('np-ho-ratio').value = eulerMetrics.npToHORatio;
+            }
+
+            // Inside updateDashboard() method, where other ratios are calculated
+            if (hp !== 0 && mcH !== 0) {
+                // HP/HIC and HIC/HP ratios
+                setElementValue('#hp-hic-ratio', (hp / mcH).toFixed(4));
+                setElementValue('#hic-hp-ratio', (mcH / hp).toFixed(4));
+            }
+
+            if (totalSystemEntropy !== 0) {
+                // HP/H and H/HP ratios
+                setElementValue('#hp-h-ratio', (hp / totalSystemEntropy).toFixed(4));
+                setElementValue('#h-hp-ratio', (totalSystemEntropy / hp).toFixed(4));
+                
+                // HIC/H and H/HIC ratios
+                setElementValue('#hic-h-ratio', (mcH / totalSystemEntropy).toFixed(4));
+                setElementValue('#h-hic-ratio', (totalSystemEntropy / mcH).toFixed(4));
+            }
 
         } catch (error) {
             console.error('Error updating dashboard:', error);
@@ -4366,6 +4402,86 @@ class TriangleSystem {
             this.system[`n${n1}`],
             this.system[`n${n2}`]
         );
+    }
+
+    // Add this method to calculate Euler Line length and ratios
+    calculateEulerLineMetrics() {
+        // Add debug logging
+        console.log('Calculating Euler Line metrics...');
+        
+        // Check for required points
+        if (!this.system?.circumcenter || !this.system?.orthocenter) {
+            console.log('Missing basic Euler line points');
+            return {
+                eulerLineLength: "0.00",
+                oToIRatio: "0.0000",
+                iToSPRatio: "0.0000",
+                spToNPRatio: "0.0000",
+                npToHORatio: "0.0000"
+            };
+        }
+
+        try {
+            // Calculate Euler Line length (distance from O to HO)
+            const eulerLineLength = this.calculateDistance(
+                this.system.circumcenter,
+                this.system.orthocenter
+            );
+
+            // If Euler Line length is 0 or very small, return all zeros
+            if (eulerLineLength < 0.0001) {
+                return {
+                    eulerLineLength: "0.00",
+                    oToIRatio: "0.0000",
+                    iToSPRatio: "0.0000",
+                    spToNPRatio: "0.0000",
+                    npToHORatio: "0.0000"
+                };
+            }
+
+            // Get centroid (I)
+            const centroid = {
+                x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+                y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+            };
+
+            // Initialize metrics object with default values
+            const metrics = {
+                eulerLineLength: eulerLineLength.toFixed(2),
+                oToIRatio: "0.0000",
+                iToSPRatio: "0.0000",
+                spToNPRatio: "0.0000",
+                npToHORatio: "0.0000"
+            };
+
+            // Only calculate ratios if points exist and eulerLineLength is not zero
+            if (eulerLineLength > 0.0001) {
+                metrics.oToIRatio = (this.calculateDistance(this.system.circumcenter, centroid) / eulerLineLength).toFixed(4);
+                
+                if (this.system.subcenter) {
+                    metrics.iToSPRatio = (this.calculateDistance(centroid, this.system.subcenter) / eulerLineLength).toFixed(4);
+                }
+
+                if (this.system.ninePointCenter && this.system.subcenter) {
+                    metrics.spToNPRatio = (this.calculateDistance(this.system.subcenter, this.system.ninePointCenter) / eulerLineLength).toFixed(4);
+                }
+
+                if (this.system.ninePointCenter) {
+                    metrics.npToHORatio = (this.calculateDistance(this.system.ninePointCenter, this.system.orthocenter) / eulerLineLength).toFixed(4);
+                }
+            }
+
+            return metrics;
+        } catch (error) {
+            console.error('Error calculating Euler Line metrics:', error);
+            return {
+                eulerLineLength: "0.00",
+                oToIRatio: "0.0000",
+                iToSPRatio: "0.0000",
+                spToNPRatio: "0.0000",
+                npToHORatio: "0.0000"
+            };
+        }
     }
 }
 
