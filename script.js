@@ -1812,12 +1812,12 @@ class TriangleSystem {
                     );
                     this.ctx.fill();
 
-                    // Label 'N'
+                    // Update label from 'N' to 'NP'
                     this.ctx.save();
                     this.ctx.scale(1, -1);
                     this.ctx.fillStyle = '#FF00FF';
                     this.ctx.font = '12px Arial';
-                    this.ctx.fillText('N', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
+                    this.ctx.fillText('NP', ninePointCircle.center.x + 10, -ninePointCircle.center.y);
                     this.ctx.restore();
                 }
             }
