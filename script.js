@@ -3288,34 +3288,50 @@ class TriangleSystem {
     }
 
     drawEulerLine(ctx) {
-        console.log("drawEulerLine called");  // Add debug log
-        
         // Get the required points
         const O = this.system.circumcenter;
         const H = this.system.orthocenter;
         
-        console.log("Points:", { O, H });  // Add debug log
-        
         if (!O || !H) {
-            console.log("Missing required points");  // Add debug log
+            console.log("Missing required points");
             return;
         }
         
-        // Draw the line
+        // Calculate the direction vector of the Euler line
+        const dx = H.x - O.x;
+        const dy = H.y - O.y;
+        
+        // Normalize the direction vector
+        const length = Math.sqrt(dx * dx + dy * dy);
+        if (length === 0) return;
+        
+        const unitX = dx / length;
+        const unitY = dy / length;
+        
+        // Extend the line by a large factor (e.g., 1000 units) in both directions
+        const extensionFactor = 1000;
+        const startPoint = {
+            x: O.x - unitX * extensionFactor,
+            y: O.y - unitY * extensionFactor
+        };
+        const endPoint = {
+            x: H.x + unitX * extensionFactor,
+            y: H.y + unitY * extensionFactor
+        };
+        
+        // Draw the extended line
         ctx.save();
         ctx.beginPath();
         ctx.strokeStyle = '#FFFFFF';  // White color
         ctx.setLineDash([5, 5]);     // Dotted line
         ctx.lineWidth = 1;
         
-        ctx.moveTo(O.x, O.y);
-        ctx.lineTo(H.x, H.y);
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.lineTo(endPoint.x, endPoint.y);
         
         ctx.stroke();
         ctx.setLineDash([]);  // Reset dash pattern
         ctx.restore();
-        
-        console.log("Euler line drawn");  // Add debug log
     }
 
     drawTriangle() {
