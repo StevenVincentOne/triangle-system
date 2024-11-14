@@ -1539,6 +1539,7 @@ class TriangleSystem {
             if (eulerMetrics) {
                 // Update using getElementById instead of setElementValue with '#'
                 document.getElementById('euler-line-length').value = eulerMetrics.eulerLineLength;
+                document.getElementById('euler-line-slope').value = eulerMetrics.eulerLineSlope;  // Add this line
                 document.getElementById('o-i-ratio').value = eulerMetrics.oToIRatio;
                 document.getElementById('i-sp-ratio').value = eulerMetrics.iToSPRatio;
                 document.getElementById('sp-np-ratio').value = eulerMetrics.spToNPRatio;
@@ -4430,6 +4431,7 @@ class TriangleSystem {
             return {
                 eulerLineLength: "0.00",
                 eulerLineSlope: "0.0000",
+                eulerLineAngle: "0.00",  // Add this line
                 oToIRatio: "0.0000",
                 iToSPRatio: "0.0000",
                 spToNPRatio: "0.0000",
@@ -4444,15 +4446,20 @@ class TriangleSystem {
                 this.system.orthocenter
             );
 
-            // Calculate Euler Line slope
+            // Calculate Euler Line slope and angle
             const dx = this.system.orthocenter.x - this.system.circumcenter.x;
             const dy = this.system.orthocenter.y - this.system.circumcenter.y;
             const eulerLineSlope = dx !== 0 ? (dy / dx) : Infinity;
+            
+            // Calculate angle using atan2 and normalize it
+            const eulerLineAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+            const normalizedAngle = eulerLineAngle > 180 ? eulerLineAngle - 360 : eulerLineAngle;
 
             // Initialize metrics object with default values
             const metrics = {
                 eulerLineLength: eulerLineLength.toFixed(2),
                 eulerLineSlope: eulerLineSlope === Infinity ? "∞" : eulerLineSlope.toFixed(4),
+                eulerLineAngle: normalizedAngle.toFixed(2),  // Add this line
                 oToIRatio: "0.0000",
                 iToSPRatio: "0.0000",
                 spToNPRatio: "0.0000",
@@ -4482,6 +4489,7 @@ class TriangleSystem {
             return {
                 eulerLineLength: "0.00",
                 eulerLineSlope: "0.0000",
+                eulerLineAngle: "0.00",  // Add this line
                 oToIRatio: "0.0000",
                 iToSPRatio: "0.0000",
                 spToNPRatio: "0.0000",
