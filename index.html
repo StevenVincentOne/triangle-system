@@ -2075,69 +2075,75 @@
             </div>
         </div>
     </div>
-</div>       
+</div>       <!-- After the Centers panel and before the Subtriangle panel -->
+<div class="dashboard-row">
+    <div class="dashboard-panel">
+        <h3 class="panel-header">Euler Line</h3>
+        <!-- First Row: Points in order of appearance on EL -->
+        <div class="position-row">
+            <div class="label-value-pair">
+                <label for="circumcenter-coords">O (x,y)</label>
+                <input id="circumcenter-coords" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="centroid-coords">I (x,y)</label>
+                <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="subcenter-coords">SP (x,y)</label>
+                <input id="subcenter-coords" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="nine-point-coords">NP (x,y)</label>
+                <input id="nine-point-coords" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="orthocenter-coords">HO (x,y)</label>
+                <input id="orthocenter-coords" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="euler-line-length">EL</label>
+                <input id="euler-line-length" type="text" class="form-control" size="8" readonly>
+            </div>
+        </div>
+
+        <!-- Second Row: Ratios -->
+        <div class="position-row mt-2">
+            <div class="label-value-pair">
+                <label for="o-i-ratio">O-I/EL</label>
+                <input id="o-i-ratio" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="i-sp-ratio">I-SP/EL</label>
+                <input id="i-sp-ratio" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="sp-np-ratio">SP-NP/EL</label>
+                <input id="sp-np-ratio" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="np-ho-ratio">NP-HO/EL</label>
+                <input id="np-ho-ratio" type="text" class="form-control" size="8" readonly>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Second Row -->
             <div class="dashboard-row">
-                <!-- Position Panel -->
+                <!-- Centers Panel -->
                 <div class="dashboard-panel position-panel">
                     <h3 class="panel-header">Centers</h3>
                     <div class="panel-content">
-                        <!-- First Row - Intelligence, Incenter, Subcenter and Special Centers -->
+                        <!-- First Row - Only ICP remains -->
                         <div class="position-row">
-                            <div class="label-value-pair">
-                                <label for="centroid-coords">I (x,y)</label>
-                                <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
                             <div class="label-value-pair">
                                 <label for="incenter-coords">ICP (x,y)</label>
                                 <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
                             </div>
-                            <!-- Add new Subcenter input -->
-                            <div class="label-value-pair">
-                                <label for="subcenter-coords">SP (x,y)</label>
-                                <input id="subcenter-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="circumcenter-coords">O (x,y)</label>
-                                <input id="circumcenter-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="orthocenter-coords">HO (x,y)</label>
-                                <input id="orthocenter-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="nine-point-coords">NP (x,y)</label>
-                                <input id="nine-point-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
                         </div>
 
-                        <!-- After the first row of centers (around line 2055) -->
-                        <div class="position-row">
-                            <!-- Euler Line measurements -->
-                            <div class="label-value-pair">
-                                <label for="euler-line-length">EL</label>
-                                <input id="euler-line-length" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="o-i-ratio">O-I/EL</label>
-                                <input id="o-i-ratio" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="i-sp-ratio">I-SP/EL</label>
-                                <input id="i-sp-ratio" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="sp-np-ratio">SP-NP/EL</label>
-                                <input id="sp-np-ratio" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="np-ho-ratio">NP-HO/EL</label>
-                                <input id="np-ho-ratio" type="text" class="form-control" size="8" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Then the existing second row with midpoints and tangents continues... -->
+                        <!-- Second Row - Midpoints and Tangents (unchanged) -->
                         <div class="position-row">
                             <div class="label-value-pair">
                                 <label for="mid1-coords">M1 (x,y)</label>
