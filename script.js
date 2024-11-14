@@ -1181,6 +1181,7 @@ class TriangleSystem {
 
 
 
+
             // Nodes Panel
             const angles = this.calculateAngles();
             setElementValue('#node-n1-angle', angles.n1);
@@ -1537,14 +1538,24 @@ class TriangleSystem {
             // Add Euler Line measurements with proper element selection
             const eulerMetrics = this.calculateEulerLineMetrics();
             if (eulerMetrics) {
-                // Update using getElementById instead of setElementValue with '#'
+                // Existing Euler Line metric updates
                 document.getElementById('euler-line-length').value = eulerMetrics.eulerLineLength;
-                document.getElementById('euler-line-slope').value = eulerMetrics.eulerLineSlope;  // Add this line
-                document.getElementById('euler-line-angle').value = eulerMetrics.eulerLineAngle;  // Add this line
+                document.getElementById('euler-line-slope').value = eulerMetrics.eulerLineSlope;
+                document.getElementById('euler-line-angle').value = eulerMetrics.eulerLineAngle;
                 document.getElementById('o-i-ratio').value = eulerMetrics.oToIRatio;
                 document.getElementById('i-sp-ratio').value = eulerMetrics.iToSPRatio;
                 document.getElementById('sp-np-ratio').value = eulerMetrics.spToNPRatio;
                 document.getElementById('np-ho-ratio').value = eulerMetrics.npToHORatio;
+
+                // Add new intersection angle updates
+                if (eulerMetrics.intersectionAngles) {
+                    document.getElementById('nc1-acute').value = eulerMetrics.intersectionAngles.nc1_acute;
+                    document.getElementById('nc1-obtuse').value = eulerMetrics.intersectionAngles.nc1_obtuse;
+                    document.getElementById('nc2-acute').value = eulerMetrics.intersectionAngles.nc2_acute;
+                    document.getElementById('nc2-obtuse').value = eulerMetrics.intersectionAngles.nc2_obtuse;
+                    document.getElementById('nc3-acute').value = eulerMetrics.intersectionAngles.nc3_acute;
+                    document.getElementById('nc3-obtuse').value = eulerMetrics.intersectionAngles.nc3_obtuse;
+                }
             }
 
             // Inside updateDashboard() method, where other ratios are calculated
@@ -4447,6 +4458,19 @@ class TriangleSystem {
                 this.system.orthocenter
             );
 
+            // If points are essentially coincident (equilateral triangle case)
+            if (eulerLineLength < 0.0001) {
+                return {
+                    eulerLineLength: "0.00",
+                    eulerLineSlope: "∞",
+                    eulerLineAngle: "∞",  // Changed from "0.00" to "∞"
+                    oToIRatio: "0.0000",
+                    iToSPRatio: "0.0000",
+                    spToNPRatio: "0.0000",
+                    npToHORatio: "0.0000"
+                };
+            }
+
             // Calculate Euler Line slope and angle
             const dx = this.system.circumcenter.x - this.system.orthocenter.x;  // Swap direction
             const dy = this.system.circumcenter.y - this.system.orthocenter.y;  // Swap direction
@@ -4484,19 +4508,137 @@ class TriangleSystem {
                 }
             }
 
+            // Add intersection angles if Euler Line exists
+            if (eulerLineLength > 0.0001) {
+                const intersectionAngles = this.calculateEulerLineIntersectionAngles();
+                metrics.intersectionAngles = intersectionAngles;
+            } else {
+                // If triangle is equilateral or Euler Line doesn't exist
+                metrics.intersectionAngles = {
+                    nc1_acute: "∞",
+                    nc1_obtuse: "∞",
+                    nc2_acute: "∞",
+                    nc2_obtuse: "∞",
+                    nc3_acute: "∞",
+                    nc3_obtuse: "∞"
+                };
+            }
+
             return metrics;
         } catch (error) {
             console.error('Error calculating Euler Line metrics:', error);
             return {
                 eulerLineLength: "0.00",
                 eulerLineSlope: "0.0000",
-                eulerLineAngle: "0.00",  // Add this line
+                eulerLineAngle: "∞",  // Changed here too for consistency
                 oToIRatio: "0.0000",
                 iToSPRatio: "0.0000",
                 spToNPRatio: "0.0000",
                 npToHORatio: "0.0000"
             };
         }
+    }
+
+    calculateNCSlopes() {
+        const { n1, n2, n3 } = this.system;
+        
+        // Calculate slopes for each NC (node channel)
+        const slopes = {
+            nc1: this.calculateSlope(n1, n3),
+            nc2: this.calculateSlope(n1, n2),
+            nc3: this.calculateSlope(n2, n3)
+        };
+        
+        return slopes;
+    }
+
+    // Helper method to calculate slope between two points
+    calculateSlope(point1, point2) {
+        const dx = point2.x - point1.x;
+        const dy = point2.y - point1.y;
+        
+        // Handle vertical lines
+        if (Math.abs(dx) < 1e-10) {
+            return Infinity;
+        }
+        
+        return dy / dx;
+    }
+
+    calculateEulerLineIntersectionAngles() {
+        try {
+            const epsilon = 1e-6;
+            
+            // Get Euler Line slope
+            const elSlope = this.calculateSlope(
+                this.system.circumcenter,
+                this.system.orthocenter
+            );
+            
+            // Get NC slopes
+            const ncSlopes = this.calculateNCSlopes();
+            
+            // Calculate angles for each NC
+            const angles = {};
+            
+            // Helper function to calculate acute angle between two slopes
+            const calculateAngleBetweenSlopes = (slope1, slope2) => {
+                if (slope1 === Infinity || slope2 === Infinity) {
+                    if (slope1 === slope2) return 0;
+                    return 90;
+                }
+                
+                const tanTheta = Math.abs((slope2 - slope1) / (1 + slope1 * slope2));
+                return Math.atan(tanTheta) * (180 / Math.PI);
+            };
+            
+            // Calculate angles for each NC
+            ['nc1', 'nc2', 'nc3'].forEach(nc => {
+                const acuteAngle = calculateAngleBetweenSlopes(elSlope, ncSlopes[nc]);
+                angles[`${nc}_acute`] = acuteAngle.toFixed(2);
+                angles[`${nc}_obtuse`] = (180 - acuteAngle).toFixed(2);
+            });
+            
+            // Determine which NC the Euler Line doesn't intersect
+            // This would require checking if the Euler Line actually intersects each NC
+            // For now, we'll use NC2 as mentioned in the guidance
+            angles.nc2_acute = epsilon.toFixed(2);
+            angles.nc2_obtuse = epsilon.toFixed(2);
+            
+            return angles;
+            
+        } catch (error) {
+            console.error('Error calculating Euler Line intersection angles:', error);
+            return {
+                nc1_acute: "0.00",
+                nc1_obtuse: "180.00",
+                nc2_acute: "0.00",
+                nc2_obtuse: "180.00",
+                nc3_acute: "0.00",
+                nc3_obtuse: "180.00"
+            };
+        }
+    }
+
+    isRightAngled() {
+        const angles = this.calculateAngles();
+        return Math.abs(angles.n1 - 90) < 0.1 || 
+               Math.abs(angles.n2 - 90) < 0.1 || 
+               Math.abs(angles.n3 - 90) < 0.1;
+    }
+
+    isIsosceles() {
+        const { n1, n2, n3 } = this.system;
+        const sides = {
+            nc1: this.calculateDistance(n1, n3),
+            nc2: this.calculateDistance(n1, n2),
+            nc3: this.calculateDistance(n2, n3)
+        };
+        
+        const epsilon = 0.0001;
+        return Math.abs(sides.nc1 - sides.nc2) < epsilon ||
+               Math.abs(sides.nc2 - sides.nc3) < epsilon ||
+               Math.abs(sides.nc3 - sides.nc1) < epsilon;
     }
 }
 

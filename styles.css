@@ -72,4 +72,64 @@
     width: 8ch !important;
     text-align: right;
     padding: 0.15rem 0.25rem;
+}
+
+/* =================
+   Euler Line Panel 
+   ================= */
+.dashboard-panel.euler-line-panel {
+    width: fit-content !important;
+    margin: 0 auto !important;
+}
+
+.euler-line-panel .position-row {
+    display: flex !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    margin-bottom: 0.5rem !important;
+    width: 100% !important;
+}
+
+/* First row - coordinates and length */
+.euler-line-panel .position-row:first-child {
+    justify-content: space-between !important;
+}
+
+/* Second row - slope, angle and ratios */
+.euler-line-panel .position-row:nth-child(2) {
+    justify-content: flex-start !important;
+}
+
+/* Third row - NC intersection angles */
+.euler-line-panel .position-row:nth-child(3) {
+    justify-content: space-between !important;
+}
+
+/* Input fields in Euler Line panel */
+.euler-line-panel .label-value-pair input {
+    width: 8ch !important;
+    min-width: 8ch !important;
+    text-align: right !important;
+    padding: 0.15rem 0.25rem !important;
+    font-family: monospace !important;
+}
+
+/* Labels in Euler Line panel */
+.euler-line-panel .label-value-pair label {
+    text-align: right !important;
+    padding-right: 4px !important;
+    min-width: 6ch !important;
+}
+
+/* Coordinate inputs specifically */
+.euler-line-panel input[id$="-coords"] {
+    width: 12ch !important;
+    min-width: 12ch !important;
+}
+
+/* NC angle inputs */
+.euler-line-panel input[id^="nc"] {
+    width: 6ch !important;
+    min-width: 6ch !important;
 } 

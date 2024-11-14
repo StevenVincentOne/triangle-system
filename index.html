@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Intelligent System Model</title>
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
         /* Existing Styles */
         .dashboard {
@@ -2079,7 +2080,7 @@
 <div class="dashboard-row">
     <div class="dashboard-panel">
         <h3 class="panel-header">Euler Line</h3>
-        <!-- First Row: Points in order of appearance on EL -->
+        <!-- First Row: Points and Length -->
         <div class="position-row">
             <div class="label-value-pair">
                 <label for="circumcenter-coords">O (x,y)</label>
@@ -2107,8 +2108,16 @@
             </div>
         </div>
 
-        <!-- Second Row: Ratios -->
+        <!-- Second Row: Slope, Angle and Ratios -->
         <div class="position-row mt-2">
+            <div class="label-value-pair">
+                <label for="euler-line-slope">mEL</label>
+                <input id="euler-line-slope" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="euler-line-angle">θEL</label>
+                <input id="euler-line-angle" type="text" class="form-control" size="8" readonly>
+            </div>
             <div class="label-value-pair">
                 <label for="o-i-ratio">O-I/EL</label>
                 <input id="o-i-ratio" type="text" class="form-control" size="8" readonly>
@@ -2127,15 +2136,31 @@
             </div>
         </div>
 
-        <!-- Third Row: Slope and Angle -->
+        <!-- Third Row: All NC Intersection Angles -->
         <div class="position-row mt-2">
             <div class="label-value-pair">
-                <label for="euler-line-slope">mEL</label>
-                <input id="euler-line-slope" type="text" class="form-control" size="8" readonly>
+                <label for="nc1-acute">NC1 θa</label>
+                <input id="nc1-acute" type="text" class="form-control" size="8" readonly>
             </div>
             <div class="label-value-pair">
-                <label for="euler-line-angle">θEL</label>
-                <input id="euler-line-angle" type="text" class="form-control" size="8" readonly>
+                <label for="nc1-obtuse">NC1 θo</label>
+                <input id="nc1-obtuse" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="nc2-acute">NC2 θa</label>
+                <input id="nc2-acute" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="nc2-obtuse">NC2 θo</label>
+                <input id="nc2-obtuse" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="nc3-acute">NC3 θa</label>
+                <input id="nc3-acute" type="text" class="form-control" size="8" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label for="nc3-obtuse">NC3 θo</label>
+                <input id="nc3-obtuse" type="text" class="form-control" size="8" readonly>
             </div>
         </div>
     </div>
