@@ -1540,6 +1540,7 @@ class TriangleSystem {
                 // Update using getElementById instead of setElementValue with '#'
                 document.getElementById('euler-line-length').value = eulerMetrics.eulerLineLength;
                 document.getElementById('euler-line-slope').value = eulerMetrics.eulerLineSlope;  // Add this line
+                document.getElementById('euler-line-angle').value = eulerMetrics.eulerLineAngle;  // Add this line
                 document.getElementById('o-i-ratio').value = eulerMetrics.oToIRatio;
                 document.getElementById('i-sp-ratio').value = eulerMetrics.iToSPRatio;
                 document.getElementById('sp-np-ratio').value = eulerMetrics.spToNPRatio;
@@ -4447,8 +4448,8 @@ class TriangleSystem {
             );
 
             // Calculate Euler Line slope and angle
-            const dx = this.system.orthocenter.x - this.system.circumcenter.x;
-            const dy = this.system.orthocenter.y - this.system.circumcenter.y;
+            const dx = this.system.circumcenter.x - this.system.orthocenter.x;  // Swap direction
+            const dy = this.system.circumcenter.y - this.system.orthocenter.y;  // Swap direction
             const eulerLineSlope = dx !== 0 ? (dy / dx) : Infinity;
             
             // Calculate angle using atan2 and normalize it
