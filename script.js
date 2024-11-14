@@ -4422,7 +4422,6 @@ class TriangleSystem {
 
     // Add this method to calculate Euler Line length and ratios
     calculateEulerLineMetrics() {
-        // Add debug logging
         console.log('Calculating Euler Line metrics...');
         
         // Check for required points
@@ -4430,6 +4429,7 @@ class TriangleSystem {
             console.log('Missing basic Euler line points');
             return {
                 eulerLineLength: "0.00",
+                eulerLineSlope: "0.0000",
                 oToIRatio: "0.0000",
                 iToSPRatio: "0.0000",
                 spToNPRatio: "0.0000",
@@ -4444,26 +4444,15 @@ class TriangleSystem {
                 this.system.orthocenter
             );
 
-            // If Euler Line length is 0 or very small, return all zeros
-            if (eulerLineLength < 0.0001) {
-                return {
-                    eulerLineLength: "0.00",
-                    oToIRatio: "0.0000",
-                    iToSPRatio: "0.0000",
-                    spToNPRatio: "0.0000",
-                    npToHORatio: "0.0000"
-                };
-            }
-
-            // Get centroid (I)
-            const centroid = {
-                x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
-                y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
-            };
+            // Calculate Euler Line slope
+            const dx = this.system.orthocenter.x - this.system.circumcenter.x;
+            const dy = this.system.orthocenter.y - this.system.circumcenter.y;
+            const eulerLineSlope = dx !== 0 ? (dy / dx) : Infinity;
 
             // Initialize metrics object with default values
             const metrics = {
                 eulerLineLength: eulerLineLength.toFixed(2),
+                eulerLineSlope: eulerLineSlope === Infinity ? "∞" : eulerLineSlope.toFixed(4),
                 oToIRatio: "0.0000",
                 iToSPRatio: "0.0000",
                 spToNPRatio: "0.0000",
@@ -4472,10 +4461,10 @@ class TriangleSystem {
 
             // Only calculate ratios if points exist and eulerLineLength is not zero
             if (eulerLineLength > 0.0001) {
-                metrics.oToIRatio = (this.calculateDistance(this.system.circumcenter, centroid) / eulerLineLength).toFixed(4);
+                metrics.oToIRatio = (this.calculateDistance(this.system.circumcenter, this.system.centroid) / eulerLineLength).toFixed(4);
                 
                 if (this.system.subcenter) {
-                    metrics.iToSPRatio = (this.calculateDistance(centroid, this.system.subcenter) / eulerLineLength).toFixed(4);
+                    metrics.iToSPRatio = (this.calculateDistance(this.system.centroid, this.system.subcenter) / eulerLineLength).toFixed(4);
                 }
 
                 if (this.system.ninePointCenter && this.system.subcenter) {
@@ -4492,6 +4481,7 @@ class TriangleSystem {
             console.error('Error calculating Euler Line metrics:', error);
             return {
                 eulerLineLength: "0.00",
+                eulerLineSlope: "0.0000",
                 oToIRatio: "0.0000",
                 iToSPRatio: "0.0000",
                 spToNPRatio: "0.0000",
