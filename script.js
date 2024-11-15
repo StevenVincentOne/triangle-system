@@ -1154,8 +1154,6 @@ class TriangleSystem {
                 const element = document.querySelector(selector);
                 if (element) {
                     element.value = typeof value === 'number' ? value.toFixed(precision) : value;
-                } else {
-                    
                 }
             };
 
@@ -1163,6 +1161,11 @@ class TriangleSystem {
             const area = this.calculateArea();
             const perimeter = this.calculatePerimeter();
             
+            // Calculate and display inradius (rIC)
+            const semiperimeter = perimeter / 2;
+            const inradius = area / semiperimeter;
+            setElementValue('#inradius', inradius);
+
             // Debug log to check values
             console.log('Area calculation:', area);
             console.log('Perimeter calculation:', perimeter);
