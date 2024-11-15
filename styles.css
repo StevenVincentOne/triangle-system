@@ -17,7 +17,7 @@
 }
 
 /* =================
-   Panels & Cards
+   Panels 
    ================= */
 .dashboard-panel {
     background-color: #333;
@@ -36,100 +36,134 @@
     padding-bottom: 0.25rem;
 }
 
+.panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 /* =================
-   Form Controls
+   Panel Rows
+   ================= */
+.position-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+/* =================
+   Label-Value Pairs
    ================= */
 .label-value-pair {
     display: flex;
     align-items: center;
-    gap: 0.5rem !important;
-    width: 100% !important;
+    gap: 0.25rem;
 }
 
 .label-value-pair label {
     flex: 0 0 auto;
     white-space: nowrap;
-    min-width: 4ch !important;
+    text-align: right;
+    min-width: 4ch;
 }
 
 /* =================
-   Manual Controls
+   Form Controls
    ================= */
-.manual-controls-container {
-    margin-top: 1rem;
-    padding: 0.5rem;
-    background-color: #333;
-    border-radius: 4px;
+input[type="text"].form-control {
+    width: 10ch;
+    min-width: 10ch;
+    text-align: center;
+    padding: 0.15rem 0.25rem;
+    background-color: #2c2c2c;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 3px;
+    font-family: monospace;
 }
 
-.manual-input-group {
+/* Coordinate inputs (wider) */
+input[id$="-coords"] {
+    width: 12ch;
+    min-width: 12ch;
+}
+
+/* Single value measurements (narrower) */
+input[id$="-radius"],
+input[id$="-capacity"],
+input[id$="-entropy"],
+input[id^="nc"],
+input[id^="ic"] {
+    width: 8ch;
+    min-width: 8ch;
+}
+
+/* =================
+   Controls & Buttons
+   ================= */
+.btn-secondary {
+    padding: 0.375rem 0.75rem;
+    width: auto;
+    min-width: fit-content;
+    height: auto;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =================
+   Manual & Animation Controls
+   ================= */
+.manual-controls-container,
+.animation-controls-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.manual-input-group,
+.animation-input-group {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.25rem;
 }
 
-.manual-input {
-    width: 8ch !important;
-    text-align: right;
+.manual-input,
+.animation-input {
+    width: 8ch;
+    min-width: 8ch;
     padding: 0.15rem 0.25rem;
+    font-size: 0.8rem;
 }
 
 /* =================
-   Euler Line Panel 
+   Subsystems Table
    ================= */
-.dashboard-panel.euler-line-panel {
-    width: fit-content !important;
-    margin: 0 auto !important;
+.subsystems-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
 }
 
-.euler-line-panel .position-row {
-    display: flex !important;
-    justify-content: center !important;
-    flex-wrap: wrap !important;
-    gap: 1rem !important;
-    margin-bottom: 0.5rem !important;
-    width: 100% !important;
+.subsystems-table th,
+.subsystems-table td {
+    padding: 0.25rem 0.5rem;
+    text-align: center;
+    border: 1px solid #444;
 }
 
-/* First row - coordinates and length */
-.euler-line-panel .position-row:first-child {
-    justify-content: space-between !important;
+.subsystems-table input[type="text"] {
+    width: 100%;
+    text-align: right;
+    padding: 2px 4px;
 }
 
-/* Second row - slope, angle and ratios */
-.euler-line-panel .position-row:nth-child(2) {
-    justify-content: flex-start !important;
-}
-
-/* Third row - NC intersection angles */
-.euler-line-panel .position-row:nth-child(3) {
-    justify-content: space-between !important;
-}
-
-/* Input fields in Euler Line panel */
-.euler-line-panel .label-value-pair input {
-    width: 8ch !important;
-    min-width: 8ch !important;
-    text-align: right !important;
-    padding: 0.15rem 0.25rem !important;
-    font-family: monospace !important;
-}
-
-/* Labels in Euler Line panel */
-.euler-line-panel .label-value-pair label {
-    text-align: right !important;
-    padding-right: 4px !important;
-    min-width: 6ch !important;
-}
-
-/* Coordinate inputs specifically */
-.euler-line-panel input[id$="-coords"] {
-    width: 12ch !important;
-    min-width: 12ch !important;
-}
-
-/* NC angle inputs */
-.euler-line-panel input[id^="nc"] {
-    width: 6ch !important;
-    min-width: 6ch !important;
+/* Specific width for coordinate inputs */
+.subsystems-table input[id$="-centroid"] {
+    width: 140px;
+    min-width: 140px;
+    font-family: monospace;
 } 
