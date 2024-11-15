@@ -79,26 +79,31 @@
 /* =================
    Form Controls
    ================= */
-input[type="text"].form-control {
-    width: 10ch;
-    min-width: 10ch;
-    text-align: right;
-    padding: 0.15rem 0.25rem;
-    background-color: #2c2c2c;
+input[type="text"].form-control,
+.manual-input,
+.animation-input,
+.subsystems-table input[type="text"] {
+    background-color: #2b4280 !important;  /* More distinctly blue */
     color: #fff;
     border: 1px solid #444;
     border-radius: 3px;
-    font-family: monospace;
+    text-align: center !important;  /* Center all input content */
 }
 
-/* Coordinate inputs (wider) */
+/* Coordinate inputs (wider for x,y pairs) */
 input[id$="-coords"],
 input[id*="-centroid"],
-input[id^="tan"] {
+input[id^="tan"],
+input[id*="-point"],
+input[id*="-vertex"] {
     text-align: center;
-    width: 12ch;
-    min-width: 12ch;
+    width: 18ch;
+    min-width: 18ch;
+    font-family: monospace;
+    letter-spacing: 0.5px;
 }
+
+
 
 /* Single value measurements (narrower) */
 input[id$="-radius"],
