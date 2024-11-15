@@ -1161,14 +1161,18 @@ class TriangleSystem {
             const area = this.calculateArea();
             const perimeter = this.calculatePerimeter();
             
-            // Calculate and display inradius (rIC)
+            // Calculate and display inradius (rIN)
             const semiperimeter = perimeter / 2;
             const inradius = area / semiperimeter;
             setElementValue('#inradius', inradius);
 
-            // Calculate and display incircle capacity (CIC = π * rIC²)
+            // Calculate and display incircle capacity (CIN = π * rIN²)
             const incircleCapacity = Math.PI * inradius * inradius;
             setElementValue('#incircle-capacity', incircleCapacity);
+
+            // Calculate and display incircle entropy (HIN = 2π * rIN)
+            const incircleEntropy = 2 * Math.PI * inradius;
+            setElementValue('#incircle-entropy', incircleEntropy);
 
             // Debug log to check values
             console.log('Area calculation:', area);
@@ -2449,7 +2453,7 @@ class TriangleSystem {
         ctx.font = '12px Arial';  // Reduced from 14px to 12px
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText('ICP', incenter.x + 10, -incenter.y);
+        ctx.fillText('IN', incenter.x + 10, -incenter.y);
         ctx.restore();
     }
 
@@ -4131,7 +4135,7 @@ class TriangleSystem {
         return Math.abs(
             (ss1.x * (ss2.y - ss3.y) +
              ss2.x * (ss3.y - ss1.y) +
-             ss3.x * (ss1.y - ss2.y)) / 2
+             ss3.x * (ss1.y - ss2.y)) /2
         );
     }
 
@@ -4485,7 +4489,7 @@ class TriangleSystem {
             
             // Calculate angle using atan2 and normalize it
             const eulerLineAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-            const normalizedAngle = eulerLineAngle > 180 ? eulerLineAngle - 360 : eulerLineAngle;
+            const normalizedAngle = eulerLineAngle >180 ? eulerLineAngle - 360 : eulerLineAngle;
 
             // Initialize metrics object with default values
             const metrics = {
@@ -4646,6 +4650,26 @@ class TriangleSystem {
         return Math.abs(sides.nc1 - sides.nc2) < epsilon ||
                Math.abs(sides.nc2 - sides.nc3) < epsilon ||
                Math.abs(sides.nc3 - sides.nc1) < epsilon;
+    }
+
+    drawLabels() {
+        const ctx = this.ctx;
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // ... existing code ...
+
+        // Update Incenter label from ICP to IN
+        if (this.system.incenter) {
+            ctx.fillText('IN', 
+                this.system.incenter.x + 15, 
+                this.system.incenter.y + 15
+            );
+        }
+
+        // ... rest of existing code ...
     }
 }
 
@@ -4916,6 +4940,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const orthocenterElement = document.getElementById('orthocenter-coords');
     if (orthocenterElement) {
         orthocenterElement.title = 'HO: Orthocenter coordinates';
+    }
+
+    // Update any tooltip or help text that references the incenter
+    const incenterElement = document.getElementById('incenter-coords');
+    if (incenterElement) {
+        incenterElement.title = 'IN: Incenter coordinates';
     }
 });
 

@@ -2172,19 +2172,23 @@
                 <div class="dashboard-panel position-panel">
                     <h3 class="panel-header">Incircle</h3>
                     <div class="panel-content">
-                        <!-- First Row - ICP, radius and capacity -->
+                        <!-- First Row - IN, radius, capacity and entropy -->
                         <div class="position-row">
                             <div class="label-value-pair">
-                                <label for="incenter-coords">ICP (x,y)</label>
+                                <label for="incenter-coords">IN (x,y)</label>
                                 <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="inradius">rIC</label>
+                                <label for="inradius">rIN</label>
                                 <input id="inradius" type="text" class="form-control" size="8" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="incircle-capacity">CIC</label>
+                                <label for="incircle-capacity">CIN</label>
                                 <input id="incircle-capacity" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="incircle-entropy">HIN</label>
+                                <input id="incircle-entropy" type="text" class="form-control" size="8" readonly>
                             </div>
                         </div>
 
@@ -2293,7 +2297,7 @@
                     <p>IC: I-Channel or Intelligence Channel (distance from the centroid I to theNode N)</p>
                 </div>
                 <div class="col-md-3">
-                    <p>ICP: Incenter Point of the Incircle</p>
+                    <p>IN: Incenter Point of the Incircle</p>
                 </div>
                 <div class="col-md-3">
                     <p>M: Midpoint (between two Nodes)</p>
