@@ -7,11 +7,13 @@
     gap: 1rem;
     width: fit-content;
     margin: 0 auto;
+    text-align: center;
 }
 
 .dashboard-row {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 0.5rem;
     width: 100%;
 }
@@ -25,6 +27,8 @@
     border-radius: 4px;
     padding: 0.5rem;
     width: fit-content;
+    margin: 0 auto;
+    text-align: center;
 }
 
 .panel-header {
@@ -39,6 +43,7 @@
 .panel-content {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.5rem;
 }
 
@@ -49,8 +54,9 @@
     display: flex;
     flex-direction: row;
     gap: 0.75rem;
-    justify-content: flex-start;
+    justify-content: center;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 /* =================
@@ -59,13 +65,14 @@
 .label-value-pair {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.25rem;
 }
 
 .label-value-pair label {
     flex: 0 0 auto;
     white-space: nowrap;
-    text-align: right;
+    text-align: center;
     min-width: 4ch;
 }
 
@@ -75,7 +82,7 @@
 input[type="text"].form-control {
     width: 10ch;
     min-width: 10ch;
-    text-align: center;
+    text-align: right;
     padding: 0.15rem 0.25rem;
     background-color: #2c2c2c;
     color: #fff;
@@ -85,7 +92,10 @@ input[type="text"].form-control {
 }
 
 /* Coordinate inputs (wider) */
-input[id$="-coords"] {
+input[id$="-coords"],
+input[id*="-centroid"],
+input[id^="tan"] {
+    text-align: center;
     width: 12ch;
     min-width: 12ch;
 }
@@ -139,31 +149,3 @@ input[id^="ic"] {
     font-size: 0.8rem;
 }
 
-/* =================
-   Subsystems Table
-   ================= */
-.subsystems-table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-}
-
-.subsystems-table th,
-.subsystems-table td {
-    padding: 0.25rem 0.5rem;
-    text-align: center;
-    border: 1px solid #444;
-}
-
-.subsystems-table input[type="text"] {
-    width: 100%;
-    text-align: right;
-    padding: 2px 4px;
-}
-
-/* Specific width for coordinate inputs */
-.subsystems-table input[id$="-centroid"] {
-    width: 140px;
-    min-width: 140px;
-    font-family: monospace;
-} 
