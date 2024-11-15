@@ -5,9 +5,8 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    width: fit-content;
+    width: fit-content !important;
     margin: 0 auto;
-    text-align: center;
 }
 
 .dashboard-row {
@@ -15,7 +14,8 @@
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
-    width: 100%;
+    width: fit-content !important;
+    flex-wrap: wrap;
 }
 
 /* =================
@@ -26,9 +26,8 @@
     border: 1px solid #444;
     border-radius: 4px;
     padding: 0.5rem;
-    width: fit-content;
+    width: fit-content !important;
     margin: 0 auto;
-    text-align: center;
 }
 
 .panel-header {
@@ -42,9 +41,10 @@
 
 .panel-content {
     display: flex;
-    flex-direction: column;
-    align-items: center;
     gap: 0.5rem;
+    align-items: center;
+    width: fit-content !important;
+    flex-wrap: wrap;
 }
 
 /* =================
@@ -57,6 +57,15 @@
     justify-content: center;
     flex-wrap: wrap;
     align-items: center;
+    width: fit-content !important;
+}
+
+.panel-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: flex-start;
+    width: fit-content !important;
 }
 
 /* =================
@@ -91,16 +100,17 @@ input[type="text"].form-control,
 }
 
 /* Coordinate inputs (wider for x,y pairs) */
-input[id$="-coords"],
+.coordinate-input,
+input[id*="-coords"],
 input[id*="-centroid"],
 input[id^="tan"],
 input[id*="-point"],
 input[id*="-vertex"] {
     text-align: center;
-    width: 18ch;
-    min-width: 18ch;
-    font-family: monospace;
-    letter-spacing: 0.5px;
+    width: 16ch !important;    /* 16 chars */
+    min-width: 16ch !important;
+    font-family: monospace;    /* For consistent character width */
+    letter-spacing: 0.5px;     /* Slight spacing for readability */
 }
 
 
@@ -152,5 +162,12 @@ input[id^="ic"] {
     min-width: 8ch;
     padding: 0.15rem 0.25rem;
     font-size: 0.8rem;
+}
+
+.value-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: fit-content !important;
 }
 

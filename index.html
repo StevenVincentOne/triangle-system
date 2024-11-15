@@ -80,7 +80,6 @@
             margin: 0.5rem 0;
         }
 
-        /* Add to your existing styles */
         
 
         /* Update the manual controls styles */
@@ -423,31 +422,9 @@
             padding: 0.5rem !important;
         }
 
-        /* Consistent spacing for all label-value pairs */
-        .label-value-pair {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem !important;
-            margin-bottom: 0.25rem !important;
-        }
+        
 
-        /* Specific adjustments for Channels, Medians, Nodes, Centers panels */
-        .dashboard-panel .label-value-pair label {
-            min-width: 4ch !important;
-            text-align: right !important;
-        }
-
-        .dashboard-panel .label-value-pair input {
-            width: 8ch !important;
-        }
-
-        /* Panel headers */
-        .panel-header {
-            text-align: center;
-            margin-bottom: 0.5rem !important;
-            padding-bottom: 0.25rem !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        
 
         /* Dashboard row layout */
         .dashboard {
@@ -672,98 +649,7 @@
             width: 100%;
         }
 
-        /* Panel group (for Channels, Medians, Nodes) */
-        .dashboard-group {
-            display: flex;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-
-        /* Individual panels */
-        .dashboard-panel {
-            background-color: #333;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 0.5rem;
-            width: fit-content;
-        }
-
-        /* Panel content container */
-        .panel-content {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-            width: fit-content;
-        }
-
-        /* Subsystems specific styling */
-        .subsystems-panel {
-            flex: 0 0 auto;
-        }
-
-        .subsystems-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        /* Label-value pairs */
-        .label-value-pair {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            width: fit-content;
-        }
-
-        .label-value-pair label {
-            flex: 0 0 auto;
-            min-width: 4ch;
-            text-align: right;
-        }
-
-        .label-value-pair input {
-            width: 8ch;
-            text-align: right;
-            padding: 0.15rem 0.25rem;
-        }
-
-        /* Ensure label-value pairs are properly contained */
-        .label-value-pair {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem !important;
-            width: 100% !important;
-        }
-
-        .label-value-pair label {
-            min-width: 4ch !important;
-            text-align: right !important;
-        }
-
-        .label-value-pair input {
-            width: 8ch !important;     /* Fixed width for inputs */
-            min-width: 8ch !important;
-            text-align: right !important;
-        }
-
-        /* Subsystems panel specific fixes */
-        .subsystems-panel {
-            width: fit-content !important;
-            flex: 0 0 auto !important;
-        }
-
-        .subsystems-table {
-            width: auto !important;
-            table-layout: fixed !important;
-        }
-
-        .subsystems-table td {
-            padding: 0.25rem 0.5rem !important;
-        }
-
-        .subsystems-table input {
-            width: 8ch !important;
-            min-width: 8ch !important;
-        }
+        
 
         /* Base panel styles */
         .dashboard-panel {
@@ -867,33 +753,9 @@
             width: auto;       /* Allow width to grow */
         }
 
-        .subsystems-table input[type="text"].form-control {
-            width: 100%;
-            min-width: 100%;  /* Force input to take full cell width */
-            box-sizing: border-box;
-        }
+        
 
-        /* Specific style for centroid inputs */
-        .subsystems-table input[id$="-centroid"] {
-            min-width: 120px;
-            width: auto;
-            font-family: monospace;  /* Use monospace for better coordinate alignment */
-        }
-
-        /* Update styles for all input fields in the Subsystems table */
-        .subsystems-table input[type="text"].form-control {
-            width: 100%;
-            min-width: 100%;
-            padding: 2px 4px;
-            box-sizing: border-box;
-        }
-
-        /* Specific style for centroid coordinate inputs */
-        .subsystems-table input[id$="-centroid"] {
-            width: 140px !important;  /* Force wider width */
-            min-width: 140px !important;
-            font-family: monospace;
-        }
+       
 
         /* Ensure table cells expand to fit inputs */
         .subsystems-table td {
@@ -901,39 +763,11 @@
             white-space: nowrap;
         }
 
-        /* Make the last column (coordinates) wider */
-        .subsystems-table th:last-child,
-        .subsystems-table td:last-child {
-            width: 140px;
-            min-width: 140px;
-        }
+        
 
-        /* Update the I and O column input styles */
-        .subsystems-table input[type="text"] {
-            width: 100%;
-            text-align: right;  /* Right-align all numbers */
-            padding: 2px 4px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-        }
+        
 
-        /* Specific width for coordinate columns */
-        .subsystems-table td:nth-child(5) input,  /* I column */
-        .subsystems-table td:nth-child(6) input { /* O column */
-            min-width: 120px;  /* Ensure enough space for coordinates */
-        }
-
-        /* Make area column inputs wider */
-        .subsystems-table td:nth-child(4) input { /* A column */
-            min-width: 100px;  /* Adjust this value as needed */
-        }
-
-        /* Keep coordinate columns at their current width */
-        .subsystems-table td:nth-child(5) input,  /* I column */
-        .subsystems-table td:nth-child(6) input { /* O column */
-            min-width: 120px;
-        }
+        
 
         .column-header {
             color: #fff;
@@ -960,12 +794,7 @@
             padding-right: 4px !important;
         }
 
-        /* Override any conflicting styles */
-        .compact-panel input[type="text"].form-control {
-            width: 10ch !important;
-            min-width: 10ch !important;
-            box-sizing: border-box !important;
-        }
+        
 
        
 
@@ -1219,13 +1048,7 @@
             margin: 0 auto !important;
         }
 
-        /* Ensure consistent input styling */
-        .form-control {
-            font-family: monospace !important;
-            background-color: #2c2c2c !important;
-            border: 1px solid #444 !important;
-            color: #fff !important;
-        }
+        
 
         /* Add to your existing styles */
         .dashboard-panel {
@@ -1260,13 +1083,7 @@
             white-space: nowrap;
         }
 
-        .form-control {
-            background-color: #2c2c2c;
-            border: 1px solid #444;
-            color: #fff;
-            padding: 0.25rem 0.5rem;
-            text-align: right;
-        }
+        
 
         /* Specific to Subtriangle panel */
         .subtriangle-panel .form-control {
@@ -1297,6 +1114,33 @@
         .label-value-pair input {
             width: 12ch;
             text-align: right;
+        }
+
+        .value-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-row {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            align-items: flex-start;
+            width: fit-content !important;
+        }
+
+        /* Coordinate inputs (wider for x,y pairs) */
+        .coordinate-input,
+        input[id*="-coords"],
+        input[id*="-centroid"],
+        input[id^="tan"],
+        input[id*="-point"],
+        input[id*="-vertex"] {
+            text-align: center;
+            width: 18ch !important;    /* 16 chars + 2ch padding */
+            min-width: 18ch !important;
+            font-family: monospace;    /* For consistent character width */
+            letter-spacing: 0.5px;     /* Slight spacing for readability */
         }
     </style>
 </head>
@@ -1478,117 +1322,103 @@
             </div>
         </div>
 
-        
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Dashboard Container -->
         <div class="dashboard-container">
-            <!-- First Row -->
-            <div class="dashboard-row">
-                
-                <!-- Channels Panel -->
+                <!-- System Panel -->
                 <div class="dashboard-panel">
                     <h3 class="panel-header">System</h3>
-                    <div class="d-flex justify-content-center gap-2">
+                    <div class="panel-row">  <!-- Changed to panel-row for horizontal alignment -->
                         <!-- Nodes Panel -->
-                        <div class="dashboard-panel" style="min-width: 300px;">
+                        <div class="dashboard-panel">
                             <h3 class="panel-header">Nodes</h3>
-                            <div class="d-flex gap-3">
+                            <div class="panel-row">
                                 <!-- Angles Column -->
-                                <div class="panel-content">
+                                <div class="value-column">
                                     <div class="label-value-pair">
                                         <label for="node-n1-angle">N1 ∠</label>
-                                        <input id="node-n1-angle" type="text" class="form-control" size="8" readonly>
+                                        <input id="node-n1-angle" type="text" class="form-control" readonly>
                                     </div>
                                     <div class="label-value-pair">
                                         <label for="node-n2-angle">N2 ∠</label>
-                                        <input id="node-n2-angle" type="text" class="form-control" size="8" readonly>
+                                        <input id="node-n2-angle" type="text" class="form-control" readonly>
                                     </div>
                                     <div class="label-value-pair">
                                         <label for="node-n3-angle">N3 ∠</label>
-                                        <input id="node-n3-angle" type="text" class="form-control" size="8" readonly>
+                                        <input id="node-n3-angle" type="text" class="form-control" readonly>
                                     </div>
                                 </div>
                                 
                                 <!-- Coordinates Column -->
-                                <div class="panel-content">
+                                <div class="value-column">
                                     <div class="label-value-pair">
                                         <label for="node1-coords">N1 (x,y)</label>
-                                        <input id="node1-coords" type="text" class="form-control" size="15" readonly>
+                                        <input id="node1-coords" type="text" class="form-control coordinate-input" readonly>
                                     </div>
                                     <div class="label-value-pair">
                                         <label for="node2-coords">N2 (x,y)</label>
-                                        <input id="node2-coords" type="text" class="form-control" size="15" readonly>
+                                        <input id="node2-coords" type="text" class="form-control coordinate-input" readonly>
                                     </div>
                                     <div class="label-value-pair">
                                         <label for="node3-coords">N3 (x,y)</label>
-                                        <input id="node3-coords" type="text" class="form-control" size="15" readonly>
+                                        <input id="node3-coords" type="text" class="form-control coordinate-input" readonly>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Inside the System panel, between Node Channels and I-Channels -->
-                        <div class="d-flex justify-content-center gap-2">
-                            <!-- Nodes Panel (existing) -->
-                            
-                            <!-- Node Channels Panel (existing) -->
-                            <div class="dashboard-panel">
-                                <h3 class="panel-header">Node Channels</h3>
-                                <div class="panel-content">
-                                    <div class="label-value-pair">
-                                        <label for="channel-1">NC1</label>
-                                        <input id="channel-1" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                    <div class="label-value-pair">
-                                        <label for="channel-2">NC2</label>
-                                        <input id="channel-2" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                    <div class="label-value-pair">
-                                        <label for="channel-3">NC3</label>
-                                        <input id="channel-3" type="text" class="form-control" size="8" readonly>
-                                    </div>
+                        <!-- Node Channels Panel -->
+                        <div class="dashboard-panel">
+                            <h3 class="panel-header">Node Channels</h3>
+                            <div class="panel-content">
+                                <div class="label-value-pair">
+                                    <label for="channel-1">NC1</label>
+                                    <input id="channel-1" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="channel-2">NC2</label>
+                                    <input id="channel-2" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="channel-3">NC3</label>
+                                    <input id="channel-3" type="text" class="form-control" size="8" readonly>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- New Midpoints Panel -->
-                            <div class="dashboard-panel">
-                                <h3 class="panel-header">Midpoints</h3>
-                                <div class="panel-content">
-                                    <div class="label-value-pair">
-                                        <label for="mid1-coords">M1 (x,y)</label>
-                                        <input id="mid1-coords" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                    <div class="label-value-pair">
-                                        <label for="mid2-coords">M2 (x,y)</label>
-                                        <input id="mid2-coords" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                    <div class="label-value-pair">
-                                        <label for="mid3-coords">M3 (x,y)</label>
-                                        <input id="mid3-coords" type="text" class="form-control" size="8" readonly>
-                                    </div>
+                        <!-- Midpoints Panel -->
+                        <div class="dashboard-panel">
+                            <h3 class="panel-header">Midpoints</h3>
+                            <div class="panel-content">
+                                <div class="label-value-pair">
+                                    <label for="mid1-coords">M1 (x,y)</label>
+                                    <input id="mid1-coords" type="text" class="form-control coordinate-input" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="mid2-coords">M2 (x,y)</label>
+                                    <input id="mid2-coords" type="text" class="form-control coordinate-input" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="mid3-coords">M3 (x,y)</label>
+                                    <input id="mid3-coords" type="text" class="form-control coordinate-input" readonly>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- I-Channels Panel (existing) -->
-                            <div class="dashboard-panel">
-                                <h3 class="panel-header">I-Channels</h3>
-                                <div class="panel-content">
-                                    <div class="label-value-pair">
-                                        <label for="subsystem-1-mc">IC1</label>
-                                        <input id="subsystem-1-mc" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                    <div class="label-value-pair">
-                                        <label for="subsystem-2-mc">IC2</label>
-                                        <input id="subsystem-2-mc" type="text" class="form-control" size="8" readonly>
-                                    </div>
-                                    <div class="label-value-pair">
-                                        <label for="subsystem-3-mc">IC3</label>
-                                        <input id="subsystem-3-mc" type="text" class="form-control" size="8" readonly>
-                                    </div>
+                        <!-- I-Channels Panel -->
+                        <div class="dashboard-panel">
+                            <h3 class="panel-header">I-Channels</h3>
+                            <div class="panel-content">
+                                <div class="label-value-pair">
+                                    <label for="subsystem-1-mc">IC1</label>
+                                    <input id="subsystem-1-mc" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="subsystem-2-mc">IC2</label>
+                                    <input id="subsystem-2-mc" type="text" class="form-control" size="8" readonly>
+                                </div>
+                                <div class="label-value-pair">
+                                    <label for="subsystem-3-mc">IC3</label>
+                                    <input id="subsystem-3-mc" type="text" class="form-control" size="8" readonly>
                                 </div>
                             </div>
                         </div>
