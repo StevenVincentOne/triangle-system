@@ -1166,6 +1166,10 @@ class TriangleSystem {
             const inradius = area / semiperimeter;
             setElementValue('#inradius', inradius);
 
+            // Calculate and display incircle capacity (CIC = π * rIC²)
+            const incircleCapacity = Math.PI * inradius * inradius;
+            setElementValue('#incircle-capacity', incircleCapacity);
+
             // Debug log to check values
             console.log('Area calculation:', area);
             console.log('Perimeter calculation:', perimeter);
