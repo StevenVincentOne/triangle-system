@@ -1820,40 +1820,64 @@
                             </div>
                         </div>
 
-                        <!-- Channels Panel -->
-                        <div class="dashboard-panel">
-                            <h3 class="panel-header">Node Channels</h3>
-                            <div class="panel-content">
-                                <div class="label-value-pair">
-                                    <label for="channel-1">NC1</label>
-                                    <input id="channel-1" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="channel-2">NC2</label>
-                                    <input id="channel-2" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="channel-3">NC3</label>
-                                    <input id="channel-3" type="text" class="form-control" size="8" readonly>
+                        <!-- Inside the System panel, between Node Channels and I-Channels -->
+                        <div class="d-flex justify-content-center gap-2">
+                            <!-- Nodes Panel (existing) -->
+                            
+                            <!-- Node Channels Panel (existing) -->
+                            <div class="dashboard-panel">
+                                <h3 class="panel-header">Node Channels</h3>
+                                <div class="panel-content">
+                                    <div class="label-value-pair">
+                                        <label for="channel-1">NC1</label>
+                                        <input id="channel-1" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="channel-2">NC2</label>
+                                        <input id="channel-2" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="channel-3">NC3</label>
+                                        <input id="channel-3" type="text" class="form-control" size="8" readonly>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- MC Panel -->
-                        <div class="dashboard-panel">
-                            <h3 class="panel-header">I-Channels</h3>
-                            <div class="panel-content">
-                                <div class="label-value-pair">
-                                    <label for="subsystem-1-mc">IC1</label>
-                                    <input id="subsystem-1-mc" type="text" class="form-control" size="8" readonly>
+                            <!-- New Midpoints Panel -->
+                            <div class="dashboard-panel">
+                                <h3 class="panel-header">Midpoints</h3>
+                                <div class="panel-content">
+                                    <div class="label-value-pair">
+                                        <label for="mid1-coords">M1 (x,y)</label>
+                                        <input id="mid1-coords" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="mid2-coords">M2 (x,y)</label>
+                                        <input id="mid2-coords" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="mid3-coords">M3 (x,y)</label>
+                                        <input id="mid3-coords" type="text" class="form-control" size="8" readonly>
+                                    </div>
                                 </div>
-                                <div class="label-value-pair">
-                                    <label for="subsystem-2-mc">IC2</label>
-                                    <input id="subsystem-2-mc" type="text" class="form-control" size="8" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="subsystem-3-mc">IC3</label>
-                                    <input id="subsystem-3-mc" type="text" class="form-control" size="8" readonly>
+                            </div>
+
+                            <!-- I-Channels Panel (existing) -->
+                            <div class="dashboard-panel">
+                                <h3 class="panel-header">I-Channels</h3>
+                                <div class="panel-content">
+                                    <div class="label-value-pair">
+                                        <label for="subsystem-1-mc">IC1</label>
+                                        <input id="subsystem-1-mc" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="subsystem-2-mc">IC2</label>
+                                        <input id="subsystem-2-mc" type="text" class="form-control" size="8" readonly>
+                                    </div>
+                                    <div class="label-value-pair">
+                                        <label for="subsystem-3-mc">IC3</label>
+                                        <input id="subsystem-3-mc" type="text" class="form-control" size="8" readonly>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2172,39 +2196,11 @@
                 <div class="dashboard-panel position-panel">
                     <h3 class="panel-header">Incircle</h3>
                     <div class="panel-content">
-                        <!-- First Row - IN, radius, capacity and entropy -->
+                        <!-- First Row - IN, Tngents -->
                         <div class="position-row">
                             <div class="label-value-pair">
                                 <label for="incenter-coords">IN (x,y)</label>
                                 <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="inradius">rIN</label>
-                                <input id="inradius" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="incircle-capacity">CIN</label>
-                                <input id="incircle-capacity" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="incircle-entropy">HIN</label>
-                                <input id="incircle-entropy" type="text" class="form-control" size="8" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Second Row - Midpoints and Tangents -->
-                        <div class="position-row">
-                            <div class="label-value-pair">
-                                <label for="mid1-coords">M1 (x,y)</label>
-                                <input id="mid1-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="mid2-coords">M2 (x,y)</label>
-                                <input id="mid2-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="mid3-coords">M3 (x,y)</label>
-                                <input id="mid3-coords" type="text" class="form-control" size="8" readonly>
                             </div>
                             <div class="label-value-pair">
                                 <label for="tan1-coords">T1 (x,y)</label>
@@ -2220,7 +2216,23 @@
                             </div>
                         </div>
 
-                        <!-- New Third Row - Information Data -->
+                        <!-- Second Row - radius, capacity and entropy -->
+                        <div class="position-row">
+                            <div class="label-value-pair">
+                                <label for="inradius">rIN</label>
+                                <input id="inradius" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="incircle-capacity">CIN</label>
+                                <input id="incircle-capacity" type="text" class="form-control" size="8" readonly>
+                            </div>
+                            <div class="label-value-pair">
+                                <label for="incircle-entropy">HIN</label>
+                                <input id="incircle-entropy" type="text" class="form-control" size="8" readonly>
+                            </div>
+                        </div>
+
+                        <!-- New Third Row - Midpo -->
                         <div class="position-row mt-2">
                             <div class="label-value-pair">
                                 <label for="d-m-t-n1">d(M,T)1</label>
