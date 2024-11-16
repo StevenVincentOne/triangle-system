@@ -1,6 +1,12 @@
 /* =================
    Layout & Grid 
    ================= */
+.container {
+    padding: 20px !important;  /* Using !important to override any Bootstrap defaults */
+    max-width: 100% !important;  /* Ensure it spans full width */
+    box-sizing: border-box;  /* Include padding in width calculation */
+}
+
 .dashboard-container {
     display: flex;
     flex-direction: column;
@@ -326,5 +332,26 @@ input[id^="ic"] {
 
 .dropdown-item:hover {
     background-color: #2b4280;
+}
+
+/* =================
+   Legends Panel 
+   ================= */
+.legends-panel {
+    background-color: #2c2c2c;
+    padding: 1rem !important;  /* Reduced from 3rem */
+    border-radius: 8px;
+    color: #ddd;
+    margin: 0.5rem auto !important;  /* Add some vertical spacing */
+    width: fit-content;
+    max-width: calc(100% - 40px);  /* Ensure 20px padding on each side */
+}
+
+.legends-panel p {
+    margin: 0.5rem 0 !important;  /* Reduced from 0.8rem */
+}
+
+.legends-panel .panel-header {
+    margin-bottom: 0.5rem !important;
 }
 
