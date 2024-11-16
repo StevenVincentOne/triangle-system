@@ -1586,6 +1586,13 @@ class TriangleSystem {
                 setElementValue('#h-hic-ratio', (totalSystemEntropy / mcH).toFixed(4));
             }
 
+            // Calculate d(I,IN) - distance between centroid and incenter
+            if (this.system.incenter) {
+                const centroid = this.calculateCentroid();
+                const dIIN = this.calculateDistance(centroid, this.system.incenter);
+                setElementValue('#d-i-in', dIIN.toFixed(2));
+            }
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -1724,6 +1731,12 @@ class TriangleSystem {
             `${this.formatValue(this.roundToZero(centroid.x))}, ${this.formatValue(this.roundToZero(centroid.y))}`);
         setElementValue('#incenter-coords', 
             `${this.formatValue(this.roundToZero(this.system.incenter.x))}, ${this.formatValue(this.roundToZero(this.system.incenter.y))}`);
+
+        // Calculate d(I,IN) - distance between centroid and incenter
+        if (this.system.incenter) {
+            const dIIN = this.calculateDistance(centroid, this.system.incenter);
+            setElementValue('#d-i-in', dIIN.toFixed(2));
+        }
     }
 
     formatValue(value) {
@@ -3517,10 +3530,9 @@ class TriangleSystem {
     }
 
     calculateCentroid() {
-        const { n1, n2, n3 } = this.system;
         return {
-            x: (n1.x + n2.x + n3.x) / 3,
-            y: (n1.y + n2.y + n3.y) / 3
+            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
         };
     }
 
@@ -4529,7 +4541,7 @@ class TriangleSystem {
             };
 
             // Only calculate ratios if points exist and eulerLineLength is not zero
-            if (eulerLineLength > 0.0001) {
+            if (eulerLineLength >0.0001) {
                 metrics.oToIRatio = (this.calculateDistance(this.system.circumcenter, this.system.centroid) / eulerLineLength).toFixed(4);
                 
                 if (this.system.subcenter) {
