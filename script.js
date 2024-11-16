@@ -1596,6 +1596,24 @@ class TriangleSystem {
             this.updateICFields();
             this.updateRNCMTFields();  // Add this line
 
+            // Add after line 1177 (after calculating incircleEntropy)
+            // Calculate Incircle ratios
+            if (incircleEntropy !== 0) {
+                // CIN/HIN and HIN/CIN ratios
+                setElementValue('#cin-hin-ratio', (incircleCapacity / incircleEntropy).toFixed(4));
+                setElementValue('#hin-cin-ratio', (incircleEntropy / incircleCapacity).toFixed(4));
+                
+                // Add CIN/C ratio (using systemCapacity)
+                if (systemCapacity !== 0) {
+                    setElementValue('#cin-c-ratio', (incircleCapacity / systemCapacity).toFixed(4));
+                }
+                
+                // Add HIN/H ratio (using totalSystemEntropy)
+                if (totalSystemEntropy !== 0) {
+                    setElementValue('#hin-h-ratio', (incircleEntropy / totalSystemEntropy).toFixed(4));
+                }
+            }
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -2493,7 +2511,7 @@ class TriangleSystem {
         // Draw the point with smaller radius
         ctx.fillStyle = '#00FFFF';  // Keep the cyan color
         ctx.beginPath();
-        ctx.arc(incenter.x, incenter.y, 4, 0, 2 * Math.PI);  // Reduced from 5 to 4
+        ctx.arc(incenter.x, incenter.y, 4, 0, 2 * Math.PI);
         ctx.fill();
         
         // Label 'IC' with smaller font size
