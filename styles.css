@@ -7,6 +7,7 @@
     gap: 1rem;
     width: fit-content !important;
     margin: 0 auto;
+    font-size: 0.725rem;
 }
 
 .dashboard-row {
@@ -14,7 +15,7 @@
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
-    width: fit-content !important;
+    width: 100% !important;
     flex-wrap: wrap;
 }
 
@@ -22,27 +23,25 @@
    Panels 
    ================= */
 .dashboard-panel {
-    background-color: #333;
+    background-color: #2c2c2c;
     border: 1px solid #444;
     border-radius: 4px;
-    padding: 0.5rem;
+    padding: 0.75rem;
     width: fit-content !important;
     margin: 0 auto;
 }
 
 .panel-header {
-    text-align: center;
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
     color: #ddd;
-    border-bottom: 1px solid #444;
-    padding-bottom: 0.25rem;
+    font-size: 1rem;
+    margin: 0 0 0.75rem 0;
+    text-align: center;
 }
 
 .panel-content {
     display: flex;
-    gap: 0.5rem;
-    align-items: center;
+    flex-direction: column;
+    gap: 0.25rem;
     width: fit-content !important;
     flex-wrap: wrap;
 }
@@ -62,10 +61,9 @@
 
 .panel-row {
     display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    align-items: flex-start;
-    width: fit-content !important;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
 }
 
 /* =================
@@ -74,15 +72,43 @@
 .label-value-pair {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.25rem;
 }
 
 .label-value-pair label {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    text-align: center;
+    color: #ddd;
+    font-size: 0.725rem;
     min-width: 4ch;
+    text-align: right;
+    margin: 0;
+}
+
+.label-value-pair input {
+    background-color: #2b4280 !important;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.725rem;
+    text-align: center;
+    font-family: monospace;
+    width: 8ch;
+}
+
+/* Coordinate inputs need more width */
+.coordinate-input {
+    width: 12ch !important;
+}
+
+/* Nested panels (like in System panel) */
+.dashboard-panel .dashboard-panel {
+    background-color: #262626;
+    margin: 0;
+    padding: 0.5rem;
+}
+
+.dashboard-panel .dashboard-panel .panel-header {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
 }
 
 /* =================
@@ -92,11 +118,12 @@ input[type="text"].form-control,
 .manual-input,
 .animation-input,
 .subsystems-table input[type="text"] {
-    background-color: #2b4280 !important;  /* More distinctly blue */
+    background-color: #2b4280 !important;
     color: #fff;
     border: 1px solid #444;
     border-radius: 3px;
-    text-align: center !important;  /* Center all input content */
+    text-align: center !important;
+    font-size: 0.725rem !important;
 }
 
 /* Coordinate inputs (wider for x,y pairs) */
@@ -164,10 +191,106 @@ input[id^="ic"] {
     font-size: 0.8rem;
 }
 
+/* Value columns within panels */
 .value-column {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.5rem;  /* 8px vertical gap between rows */
     width: fit-content !important;
+}
+
+/* =================
+   Subsystems Table
+   ================= */
+.subsystems-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subsystems-table th,
+.subsystems-table td {
+    padding: 0.25rem;
+    text-align: center;
+    color: #ddd;
+    font-size: 0.875rem;  /* Match other panel text size */
+}
+
+.subsystems-table th {
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.subsystems-table td {
+    vertical-align: middle;
+}
+
+.subsystems-table input {
+    width: 8ch;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.875rem;
+    text-align: center;
+    font-family: monospace;
+    background-color: #2b4280 !important;
+}
+
+/* Specific column widths if needed */
+.subsystems-table td:first-child {
+    min-width: 3ch;
+}
+
+.subsystems-table td:nth-child(2) {  /* angle column */
+    min-width: 4ch;
+}
+
+/* Section headers within panels */
+.section-header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #ddd;
+    padding-bottom: 0.25rem;
+}
+
+.value-section {
+    margin-bottom: 0.25rem;
+}
+
+.value-section:last-child {
+    margin-bottom: 0;
+}
+
+/* =================
+   Subtriangle Panel
+   ================= */
+.subtriangle-headers {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0 1rem;
+}
+
+.subtriangle-headers .section-header {
+    flex: 1;  /* Allow headers to take equal space */
+}
+
+.subtriangle-headers .section-header:first-child {
+    text-align: left;  /* Align "Nodes" to the left side */
+    margin-left: 2rem;  /* Add some spacing from the left edge */
+}
+
+.subtriangle-headers .section-header:last-child {
+    text-align: right;  /* Align "Subchannels" to the right side */
+    margin-right: 2rem;  /* Add some spacing from the right edge */
+}
+
+/* Adjust the main row layout to match header alignment */
+.subtriangle-main-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    padding: 0 1rem;  /* Match header padding */
 }
 

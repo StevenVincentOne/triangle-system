@@ -6,69 +6,7 @@
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Existing Styles */
         
-        
-        .separator {
-            height: 1px;
-            background-color: #444;
-            margin: 1rem 0;
-        }
-        .info-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .info-column {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        
-
-        /* New Sidebar Styles */
-        #sidebar {
-            min-width: 200px;
-            max-width: 300px;
-            height: fit-content;
-            background-color: #2c2c2c;
-            padding: 0.5rem;
-            border-radius: 8px;
-        }
-        
-        #sidebar h5 {
-            color: #ddd;
-            margin-bottom: 0.5rem;
-        }
-        
-        #sidebar button {
-            font-size: 0.8rem;
-            padding: 0.25rem 0.5rem;
-            margin: 0.1rem;  /* Reduce from 0.25rem to 0.1rem */
-            width: 100%;
-        }
-
-        /* And/or adjust the flex column gap */
-        #sidebar .d-flex.flex-column {
-            gap: 0.1rem;  /* Add this if not already present, or reduce if it exists */
-        }
-
-        /* Layout Styles */
-        .d-flex {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .main-content {
-            flex: 1;
-        }
-
-        /* Additional Adjustments */
-        .controls {
-            display: none; /* Hide the original controls */
-        }
-
         /* Legends Panel Adjustments */
         .legends-panel {
             background-color: #2c2c2c;
@@ -164,15 +102,7 @@
             line-height: 1 !important;
         }
 
-        /* Reduce spacing between all dashboard sections */
-        .mb-4 {
-            margin-bottom: 0.5rem !important;  /* Reduce from default 1.5rem */
-        }
-
-        /* Or if you prefer to target sections directly */
-        #manual-controls, #animation-controls, #preset-controls {
-            margin-bottom: 0.5rem !important;
-        }
+        
 
         .preset-button, .feature-button {
             width: 14ch;  /* Sets width to 14 characters */
@@ -333,31 +263,7 @@
             margin-bottom: 1rem;
         }
 
-        .info-container {
-            width: fit-content !important;
-            margin: 0 auto !important;  /* Centers the container */
-        }
-
-        .info-content {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .info-column {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .label-value-pair {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .label-value-pair label {
-            min-width: 8ch;
-        }
+        
 
         /* Center all major containers */
         .container > div {
@@ -396,43 +302,13 @@
             margin: 0 auto;
         }
 
-        /* Center the dashboard panels */
-        .dashboard, .info-container, .legends-panel {
-            margin: 0 auto !important;
-            width: fit-content;
-        }
-
-        /* Center content within panels */
-        .panel-header {
-            text-align: center;
-        }
-
-        .label-value-pair label {
-            min-width: 4ch !important;  /* Minimum width for labels */
-            margin-right: 0 !important; /* Remove any extra margin */
-        }
-
-        .label-value-pair input {
-            width: 8ch !important;     /* Fixed width for inputs */
-        }
-
-        /* Make all dashboard panels conform to content */
-        .dashboard-panel {
-            width: fit-content !important;
-            padding: 0.5rem !important;
-        }
+        
 
         
 
         
 
-        /* Dashboard row layout */
-        .dashboard {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+        
 
         .main-content {
             width: fit-content !important;
@@ -574,146 +450,6 @@
             padding: 0.1rem 0.25rem !important;  /* Further reduced padding */
         }
 
-        .dashboard-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            align-items: flex-start;
-        }
-
-        /* Update dashboard panel styles */
-        .dashboard-panel {
-            flex: 0 1 auto;
-            width: fit-content !important;
-            min-width: min-content !important;
-            background-color: #333;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 0.5rem !important;
-        }
-
-        /* Ensure label-value pairs are properly contained */
-        .label-value-pair {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem !important;
-            width: 100% !important;
-        }
-
-        /* Make input fields consistent */
-        .label-value-pair input {
-            width: 8ch !important;     /* Fixed width for all inputs */
-            min-width: 8ch !important;
-            text-align: right !important;
-            padding: 0.15rem 0.25rem !important;
-        }
-
-        /* Ensure labels don't shrink */
-        .label-value-pair label {
-            flex: 0 0 auto;
-            white-space: nowrap;
-            min-width: 4ch !important;
-        }
-
-        /* Special handling for Subsystems panel */
-        .subsystems-table {
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        .subsystems-table input {
-            width: 100% !important;
-            min-width: 8ch !important;
-        }
-
-        /* Main container */
-        .dashboard-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            width: fit-content;
-            margin: 0 auto;
-        }
-
-        /* Row container */
-        .dashboard-row {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
-        }
-
-        
-
-        /* Base panel styles */
-        .dashboard-panel {
-            display: flex !important;
-            flex-direction: column !important;
-            width: fit-content !important;
-            min-width: min-content !important;
-            padding: 0.5rem !important;
-            background-color: #333;
-            border: 1px solid #444;
-            border-radius: 4px;
-        }
-
-        /* Panel content wrapper */
-        .panel-content {
-            display: flex !important;
-            flex-direction: column !important;
-            width: fit-content !important;
-            min-width: min-content !important;
-        }
-
-        /* Label-value pair container */
-        .label-value-pair {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: flex-end !important;
-            width: fit-content !important;
-            min-width: min-content !important;
-            gap: 0.5rem !important;
-        }
-
-        /* Labels */
-        .label-value-pair label {
-            flex: 0 0 auto !important;
-            white-space: nowrap !important;
-            min-width: 4ch !important;
-            text-align: right !important;
-        }
-
-        /* Input fields */
-        .label-value-pair input {
-            width: 8ch !important;
-            min-width: 8ch !important;
-            max-width: 8ch !important;
-            text-align: right !important;
-            padding: 0.15rem 0.25rem !important;
-        }
-
-        /* Subsystems specific */
-        .subsystems-table {
-            width: auto !important;
-            table-layout: fixed !important;
-        }
-
-        .subsystems-table td {
-            padding: 0.25rem 0.5rem !important;
-        }
-
-        .subsystems-table input {
-            width: 8ch !important;
-            min-width: 8ch !important;
-            max-width: 8ch !important;
-        }
-
         
 
         /* Button sizing and consistency fixes */
@@ -747,52 +483,9 @@
             margin: 0;                  /* Remove any margin that might affect sizing */
             flex: 0 0 auto;            /* Prevent flex growth/shrink */
         }
-
-        .subsystems-table td:last-child {
-            min-width: 140px;  /* Increased minimum width */
-            width: auto;       /* Allow width to grow */
-        }
-
-        
-
-       
-
-        /* Ensure table cells expand to fit inputs */
-        .subsystems-table td {
-            width: auto;
-            white-space: nowrap;
-        }
-
         
 
         
-
-        
-
-        .column-header {
-            color: #fff;
-            font-weight: bold;
-            text-align: center;
-            padding-bottom: 0.5rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid #444;
-        }
-
-        .compact-panel .label-value-pair {
-            padding-left: 0 !important;
-            margin-left: 0 !important;
-        }
-
-        .compact-panel .label-value-pair label {
-            padding-right: 4px !important;
-        }
-
-        .dashboard-panel .panel-content.compact-panel .label-value-pair input {
-            width: 10ch !important;      /* Reduced from 12ch to 10ch */
-            min-width: 10ch !important;  /* Match the width */
-            text-align: right !important;
-            padding-right: 4px !important;
-        }
 
         
 
@@ -946,202 +639,67 @@
             border-color: #146c43 !important;
         }
 
-        /* Information Panel Styles */
-        .information-panel .panel-content {
-            gap: 1rem;
-        }
-
-        .info-column {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .column-header {
-            font-size: 0.9rem;
-            color: #ddd;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.25rem;
-            border-bottom: 1px solid #444;
-        }
-
-        /* Information Panel Styles */
-        .information-panel .row {
-            margin: 0;
-            width: 100%;
-        }
-
-        .info-column {
-            padding: 0.5rem;
-            background-color: #333;
-            border-radius: 4px;
-        }
-
-        .column-header {
-            font-size: 0.9rem;
-            color: #ddd;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.25rem;
-            border-bottom: 1px solid #444;
-        }
-
-        .information-panel .label-value-pair {
-            display: flex;
-            align-items: center;
-        }
-
-        /* System Entropy and Capacity panel */
-        .dashboard-row mt-0 {
-            margin-top: 0 !important;
-        }
-
-        .dashboard-panel mt-0 {
-            margin-top: 0 !important;
-        }
-
-        .dashboard-panel.mt-0 {
-            border-top: none !important;
-            border-radius: 0 !important;
-        }
-
-        /* Update subsystems panel styling */
-        .subsystems-panel {
-            width: fit-content !important;
-            margin: 0 auto !important;
-        }
-
-        .subsystems-table {
-            width: auto !important;
-            table-layout: fixed !important;
-            border-collapse: collapse !important;
-        }
-
-        .subsystems-table th,
-        .subsystems-table td {
-            padding: 0.25rem 0.5rem !important;
-            text-align: center !important;
-        }
-
-        .subsystems-table input {
-            width: 8ch !important;
-            min-width: 8ch !important;
-            text-align: right !important;
-            padding: 0.15rem 0.25rem !important;
-        }
-
-        /* Ensure consistent panel spacing */
-        .dashboard-row {
-            display: flex !important;
-            justify-content: center !important;
-            width: 100% !important;
-            margin-top: 0.5rem !important;
-        }
-
-        .dashboard-row:first-child {
-            margin-top: 0 !important;
-        }
-
-        /* Update subtriangle panel styling */
-        .subtriangle-panel {
-            width: fit-content !important;
-            margin: 0 auto !important;
-        }
-
         
 
-        /* Add to your existing styles */
-        .dashboard-panel {
-            background-color: #333;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 1rem;
+        /* =================
+           Subtriangle Panel
+           ================= */
+        .subtriangle-headers {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
         }
 
-        .panel-header {
-            color: #fff;
-            font-size: 1.1rem;
+        .subtriangle-main-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
             margin-bottom: 1rem;
+        }
+
+        .nodes-section {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .subchannels-section {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .entropy-section {
             text-align: center;
         }
 
-        .column-header {
-            color: #fff;
-            font-size: 1rem;
-            font-weight: normal;
+        .entropy-section .section-header {
+            margin-bottom: 0.5rem;
         }
 
-        .label-value-pair {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        /* Coordinate inputs in subtriangle */
+        .subtriangle-main-row .coordinate-input {
+            width: 12ch !important;
         }
 
-        .label-value-pair label {
-            color: #fff;
-            margin-bottom: 0;
-            white-space: nowrap;
-        }
-
-        
-
-        /* Specific to Subtriangle panel */
-        .subtriangle-panel .form-control {
-            font-family: monospace;
-        }
-
-        /* Inside the System Entropy and Capacity panel, after the existing ratios */
-        .d-flex justify-content-center gap-4 mt-3 {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        /* HP/HIC and HIC/HP ratios */
-        .label-value-pair {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 12ch;
-        }
-
-        .label-value-pair label {
-            flex: 0 0 auto;
-            white-space: nowrap;
-        }
-
-        .label-value-pair input {
-            width: 12ch;
-            text-align: right;
-        }
-
-        .value-column {
-            display: flex;
-            flex-direction: column;
+        /* =================
+           Euler Line Panel
+           ================= */
+        .coordinate-input {
+            width: 12ch !important;  /* Wider for coordinate pairs */
         }
 
         .panel-row {
             display: flex;
-            flex-direction: row;
-            gap: 1rem;
-            align-items: flex-start;
-            width: fit-content !important;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 0.5rem;
         }
 
-        /* Coordinate inputs (wider for x,y pairs) */
-        .coordinate-input,
-        input[id*="-coords"],
-        input[id*="-centroid"],
-        input[id^="tan"],
-        input[id*="-point"],
-        input[id*="-vertex"] {
-            text-align: center;
-            width: 18ch !important;    /* 16 chars + 2ch padding */
-            min-width: 18ch !important;
-            font-family: monospace;    /* For consistent character width */
-            letter-spacing: 0.5px;     /* Slight spacing for readability */
+        .panel-row:last-child {
+            margin-bottom: 0;
         }
+
     </style>
 </head>
 <body>
@@ -1180,11 +738,8 @@
                         </div>
                         <button id="apply-manual" class="btn btn-info">Apply NC</button>
                     </div>
-                </div>
-
-                <!-- NEW: IC Controls -->
-                <div class="manual-controls-container d-flex justify-content-center align-items-center gap-2">
-                    <label class="mb-0">Set Manual IC:</label>
+                
+                    <label class="mb-0"> IC:</label>
                     <div class="manual-input-group">
                         <label for="manual-ic1">IC1</label>
                         <input id="manual-ic1" type="text" class="form-control manual-input" maxlength="6" size="8">
@@ -1426,99 +981,96 @@
                 </div>
             </div>
 
-            <!-- Existing System Entropy and Capacity panel row -->
-            <div class="dashboard-row mt-0">  <!-- Remove mt-2 -->
-                <div class="dashboard-panel mt-0 border-top-0 rounded-top-0">
-                    <h3 class="panel-header">System Entropy and Capacity</h3>
-                    <!-- First row: Main values -->
-                    <div class="d-flex justify-content-center gap-4 mb-3">
-                        <div class="label-value-pair">
-                            <label for="system-h">H</label>
-                            <input id="system-h" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="system-sph">HP</label>
-                            <input id="system-sph" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="system-mch">HIC</label>
-                            <input id="system-mch" type="text" class="form-control" size="8" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="system-b-copy">C</label>
-                            <input id="system-b-copy" type="text" class="form-control" size="12" readonly>
-                        </div>
-                    </div>
-                    
-                    <!-- Second row: Ratios -->
-                    <div class="d-flex justify-content-center gap-4">
-                        <!-- SH ratios -->
-                        <div class="label-value-pair">
-                            <label for="sh-b-ratio">H/C</label>
-                            <input id="sh-b-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="b-sh-ratio">C/H</label>
-                            <input id="b-sh-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        
-                        <!-- SPH ratios -->
-                        <div class="label-value-pair">
-                            <label for="sph-area-ratio">HP/C</label>
-                            <input id="sph-area-ratio" type="text" class="form-control" size="10" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="b-sph-ratio">C/HP</label>
-                            <input id="b-sph-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        
-                        <!-- MCH ratios -->
-                        <div class="label-value-pair">
-                            <label for="mch-b-ratio">HIC/C</label>
-                            <input id="mch-b-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="b-mch-ratio">C/HIC</label>
-                            <input id="b-mch-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Inside the System Entropy and Capacity panel, after the existing ratios -->
-                    <div class="d-flex justify-content-center gap-4 mt-3">
-                        <!-- HP/HIC and HIC/HP ratios -->
-                        <div class="label-value-pair">
-                            <label for="hp-hic-ratio">HP/HIC</label>
-                            <input id="hp-hic-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="hic-hp-ratio">HIC/HP</label>
-                            <input id="hic-hp-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        
-                        <!-- HP/H and H/HP ratios -->
-                        <div class="label-value-pair">
-                            <label for="hp-h-ratio">HP/H</label>
-                            <input id="hp-h-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="h-hp-ratio">H/HP</label>
-                            <input id="h-hp-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        
-                        <!-- HIC/H and H/HIC ratios -->
-                        <div class="label-value-pair">
-                            <label for="hic-h-ratio">HIC/H</label>
-                            <input id="hic-h-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                        <div class="label-value-pair">
-                            <label for="h-hic-ratio">H/HIC</label>
-                            <input id="h-hic-ratio" type="text" class="form-control" size="12" readonly>
-                        </div>
-                    </div>
+            <!-- System Entropy and Capacity Panel -->
+<div class="dashboard-panel">
+    <h3 class="panel-header">System Entropy and Capacity</h3>
+    
+    <div class="panel-content">
+        <!-- Main Values Section -->
+        <div class="value-section">
+            <div class="panel-row">
+                <div class="label-value-pair">
+                    <label for="system-h">H</label>
+                    <input id="system-h" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="system-sph">HP</label>
+                    <input id="system-sph" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="system-mch">HIC</label>
+                    <input id="system-mch" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="system-b-copy">C</label>
+                    <input id="system-b-copy" type="text" readonly>
                 </div>
             </div>
+        </div>
+        
+        <!-- Primary Ratios Section -->
+        <div class="value-section">
+            <div class="panel-row">
+                <div class="label-value-pair">
+                    <label for="sh-b-ratio">H/C</label>
+                    <input id="sh-b-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="b-sh-ratio">C/H</label>
+                    <input id="b-sh-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="sph-area-ratio">HP/C</label>
+                    <input id="sph-area-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="b-sph-ratio">C/HP</label>
+                    <input id="b-sph-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="mch-b-ratio">HIC/C</label>
+                    <input id="mch-b-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="b-mch-ratio">C/HIC</label>
+                    <input id="b-mch-ratio" type="text" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Ratios Section -->
+        <div class="value-section">
+            <div class="panel-row">
+                <div class="label-value-pair">
+                    <label for="hp-hic-ratio">HP/HIC</label>
+                    <input id="hp-hic-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="hic-hp-ratio">HIC/HP</label>
+                    <input id="hic-hp-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="hp-h-ratio">HP/H</label>
+                    <input id="hp-h-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="h-hp-ratio">H/HP</label>
+                    <input id="h-hp-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="hic-h-ratio">HIC/H</label>
+                    <input id="hic-h-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label for="h-hic-ratio">H/HIC</label>
+                    <input id="h-hic-ratio" type="text" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
             
-                <!-- Move Subsystems Panel here -->
+                <!-- Subsystems Panel -->
                 <div class="dashboard-panel">
                     <h3 class="panel-header">Subsystems</h3>
                     <table class="subsystems-table">
@@ -1568,233 +1120,231 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <!-- Subtriangle Panel -->
-<div class="dashboard-row">
-    <div class="dashboard-panel subtriangle-panel">
-        <h3 class="panel-header">Subtriangle</h3>
         
-        <!-- First Row: Nodes and Subchannels -->
-        <div class="d-flex flex-column gap-3">
-            <!-- Headers -->
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="flex-grow-1"><h4 class="column-header">Nodes</h4></div>
-                <div style="width: 30%;"><h4 class="column-header text-center">Subchannels</h4></div>
-            </div>
+            
+            <!-- Subtriangle Panel -->
+            <div class="dashboard-panel">
+                <h3 class="panel-header">Subtriangle</h3>
+                
+                <div class="panel-content">
+                    <!-- Headers Row -->
+                    <div class="subtriangle-headers">
+                        <h4 class="section-header">Nodes</h4>
+                        <h4 class="section-header">Subchannels</h4>
+                    </div>
 
-            <!-- Values -->
-            <div class="d-flex justify-content-between align-items-center">
-                <!-- Nodes -->
-                <div class="d-flex gap-3 flex-grow-1">
-                    <div class="label-value-pair">
-                        <label>ssi1 (x,y)</label>
-                        <input id="subsystem-1-centroid" type="text" class="form-control" size="15" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>ssi2 (x,y)</label>
-                        <input id="subsystem-2-centroid" type="text" class="form-control" size="15" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>ssi3 (x,y)</label>
-                        <input id="subsystem-3-centroid" type="text" class="form-control" size="15" readonly>
-                    </div>
-                </div>
-
-                <!-- Subchannels -->
-                <div class="d-flex gap-3 ms-4">
-                    <div class="label-value-pair">
-                        <label>sc1</label>
-                        <input id="subchannel-1" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>sc2</label>
-                        <input id="subchannel-2" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>sc3</label>
-                        <input id="subchannel-3" type="text" class="form-control" size="8" readonly>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Second Row: Entropy and Capacity -->
-            <div class="mt-3">
-                <h4 class="column-header text-center mb-2">Entropy and Capacity</h4>
-                <div class="d-flex justify-content-center gap-3">
-                    <div class="label-value-pair">
-                        <label>hst</label>
-                        <input id="subtriangle-hst" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>cst</label>
-                        <input id="subtriangle-cst" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>hst/cst</label>
-                        <input id="hst-cst-ratio" type="text" class="form-control" size="8" readonly>
-                    </div>
-                    <div class="label-value-pair">
-                        <label>cst/hst</label>
-                        <input id="cst-hst-ratio" type="text" class="form-control" size="8" readonly>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>       <!-- After the Centers panel and before the Subtriangle panel -->
-<div class="dashboard-row">
-    <div class="dashboard-panel">
-        <h3 class="panel-header">Euler Line</h3>
-        <!-- First Row: Points and Length -->
-        <div class="position-row">
-            <div class="label-value-pair">
-                <label for="circumcenter-coords">O (x,y)</label>
-                <input id="circumcenter-coords" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="centroid-coords">I (x,y)</label>
-                <input id="centroid-coords" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="subcenter-coords">SP (x,y)</label>
-                <input id="subcenter-coords" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="nine-point-coords">NP (x,y)</label>
-                <input id="nine-point-coords" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="orthocenter-coords">HO (x,y)</label>
-                <input id="orthocenter-coords" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="euler-line-length">EL</label>
-                <input id="euler-line-length" type="text" class="form-control" size="8" readonly>
-            </div>
-        </div>
-
-        <!-- Second Row: Slope, Angle and Ratios -->
-        <div class="position-row mt-2">
-            <div class="label-value-pair">
-                <label for="euler-line-slope">mEL</label>
-                <input id="euler-line-slope" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="euler-line-angle">θEL</label>
-                <input id="euler-line-angle" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="o-i-ratio">O-I/EL</label>
-                <input id="o-i-ratio" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="i-sp-ratio">I-SP/EL</label>
-                <input id="i-sp-ratio" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="sp-np-ratio">SP-NP/EL</label>
-                <input id="sp-np-ratio" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="np-ho-ratio">NP-HO/EL</label>
-                <input id="np-ho-ratio" type="text" class="form-control" size="8" readonly>
-            </div>
-        </div>
-
-        <!-- Third Row: All NC Intersection Angles -->
-        <div class="position-row mt-2">
-            <div class="label-value-pair">
-                <label for="nc1-acute">NC1 θa</label>
-                <input id="nc1-acute" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="nc1-obtuse">NC1 θo</label>
-                <input id="nc1-obtuse" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="nc2-acute">NC2 θa</label>
-                <input id="nc2-acute" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="nc2-obtuse">NC2 θo</label>
-                <input id="nc2-obtuse" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="nc3-acute">NC3 θa</label>
-                <input id="nc3-acute" type="text" class="form-control" size="8" readonly>
-            </div>
-            <div class="label-value-pair">
-                <label for="nc3-obtuse">NC3 θo</label>
-                <input id="nc3-obtuse" type="text" class="form-control" size="8" readonly>
-            </div>
-        </div>
-    </div>
-</div>
-
-            <!-- Second Row -->
-            <div class="dashboard-row">
-                <!-- Centers Panel -->
-                <div class="dashboard-panel position-panel">
-                    <h3 class="panel-header">Incircle</h3>
-                    <div class="panel-content">
-                        <!-- First Row - IN, Tngents -->
-                        <div class="position-row">
+                    <!-- Main Row -->
+                    <div class="subtriangle-main-row">
+                        <!-- Nodes Section -->
+                        <div class="nodes-section">
                             <div class="label-value-pair">
-                                <label for="incenter-coords">IN (x,y)</label>
-                                <input id="incenter-coords" type="text" class="form-control" size="8" readonly>
+                                <label>ssi1 (x,y)</label>
+                                <input id="subsystem-1-centroid" type="text" class="coordinate-input" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="tan1-coords">T1 (x,y)</label>
-                                <input id="tan1-coords" type="text" class="form-control" size="8" readonly>
+                                <label>ssi2 (x,y)</label>
+                                <input id="subsystem-2-centroid" type="text" class="coordinate-input" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="tan2-coords">T2 (x,y)</label>
-                                <input id="tan2-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="tan3-coords">T3 (x,y)</label>
-                                <input id="tan3-coords" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="inradius">rIN</label>
-                                <input id="inradius" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="incircle-capacity">CIN</label>
-                                <input id="incircle-capacity" type="text" class="form-control" size="8" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label for="incircle-entropy">HIN</label>
-                                <input id="incircle-entropy" type="text" class="form-control" size="8" readonly>
+                                <label>ssi3 (x,y)</label>
+                                <input id="subsystem-3-centroid" type="text" class="coordinate-input" readonly>
                             </div>
                         </div>
 
-                        <!-- New Third Row - Tangehts, Midopoints distances and ratios -->
-                        <div class="position-row mt-2">
+                        <!-- Subchannels Section -->
+                        <div class="subchannels-section">
                             <div class="label-value-pair">
-                                <label for="d-m-t-n1">d(M,T)1</label>
-                                <input id="d-m-t-n1" type="text" class="form-control" size="8" readonly>
+                                <label>sc1</label>
+                                <input id="subchannel-1" type="text" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="d-m-t-n2">d(M,T)2</label>
-                                <input id="d-m-t-n2" type="text" class="form-control" size="8" readonly>
+                                <label>sc2</label>
+                                <input id="subchannel-2" type="text" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="d-m-t-n3">d(M,T)3</label>
-                                <input id="d-m-t-n3" type="text" class="form-control" size="8" readonly>
+                                <label>sc3</label>
+                                <input id="subchannel-3" type="text" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Entropy Section -->
+                    <div class="entropy-section">
+                        <h4 class="section-header">Entropy and Capacity</h4>
+                        <div class="panel-row">
+                            <div class="label-value-pair">
+                                <label>hst</label>
+                                <input id="subtriangle-hst" type="text" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="r-m-t-n1">r(M,T)1</label>
-                                <input id="r-m-t-n1" type="text" class="form-control" size="8" readonly>
+                                <label>cst</label>
+                                <input id="subtriangle-cst" type="text" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="r-m-t-n2">r(M,T)2</label>
-                                <input id="r-m-t-n2" type="text" class="form-control" size="8" readonly>
+                                <label>hst/cst</label>
+                                <input id="hst-cst-ratio" type="text" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label for="r-m-t-n3">r(M,T)3</label>
-                                <input id="r-m-t-n3" type="text" class="form-control" size="8" readonly>
+                                <label>cst/hst</label>
+                                <input id="cst-hst-ratio" type="text" readonly>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Euler Line panel -->
+            <div class="dashboard-panel">
+                <h3 class="panel-header">Euler Line</h3>
+                
+                <!-- Points and Length Row -->
+                <div class="panel-content">
+                    <div class="panel-row">
+                        <div class="label-value-pair">
+                            <label>O (x,y)</label>
+                            <input id="circumcenter-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>I (x,y)</label>
+                            <input id="centroid-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>SP (x,y)</label>
+                            <input id="subcenter-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>NP (x,y)</label>
+                            <input id="nine-point-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>HO (x,y)</label>
+                            <input id="orthocenter-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>EL</label>
+                            <input id="euler-line-length" type="text" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Slope, Angle and Ratios Row -->
+                    <div class="panel-row">
+                        <div class="label-value-pair">
+                            <label>mEL</label>
+                            <input id="euler-line-slope" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>θEL</label>
+                            <input id="euler-line-angle" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>O-I/EL</label>
+                            <input id="o-i-ratio" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>I-SP/EL</label>
+                            <input id="i-sp-ratio" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>SP-NP/EL</label>
+                            <input id="sp-np-ratio" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>NP-HO/EL</label>
+                            <input id="np-ho-ratio" type="text" readonly>
+                        </div>
+                    </div>
+
+                    <!-- NC Intersection Angles Row -->
+                    <div class="panel-row">
+                        <div class="label-value-pair">
+                            <label>NC1 θa</label>
+                            <input id="nc1-acute" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>NC1 θo</label>
+                            <input id="nc1-obtuse" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>NC2 θa</label>
+                            <input id="nc2-acute" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>NC2 θo</label>
+                            <input id="nc2-obtuse" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>NC3 θa</label>
+                            <input id="nc3-acute" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>NC3 θo</label>
+                            <input id="nc3-obtuse" type="text" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incircle Panel -->
+            <div class="dashboard-panel">
+                <h3 class="panel-header">Incircle</h3>
+                <div class="panel-content">
+                    <!-- Coordinates and Measurements Row -->
+                    <div class="panel-row">
+                        <div class="label-value-pair">
+                            <label>IN (x,y)</label>
+                            <input id="incenter-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>T1 (x,y)</label>
+                            <input id="tan1-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>T2 (x,y)</label>
+                            <input id="tan2-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>T3 (x,y)</label>
+                            <input id="tan3-coords" type="text" class="coordinate-input" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>rIN</label>
+                            <input id="inradius" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>CIN</label>
+                            <input id="incircle-capacity" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>HIN</label>
+                            <input id="incircle-entropy" type="text" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Distances and Ratios Row -->
+                    <div class="panel-row">
+                        <div class="label-value-pair">
+                            <label>d(M,T)1</label>
+                            <input id="d-m-t-n1" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>d(M,T)2</label>
+                            <input id="d-m-t-n2" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>d(M,T)3</label>
+                            <input id="d-m-t-n3" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>r(M,T)1</label>
+                            <input id="r-m-t-n1" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>r(M,T)2</label>
+                            <input id="r-m-t-n2" type="text" readonly>
+                        </div>
+                        <div class="label-value-pair">
+                            <label>r(M,T)3</label>
+                            <input id="r-m-t-n3" type="text" readonly>
                         </div>
                     </div>
                 </div>
