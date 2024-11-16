@@ -1593,6 +1593,9 @@ class TriangleSystem {
                 setElementValue('#d-i-in', dIIN.toFixed(2));
             }
 
+            this.updateICFields();
+            this.updateRNCMTFields();  // Add this line
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -1700,16 +1703,48 @@ class TriangleSystem {
             ['n1', 'n2', 'n3'].forEach(node => {
                 setElementValue(`#d-m-t-${node}`, 0);
                 setElementValue(`#r-m-t-${node}`, 0);
+                setElementValue(`#r-m-t-nc${node.slice(-1)}`, 0);
             });
         } else {
-            // Update distances in correct order matching our node scheme
             ['n1', 'n2', 'n3'].forEach((node, index) => {
+                // Debug existing values
+                console.log('Current node:', node, 'index:', index);
+                console.log('Midpoints:', midpoints);
+                console.log('Tangency Points:', tangencyPoints);
+
                 const midpoint = midpoints[`m${index + 1}`];
                 const tangentPoint = tangencyPoints[index];
                 const dMT = this.calculateDistance(midpoint, tangentPoint);
-                const rMT = perimeter !== 0 ? dMT / perimeter : 0;
-                setElementValue(`#d-m-t-${node}`, roundToZero(dMT));
-                setElementValue(`#r-m-t-${node}`, roundToZero(rMT));
+                
+                // Calculate ratio to perimeter (existing)
+                const rMTHP = perimeter !== 0 ? dMT / perimeter : 0;
+                
+                // Calculate ratio to NC length (new)
+                const nodePoints = [
+                    [this.system.n1, this.system.n3],  // NC1
+                    [this.system.n1, this.system.n2],  // NC2
+                    [this.system.n2, this.system.n3]   // NC3
+                ];
+                
+                const ncLength = this.calculateDistance(...nodePoints[index]);
+                const rMTNC = ncLength !== 0 ? dMT / ncLength : 0;
+                
+                console.log(`Channel ${index + 1} calculations:`, {
+                    dMT,
+                    ncLength,
+                    rMTHP,
+                    rMTNC,
+                    elementIds: {
+                        dmt: `#d-m-t-${node}`,
+                        rmt: `#r-m-t-${node}`,
+                        rmtnc: `#r-m-t-nc${index + 1}`
+                    }
+                });
+                
+                // Set all values
+                setElementValue(`#d-m-t-${node}`, dMT.toFixed(2));
+                setElementValue(`#r-m-t-${node}`, rMTHP.toFixed(4));
+                setElementValue(`#r-m-t-nc${index + 1}`, rMTNC.toFixed(4));
             });
         }
 
@@ -4709,6 +4744,46 @@ class TriangleSystem {
 
         // ... rest of existing code ...
     }
+
+    // Add new method to update rNC(M,T) fields
+    updateRNCMTFields() {
+        // Calculate midpoints and tangent points if not already done
+        const midpoints = {
+            m1: this.calculateMidpoint(this.system.n1, this.system.n3),  // For NC1
+            m2: this.calculateMidpoint(this.system.n1, this.system.n2),  // For NC2
+            m3: this.calculateMidpoint(this.system.n2, this.system.n3)   // For NC3
+        };
+        
+        const tangentPoints = this.calculateTangents();  // Changed from calculateTangencyPoints
+        
+        // Calculate NC lengths
+        const ncLengths = {
+            nc1: this.calculateDistance(this.system.n1, this.system.n3),  // NC1
+            nc2: this.calculateDistance(this.system.n1, this.system.n2),  // NC2
+            nc3: this.calculateDistance(this.system.n2, this.system.n3)   // NC3
+        };
+
+        // Add debug logging
+        console.log('Midpoints:', midpoints);
+        console.log('Tangent Points:', tangentPoints);
+        console.log('NC Lengths:', ncLengths);
+
+        // Calculate and update each rNC(M,T) value
+        ['1', '2', '3'].forEach((index) => {
+            const dMT = this.calculateDistance(midpoints[`m${index}`], tangentPoints[index - 1]);
+            const ncLength = ncLengths[`nc${index}`];
+            const rMTNC = ncLength !== 0 ? dMT / ncLength : 0;
+            
+            console.log(`Channel ${index}:`, { dMT, ncLength, rMTNC });
+            
+            const input = document.getElementById(`r-m-t-nc${index}`);
+            if (input) {
+                input.value = rMTNC.toFixed(4);
+            } else {
+                console.warn(`Input element not found: r-m-t-nc${index}`);
+            }
+        });
+    }
 }
 
 // Outside the class - DOM initialization
@@ -4734,9 +4809,6 @@ document.addEventListener('DOMContentLoaded', () => {
             triangleSystem.drawSystem();
         });
     }
-
-    
-    document.head.appendChild(style);
 
     // Update the HTML size attributes
     document.querySelectorAll('.subsystems-table td:nth-child(5) input, .subsystems-table td:nth-child(6) input').forEach(input => {
