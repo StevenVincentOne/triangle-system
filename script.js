@@ -481,7 +481,7 @@ class TriangleSystem {
                 
                 // Create edit button
                 const editBtn = document.createElement('button');
-                editBtn.className = 'btn btn-secondary btn-sm';
+                editBtn.className = 'edit-button small-button';  // instead of 'btn btn-secondary btn-sm'
                 editBtn.textContent = '✎';
                 editBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -494,7 +494,7 @@ class TriangleSystem {
                 
                 // Create delete button
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-danger btn-sm';
+                deleteBtn.className = 'delete-button small-button';  // instead of 'btn btn-danger btn-sm'
                 deleteBtn.textContent = '×';
                 deleteBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -2691,7 +2691,7 @@ class TriangleSystem {
                 
                 // Create delete button
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-danger btn-sm';
+                deleteBtn.className = 'delete-button small-button';  // instead of 'btn btn-danger btn-sm'
                 deleteBtn.textContent = '×';
                 deleteBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -3312,6 +3312,11 @@ class TriangleSystem {
     }
 
     drawEulerLine(ctx) {
+        // Don't draw Euler Line if triangle is equilateral
+        if (this.isIsosceles() && Math.abs(this.calculateAngles().n1 - 60) < 0.1) {
+            return;  // Exit early for equilateral triangles
+        }
+
         // Get the required points
         const O = this.system.circumcenter;
         const H = this.system.orthocenter;
@@ -3695,7 +3700,7 @@ class TriangleSystem {
                 
                 // Create edit button
                 const editBtn = document.createElement('button');
-                editBtn.className = 'btn btn-secondary btn-sm';
+                editBtn.className = 'edit-button small-button';  // instead of 'btn btn-secondary btn-sm'
                 editBtn.textContent = '✎';
                 editBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -3708,7 +3713,7 @@ class TriangleSystem {
                 
                 // Create delete button
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-danger btn-sm';
+                deleteBtn.className = 'delete-button small-button';  // instead of 'btn btn-danger btn-sm'
                 deleteBtn.textContent = '×';
                 deleteBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -4446,6 +4451,27 @@ class TriangleSystem {
 
     // Add this method to calculate Euler Line length and ratios
     calculateEulerLineMetrics() {
+        // Check if triangle is equilateral
+        if (this.isIsosceles() && Math.abs(this.calculateAngles().n1 - 60) < 0.1) {
+            return {
+                eulerLineLength: "0.00",
+                eulerLineSlope: "∞",
+                eulerLineAngle: "∞",
+                oToIRatio: "∞",
+                iToSPRatio: "∞",
+                spToNPRatio: "∞",
+                npToHORatio: "∞",
+                intersectionAngles: {
+                    nc1_acute: "∞",
+                    nc1_obtuse: "∞",
+                    nc2_acute: "∞",
+                    nc2_obtuse: "∞",
+                    nc3_acute: "∞",
+                    nc3_obtuse: "∞"
+                }
+            };
+        }
+
         console.log('Calculating Euler Line metrics...');
         
         // Check for required points
@@ -4520,7 +4546,7 @@ class TriangleSystem {
             }
 
             // Add intersection angles if Euler Line exists
-            if (eulerLineLength > 0.0001) {
+            if (eulerLineLength >0.0001) {
                 const intersectionAngles = this.calculateEulerLineIntersectionAngles();
                 metrics.intersectionAngles = intersectionAngles;
             } else {
@@ -4697,224 +4723,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add CSS dynamically to ensure coordinate input fields are wide enough
-    const style = document.createElement('style');
-    style.textContent = `
-        /* General subsystem table input styling */
-        .subsystems-table input[type="text"] {
-            min-width: 90px !important;
-            width: auto !important;
-            text-align: right;
-        }
-
-        /* Coordinate input fields (for all x,y positions) */
-        input[type="text"].form-control[size="15"] {
-            min-width: 120px !important;
-            width: auto !important;
-            text-align: center !important;
-            font-family: monospace !important;  /* For better alignment of numbers */
-        }
-
-        /* Add these styles to your existing <style> section */
-        #userPresetsDropdown {
-            font-size: 0.875rem;
-            padding: 0.25rem 0.75rem;
-        }
-
-        #userPresetsList {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 0.25rem 0;
-            margin: 0;
-            font-size: 0.875rem;
-        }
-
-        #userPresetsList li {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        #userPresetsList .dropdown-item {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            padding: 0.15rem 0.5rem !important;
-            margin: 0 !important;
-            font-size: 0.875rem !important;
-            line-height: 1.2 !important;
-            white-space: nowrap !important;  /* Prevent wrapping */
-        }
-
-        #userPresetsList .btn-danger {
-            padding: 0 0.25rem !important;
-            font-size: 0.75rem !important;
-            line-height: 1 !important;
-            margin-left: 0.5rem !important;
-            height: 1.2rem !important;
-            float: none !important;  /* Remove float */
-            display: inline-flex !important;
-            align-items: center !important;
-        }
-
-        /* Ensure dropdown menu has proper dark theme */
-        .dropdown-menu {
-            background-color: #2c2c2c;
-            border-color: #444;
-        }
-
-        .dropdown-item {
-            color: #fff;
-        }
-
-        .dropdown-item:hover {
-            background-color: #444;
-            color: #fff;
-        }
-
-        /* Dropdown specific styles */
-        .dropdown-menu {
-            padding: 0.25rem 0 !important;  /* Reduced padding top/bottom */
-        }
-
-        #userPresetsList {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        #userPresetsList li {
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 0.5 !important;  /* Reduced line height */
-        }
-
-        #userPresetsList .dropdown-item {
-            padding: 0.15rem 0.5rem !important;  /* Reduced padding top/bottom */
-            margin: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            font-size: 0.875rem !important;
-            line-height: 0.5 !important;  /* Match li line-height */
-        }
-
-        #userPresetsList .btn-danger {
-            padding: 0 0.25rem !important;
-            font-size: 0.75rem !important;
-            line-height: 1 !important;
-            margin-left: 0.5rem !important;
-            height: 1.2rem !important;  /* Match line height */
-        }
-
-        /* Ensure the list items don't wrap */
-        #userPresetsList li {
-            margin: 0 !important;
-            padding: 0 !important;
-            white-space: nowrap !important;
-        }
-
-        /* Make dropdown wide enough to fit content */
-        .dropdown-menu {
-            min-width: max-content !important;
-        }
-
-        /* Dropdown item container */
-        #userPresetsList li {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* Dropdown item styling */
-        #userPresetsList .dropdown-item {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            padding: 0.15rem 0.5rem !important;
-            margin: 0 !important;
-            font-size: 0.875rem !important;
-            line-height: 1.2 !important;
-            white-space: nowrap !important;
-            width: 100% !important;
-        }
-
-        /* Text content wrapper */
-        #userPresetsList .dropdown-item span {
-            flex: 1 !important;
-            margin-right: 0.5rem !important;
-        }
-
-        /* Delete button styling */
-        #userPresetsList .btn-danger {
-            font-size: 0.75rem !important;
-            padding: 0 0.25rem !important;
-            line-height: 1 !important;
-            height: 1.2rem !important;
-            flex-shrink: 0 !important;
-            margin: 0 !important;
-        }
-
-        /* Add to your existing styles */
-        .preset-buttons {
-            display: flex !important;
-            gap: 0.25rem !important;
-            margin-left: 0.5rem !important;
-        }
-
-        #userPresetsList .btn-secondary {
-            font-size: 0.75rem !important;
-            padding: 0 0.25rem !important;
-            line-height: 1 !important;
-            height: 1.2rem !important;
-        }
-
-        #userPresetsList .dropdown-item {
-            padding-right: 0.5rem !important;
-        }
-
-        /* Add to your existing styles */
-        #animationsList {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        #animationsList .dropdown-item {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            padding: 0.15rem 0.5rem !important;
-            margin: 0 !important;
-            font-size: 0.875rem !important;
-            line-height: 1.2 !important;
-            white-space: nowrap !important;
-            width: 100% !important;
-        }
-
-        /* Make both dropdowns the same size */
-        #userPresetsDropdown,
-        #animationsDropdown {
-            width: 120px !important;
-            font-size: 0.875rem !important;
-        }
-
-        /* Export container button spacing */
-        .export-container button {
-            margin-right: 0.5rem !important;
-        }
-        
-        .export-container button:last-child {
-            margin-right: 0 !important;
-        }
-
-        /* Save State button styling */
-        #saveState {
-            background-color: #198754 !important;  /* Bootstrap success green */
-            border-color: #198754 !important;
-        }
-
-        #saveState:hover {
-            background-color: #157347 !important;
-            border-color: #146c43 !important;
-        }
-    `;
+    
     document.head.appendChild(style);
 
     // Update the HTML size attributes
