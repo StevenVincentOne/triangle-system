@@ -1591,6 +1591,18 @@ class TriangleSystem {
                 const centroid = this.calculateCentroid();
                 const dIIN = this.calculateDistance(centroid, this.system.incenter);
                 setElementValue('#d-i-in', dIIN.toFixed(2));
+
+                // Calculate distances between Incenter and Subsystem centroids
+                const subsystemCentroids = this.calculateSubsystemCentroids();
+                
+                // Calculate and set distances between Incenter and each subsystem centroid
+                const dINssi1 = this.calculateDistance(this.system.incenter, subsystemCentroids.ss1);
+                const dINssi2 = this.calculateDistance(this.system.incenter, subsystemCentroids.ss2);
+                const dINssi3 = this.calculateDistance(this.system.incenter, subsystemCentroids.ss3);
+
+                setElementValue('#d-in-ssi1', dINssi1.toFixed(2));
+                setElementValue('#d-in-ssi2', dINssi2.toFixed(2));
+                setElementValue('#d-in-ssi3', dINssi3.toFixed(2));
             }
 
             this.updateICFields();
