@@ -1272,7 +1272,7 @@ class TriangleSystem {
                 setElementValue(`#subsystem-${i}-inverse-ratio`, inverseRatio.toFixed(4));
             }
 
-            // Information Panel Updates
+            // Panel Updates
             const { n1, n2, n3, incenter } = this.system;
             
             // Calculate midpoints (M) for each edge
@@ -1626,53 +1626,121 @@ class TriangleSystem {
                 }
             }
 
+            // Update subsystems table
+            for (let i = 1; i <= 3; i++) {
+                const centroid = this.calculateCentroid();
+                
+                // Calculate ssh (subsystem entropy/perimeter) first
+                let ssh;
+                if (i === 1) {
+                    // SS1 (red): NC1 + IC1 + IC3
+                    ssh = this.calculateDistance(this.system.n1, this.system.n3) +  // NC1
+                         this.calculateDistance(this.system.n1, centroid) +         // IC1
+                         this.calculateDistance(this.system.n3, centroid);          // IC3
+                } else if (i === 2) {
+                    // SS2 (blue): NC2 + IC1 + IC2
+                    ssh = this.calculateDistance(this.system.n1, this.system.n2) +  // NC2
+                         this.calculateDistance(this.system.n1, centroid) +         // IC1
+                         this.calculateDistance(this.system.n2, centroid);          // IC2
+                } else {
+                    // SS3 (green): NC3 + IC2 + IC3
+                    ssh = this.calculateDistance(this.system.n2, this.system.n3) +  // NC3
+                         this.calculateDistance(this.system.n2, centroid) +         // IC2
+                         this.calculateDistance(this.system.n3, centroid);          // IC3
+                }
+                
+                // Update ssh value
+                document.getElementById(`subsystem-${i}-sc`).value = ssh.toFixed(4);
+                
+                // Calculate capacity (ssc)
+                const capacity = this.calculateSubsystemCapacity(i);
+                document.getElementById(`subsystem-${i}-perimeter`).value = capacity.toFixed(4);
+                
+                // Update ratios only if capacity is not zero
+                if (capacity !== 0) {
+                    // Update ssh/ssc ratio
+                    const sshSscRatio = ssh / capacity;
+                    document.getElementById(`subsystem-${i}-area`).value = sshSscRatio.toFixed(4);
+                    
+                    // Update ssc/ssh ratio
+                    const sscSshRatio = capacity / ssh;
+                    document.getElementById(`subsystem-${i}-ratio`).value = sscSshRatio.toFixed(4);
+                    document.getElementById(`subsystem-${i}-inverse-ratio`).value = sscSshRatio.toFixed(4);
+                }
+                
+                // Update entropy ratio (ssh/H)
+                const totalEntropy = this.calculateTotalEntropy();
+                if (totalEntropy !== 0) {
+                    const entropyRatio = ssh / totalEntropy;
+                    document.getElementById(`subsystem-${i}-entropy-ratio`).value = entropyRatio.toFixed(4);
+                }
+            }
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
     }
     
     calculateSubsystemAngles() {
-        const centroid = {
-            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
-            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+        const centroid = this.calculateCentroid();
+        
+        // Calculate vectors from centroid to each node
+        const vectors = {
+            n1: { 
+                x: this.system.n1.x - centroid.x, 
+                y: this.system.n1.y - centroid.y 
+            },
+            n2: { 
+                x: this.system.n2.x - centroid.x, 
+                y: this.system.n2.y - centroid.y 
+            },
+            n3: { 
+                x: this.system.n3.x - centroid.x, 
+                y: this.system.n3.y - centroid.y 
+            }
         };
 
-        // Calculate angles for each subsystem at the centroid
-        const nodes = [
-            [this.system.n1, this.system.n3],  // SS1 (Red, Left)
-            [this.system.n1, this.system.n2],  // SS2 (Blue, Right)
-            [this.system.n2, this.system.n3]   // SS3 (Green, Base)
+        // Calculate angles at centroid (I) for each subsystem
+        return [
+            // SS1 (red): angle at I between IC1 and IC3
+            this.calculateAngleBetweenVectors(vectors.n1, vectors.n3),
+            
+            // SS2 (blue): angle at I between IC1 and IC2
+            this.calculateAngleBetweenVectors(vectors.n1, vectors.n2),
+            
+            // SS3 (green): angle at I between IC2 and IC3
+            this.calculateAngleBetweenVectors(vectors.n2, vectors.n3)
         ];
+    }
 
-        return nodes.map(([p1, p2]) => {
-            const v1 = { x: p1.x - centroid.x, y: p1.y - centroid.y };
-            const v2 = { x: p2.x - centroid.x, y: p2.y - centroid.y };
-            const dot = v1.x * v2.x + v1.y * v2.y;
-            const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
-            const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
-            const angle = Math.acos(dot / (mag1 * mag2)) * (180 / Math.PI);
-            return angle;
-        });
+    calculateAngleBetweenVectors(v1, v2) {
+        // Calculate dot product
+        const dotProduct = v1.x * v2.x + v1.y * v2.y;
+        
+        // Calculate magnitudes
+        const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+        const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+        
+        // Calculate angle in degrees
+        const angleRad = Math.acos(dotProduct / (mag1 * mag2));
+        return (angleRad * 180) / Math.PI;
     }
 
     calculateSubsystemPerimeters() {
-        const centroid = {
-            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
-            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
-        };
-
+        const centroid = this.calculateCentroid();
+        
         return [
-            // SS1 (Red, Left: N1-N3-I)
+            // SS1 (red): N1-N3-I
             this.calculateDistance(this.system.n1, this.system.n3) +
             this.calculateDistance(this.system.n3, centroid) +
             this.calculateDistance(centroid, this.system.n1),
             
-            // SS2 (Blue, Right: N1-N2-I)
+            // SS2 (blue): N1-N2-I
             this.calculateDistance(this.system.n1, this.system.n2) +
             this.calculateDistance(this.system.n2, centroid) +
             this.calculateDistance(centroid, this.system.n1),
             
-            // SS3 (Green, Base: N2-N3-I)
+            // SS3 (green): N2-N3-I
             this.calculateDistance(this.system.n2, this.system.n3) +
             this.calculateDistance(this.system.n3, centroid) +
             this.calculateDistance(centroid, this.system.n2)
@@ -1680,16 +1748,17 @@ class TriangleSystem {
     }
 
     calculateSubsystemAreas() {
-        const { n1, n2, n3 } = this.system;
-        const origin = { x: 0, y: 0 };  // Intelligence point (I)
-
+        const centroid = this.calculateCentroid();
+        
         return [
-            // SS1 (triangle formed by N1, N3, and I)
-            this.calculateTriangleArea(n1, n3, origin),
-            // SS2 (triangle formed by N1, N2, and I)
-            this.calculateTriangleArea(n1, n2, origin),
-            // SS3 (triangle formed by N2, N3, and I)
-            this.calculateTriangleArea(n2, n3, origin)
+            // SS1 (red): N1-N3-I
+            this.calculateTriangleArea(this.system.n1, this.system.n3, centroid),
+            
+            // SS2 (blue): N1-N2-I
+            this.calculateTriangleArea(this.system.n1, this.system.n2, centroid),
+            
+            // SS3 (green): N2-N3-I
+            this.calculateTriangleArea(this.system.n2, this.system.n3, centroid)
         ];
     }
 
@@ -2269,19 +2338,19 @@ class TriangleSystem {
         // Draw centroids with matching colors
         const centroids = this.calculateSubsystemCentroids();
         
-        // Draw SS1 centroid (Blue)
+        // Draw SS1 centroid (Red)
         this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss1.x, centroids.ss1.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
         
-        // Draw SS2 centroid (Green)
+        // Draw SS2 centroid (Blue)
         this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss2.x, centroids.ss2.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
         
-        // Draw SS3 centroid (Red)
+        // Draw SS3 centroid (Green)
         this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss3.x, centroids.ss3.y, 4, 0, 2 * Math.PI);
@@ -3484,7 +3553,7 @@ class TriangleSystem {
                 this.ctx.lineTo(node.x, node.y);
                 this.ctx.stroke();
 
-                // Optionally label the median channels (MC1, MC2, MC3)
+                // Optionally label the I-channels (IC1, IC2, IC3)
                 const midpoint = {
                     x: (origin.x + node.x) / 2,
                     y: (origin.y + node.y) / 2
@@ -3494,7 +3563,7 @@ class TriangleSystem {
                 this.ctx.scale(1, -1);
                 this.ctx.fillStyle = '#AAAAAA';
                 this.ctx.font = '12px Arial';
-                this.ctx.fillText(`MC${index + 1}`, midpoint.x + 5, -midpoint.y);
+                this.ctx.fillText(`IC${index + 1}`, midpoint.x + 5, -midpoint.y);
                 this.ctx.restore();
             });
         }
@@ -4174,15 +4243,18 @@ class TriangleSystem {
     // Helper method to calculate subsystem centroid
     calculateSubsystemCentroid(subsystemIndex) {
         try {
-            const vertices = this.getSubsystemVertices(subsystemIndex);
-            if (!vertices || vertices.length === 0) {
-                console.error('No vertices found for subsystem:', subsystemIndex);
-                return { x: 0, y: 0 }; // Return default values if no vertices
-            }
-            
-            const x = vertices.reduce((sum, v) => sum + (v?.x || 0), 0) / vertices.length;
-            const y = vertices.reduce((sum, v) => sum + (v?.y || 0), 0) / vertices.length;
-            return { x, y };
+            const centroid = this.calculateCentroid();
+            const nodes = {
+                1: [this.system.n1, this.system.n3], // SS1: N1-N3-I
+                2: [this.system.n1, this.system.n2], // SS2: N1-N2-I
+                3: [this.system.n2, this.system.n3]  // SS3: N2-N3-I
+            };
+
+            const [n1, n2] = nodes[subsystemIndex];
+            return {
+                x: (n1.x + n2.x + centroid.x) / 3,
+                y: (n1.y + n2.y + centroid.y) / 3
+            };
         } catch (error) {
             console.error('Error calculating subsystem centroid:', error);
             return { x: 0, y: 0 }; // Return default values on error
@@ -4813,6 +4885,130 @@ class TriangleSystem {
                 console.warn(`Input element not found: r-m-t-nc${index}`);
             }
         });
+    }
+
+    // Helper methods for subsystem calculations
+    calculateSubsystemAngle(index) {
+        const angles = this.calculateAngles();
+        return angles[`n${index}`];
+    }
+
+    calculateSubsystemEntropy(index) {
+        // Calculate perimeter of the subsystem
+        const nodes = {
+            1: [this.system.n1, this.system.n2, this.system.centroid],
+            2: [this.system.n2, this.system.n3, this.system.centroid],
+            3: [this.system.n3, this.system.n1, this.system.centroid]
+        };
+        
+        const [n1, n2, c] = nodes[index];
+        return this.calculateDistance(n1, n2) + 
+               this.calculateDistance(n2, c) + 
+               this.calculateDistance(c, n1);
+    }
+
+    calculateSubsystemCapacity(index) {
+        // Calculate area of the subsystem triangle
+        const nodes = {
+            1: [this.system.n1, this.system.n2, this.system.centroid],
+            2: [this.system.n2, this.system.n3, this.system.centroid],
+            3: [this.system.n3, this.system.n1, this.system.centroid]
+        };
+        
+        const [n1, n2, c] = nodes[index];
+        return Math.abs((n1.x * (n2.y - c.y) + n2.x * (c.y - n1.y) + c.x * (n1.y - n2.y)) / 2);
+    }
+
+    calculateTotalEntropy() {
+        // Calculate total entropy based on subsystem angles and entropies
+        const subsystemAngles = this.calculateSubsystemAngles();
+        const subsystemEntropies = [this.calculateSubsystemEntropy(1), this.calculateSubsystemEntropy(2), this.calculateSubsystemEntropy(3)];
+        const totalEntropy = subsystemEntropies.reduce((sum, entropy) => sum + entropy, 0);
+        return totalEntropy;
+    }
+
+    // Helper method to calculate angle at a point between two other points
+    calculateAngleAtPoint(p1, center, p2) {
+        const v1 = {
+            x: p1.x - center.x,
+            y: p1.y - center.y
+        };
+        const v2 = {
+            x: p2.x - center.x,
+            y: p2.y - center.y
+        };
+        
+        const dot = v1.x * v2.x + v1.y * v2.y;
+        const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+        const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+        
+        return Math.acos(dot / (mag1 * mag2)) * (180 / Math.PI);
+    }
+
+    updateSubsystemsTable() {
+        try {
+            const centroid = this.calculateCentroid();
+            
+            // Calculate subsystem values
+            const subsystems = {
+                ss1: {
+                    angle: this.calculateSubsystemAngle(this.system.n1, this.system.n3, centroid),
+                    ssh: this.calculateDistance(this.system.n1, this.system.n3) +  // NC1
+                         this.calculateDistance(this.system.n1, centroid) +        // IC1
+                         this.calculateDistance(this.system.n3, centroid)          // IC3
+                },
+                ss2: {
+                    angle: this.calculateSubsystemAngle(this.system.n1, this.system.n2, centroid),
+                    ssh: this.calculateDistance(this.system.n1, this.system.n2) +  // NC2
+                         this.calculateDistance(this.system.n1, centroid) +        // IC1
+                         this.calculateDistance(this.system.n2, centroid)          // IC2
+                },
+                ss3: {
+                    angle: this.calculateSubsystemAngle(this.system.n2, this.system.n3, centroid),
+                    ssh: this.calculateDistance(this.system.n2, this.system.n3) +  // NC3
+                         this.calculateDistance(this.system.n2, centroid) +        // IC2
+                         this.calculateDistance(this.system.n3, centroid)          // IC3
+                }
+            };
+
+            // Update table values
+            Object.entries(subsystems).forEach(([ss, values]) => {
+                const rowNum = ss.slice(-1);  // get the number from ss1, ss2, ss3
+                
+                // Update angle (using our working angle calculation)
+                document.getElementById(`subsystem-${rowNum}-angle`).value = 
+                    values.angle.toFixed(2);
+                
+                // Update ssh (entropy/perimeter)
+                document.getElementById(`subsystem-${rowNum}-sc`).value = 
+                    values.ssh.toFixed(4);
+            });
+
+        } catch (error) {
+            console.error('Error updating subsystems table:', error);
+        }
+    }
+
+    // Keep our working angle calculation method unchanged
+    calculateSubsystemAngle(startNode, endNode, center) {
+        const v1 = {
+            x: startNode.x - center.x,
+            y: startNode.y - center.y
+        };
+        const v2 = {
+            x: endNode.x - center.x,
+            y: endNode.y - center.y
+        };
+
+        const angle1 = Math.atan2(v1.y, v1.x);
+        const angle2 = Math.atan2(v2.y, v2.x);
+        
+        let angle = (angle2 - angle1) * (180 / Math.PI);
+        if (angle < 0) {
+            angle += 360;
+        }
+        
+        return angle;
     }
 }
 
