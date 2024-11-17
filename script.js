@@ -1665,15 +1665,21 @@ class TriangleSystem {
                     // Update ssc/ssh ratio
                     const sscSshRatio = capacity / ssh;
                     document.getElementById(`subsystem-${i}-ratio`).value = sscSshRatio.toFixed(4);
-                    document.getElementById(`subsystem-${i}-inverse-ratio`).value = sscSshRatio.toFixed(4);
+                    
+                    // Remove the incorrect assignment to inverse-ratio
+                    // document.getElementById(`subsystem-${i}-inverse-ratio`).value = sscSshRatio.toFixed(4);
                 }
                 
-                // Update entropy ratio (ssh/H)
-                const totalEntropy = this.calculateTotalEntropy();
-                if (totalEntropy !== 0) {
-                    const entropyRatio = ssh / totalEntropy;
-                    document.getElementById(`subsystem-${i}-entropy-ratio`).value = entropyRatio.toFixed(4);
+                // Update entropy ratios separately
+                if (totalSystemEntropy !== 0 && ssh !== 0) {
+                    // Update ssh/H ratio (inverse ratio)
+                    document.getElementById(`subsystem-${i}-inverse-ratio`).value = (ssh/totalSystemEntropy).toFixed(4);
+                    
+                    // Update H/ssh ratio (entropy ratio)
+                    document.getElementById(`subsystem-${i}-entropy-ratio`).value = (totalSystemEntropy/ssh).toFixed(4);
                 }
+                
+                
             }
 
         } catch (error) {
@@ -4948,44 +4954,86 @@ class TriangleSystem {
     updateSubsystemsTable() {
         try {
             const centroid = this.calculateCentroid();
+            const totalSystemEntropy = this.calculateTotalEntropy();
             
-            // Calculate subsystem values
-            const subsystems = {
-                ss1: {
-                    angle: this.calculateSubsystemAngle(this.system.n1, this.system.n3, centroid),
-                    ssh: this.calculateDistance(this.system.n1, this.system.n3) +  // NC1
-                         this.calculateDistance(this.system.n1, centroid) +        // IC1
-                         this.calculateDistance(this.system.n3, centroid)          // IC3
-                },
-                ss2: {
-                    angle: this.calculateSubsystemAngle(this.system.n1, this.system.n2, centroid),
-                    ssh: this.calculateDistance(this.system.n1, this.system.n2) +  // NC2
-                         this.calculateDistance(this.system.n1, centroid) +        // IC1
-                         this.calculateDistance(this.system.n2, centroid)          // IC2
-                },
-                ss3: {
-                    angle: this.calculateSubsystemAngle(this.system.n2, this.system.n3, centroid),
-                    ssh: this.calculateDistance(this.system.n2, this.system.n3) +  // NC3
-                         this.calculateDistance(this.system.n2, centroid) +        // IC2
-                         this.calculateDistance(this.system.n3, centroid)          // IC3
+            // Debug total system entropy
+            console.log('=== Subsystem Table Update ===');
+            console.log('Total System Entropy:', totalSystemEntropy);
+            
+            for (let i = 1; i <= 3; i++) {
+                // Calculate ssh
+                let ssh;
+                if (i === 1) {
+                    ssh = this.calculateDistance(this.system.n1, this.system.n3) +
+                          this.calculateDistance(this.system.n1, centroid) +
+                          this.calculateDistance(this.system.n3, centroid);
+                } else if (i === 2) {
+                    ssh = this.calculateDistance(this.system.n1, this.system.n2) +
+                          this.calculateDistance(this.system.n1, centroid) +
+                          this.calculateDistance(this.system.n2, centroid);
+                } else {
+                    ssh = this.calculateDistance(this.system.n2, this.system.n3) +
+                          this.calculateDistance(this.system.n2, centroid) +
+                          this.calculateDistance(this.system.n3, centroid);
                 }
-            };
 
-            // Update table values
-            Object.entries(subsystems).forEach(([ss, values]) => {
-                const rowNum = ss.slice(-1);  // get the number from ss1, ss2, ss3
-                
-                // Update angle (using our working angle calculation)
-                document.getElementById(`subsystem-${rowNum}-angle`).value = 
-                    values.angle.toFixed(2);
-                
-                // Update ssh (entropy/perimeter)
-                document.getElementById(`subsystem-${rowNum}-sc`).value = 
-                    values.ssh.toFixed(4);
-            });
+                // Debug values
+                console.log(`Subsystem ${i}:`, {
+                    ssh,
+                    'ssh/H': (ssh/totalSystemEntropy).toFixed(4),
+                    'H/ssh': (totalSystemEntropy/ssh).toFixed(4)
+                });
+
+                // Force update the entropy ratio fields
+                const inverseRatioField = document.getElementById(`subsystem-${i}-inverse-ratio`);
+                const entropyRatioField = document.getElementById(`subsystem-${i}-entropy-ratio`);
+
+                if (inverseRatioField && entropyRatioField) {
+                    // Clear existing values first
+                    inverseRatioField.value = '';
+                    entropyRatioField.value = '';
+
+                    // Force style updates
+                    Object.assign(inverseRatioField.style, {
+                        backgroundColor: '#2b4280',
+                        color: '#fff',
+                        textAlign: 'center',
+                        width: '8ch',
+                        minWidth: '8ch'
+                    });
+
+                    Object.assign(entropyRatioField.style, {
+                        backgroundColor: '#2b4280',
+                        color: '#fff',
+                        textAlign: 'center',
+                        width: '8ch',
+                        minWidth: '8ch'
+                    });
+
+                    // Set new values with a slight delay
+                    setTimeout(() => {
+                        if (totalSystemEntropy !== 0 && ssh !== 0) {
+                            inverseRatioField.value = (ssh/totalSystemEntropy).toFixed(4);
+                            entropyRatioField.value = (totalSystemEntropy/ssh).toFixed(4);
+                            
+                            // Debug - verify values were set
+                            console.log(`Set values for subsystem ${i}:`, {
+                                'ssh/H field': inverseRatioField.value,
+                                'H/ssh field': entropyRatioField.value
+                            });
+                        }
+                    }, 0);
+                } else {
+                    console.error(`Missing fields for subsystem ${i}:`, {
+                        'inverse-ratio': !!inverseRatioField,
+                        'entropy-ratio': !!entropyRatioField
+                    });
+                }
+            }
 
         } catch (error) {
             console.error('Error updating subsystems table:', error);
+            console.error(error.stack);
         }
     }
 

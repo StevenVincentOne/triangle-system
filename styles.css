@@ -355,3 +355,21 @@ input[id^="ic"] {
     margin-bottom: 0.5rem !important;
 }
 
+/* Subsystems table styling */
+.subsystems-table input[type="text"] {
+    min-width: 100px !important;
+    width: auto !important;
+    text-align: right;
+    padding: 2px 4px;
+    margin: 1px;
+}
+
+.subsystems-table th {
+    text-align: center;
+    padding: 4px;
+}
+
+.subsystems-table td {
+    padding: 2px;
+}
+
