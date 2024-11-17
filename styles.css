@@ -1,0 +1,519 @@
+/* =================
+   Layout & Grid 
+   ================= */
+.container {
+    padding: 20px !important;  /* Using !important to override any Bootstrap defaults */
+    max-width: 100% !important;  /* Ensure it spans full width */
+    box-sizing: border-box;  /* Include padding in width calculation */
+}
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: fit-content !important;
+    margin: 0 auto;
+    font-size: 0.725rem;
+}
+
+.dashboard-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100% !important;
+    flex-wrap: wrap;
+}
+
+/* =================
+   Panels 
+   ================= */
+.dashboard-panel {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 0.75rem;
+    width: fit-content !important;
+    margin: 0 auto;
+}
+
+.panel-header {
+    color: #ddd;
+    font-size: 1rem;
+    margin: 0 0 0.75rem 0;
+    text-align: center;
+}
+
+.panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: fit-content !important;
+    flex-wrap: wrap;
+}
+
+/* =================
+   Panel Rows
+   ================= */
+.position-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    width: fit-content !important;
+}
+
+.panel-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+/* =================
+   Label-Value Pairs
+   ================= */
+.label-value-pair {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.label-value-pair label {
+    color: #ddd;
+    font-size: 0.725rem;
+    min-width: 4ch;
+    text-align: right;
+    margin: 0;
+}
+
+.label-value-pair input {
+    background-color: #2b4280 !important;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.725rem;
+    text-align: center;
+    font-family: monospace;
+    width: 8ch;
+}
+
+/* Coordinate inputs need more width */
+.coordinate-input {
+    width: 12ch !important;
+}
+
+/* Nested panels (like in System panel) */
+.dashboard-panel .dashboard-panel {
+    background-color: #262626;
+    margin: 0;
+    padding: 0.5rem;
+}
+
+.dashboard-panel .dashboard-panel .panel-header {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+/* =================
+   Form Controls
+   ================= */
+input[type="text"].form-control,
+.manual-input,
+.animation-input,
+.subsystems-table input[type="text"] {
+    background-color: #2b4280 !important;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 3px;
+    text-align: center !important;
+    font-size: 0.725rem !important;
+}
+
+/* Coordinate inputs (wider for x,y pairs) */
+.coordinate-input,
+input[id*="-coords"],
+input[id*="-centroid"],
+input[id^="tan"],
+input[id*="-point"],
+input[id*="-vertex"] {
+    text-align: center;
+    width: 16ch !important;    /* 16 chars */
+    min-width: 16ch !important;
+    font-family: monospace;    /* For consistent character width */
+    letter-spacing: 0.5px;     /* Slight spacing for readability */
+}
+
+
+
+/* Single value measurements (narrower) */
+input[id$="-radius"],
+input[id$="-capacity"],
+input[id$="-entropy"],
+input[id^="nc"],
+input[id^="ic"] {
+    width: 8ch;
+    min-width: 8ch;
+}
+
+/* =================
+   Controls & Buttons
+   ================= */
+.btn-secondary {
+    padding: 0.375rem 0.75rem;
+    width: auto;
+    min-width: fit-content;
+    height: auto;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =================
+   Manual & Animation Controls
+   ================= */
+.manual-controls-container,
+.animation-controls-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.manual-input-group,
+.animation-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.manual-input,
+.animation-input {
+    width: 8ch;
+    min-width: 8ch;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.8rem;
+}
+
+/* Value columns within panels */
+.value-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;  /* 8px vertical gap between rows */
+    width: fit-content !important;
+}
+
+/* =================
+   Subsystems Table
+   ================= */
+.subsystems-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subsystems-table th,
+.subsystems-table td {
+    padding: 0.25rem;
+    text-align: center;
+    color: #ddd;
+    font-size: 0.875rem;  /* Match other panel text size */
+}
+
+.subsystems-table th {
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.subsystems-table td {
+    vertical-align: middle;
+}
+
+.subsystems-table input {
+    width: 8ch;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.875rem;
+    text-align: center;
+    font-family: monospace;
+    background-color: #2b4280 !important;
+}
+
+/* Specific column widths if needed */
+.subsystems-table td:first-child {
+    min-width: 3ch;
+}
+
+.subsystems-table td:nth-child(2) {  /* angle column */
+    min-width: 4ch;
+}
+
+/* Section headers within panels */
+.section-header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #ddd;
+    padding-bottom: 0.25rem;
+}
+
+.value-section {
+    margin-bottom: 0.25rem;
+}
+
+.value-section:last-child {
+    margin-bottom: 0;
+}
+
+/* =================
+   Subtriangle Panel
+   ================= */
+.subtriangle-headers {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0 1rem;
+}
+
+.subtriangle-headers .section-header {
+    flex: 1;  /* Allow headers to take equal space */
+}
+
+.subtriangle-headers .section-header:first-child {
+    text-align: left;  /* Align "Nodes" to the left side */
+    margin-left: 2rem;  /* Add some spacing from the left edge */
+}
+
+.subtriangle-headers .section-header:last-child {
+    text-align: right;  /* Align "Subchannels" to the right side */
+    margin-right: 2rem;  /* Add some spacing from the right edge */
+}
+
+/* Adjust the main row layout to match header alignment */
+.subtriangle-main-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    padding: 0 1rem;  /* Match header padding */
+}
+
+/* =================
+   Dropdown Buttons
+   ================= */
+.small-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.725rem;
+    border-radius: 3px;
+    border: 1px solid #444;
+    background-color: #2b4280;
+    color: #fff;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: #2b4280;
+}
+
+.delete-button {
+    background-color: #802b2b;
+}
+
+.dropdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    color: #ddd;
+    text-decoration: none;
+}
+
+.dropdown-item:hover {
+    background-color: #2b4280;
+}
+
+/* =================
+   Legends Panel 
+   ================= */
+.legends-panel {
+    background-color: #2c2c2c;
+    padding: 1rem !important;  /* Reduced from 3rem */
+    border-radius: 8px;
+    color: #ddd;
+    margin: 0.5rem auto !important;  /* Add some vertical spacing */
+    width: fit-content;
+    max-width: calc(100% - 40px);  /* Ensure 20px padding on each side */
+}
+
+.legends-panel p {
+    margin: 0.5rem 0 !important;  /* Reduced from 0.8rem */
+}
+
+.legends-panel .panel-header {
+    margin-bottom: 0.5rem !important;
+}
+
+/* Subsystems table styling */
+.subsystems-table input[type="text"] {
+    min-width: 100px !important;
+    width: auto !important;
+    text-align: right;
+    padding: 2px 4px;
+    margin: 1px;
+}
+
+.subsystems-table th {
+    text-align: center;
+    padding: 4px;
+}
+
+.subsystems-table td {
+    padding: 2px;
+}
+
+/* Manual Controls Styling */
+.manual-controls-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;  /* Larger gap between main groups */
+}
+
+.nc-group, .ic-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 1rem;  /* Add some spacing around the control group */
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.manual-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;  /* Tighter spacing between label and input */
+}
+
+.manual-input-group label {
+    color: #bbb;
+    white-space: nowrap;
+    margin: 0;  /* Remove any margin */
+}
+
+.manual-input-group input.manual-input {
+    width: 9ch;  /* Increased from 8ch to 9ch */
+    min-width: 9ch;
+    text-align: center;
+    background-color: #2c2c2c;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Checkbox group styling */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    min-width: 5ch;
+}
+
+.form-check-input {
+    margin: 0;
+    cursor: pointer;
+}
+
+.form-check-label {
+    margin: 0;
+    color: #bbb;
+    white-space: nowrap;  /* Prevent label from wrapping */
+    cursor: pointer;
+}
+
+/* Apply button styling */
+#apply-manual, #apply-manual-ic {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.9rem;
+    margin-left: 0.25rem;
+}
+
+/* Add specific spacing after NC3 */
+.manual-input-group:has(#manual-nc3) {
+    margin-right: 2rem;  /* Add space after NC3 input group */
+}
+
+/* Add space after Apply NC button */
+#apply-manual {
+    margin-right: 3rem;  /* Add significant space before IC section */
+}
+
+/* IC label spacing */
+.manual-controls-container label:contains("IC:") {
+    margin-left: 1rem;  /* Add space after the Apply NC button */
+}
+
+/* Container for everything */
+.visualization-container {
+    background: var(--bs-dark);
+    border-radius: 0.25rem;
+    padding: 0.15rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    gap: 0.15rem;  /* Minimal gap between manual controls and preset buttons */
+}
+
+/* Manual controls section */
+#manual-controls {
+    width: 100%;
+    padding: 0.25rem;
+    margin: 0;  /* Remove all margins */
+    background-color: #1a1e2c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+/* Preset buttons container */
+.preset-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+/* Remove any Bootstrap spacing utilities that might interfere */
+.p-2, .mb-2, .mt-2, .my-2 {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
