@@ -1957,22 +1957,19 @@ class TriangleSystem {
             // Calculate offset directions for each edge
             const offset = 25; // Adjust this value to position labels further or closer
 
-            // NC1 label (left edge) - increase offset
+            // NC1 label (left edge)
             const nc1Angle = Math.atan2(this.system.n1.y - this.system.n3.y, this.system.n1.x - this.system.n3.x);
-            const nc1OffsetX = -offset * 1.5 * Math.sin(nc1Angle);  // Increased multiplier to 1.5
-            const nc1OffsetY = offset * 1.5 * Math.cos(nc1Angle);   // Increased multiplier to 1.5
-            this.ctx.fillStyle = '#FF073A';  // Match N1 color
+            const nc1OffsetX = -offset * Math.sin(nc1Angle);
+            const nc1OffsetY = offset * Math.cos(nc1Angle);
             this.ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
 
-            // NC2 label (right edge) - increase offset
+            // NC2 label (right edge)
             const nc2Angle = Math.atan2(this.system.n1.y - this.system.n2.y, this.system.n1.x - this.system.n2.x);
-            const nc2OffsetX = offset * 1.5 * Math.sin(nc2Angle);   // Increased multiplier to 1.5
-            const nc2OffsetY = -offset * 1.5 * Math.cos(nc2Angle);  // Increased multiplier to 1.5
-            this.ctx.fillStyle = '#7d7deb';  // Match N2 color
+            const nc2OffsetX = offset * Math.sin(nc2Angle);
+            const nc2OffsetY = -offset * Math.cos(nc2Angle);
             this.ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
 
-            // NC3 label (bottom edge) - keep original offset
-            this.ctx.fillStyle = '#44FF44';  // Match N3 color
+            // NC3 label (bottom edge)
             this.ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
 
             this.ctx.restore();  // Restore context state
@@ -2129,7 +2126,7 @@ class TriangleSystem {
         // Define colors at method level to ensure consistency
         const neonColors = {
             'red': '#FF0000',    // Bright red for N1
-            'blue': '#5fd5fd',   // Cyan/neon blue for N2
+            'blue': '#00FFFF',   // Cyan/neon blue for N2
             'green': '#44FF44'   // Neon green for N3
         };
         
@@ -2366,16 +2363,17 @@ class TriangleSystem {
         const { n1, n2, n3 } = this.system;
         const origin = { x: 0, y: 0 };
 
-        // Draw SS1 region (Red)
+        // Update colors to match subsystem definitions
+        // Draw SS3 region (Red)
         this.ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
         this.ctx.beginPath();
-        this.ctx.moveTo(n1.x, n1.y);
-        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.moveTo(n3.x, n3.y);
+        this.ctx.lineTo(n1.x, n1.y);
         this.ctx.lineTo(origin.x, origin.y);
         this.ctx.closePath();
         this.ctx.fill();
 
-        // Draw SS2 region (Blue)
+        // Draw SS1 region (Blue)
         this.ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
         this.ctx.beginPath();
         this.ctx.moveTo(n1.x, n1.y);
@@ -2384,7 +2382,7 @@ class TriangleSystem {
         this.ctx.closePath();
         this.ctx.fill();
 
-        // Draw SS3 region (Green)
+        // Draw SS2 region (Green)
         this.ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
         this.ctx.beginPath();
         this.ctx.moveTo(n2.x, n2.y);
@@ -2397,19 +2395,19 @@ class TriangleSystem {
         const centroids = this.calculateSubsystemCentroids();
         
         // Draw SS1 centroid (Red)
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';  // Changed to red
+        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss1.x, centroids.ss1.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
         
         // Draw SS2 centroid (Blue)
-        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';  // Changed to blue
+        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss2.x, centroids.ss2.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
         
         // Draw SS3 centroid (Green)
-        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';  // Changed to green
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss3.x, centroids.ss3.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
@@ -2544,7 +2542,7 @@ class TriangleSystem {
         );
         
         // N2 angle (bottom right) - Cyan
-        ctx.fillStyle = '#5fd5fd';
+        ctx.fillStyle = '#00FFFF';
         ctx.fillText(
             `${Math.round(angles.n2)}°`, 
             this.system.n2.x + 45,
@@ -2594,10 +2592,12 @@ class TriangleSystem {
         ctx.fillStyle = '#FF0000';  // Neon red
         ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
 
-        // NC2 label (right edge) - Using RGBA for full opacity
-        ctx.fillStyle = 'rgba(95, 213, 253, 1)';  // #5fd5fd with full opacity
-        // or alternatively, we could make it slightly transparent with:
-        // ctx.fillStyle = 'rgba(95, 213, 253, 0.8)';  // 80% opacity
+        // NC2 label (right edge) - Neon Cyan
+        const nc2Length = this.system.nc2.toFixed(2);
+        const nc2Angle = Math.atan2(n1.y - n2.y, n1.x - n2.x);
+        const nc2OffsetX = offset * Math.sin(nc2Angle);
+        const nc2OffsetY = -offset * Math.cos(nc2Angle);
+        ctx.fillStyle = '#00FFFF';  // Cyan/neon blue
         ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
 
         // NC3 label (bottom edge) - Neon Green
@@ -2611,30 +2611,26 @@ class TriangleSystem {
     drawEdges(ctx) {
         const { n1, n2, n3 } = this.system;
         
-        ctx.lineWidth = 2;
-        
         // Draw NC1 (Red, Left: N1-N3)
-        ctx.strokeStyle = '#FF0000';
+        ctx.strokeStyle = 'red';
         ctx.beginPath();
         ctx.moveTo(n1.x, n1.y);
         ctx.lineTo(n3.x, n3.y);
         ctx.stroke();
         
         // Draw NC2 (Blue, Right: N1-N2)
-        ctx.strokeStyle = '#5fd5fd';  // Keep the true blue we like
+        ctx.strokeStyle = 'blue';
         ctx.beginPath();
         ctx.moveTo(n1.x, n1.y);
         ctx.lineTo(n2.x, n2.y);
         ctx.stroke();
         
         // Draw NC3 (Green, Base: N2-N3)
-        ctx.strokeStyle = '#44FF44';
+        ctx.strokeStyle = 'green';
         ctx.beginPath();
         ctx.moveTo(n2.x, n2.y);
         ctx.lineTo(n3.x, n3.y);
         ctx.stroke();
-
-        ctx.lineWidth = 1;
     }
 
     centerSystem() {
