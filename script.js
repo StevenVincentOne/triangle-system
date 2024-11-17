@@ -2108,19 +2108,69 @@ class TriangleSystem {
         }
     }
 
+    drawTriangle() {
+        const { n1, n2, n3 } = this.system;
+        
+        // Draw only the triangle edges in white
+        
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(n1.x, n1.y);
+        this.ctx.lineTo(n2.x, n2.y);
+        this.ctx.lineTo(n3.x, n3.y);
+        this.ctx.closePath();
+        this.ctx.stroke();
+    }
+
     drawNode(ctx, node, color, label) {
-        ctx.fillStyle = color;
+        // Define colors at method level to ensure consistency
+        const neonColors = {
+            'red': '#FF0000',    // Bright red for N1
+            'blue': '#00FFFF',   // Cyan/neon blue for N2
+            'green': '#44FF44'   // Neon green for N3
+        };
+        
+        // Get the neon color based on the input color
+        const neonColor = neonColors[color] || color;
+        
+        // Draw node circle with neon color
+        ctx.fillStyle = neonColor;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, 6, 0, 2 * Math.PI);  // Changed from 8 to 6 to match incenter/centroid
+        ctx.arc(node.x, node.y, 6, 0, 2 * Math.PI);
         ctx.fill();
 
-        // Draw label
-        ctx.fillStyle = 'white';
+        // Draw label with the same neon color
+        ctx.fillStyle = neonColor;  // Explicitly set the same neon color for text
         ctx.font = '12px Arial';
         ctx.save();
         ctx.scale(1, -1);
-        ctx.fillText(label, node.x + 10, -node.y);
+
+        // Keep existing offset calculations
+        let xOffset = 10;
+        let yOffset = 0;
+
+        if (label === 'N3') {
+            xOffset = -35;
+            yOffset = -15;
+        } else if (label === 'N2') {
+            xOffset = 35;
+            yOffset = -15;
+        } else if (label === 'N1') {
+            xOffset = 0;
+            yOffset = 25;
+        }
+
+        // Draw the label text with the neon color
+        ctx.fillStyle = neonColor;  // Ensure color is set before drawing text
+        ctx.fillText(label, node.x + xOffset, -(node.y + yOffset));
         ctx.restore();
+    }
+
+    drawNodes(ctx) {
+        // Draw each node with its label
+        this.drawNode(ctx, this.system.n1, 'red', 'N1');
+        this.drawNode(ctx, this.system.n2, 'blue', 'N2');
+        this.drawNode(ctx, this.system.n3, 'green', 'N3');
     }
 
     drawAxes(ctx) {
@@ -2479,40 +2529,83 @@ class TriangleSystem {
     // Implement these based on your specific requirements
     drawAngles(ctx) {
         const angles = this.calculateAngles();
-        ctx.fillStyle = 'white';
+        ctx.save();
+        ctx.scale(1, -1);
         ctx.font = '14px Arial';
         
-        // Save current transform
-        ctx.save();
-        ctx.scale(1, -1);  // Flip text right-side up
-        
-        // N1 angle (top)
+        // N1 angle (top) - match the exact color from drawNode
+        ctx.fillStyle = '#FF0000';  // Bright red
         ctx.fillText(
             `${Math.round(angles.n1)}°`, 
             this.system.n1.x - 25, 
-            -this.system.n1.y - 20
+            -this.system.n1.y - 40
         );
         
-        // N2 angle (bottom right)
+        // N2 angle (bottom right) - Cyan
+        ctx.fillStyle = '#00FFFF';
         ctx.fillText(
             `${Math.round(angles.n2)}°`, 
-            this.system.n2.x + 25, 
-            -this.system.n2.y + 20
+            this.system.n2.x + 45,
+            -this.system.n2.y + 35
         );
         
-        // N3 angle (bottom left)
+        // N3 angle (bottom left) - Neon Green
+        ctx.fillStyle = '#44FF44';
         ctx.fillText(
             `${Math.round(angles.n3)}°`, 
-            this.system.n3.x - 40, 
-            -this.system.n3.y + 20
+            this.system.n3.x - 55,
+            -this.system.n3.y + 35
         );
         
-        // Restore transform
         ctx.restore();
     }
 
     drawEdgeLengths(ctx) {
-        // Implement edge length drawing logic here
+        const { n1, n2, n3 } = this.system;
+        const offset = 20;
+
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Calculate midpoints
+        const nc1Mid = {
+            x: (n1.x + n3.x) / 2,
+            y: (n1.y + n3.y) / 2
+        };
+        const nc2Mid = {
+            x: (n1.x + n2.x) / 2,
+            y: (n1.y + n2.y) / 2
+        };
+        const nc3Mid = {
+            x: (n2.x + n3.x) / 2,
+            y: (n2.y + n3.y) / 2
+        };
+
+        // NC1 label (left edge) - Neon Red
+        const nc1Length = this.system.nc1.toFixed(2);
+        const nc1Angle = Math.atan2(n1.y - n3.y, n1.x - n3.x);
+        const nc1OffsetX = -offset * Math.sin(nc1Angle);
+        const nc1OffsetY = offset * Math.cos(nc1Angle);
+        ctx.fillStyle = '#FF0000';  // Neon red
+        ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
+
+        // NC2 label (right edge) - Neon Cyan
+        const nc2Length = this.system.nc2.toFixed(2);
+        const nc2Angle = Math.atan2(n1.y - n2.y, n1.x - n2.x);
+        const nc2OffsetX = offset * Math.sin(nc2Angle);
+        const nc2OffsetY = -offset * Math.cos(nc2Angle);
+        ctx.fillStyle = '#00FFFF';  // Cyan/neon blue
+        ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
+
+        // NC3 label (bottom edge) - Neon Green
+        const nc3Length = this.system.nc3.toFixed(2);
+        ctx.fillStyle = '#44FF44';  // Neon green
+        ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
+
+        ctx.restore();
     }
 
     drawEdges(ctx) {
@@ -2538,15 +2631,6 @@ class TriangleSystem {
         ctx.moveTo(n2.x, n2.y);
         ctx.lineTo(n3.x, n3.y);
         ctx.stroke();
-    }
-
-    drawNodes(ctx) {
-        // Draw each node with its label
-        this.drawNode(ctx, this.system.n1, 'red', 'N1');
-        this.drawNode(ctx, this.system.n2, 'blue', 'N2');
-        this.drawNode(ctx, this.system.n3, 'green', 'N3');
-        
-        // Remove incenter from here since it's now handled separately
     }
 
     centerSystem() {
@@ -3514,65 +3598,6 @@ class TriangleSystem {
         ctx.stroke();
         ctx.setLineDash([]);  // Reset dash pattern
         ctx.restore();
-    }
-
-    drawTriangle() {
-        const { n1, n2, n3 } = this.system;
-        
-        // Draw edges
-        this.ctx.strokeStyle = '#FFFFFF';
-        this.ctx.lineWidth = 2;
-        this.ctx.beginPath();
-        this.ctx.moveTo(n1.x, n1.y);
-        this.ctx.lineTo(n2.x, n2.y);
-        this.ctx.lineTo(n3.x, n3.y);
-        this.ctx.closePath();
-        this.ctx.stroke();
-
-        // Draw vertices with N1, N2, N3 labels
-        [n1, n2, n3].forEach((node, index) => {
-            // Draw vertex point
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.beginPath();
-            this.ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI);
-            this.ctx.fill();
-
-            // Draw Node labels (N1, N2, N3)
-            this.ctx.save();
-            this.ctx.scale(1, -1); // Flip y-axis for text
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.font = '14px Arial';
-            this.ctx.fillText(`N${index + 1}`, node.x + 10, -node.y);
-            this.ctx.restore();
-        });
-
-        // Draw Median Channels (if enabled)
-        if (this.showMedians) {
-            const origin = { x: 0, y: 0 }; // I point
-            
-            // Draw lines from I to each vertex
-            [n1, n2, n3].forEach((node, index) => {
-                this.ctx.strokeStyle = '#AAAAAA'; // Gray color for medians
-                this.ctx.lineWidth = 1;
-                this.ctx.beginPath();
-                this.ctx.moveTo(origin.x, origin.y);
-                this.ctx.lineTo(node.x, node.y);
-                this.ctx.stroke();
-
-                // Optionally label the I-channels (IC1, IC2, IC3)
-                const midpoint = {
-                    x: (origin.x + node.x) / 2,
-                    y: (origin.y + node.y) / 2
-                };
-                
-                this.ctx.save();
-                this.ctx.scale(1, -1);
-                this.ctx.fillStyle = '#AAAAAA';
-                this.ctx.font = '12px Arial';
-                this.ctx.fillText(`IC${index + 1}`, midpoint.x + 5, -midpoint.y);
-                this.ctx.restore();
-            });
-        }
     }
 
     // Helper functions for orthocenter calculation
@@ -4836,7 +4861,7 @@ class TriangleSystem {
     drawLabels() {
         const ctx = this.ctx;
         ctx.font = '14px Arial';
-        ctx.fillStyle = '#fff';
+        
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
