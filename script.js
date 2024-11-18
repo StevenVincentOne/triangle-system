@@ -393,6 +393,19 @@ class TriangleSystem {
         document.getElementById('exportData').addEventListener('click', () => {
             this.db.exportToCSV();
         });
+
+        // Add new property for IC visibility
+        this.showIC = false;
+        
+        // Add event listener for IC toggle button
+        const toggleICButton = document.getElementById('toggleIC');
+        if (toggleICButton) {
+            toggleICButton.addEventListener('click', () => {
+                this.showIC = !this.showIC;
+                toggleICButton.classList.toggle('active');
+                this.drawSystem();
+            });
+        }
     }
 
     initializePresets() {
@@ -913,7 +926,7 @@ class TriangleSystem {
             const n3x = -baseLength/2;
             const n3y = 0;
             
-            // Calculate N1 position to create 35�� angle at N2 and 85° angle at N3
+            // Calculate N1 position to create 35 angle at N2 and 85° angle at N3
             const angleN2 = 35 * Math.PI/180;  // Convert 35° to radians
             const height = baseLength * Math.sin(angleN2);
             const offset = -baseLength * 0.2;  // Shift left to make angles asymmetric
@@ -1681,6 +1694,11 @@ class TriangleSystem {
                 
             }
 
+            // Draw IC lines if enabled (after drawing nodes but before special centers)
+            if (this.showIC) {
+                this.drawICLines(this.ctx);
+            }
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -2103,6 +2121,11 @@ class TriangleSystem {
             // Draw Subcircle if enabled
             if (this.showSubcircle) {
                 this.drawSubcircle(this.ctx);
+            }
+
+            // Draw IC lines if enabled (after drawing nodes but before special centers)
+            if (this.showIC) {
+                this.drawICLines(this.ctx);
             }
 
         } catch (error) {
@@ -3598,8 +3621,8 @@ class TriangleSystem {
         // Draw the extended line
         ctx.save();
         ctx.beginPath();
-        ctx.strokeStyle = '#FFFFFF';  // White color
-        ctx.setLineDash([5, 5]);     // Dotted line
+        ctx.strokeStyle = 'rgba(128, 128, 128, 0.5)'; 
+        
         ctx.lineWidth = 1;
         
         ctx.moveTo(startPoint.x, startPoint.y);
@@ -4160,7 +4183,7 @@ class TriangleSystem {
         };
         
         // Draw the subtriangle in white
-        ctx.strokeStyle = '#ffffff';  // Changed from #ff0000 to white
+        ctx.strokeStyle = '#fba900';  // Changed from #ff0000 to white
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(subtriangleCentroids.ss1.x, subtriangleCentroids.ss1.y);
@@ -4184,7 +4207,7 @@ class TriangleSystem {
         if (!center || !radius) return;
         
         // Draw the circle in white
-        ctx.strokeStyle = '#FFFFFF';
+        ctx.strokeStyle = '#fba900';
         ctx.setLineDash([5, 5]);  // Add dashed line
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -4268,7 +4291,7 @@ class TriangleSystem {
 
         // Draw subcenter point in white instead of orange
         ctx.beginPath();
-        ctx.fillStyle = '#FFFFFF';  // Changed from '#FFA500' to white
+        ctx.fillStyle = '#fba900';  // Changed from '#FFA500' to white
         ctx.arc(
             subcircle.center.x,
             subcircle.center.y,
@@ -4281,7 +4304,7 @@ class TriangleSystem {
         // Label the subcenter in white
         ctx.save();
         ctx.scale(1, -1); // Flip text right-side up
-        ctx.fillStyle = '#FFFFFF';  // Changed from '#FFA500' to white
+        ctx.fillStyle = '#fba900';  // Changed from '#FFA500' to white
         ctx.font = '12px Arial';
         ctx.fillText('SP', subcircle.center.x + 10, -subcircle.center.y);
         ctx.restore();
@@ -5203,6 +5226,68 @@ class TriangleSystem {
         };
 
         this.animationLoop = requestAnimationFrame(animate);
+    }
+
+    drawICLines(ctx) {
+        if (!this.system.n1 || !this.system.n2 || !this.system.n3) return;
+        
+        // Calculate centroid
+        const centroid = this.calculateCentroid();
+        if (!centroid) return;
+
+        // Set line style for IC lines
+        ctx.save();
+        ctx.strokeStyle = 'white';
+        ctx.setLineDash([5, 5]);
+        ctx.lineWidth = 1;
+
+        // Draw IC1 (Centroid to N1)
+        ctx.beginPath();
+        ctx.moveTo(centroid.x, centroid.y);
+        ctx.lineTo(this.system.n1.x, this.system.n1.y);
+        ctx.stroke();
+
+        // Draw IC2 (Centroid to N2)
+        ctx.beginPath();
+        ctx.moveTo(centroid.x, centroid.y);
+        ctx.lineTo(this.system.n2.x, this.system.n2.y);
+        ctx.stroke();
+
+        // Draw IC3 (Centroid to N3)
+        ctx.beginPath();
+        ctx.moveTo(centroid.x, centroid.y);
+        ctx.lineTo(this.system.n3.x, this.system.n3.y);
+        ctx.stroke();
+
+        // Add IC labels - fix inversion by scaling y coordinate
+        ctx.save();
+        ctx.scale(1, -1); // Flip text right-side up
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+
+        // Position IC1 label
+        const ic1Mid = {
+            x: (centroid.x + this.system.n1.x) / 2,
+            y: -(centroid.y + this.system.n1.y) / 2 // Negative for correct orientation
+        };
+        ctx.fillText('IC1', ic1Mid.x + 5, ic1Mid.y);
+
+        // Position IC2 label
+        const ic2Mid = {
+            x: (centroid.x + this.system.n2.x) / 2,
+            y: -(centroid.y + this.system.n2.y) / 2
+        };
+        ctx.fillText('IC2', ic2Mid.x + 5, ic2Mid.y);
+
+        // Position IC3 label
+        const ic3Mid = {
+            x: (centroid.x + this.system.n3.x) / 2,
+            y: -(centroid.y + this.system.n3.y) / 2
+        };
+        ctx.fillText('IC3', ic3Mid.x + 5, ic3Mid.y);
+
+        ctx.restore();
+        ctx.restore();
     }
 }
 
