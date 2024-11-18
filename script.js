@@ -1957,7 +1957,7 @@ class TriangleSystem {
             this.ctx.scale(1, -1);  // Flip back for text
             
             this.ctx.font = '14px Arial';
-            this.ctx.fillStyle = 'white';
+            
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
 
@@ -1966,33 +1966,56 @@ class TriangleSystem {
             const nc2Mid = this.calculateMidpoint(this.system.n1, this.system.n2);
             const nc3Mid = this.calculateMidpoint(this.system.n2, this.system.n3);
 
+            // Calculate triangle centroid for reference
+            const centroid = {
+                x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
+                y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
+            };
+
             // Calculate edge lengths
             const nc1Length = this.calculateDistance(this.system.n1, this.system.n3).toFixed(2);
             const nc2Length = this.calculateDistance(this.system.n1, this.system.n2).toFixed(2);
             const nc3Length = this.calculateDistance(this.system.n2, this.system.n3).toFixed(2);
 
-            // Calculate offset directions for each edge
-            const offset = 25; // Adjust this value to position labels further or closer
+            const baseOffset = 35; // Base offset distance
 
-            // NC1 label (left edge) - increase offset
-            const nc1Angle = Math.atan2(this.system.n1.y - this.system.n3.y, this.system.n1.x - this.system.n3.x);
-            const nc1OffsetX = -offset * 1.5 * Math.sin(nc1Angle);  // Increased multiplier to 1.5
-            const nc1OffsetY = offset * 1.5 * Math.cos(nc1Angle);   // Increased multiplier to 1.5
-            this.ctx.fillStyle = '#FF073A';  // Match N1 color
-            this.ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
+            // NC1 label (left edge)
+            const nc1Dir = {
+                x: nc1Mid.x - centroid.x,
+                y: nc1Mid.y - centroid.y
+            };
+            const nc1Dist = Math.sqrt(nc1Dir.x * nc1Dir.x + nc1Dir.y * nc1Dir.y);
+            this.ctx.fillStyle = '#FF073A';
+            this.ctx.fillText(nc1Length, 
+                nc1Mid.x + (nc1Dir.x / nc1Dist) * baseOffset,
+                -(nc1Mid.y + (nc1Dir.y / nc1Dist) * baseOffset)
+            );
 
-            // NC2 label (right edge) - increase offset
-            const nc2Angle = Math.atan2(this.system.n1.y - this.system.n2.y, this.system.n1.x - this.system.n2.x);
-            const nc2OffsetX = offset * 1.5 * Math.sin(nc2Angle);   // Increased multiplier to 1.5
-            const nc2OffsetY = -offset * 1.5 * Math.cos(nc2Angle);  // Increased multiplier to 1.5
-            this.ctx.fillStyle = '#7d7deb';  // Match N2 color
-            this.ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
+            // NC2 label (right edge)
+            const nc2Dir = {
+                x: nc2Mid.x - centroid.x,
+                y: nc2Mid.y - centroid.y
+            };
+            const nc2Dist = Math.sqrt(nc2Dir.x * nc2Dir.x + nc2Dir.y * nc2Dir.y);
+            this.ctx.fillStyle = '#0692f5';
+            this.ctx.fillText(nc2Length,
+                nc2Mid.x + (nc2Dir.x / nc2Dist) * baseOffset,
+                -(nc2Mid.y + (nc2Dir.y / nc2Dist) * baseOffset)
+            );
 
-            // NC3 label (bottom edge) - keep original offset
-            this.ctx.fillStyle = '#44FF44';  // Match N3 color
-            this.ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
+            // NC3 label (bottom edge)
+            const nc3Dir = {
+                x: nc3Mid.x - centroid.x,
+                y: nc3Mid.y - centroid.y
+            };
+            const nc3Dist = Math.sqrt(nc3Dir.x * nc3Dir.x + nc3Dir.y * nc3Dir.y);
+            this.ctx.fillStyle = '#44FF44';
+            this.ctx.fillText(nc3Length,
+                nc3Mid.x + (nc3Dir.x / nc3Dist) * baseOffset,
+                -(nc3Mid.y + (nc3Dir.y / nc3Dist) * baseOffset)
+            );
 
-            this.ctx.restore();  // Restore context state
+            this.ctx.restore();
 
             // Draw special centers if enabled
             if (this.showSpecialCenters) {
@@ -2151,7 +2174,7 @@ class TriangleSystem {
         // Define colors at method level to ensure consistency
         const neonColors = {
             'red': '#FF0000',    // Bright red for N1
-            'blue': '#5fd5fd',   // Cyan/neon blue for N2
+            'blue': '#0692f5',   // Cyan/neon blue for N2
             'green': '#44FF44'   // Neon green for N3
         };
         
@@ -2166,7 +2189,7 @@ class TriangleSystem {
 
         // Draw label with the same neon color
         ctx.fillStyle = neonColor;  // Explicitly set the same neon color for text
-        ctx.font = '12px Arial';
+        ctx.font = '14px Arial';
         ctx.save();
         ctx.scale(1, -1);
 
@@ -2216,7 +2239,7 @@ class TriangleSystem {
 
         // Draw axis labels
         ctx.fillStyle = 'white';
-        ctx.font = '12px Arial';
+        ctx.font = '14px Arial';
         
         // X axis label
         ctx.save();
@@ -2555,28 +2578,27 @@ class TriangleSystem {
         const angles = this.calculateAngles();
         ctx.save();
         ctx.scale(1, -1);
-        ctx.font = '14px Arial';
         
-        // N1 angle (top) - match the exact color from drawNode
-        ctx.fillStyle = '#FF0000';  // Bright red
-        ctx.fillText(
-            `${Math.round(angles.n1)}°`, 
-            this.system.n1.x - 25, 
+        // N1 angle (top)
+        this.drawAngleLabel(
+            ctx,
+            angles.n1,
+            this.system.n1.x - 25,
             -this.system.n1.y - 40
         );
         
-        // N2 angle (bottom right) - Cyan
-        ctx.fillStyle = '#5fd5fd';
-        ctx.fillText(
-            `${Math.round(angles.n2)}°`, 
+        // N2 angle (bottom right)
+        this.drawAngleLabel(
+            ctx,
+            angles.n2,
             this.system.n2.x + 45,
             -this.system.n2.y + 35
         );
         
-        // N3 angle (bottom left) - Neon Green
-        ctx.fillStyle = '#44FF44';
-        ctx.fillText(
-            `${Math.round(angles.n3)}°`, 
+        // N3 angle (bottom left)
+        this.drawAngleLabel(
+            ctx,
+            angles.n3,
             this.system.n3.x - 55,
             -this.system.n3.y + 35
         );
@@ -2590,43 +2612,9 @@ class TriangleSystem {
 
         ctx.save();
         ctx.scale(1, -1);
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Calculate midpoints
-        const nc1Mid = {
-            x: (n1.x + n3.x) / 2,
-            y: (n1.y + n3.y) / 2
-        };
-        const nc2Mid = {
-            x: (n1.x + n2.x) / 2,
-            y: (n1.y + n2.y) / 2
-        };
-        const nc3Mid = {
-            x: (n2.x + n3.x) / 2,
-            y: (n2.y + n3.y) / 2
-        };
-
-        // NC1 label (left edge) - Neon Red
-        const nc1Length = this.system.nc1.toFixed(2);
-        const nc1Angle = Math.atan2(n1.y - n3.y, n1.x - n3.x);
-        const nc1OffsetX = -offset * Math.sin(nc1Angle);
-        const nc1OffsetY = offset * Math.cos(nc1Angle);
-        ctx.fillStyle = '#FF0000';  // Neon red
-        ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
-
-        // NC2 label (right edge) - Using RGBA for full opacity
-        ctx.fillStyle = 'rgba(95, 213, 253, 1)';  // #5fd5fd with full opacity
-        // or alternatively, we could make it slightly transparent with:
-        // ctx.fillStyle = 'rgba(95, 213, 253, 0.8)';  // 80% opacity
-        ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
-
-        // NC3 label (bottom edge) - Neon Green
-        const nc3Length = this.system.nc3.toFixed(2);
-        ctx.fillStyle = '#44FF44';  // Neon green
-        ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
-
+        
+        
+        
         ctx.restore();
     }
 
@@ -2643,7 +2631,7 @@ class TriangleSystem {
         ctx.stroke();
         
         // Draw NC2 (Blue, Right: N1-N2)
-        ctx.strokeStyle = '#5fd5fd';  // Keep the true blue we like
+        ctx.strokeStyle = '#0692f5';  // Keep the true blue we like
         ctx.beginPath();
         ctx.moveTo(n1.x, n1.y);
         ctx.lineTo(n2.x, n2.y);
@@ -5131,38 +5119,21 @@ class TriangleSystem {
         return angle;
     }
 
-    // Helper method for drawing text with white drop shadow
-    drawTextWithShadow(text, x, y, fontSize = '14px') {
-        const context = this.context;
-        context.save();
-        
-        // Add white drop shadow
-        context.shadowColor = 'rgba(255, 255, 255, 0.7)';  // Semi-transparent white
-        context.shadowBlur = 3;
-        context.shadowOffsetX = 0.8;
-        context.shadowOffsetY = 0.8;
-        
-        // Draw the text
-        context.font = `${fontSize} Arial`;
-        context.fillStyle = '#ffffff';
-        context.fillText(text, x, y);
-        
-        context.restore();
-    }
+    
 
     // Update the label drawing methods to use the new shadow effect
-    drawNodeLabel(node, label) {
+    drawNodeLabel(ctx, node, label) {
         const offsetX = 15;
         const offsetY = 5;
-        this.drawTextWithShadow(label, node.x + offsetX, node.y + offsetY);
+        (ctx, label, node.x + offsetX, node.y + offsetY);
     }
 
-    drawAngleLabel(angle, x, y) {
-        this.drawTextWithShadow(`${angle.toFixed(1)}°`, x, y, '12px');
+    drawAngleLabel(ctx, angle, x, y) {
+        this.drawTextWithShadow(ctx, `${angle.toFixed(1)}°`, x, y, '14px');
     }
 
-    drawLengthLabel(length, x, y) {
-        this.drawTextWithShadow(length.toFixed(2), x, y, '12px');
+    drawLengthLabel(ctx, length, x, y) {
+        this.drawTextWithShadow(ctx, length.toFixed(2), x, y, '10px');
     }
 
     // Add this method to handle the loop animation
@@ -5287,6 +5258,80 @@ class TriangleSystem {
         ctx.fillText('IC3', ic3Mid.x + 5, ic3Mid.y);
 
         ctx.restore();
+        ctx.restore();
+    }
+
+    drawTextWithShadow(ctx, text, x, y, fontSize = '14px') {
+        ctx.save();
+        
+        // Set up the text properties
+        ctx.font = `${fontSize} Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Measure text width for background
+        const metrics = ctx.measureText(text);
+        const padding = 4; // Padding around text
+        
+        // Draw semi-transparent background
+        ctx.fillStyle = 'rgba(32, 32, 32, 0.5)'; // 50% gray with 50% opacity
+        ctx.fillRect(
+            x - metrics.width/2 - padding,
+            y - parseInt(fontSize)/2 - padding,
+            metrics.width + padding * 2,
+            parseInt(fontSize) + padding * 2
+        );
+        
+        // Draw the text
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(text, x, y);
+        
+        ctx.restore();
+    }
+
+    // Update edge length labels
+    drawEdgeLengths(ctx) {
+        // ... existing midpoint calculations ...
+        
+        ctx.save();
+        ctx.scale(1, -1);
+        
+        // NC1 label (left edge)
+        const nc1Length = this.system.nc1.toFixed(2);
+        this.drawTextWithShadow(
+            ctx,
+            nc1Length,
+            nc1Mid.x + nc1OffsetX,
+            -nc1Mid.y + nc1OffsetY,
+            '14px'
+        );
+        
+        // NC2 label (right edge)
+        this.drawTextWithShadow(
+            ctx,
+            nc2Length,
+            nc2Mid.x + nc2OffsetX,
+            -nc2Mid.y + nc2OffsetY,
+            '14px'
+        );
+        
+        // NC3 label (bottom edge)
+        this.drawTextWithShadow(
+            ctx,
+            nc3Length,
+            nc3Mid.x,
+            -nc3Mid.y + offset,
+            '14px'
+        );
+        
+        ctx.restore();
+    }
+
+    // Update special point labels (HO, NP, etc.)
+    drawSpecialPointLabel(ctx, text, x, y) {
+        ctx.save();
+        ctx.scale(1, -1);
+        this.drawTextWithShadow(ctx, text, x + 10, -y, '12px');
         ctx.restore();
     }
 }
