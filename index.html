@@ -662,32 +662,10 @@
 
         
 
-        /* =================
+                /* =================
            Subtriangle Panel
            ================= */
-        .subtriangle-headers {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .subtriangle-main-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .nodes-section {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .subchannels-section {
-            display: flex;
-            gap: 1rem;
-        }
+        /* ... other styles ... */
 
         .entropy-section {
             text-align: center;
@@ -695,6 +673,13 @@
 
         .entropy-section .section-header {
             margin-bottom: 0.5rem;
+        }
+
+        /* Add specific styling for entropy section inputs */
+        .entropy-section input {
+            width: 10ch !important;  /* Increase from default to 10ch */
+            min-width: 10ch !important;
+            text-align: center;
         }
 
         /* Coordinate inputs in subtriangle */
@@ -719,6 +704,15 @@
 
         .panel-row:last-child {
             margin-bottom: 0;
+        }
+
+        /* Update input field sizes for System Entropy and Capacity panel */
+        .system-entropy-panel input {
+            width: 10ch !important;  /* Increase from 8ch to 9ch */
+            min-width: 9ch !important;
+            text-align: center;
+            background-color: #2b4280;
+            color: #fff;
         }
 
     </style>
@@ -879,8 +873,8 @@
                         <button id="toggleIncenter" class="btn btn-secondary btn-sm">Incenter</button>
                         <button id="toggleCircumcenter" class="btn btn-secondary btn-sm">Circumcenter</button>
                         <button id="toggleNinePointCenter" class="btn btn-secondary btn-sm">Nine-Point Center</button>
-                        <button id="toggleOrthocenter" class="btn btn-secondary btn-sm">Orthocenter</button>
                         <button id="toggleSubcenter" class="btn btn-secondary btn-sm">Subcenter</button>
+                        <button id="toggleOrthocenter" class="btn btn-secondary btn-sm">Orthocenter</button>
                         <button id="toggleEuler" class="btn btn-secondary btn-sm">Euler</button>
                     </div>
                     
@@ -889,14 +883,13 @@
                         <button id="toggleIncircle" class="btn btn-secondary btn-sm">Incircle</button>
                         <button id="toggleCircumcircle" class="btn btn-secondary btn-sm">Circumcircle</button>
                         <button id="toggleNinePointCircle" class="btn btn-secondary btn-sm">Nine-Point Circle</button>
-                        <button id="toggleOrthocircle" class="btn btn-secondary btn-sm">Orthocircle</button>
                         <button id="toggleSubcircle" class="btn btn-secondary btn-sm">Subcircle</button>
                     </div>
 
                     <!-- Other Features Row -->
                     <div class="d-flex flex-wrap justify-content-center gap-2">
-                        <button id="toggleMidpoints" class="btn btn-secondary btn-sm">Midpoints</button>
                         <button id="toggleTangents" class="btn btn-secondary btn-sm">Tangents</button>
+                        <button id="toggleMidpoints" class="btn btn-secondary btn-sm">Midpoints</button>
                         <button id="toggleMedians" class="btn btn-secondary btn-sm">Medians</button>
                         <button id="toggleSubsystems" class="btn btn-secondary btn-sm">Subsystems</button>
                         <button id="toggleSubtriangle" class="btn btn-secondary btn-sm">Subtriangle</button>  <!-- New button -->
@@ -1010,7 +1003,7 @@
             </div>
 
             <!-- System Entropy and Capacity Panel -->
-<div class="dashboard-panel">
+<div class="system-entropy-panel p-2 rounded">
     <h3 class="panel-header">System Entropy and Capacity</h3>
     
     <div class="panel-content">
@@ -1478,7 +1471,7 @@
                     <p>HIN: Entropy (circumference) of the Incircle</p>
                 </div>
                 <div class="col-md-3">
-                    <p>HO: Orthocenter of the Orthocircle</p>
+                    <p>HO: Orthocenter</p>
                 </div>
                 <div class="col-md-3">
                     <p>HP: System Perimeter Entropy</p>

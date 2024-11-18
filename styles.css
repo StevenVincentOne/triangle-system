@@ -29,7 +29,6 @@
    Panels 
    ================= */
 .dashboard-panel {
-    background-color: #2c2c2c;
     border: 1px solid #444;
     border-radius: 4px;
     padding: 0.75rem;
@@ -107,7 +106,6 @@
 
 /* Nested panels (like in System panel) */
 .dashboard-panel .dashboard-panel {
-    background-color: #262626;
     margin: 0;
     padding: 0.5rem;
 }
@@ -153,9 +151,12 @@ input[id$="-radius"],
 input[id$="-capacity"],
 input[id$="-entropy"],
 input[id^="nc"],
-input[id^="ic"] {
-    width: 8ch;
-    min-width: 8ch;
+input[id^="ic"],
+input[id^="d-"],     /* Distance measurements */
+input[id^="r-"],     /* Ratio measurements */
+input[id*="-ratio"] {
+    width: 10ch !important;     /* Increase from 8ch to 9ch */
+    min-width: 9ch !important;
 }
 
 /* =================
@@ -339,20 +340,35 @@ input[id^="ic"] {
    ================= */
 .legends-panel {
     background-color: #2c2c2c;
-    padding: 1rem !important;  /* Reduced from 3rem */
+    padding: 2.5rem !important;  /* Increased padding */
     border-radius: 8px;
     color: #ddd;
-    margin: 0.5rem auto !important;  /* Add some vertical spacing */
+    margin: 0.5rem auto !important;
     width: fit-content;
-    max-width: calc(100% - 40px);  /* Ensure 20px padding on each side */
+    max-width: calc(100% - 40px);
+}
+
+/* Center the legend items */
+.legends-panel .row {
+    justify-content: center;
+    text-align: center;
+}
+
+.legends-panel .col-md-3 {
+    display: flex;
+    justify-content: center;
+    padding: 0.25rem 1rem;  /* Add padding around each legend item */
 }
 
 .legends-panel p {
-    margin: 0.5rem 0 !important;  /* Reduced from 0.8rem */
+    margin: 0.5rem 0 !important;
+    text-align: center;
+    width: 100%;
 }
 
 .legends-panel .panel-header {
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 1rem !important;
+    text-align: center;
 }
 
 /* Subsystems table styling */
@@ -496,7 +512,6 @@ input[id^="ic"] {
     width: 100%;
     padding: 0.25rem;
     margin: 0;  /* Remove all margins */
-    background-color: #1a1e2c;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
 }

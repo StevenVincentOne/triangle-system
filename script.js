@@ -1090,45 +1090,42 @@ class TriangleSystem {
         const EPSILON = 1e-10;
         const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
 
-        console.log("Calculating orthocenter for points:", { n1, n2, n3 });
-
-        // Calculate the slopes of sides n1-n2 and n2-n3
-        const slopeAB = this.calculateSlope(n1, n2);
-        const slopeBC = this.calculateSlope(n2, n3);
-
-        // Calculate the slopes of the altitudes
-        const slopeAltitudeA = Math.abs(slopeBC) < EPSILON ? Infinity : -1 / slopeBC; // Altitude from n1
-        const slopeAltitudeB = Math.abs(slopeAB) < EPSILON ? Infinity : -1 / slopeAB; // Altitude from n3
-
-        // Calculate the y-intercepts of the altitudes
-        const interceptA = n1.y - slopeAltitudeA * n1.x;
-        const interceptB = n3.y - slopeAltitudeB * n3.x;
-
+        // Calculate slopes of sides
+        const slope12 = this.calculateSlope(n1, n2);
+        const slope23 = this.calculateSlope(n2, n3);
+        const slope31 = this.calculateSlope(n3, n1);
+        
+        // Calculate slopes of altitudes (perpendicular to sides)
+        const altSlope1 = Math.abs(slope23) < EPSILON ? Infinity : -1 / slope23;
+        const altSlope2 = Math.abs(slope31) < EPSILON ? Infinity : -1 / slope31;
+        
+        // Calculate y-intercepts for altitude lines
+        const b1 = n1.y - altSlope1 * n1.x;
+        const b2 = n2.y - altSlope2 * n2.x;
+        
         let orthocenter;
-
-        if (Math.abs(slopeAltitudeA - slopeAltitudeB) < EPSILON) {
+        
+        if (Math.abs(altSlope1 - altSlope2) < EPSILON) {
             console.warn("Altitudes are parallel. Orthocenter is undefined.");
             return null;
         }
 
-        if (slopeAltitudeA === Infinity) {
-            // Altitude A is vertical
-            const x = roundNearZero(n1.x);
-            const y = roundNearZero(slopeAltitudeB * x + interceptB);
-            orthocenter = { x, y };
-        } else if (slopeAltitudeB === Infinity) {
-            // Altitude B is vertical
-            const x = roundNearZero(n3.x);
-            const y = roundNearZero(slopeAltitudeA * x + interceptA);
-            orthocenter = { x, y };
+        if (altSlope1 === Infinity) {
+            orthocenter = {
+                x: roundNearZero(n1.x),
+                y: roundNearZero(altSlope2 * n1.x + b2)
+            };
+        } else if (altSlope2 === Infinity) {
+            orthocenter = {
+                x: roundNearZero(n2.x),
+                y: roundNearZero(altSlope1 * n2.x + b1)
+            };
         } else {
-            // Calculate intersection point of the two altitudes
-            const x = roundNearZero((interceptB - interceptA) / (slopeAltitudeA - slopeAltitudeB));
-            const y = roundNearZero(slopeAltitudeA * x + interceptA);
+            const x = roundNearZero((b2 - b1) / (altSlope1 - altSlope2));
+            const y = roundNearZero(altSlope1 * x + b1);
             orthocenter = { x, y };
         }
-
-        console.log("Calculated orthocenter:", orthocenter);
+        
         return orthocenter;
     }
 
@@ -1957,19 +1954,22 @@ class TriangleSystem {
             // Calculate offset directions for each edge
             const offset = 25; // Adjust this value to position labels further or closer
 
-            // NC1 label (left edge)
+            // NC1 label (left edge) - increase offset
             const nc1Angle = Math.atan2(this.system.n1.y - this.system.n3.y, this.system.n1.x - this.system.n3.x);
-            const nc1OffsetX = -offset * Math.sin(nc1Angle);
-            const nc1OffsetY = offset * Math.cos(nc1Angle);
+            const nc1OffsetX = -offset * 1.5 * Math.sin(nc1Angle);  // Increased multiplier to 1.5
+            const nc1OffsetY = offset * 1.5 * Math.cos(nc1Angle);   // Increased multiplier to 1.5
+            this.ctx.fillStyle = '#FF073A';  // Match N1 color
             this.ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
 
-            // NC2 label (right edge)
+            // NC2 label (right edge) - increase offset
             const nc2Angle = Math.atan2(this.system.n1.y - this.system.n2.y, this.system.n1.x - this.system.n2.x);
-            const nc2OffsetX = offset * Math.sin(nc2Angle);
-            const nc2OffsetY = -offset * Math.cos(nc2Angle);
+            const nc2OffsetX = offset * 1.5 * Math.sin(nc2Angle);   // Increased multiplier to 1.5
+            const nc2OffsetY = -offset * 1.5 * Math.cos(nc2Angle);  // Increased multiplier to 1.5
+            this.ctx.fillStyle = '#7d7deb';  // Match N2 color
             this.ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
 
-            // NC3 label (bottom edge)
+            // NC3 label (bottom edge) - keep original offset
+            this.ctx.fillStyle = '#44FF44';  // Match N3 color
             this.ctx.fillText(nc3Length, nc3Mid.x, -nc3Mid.y + offset);
 
             this.ctx.restore();  // Restore context state
@@ -2126,7 +2126,7 @@ class TriangleSystem {
         // Define colors at method level to ensure consistency
         const neonColors = {
             'red': '#FF0000',    // Bright red for N1
-            'blue': '#00FFFF',   // Cyan/neon blue for N2
+            'blue': '#5fd5fd',   // Cyan/neon blue for N2
             'green': '#44FF44'   // Neon green for N3
         };
         
@@ -2363,17 +2363,16 @@ class TriangleSystem {
         const { n1, n2, n3 } = this.system;
         const origin = { x: 0, y: 0 };
 
-        // Update colors to match subsystem definitions
-        // Draw SS3 region (Red)
+        // Draw SS1 region (Red)
         this.ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
         this.ctx.beginPath();
-        this.ctx.moveTo(n3.x, n3.y);
-        this.ctx.lineTo(n1.x, n1.y);
+        this.ctx.moveTo(n1.x, n1.y);
+        this.ctx.lineTo(n3.x, n3.y);
         this.ctx.lineTo(origin.x, origin.y);
         this.ctx.closePath();
         this.ctx.fill();
 
-        // Draw SS1 region (Blue)
+        // Draw SS2 region (Blue)
         this.ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
         this.ctx.beginPath();
         this.ctx.moveTo(n1.x, n1.y);
@@ -2382,7 +2381,7 @@ class TriangleSystem {
         this.ctx.closePath();
         this.ctx.fill();
 
-        // Draw SS2 region (Green)
+        // Draw SS3 region (Green)
         this.ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
         this.ctx.beginPath();
         this.ctx.moveTo(n2.x, n2.y);
@@ -2395,19 +2394,19 @@ class TriangleSystem {
         const centroids = this.calculateSubsystemCentroids();
         
         // Draw SS1 centroid (Red)
-        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';  // Changed to red
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss1.x, centroids.ss1.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
         
         // Draw SS2 centroid (Blue)
-        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+        this.ctx.fillStyle = 'rgba(0, 0, 255, 0.8)';  // Changed to blue
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss2.x, centroids.ss2.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
         
         // Draw SS3 centroid (Green)
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';  // Changed to green
         this.ctx.beginPath();
         this.ctx.arc(centroids.ss3.x, centroids.ss3.y, 4, 0, 2 * Math.PI);
         this.ctx.fill();
@@ -2542,7 +2541,7 @@ class TriangleSystem {
         );
         
         // N2 angle (bottom right) - Cyan
-        ctx.fillStyle = '#00FFFF';
+        ctx.fillStyle = '#5fd5fd';
         ctx.fillText(
             `${Math.round(angles.n2)}°`, 
             this.system.n2.x + 45,
@@ -2592,12 +2591,10 @@ class TriangleSystem {
         ctx.fillStyle = '#FF0000';  // Neon red
         ctx.fillText(nc1Length, nc1Mid.x + nc1OffsetX, -nc1Mid.y + nc1OffsetY);
 
-        // NC2 label (right edge) - Neon Cyan
-        const nc2Length = this.system.nc2.toFixed(2);
-        const nc2Angle = Math.atan2(n1.y - n2.y, n1.x - n2.x);
-        const nc2OffsetX = offset * Math.sin(nc2Angle);
-        const nc2OffsetY = -offset * Math.cos(nc2Angle);
-        ctx.fillStyle = '#00FFFF';  // Cyan/neon blue
+        // NC2 label (right edge) - Using RGBA for full opacity
+        ctx.fillStyle = 'rgba(95, 213, 253, 1)';  // #5fd5fd with full opacity
+        // or alternatively, we could make it slightly transparent with:
+        // ctx.fillStyle = 'rgba(95, 213, 253, 0.8)';  // 80% opacity
         ctx.fillText(nc2Length, nc2Mid.x + nc2OffsetX, -nc2Mid.y + nc2OffsetY);
 
         // NC3 label (bottom edge) - Neon Green
@@ -2611,26 +2608,30 @@ class TriangleSystem {
     drawEdges(ctx) {
         const { n1, n2, n3 } = this.system;
         
+        ctx.lineWidth = 2;
+        
         // Draw NC1 (Red, Left: N1-N3)
-        ctx.strokeStyle = 'red';
+        ctx.strokeStyle = '#FF0000';
         ctx.beginPath();
         ctx.moveTo(n1.x, n1.y);
         ctx.lineTo(n3.x, n3.y);
         ctx.stroke();
         
         // Draw NC2 (Blue, Right: N1-N2)
-        ctx.strokeStyle = 'blue';
+        ctx.strokeStyle = '#5fd5fd';  // Keep the true blue we like
         ctx.beginPath();
         ctx.moveTo(n1.x, n1.y);
         ctx.lineTo(n2.x, n2.y);
         ctx.stroke();
         
         // Draw NC3 (Green, Base: N2-N3)
-        ctx.strokeStyle = 'green';
+        ctx.strokeStyle = '#44FF44';
         ctx.beginPath();
         ctx.moveTo(n2.x, n2.y);
         ctx.lineTo(n3.x, n3.y);
         ctx.stroke();
+
+        ctx.lineWidth = 1;
     }
 
     centerSystem() {
@@ -3447,35 +3448,42 @@ class TriangleSystem {
     // Helper method to calculate orthocenter
     calculateOrthocenter() {
         const { n1, n2, n3 } = this.system;
-        
+        const EPSILON = 1e-10;
+        const roundNearZero = (value) => Math.abs(value) < EPSILON ? 0 : value;
+
         // Calculate slopes of sides
-        const slope12 = (n2.y - n1.y) / (n2.x - n1.x);
-        const slope23 = (n3.y - n2.y) / (n3.x - n2.x);
-        const slope31 = (n1.y - n3.y) / (n1.x - n3.x);
+        const slope12 = this.calculateSlope(n1, n2);
+        const slope23 = this.calculateSlope(n2, n3);
+        const slope31 = this.calculateSlope(n3, n1);
         
         // Calculate slopes of altitudes (perpendicular to sides)
-        const altSlope1 = slope23 !== 0 ? -1 / slope23 : Infinity;
-        const altSlope2 = slope31 !== 0 ? -1 / slope31 : Infinity;
+        const altSlope1 = Math.abs(slope23) < EPSILON ? Infinity : -1 / slope23;
+        const altSlope2 = Math.abs(slope31) < EPSILON ? Infinity : -1 / slope31;
         
         // Calculate y-intercepts for altitude lines
         const b1 = n1.y - altSlope1 * n1.x;
         const b2 = n2.y - altSlope2 * n2.x;
         
-        // Calculate intersection of altitudes
         let orthocenter;
+        
+        if (Math.abs(altSlope1 - altSlope2) < EPSILON) {
+            console.warn("Altitudes are parallel. Orthocenter is undefined.");
+            return null;
+        }
+
         if (altSlope1 === Infinity) {
             orthocenter = {
-                x: n1.x,
-                y: altSlope2 * n1.x + b2
+                x: roundNearZero(n1.x),
+                y: roundNearZero(altSlope2 * n1.x + b2)
             };
         } else if (altSlope2 === Infinity) {
             orthocenter = {
-                x: n2.x,
-                y: altSlope1 * n2.x + b1
+                x: roundNearZero(n2.x),
+                y: roundNearZero(altSlope1 * n2.x + b1)
             };
         } else {
-            const x = (b2 - b1) / (altSlope1 - altSlope2);
-            const y = altSlope1 * x + b1;
+            const x = roundNearZero((b2 - b1) / (altSlope1 - altSlope2));
+            const y = roundNearZero(altSlope1 * x + b1);
             orthocenter = { x, y };
         }
         
@@ -3645,10 +3653,20 @@ class TriangleSystem {
                 return null;
             }
 
-            // Calculate the radius as the distance from the orthocenter to one vertex
-            const radius = this.calculateDistance(orthocenter, n1);
+            // Calculate distances from orthocenter to each vertex
+            const d1 = this.calculateDistance(orthocenter, n1);
+            const d2 = this.calculateDistance(orthocenter, n2);
+            const d3 = this.calculateDistance(orthocenter, n3);
             
-            console.log("Orthocircle calculated:", { center: orthocenter, radius });
+            // The radius should be the same to all vertices
+            // Use average in case of small numerical differences
+            const radius = (d1 + d2 + d3) / 3;
+            
+            console.log("Orthocircle calculated:", { 
+                center: orthocenter, 
+                radius,
+                distances: { d1, d2, d3 }
+            });
             
             return {
                 center: orthocenter,
