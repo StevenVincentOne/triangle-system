@@ -402,6 +402,7 @@ class TriangleSystem {
         if (toggleICButton) {
             toggleICButton.addEventListener('click', () => {
                 this.showIC = !this.showIC;
+                // Only toggle the active class, don't change text
                 toggleICButton.classList.toggle('active');
                 this.drawSystem();
             });
@@ -1201,7 +1202,6 @@ class TriangleSystem {
                 setElementValue('#sph-area-ratio', sphAreaRatio.toFixed(4));  // Changed from #sph-b-ratio
                 setElementValue('#b-sph-ratio', (1 / sphAreaRatio).toFixed(4));
             }
-
 
 
 
@@ -2079,7 +2079,7 @@ class TriangleSystem {
                 const circumcenter = this.calculateCircumcenter();
                 if (circumcenter) {
                     this.ctx.beginPath();
-                    this.ctx.fillStyle = '#00FF00';  // Green color
+                    this.ctx.fillStyle = '#F7F107';  // Green color
                     this.ctx.arc(
                         circumcenter.x,
                         circumcenter.y,
@@ -2092,7 +2092,7 @@ class TriangleSystem {
                     // Label 'O' for circumcenter
                     this.ctx.save();
                     this.ctx.scale(1, -1);
-                    this.ctx.fillStyle = '#00FF00';
+                    this.ctx.fillStyle = '#F7F107';
                     this.ctx.font = '12px Arial';
                     this.ctx.fillText('O', circumcenter.x + 10, -circumcenter.y);
                     this.ctx.restore();
@@ -3567,7 +3567,7 @@ class TriangleSystem {
         const circumcircle = this.calculateCircumcircle();
         
         // Draw only the circle, not the center point
-        ctx.strokeStyle = '#00FF00';  // Bright neon green
+        ctx.strokeStyle = '#F7F107';  // Bright neon yellow
         ctx.setLineDash([5, 5]);  // Dashed line
         ctx.beginPath();
         ctx.arc(

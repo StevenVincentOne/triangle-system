@@ -177,6 +177,12 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     justify-content: center;
 }
 
+.btn-secondary.active {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: #000;
+}
+
 /* =================
    Manual & Animation Controls
    ================= */
