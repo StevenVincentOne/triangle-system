@@ -913,7 +913,7 @@ class TriangleSystem {
             const n3x = -baseLength/2;
             const n3y = 0;
             
-            // Calculate N1 position to create 35° angle at N2 and 85° angle at N3
+            // Calculate N1 position to create 35�� angle at N2 and 85° angle at N3
             const angleN2 = 35 * Math.PI/180;  // Convert 35° to radians
             const height = baseLength * Math.sin(angleN2);
             const offset = -baseLength * 0.2;  // Shift left to make angles asymmetric
@@ -5266,8 +5266,9 @@ canvas.addEventListener('contextmenu', function(event) {
     event.preventDefault();
     
     const rect = canvas.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width * canvas.width).toFixed(2);
-    const y = ((event.clientY - rect.top) / rect.height * canvas.height).toFixed(2);
+    // Transform coordinates for display
+    const x = ((event.clientX - rect.left) / rect.width * canvas.width - canvas.width / 2).toFixed(2);
+    const y = (canvas.height / 2 - (event.clientY - rect.top) / rect.height * canvas.height).toFixed(2);
     
     const contextMenu = document.createElement('div');
     contextMenu.className = 'canvas-context-menu';
@@ -5277,13 +5278,14 @@ canvas.addEventListener('contextmenu', function(event) {
     coordsText.type = 'text';
     coordsText.value = `${x}, ${y}`;
     coordsText.className = 'coords-input';
-    coordsText.readOnly = true;  // Make it read-only but still selectable
+    coordsText.readOnly = true;
     
     // Add the input field to the menu
     contextMenu.appendChild(coordsText);
     
-    contextMenu.style.left = `${event.pageX}px`;
-    contextMenu.style.top = `${event.pageY}px`;
+    // Position menu at cursor location, accounting for scroll
+    contextMenu.style.left = `${event.clientX}px`;
+    contextMenu.style.top = `${event.clientY}px`;
     
     document.body.appendChild(contextMenu);
     
