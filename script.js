@@ -4161,7 +4161,7 @@ class TriangleSystem {
         
         // Draw the subtriangle in white
         ctx.strokeStyle = '#ffffff';  // Changed from #ff0000 to white
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(subtriangleCentroids.ss1.x, subtriangleCentroids.ss1.y);
         ctx.lineTo(subtriangleCentroids.ss2.x, subtriangleCentroids.ss2.y);
@@ -4169,9 +4169,7 @@ class TriangleSystem {
         ctx.closePath();
         ctx.stroke();
         
-        // Optional: Fill with semi-transparent white
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';  // Changed from red to white
-        ctx.fill();
+        
     }
 
     /**
