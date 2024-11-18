@@ -251,6 +251,8 @@ class TriangleSystem {
         this.showNinePointCircle = false;  // Rename existing property
         this.showSubcircle = false;
         this.showSubcenter = false;  // Add this line with other show* properties
+        this.isAnimating = false; // Add this to track animation state
+        this.animationLoop = null; // Add this to store animation loop reference
 
         // Initialize with default triangle first
         this.initializeSystem('equilateral');
@@ -3955,6 +3957,12 @@ class TriangleSystem {
     // Add or update the startAnimation method
     startAnimation() {
         try {
+            const loopCheckbox = document.getElementById('animation-loop');
+            if (loopCheckbox && loopCheckbox.checked) {
+                this.startLoopAnimation();
+                return;
+            }
+
             // Get start values from input fields
             const startState = {
                 nc1: parseFloat(document.getElementById('animation-nc1-start').value),
@@ -3975,7 +3983,7 @@ class TriangleSystem {
             this.updateTriangleFromEdges(startState.nc1, startState.nc2, startState.nc3);
             
             // Animation parameters
-            const duration = 1000; // 1 second
+            const duration = 4000; // Changed from 1000 to 4000 for 4 seconds
             const startTime = performance.now();
 
             // Animation function
@@ -5101,6 +5109,103 @@ class TriangleSystem {
         
         return angle;
     }
+
+    // Helper method for drawing text with white drop shadow
+    drawTextWithShadow(text, x, y, fontSize = '14px') {
+        const context = this.context;
+        context.save();
+        
+        // Add white drop shadow
+        context.shadowColor = 'rgba(255, 255, 255, 0.7)';  // Semi-transparent white
+        context.shadowBlur = 3;
+        context.shadowOffsetX = 0.8;
+        context.shadowOffsetY = 0.8;
+        
+        // Draw the text
+        context.font = `${fontSize} Arial`;
+        context.fillStyle = '#ffffff';
+        context.fillText(text, x, y);
+        
+        context.restore();
+    }
+
+    // Update the label drawing methods to use the new shadow effect
+    drawNodeLabel(node, label) {
+        const offsetX = 15;
+        const offsetY = 5;
+        this.drawTextWithShadow(label, node.x + offsetX, node.y + offsetY);
+    }
+
+    drawAngleLabel(angle, x, y) {
+        this.drawTextWithShadow(`${angle.toFixed(1)}°`, x, y, '12px');
+    }
+
+    drawLengthLabel(length, x, y) {
+        this.drawTextWithShadow(length.toFixed(2), x, y, '12px');
+    }
+
+    // Add this method to handle the loop animation
+    startLoopAnimation() {
+        if (this.isAnimating) {
+            this.isAnimating = false;
+            if (this.animationLoop) {
+                cancelAnimationFrame(this.animationLoop);
+                this.animationLoop = null;
+            }
+            return;
+        }
+
+        const startState = {
+            nc1: parseFloat(document.getElementById('animation-nc1-start').value),
+            nc2: parseFloat(document.getElementById('animation-nc2-start').value),
+            nc3: parseFloat(document.getElementById('animation-nc3-start').value)
+        };
+
+        const endState = {
+            nc1: parseFloat(document.getElementById('animation-nc1-end').value),
+            nc2: parseFloat(document.getElementById('animation-nc2-end').value),
+            nc3: parseFloat(document.getElementById('animation-nc3-end').value)
+        };
+
+        this.isAnimating = true;
+        const duration = 4000;
+        let startTime = performance.now();
+        let forward = true;
+
+        const animate = (currentTime) => {
+            if (!this.isAnimating) return;
+
+            const elapsed = currentTime - startTime;
+            let progress = (elapsed % duration) / duration;
+
+            if (forward && elapsed >= duration) {
+                forward = false;
+                startTime = currentTime;
+                progress = 1;
+            } else if (!forward && elapsed >= duration) {
+                forward = true;
+                startTime = currentTime;
+                progress = 0;
+            }
+
+            const effectiveProgress = forward ? progress : 1 - progress;
+
+            // Calculate current values
+            const current = {
+                nc1: startState.nc1 + (endState.nc1 - startState.nc1) * effectiveProgress,
+                nc2: startState.nc2 + (endState.nc2 - startState.nc2) * effectiveProgress,
+                nc3: startState.nc3 + (endState.nc3 - startState.nc3) * effectiveProgress
+            };
+
+            // Update triangle
+            this.updateTriangleFromEdges(current.nc1, current.nc2, current.nc3);
+
+            // Continue loop
+            this.animationLoop = requestAnimationFrame(animate);
+        };
+
+        this.animationLoop = requestAnimationFrame(animate);
+    }
 }
 
 // Outside the class - DOM initialization
@@ -5157,5 +5262,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (incenterElement) {
         incenterElement.title = 'IN: Incenter coordinates';
     }
+});
+
+canvas.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width * canvas.width).toFixed(2);
+    const y = ((event.clientY - rect.top) / rect.height * canvas.height).toFixed(2);
+    
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'canvas-context-menu';
+    
+    // Create a selectable text field
+    const coordsText = document.createElement('input');
+    coordsText.type = 'text';
+    coordsText.value = `${x}, ${y}`;
+    coordsText.className = 'coords-input';
+    coordsText.readOnly = true;  // Make it read-only but still selectable
+    
+    // Add the input field to the menu
+    contextMenu.appendChild(coordsText);
+    
+    contextMenu.style.left = `${event.pageX}px`;
+    contextMenu.style.top = `${event.pageY}px`;
+    
+    document.body.appendChild(contextMenu);
+    
+    // Auto-select the text
+    coordsText.select();
+    
+    const removeMenu = () => {
+        document.body.removeChild(contextMenu);
+        document.removeEventListener('click', removeMenu);
+    };
+    document.addEventListener('click', removeMenu);
 });
 

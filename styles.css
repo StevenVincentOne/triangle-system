@@ -578,3 +578,32 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     z-index: 1 !important;
 }
 
+.canvas-context-menu {
+    position: fixed;
+    background: #1a1e2c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.875rem;
+    z-index: 1000;
+    pointer-events: none;  /* Allows clicking through the menu */
+}
+
+.animation-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#animation-loop {
+    margin: 0;
+    cursor: pointer;
+}
+
+#animation-loop + label {
+    color: #ddd;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
