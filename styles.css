@@ -610,3 +610,18 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     cursor: pointer;
 }
 
+/* Update just the canvas background */
+#canvas-container {
+    width: 800px !important;
+    height: 600px !important;
+    overflow: hidden !important;
+    margin: 0 auto !important;
+    background-color: #000000 !important;  /* Change canvas background to pure black */
+}
+
+#canvas {
+    width: 100% !important;
+    height: 100% !important;
+    background-color: #000000 !important;  /* Ensure canvas itself is also black */
+}
+
