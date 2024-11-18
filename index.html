@@ -715,6 +715,19 @@
             color: #fff;
         }
 
+        .subtriangle-headers {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtriangle-main-row {
+            display: grid;
+            
+        }
+
     </style>
     
 </head>
@@ -1159,6 +1172,7 @@
                     <div class="subtriangle-headers">
                         <h4 class="section-header">Nodes</h4>
                         <h4 class="section-header">Subchannels</h4>
+                        <h4 class="section-header">Entropy and Capacity</h4>
                     </div>
 
                     <!-- Main Row -->
@@ -1194,12 +1208,9 @@
                                 <input id="subchannel-3" type="text" readonly>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Entropy Section -->
-                    <div class="entropy-section">
-                        <h4 class="section-header">Entropy and Capacity</h4>
-                        <div class="panel-row">
+                        <!-- Entropy and Capacity Section -->
+                        <div class="entropy-section">
                             <div class="label-value-pair">
                                 <label>hst</label>
                                 <input id="subtriangle-hst" type="text" readonly>

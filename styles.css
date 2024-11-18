@@ -276,33 +276,30 @@ input[id*="euler"] {  /* Added Euler Line inputs */
    Subtriangle Panel
    ================= */
 .subtriangle-headers {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
     margin-bottom: 0.5rem;
-    padding: 0 1rem;
+    text-align: center;
 }
 
-.subtriangle-headers .section-header {
-    flex: 1;  /* Allow headers to take equal space */
-}
-
-.subtriangle-headers .section-header:first-child {
-    text-align: left;  /* Align "Nodes" to the left side */
-    margin-left: 2rem;  /* Add some spacing from the left edge */
-}
-
-.subtriangle-headers .section-header:last-child {
-    text-align: right;  /* Align "Subchannels" to the right side */
-    margin-right: 2rem;  /* Add some spacing from the right edge */
-}
-
-/* Adjust the main row layout to match header alignment */
 .subtriangle-main-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+.nodes-section,
+.subchannels-section,
+.entropy-section {
     display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 1rem;
-    padding: 0 1rem;  /* Match header padding */
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.entropy-section .label-value-pair {
+    margin-bottom: 0.25rem;
 }
 
 /* =================
