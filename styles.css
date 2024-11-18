@@ -14,6 +14,9 @@
     width: fit-content !important;
     margin: 0 auto;
     font-size: 0.725rem;
+    position: relative !important;
+    z-index: 2 !important;
+    margin-bottom: 2rem !important;
 }
 
 .dashboard-row {
@@ -154,9 +157,10 @@ input[id^="nc"],
 input[id^="ic"],
 input[id^="d-"],     /* Distance measurements */
 input[id^="r-"],     /* Ratio measurements */
-input[id*="-ratio"] {
-    width: 10ch !important;     /* Increase from 8ch to 9ch */
-    min-width: 9ch !important;
+input[id*="-ratio"],
+input[id*="euler"] {  /* Added Euler Line inputs */
+    width: 10ch !important;     /* Increased from 10ch to 11ch */
+    min-width: 10ch !important;  /* Increased from 9ch to 10ch */
 }
 
 /* =================
@@ -339,7 +343,7 @@ input[id*="-ratio"] {
    Legends Panel 
    ================= */
 .legends-panel {
-    margin-top: 2rem !important;  /* Add space above the legend */
+    margin-top: 4rem !important;  /* Doubled the space above legend from 2rem to 4rem */
     background-color: #2c2c2c;
     padding: 2.5rem !important;
     border-radius: 8px;
@@ -347,6 +351,8 @@ input[id*="-ratio"] {
     margin: 0.5rem auto !important;
     width: fit-content;
     max-width: calc(100% - 40px);
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 /* Center the legend items */
@@ -546,6 +552,8 @@ input[id*="-ratio"] {
     background-color: #1a1e2c !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 6px !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 /* Export button styling with higher specificity */
@@ -554,5 +562,19 @@ input[id*="-ratio"] {
     margin: 0 !important;
     padding: 0.5rem 1rem !important;
     flex: 0 0 auto !important;
+}
+
+/* Legend panel styling with higher specificity */
+.container > .legends-panel {
+    margin-top: 4rem !important;  /* Doubled the space above legend from 2rem to 4rem */
+    background-color: #2c2c2c !important;
+    padding: 2.5rem !important;
+    border-radius: 8px !important;
+    color: #ddd !important;
+    margin-bottom: 2rem !important;
+    width: fit-content !important;
+    max-width: calc(100% - 40px) !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
