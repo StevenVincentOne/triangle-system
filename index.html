@@ -1003,21 +1003,42 @@
                             </div>
                         </div>
 
-                        <!-- Midpoints Panel -->
+                        <!-- Medians Panel -->
                         <div class="dashboard-panel">
-                            <h3 class="panel-header">Midpoints</h3>
+                            <h3 class="panel-header">Medians</h3>
                             <div class="panel-content">
-                                <div class="label-value-pair">
-                                    <label for="mid1-coords">M1 (x,y)</label>
-                                    <input id="mid1-coords" type="text" class="form-control coordinate-input" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="mid2-coords">M2 (x,y)</label>
-                                    <input id="mid2-coords" type="text" class="form-control coordinate-input" readonly>
-                                </div>
-                                <div class="label-value-pair">
-                                    <label for="mid3-coords">M3 (x,y)</label>
-                                    <input id="mid3-coords" type="text" class="form-control coordinate-input" readonly>
+                                <div class="panel-row">  <!-- Container for the two columns -->
+                                    <!-- Median Points Column -->
+                                    <div class="value-column">
+                                        <div class="label-value-pair">
+                                            <label>M1 (x,y)</label>
+                                            <input id="mid1-coords" type="text" class="coordinate-input" readonly>
+                                        </div>
+                                        <div class="label-value-pair">
+                                            <label>M2 (x,y)</label>
+                                            <input id="mid2-coords" type="text" class="coordinate-input" readonly>
+                                        </div>
+                                        <div class="label-value-pair">
+                                            <label>M3 (x,y)</label>
+                                            <input id="mid3-coords" type="text" class="coordinate-input" readonly>
+                                        </div>
+                                    </div>
+
+                                    <!-- Median Lengths Column -->
+                                    <div class="value-column">
+                                        <div class="label-value-pair">
+                                            <label>ml1</label>
+                                            <input id="median1-length" type="text" readonly>
+                                        </div>
+                                        <div class="label-value-pair">
+                                            <label>ml2</label>
+                                            <input id="median2-length" type="text" readonly>
+                                        </div>
+                                        <div class="label-value-pair">
+                                            <label>ml3</label>
+                                            <input id="median3-length" type="text" readonly>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
