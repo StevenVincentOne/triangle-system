@@ -2135,7 +2135,7 @@ class TriangleSystem {
                 // Draw orthocenter point and label
                 if (this.system.orthocenter) {
                     this.ctx.beginPath();
-                    this.ctx.fillStyle = '#FF0000';  // Pink color
+                    this.ctx.fillStyle = '#b600ff';  // Update to match altitude purple
                     this.ctx.arc(
                         this.system.orthocenter.x,
                         this.system.orthocenter.y,
@@ -2148,7 +2148,7 @@ class TriangleSystem {
                     // Label 'HO' for orthocenter
                     this.ctx.save();
                     this.ctx.scale(1, -1);  // Flip text right-side up
-                    this.ctx.fillStyle = '#FF0000';
+                    this.ctx.fillStyle = '#b600ff';  // Update to match altitude purple
                     this.ctx.font = '12px Arial';
                     this.ctx.fillText('HO', this.system.orthocenter.x + 10, -this.system.orthocenter.y);
                     this.ctx.restore();
