@@ -542,43 +542,21 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     margin: 0 !important;
 }
 
-/* Export container styling with higher specificity */
+/* Update export container styling for new location */
+.export-container {
+    width: 100% !important;
+    margin-top: 1rem !important;
+}
+
+.export-container .btn {
+    width: 100% !important;
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.8rem !important;
+}
+
+/* Remove the old export container styles */
 .container > .export-container {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 1rem !important;
-    width: fit-content !important;
-    margin: 2rem auto !important;
-    padding: 1rem !important;
-    background-color: #1a1e2c !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 6px !important;
-    position: relative !important;
-    z-index: 1 !important;
-}
-
-/* Export button styling with higher specificity */
-.container > .export-container .btn {
-    min-width: 120px !important;
-    margin: 0 !important;
-    padding: 0.5rem 1rem !important;
-    flex: 0 0 auto !important;
-}
-
-/* Legend panel styling with higher specificity */
-.container > .legends-panel {
-    margin-top: 4rem !important;  /* Doubled the space above legend from 2rem to 4rem */
-    background-color: #2c2c2c !important;
-    padding: 2.5rem !important;
-    border-radius: 8px !important;
-    color: #ddd !important;
-    margin-bottom: 2rem !important;
-    width: fit-content !important;
-    max-width: calc(100% - 40px) !important;
-    position: relative !important;
-    z-index: 1 !important;
+    display: none !important;  /* Hide the old container */
 }
 
 .canvas-context-menu {
@@ -623,5 +601,26 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     width: 100% !important;
     height: 100% !important;
     background-color: #000000 !important;  /* Ensure canvas itself is also black */
+}
+
+/* Add dropdown menu styling */
+.dropdown-menu {
+    padding: 0.25rem !important;  /* Reduce padding around the entire menu */
+}
+
+.dropdown-item {
+    padding: 0.15rem 0.5rem !important;  /* Reduce padding around each item */
+    font-size: 0.8rem !important;  /* Make text smaller */
+    line-height: 1.2 !important;  /* Reduce line height */
+}
+
+/* Optional: make the dropdown button text match */
+.dropdown-toggle {
+    font-size: 0.8rem !important;
+}
+
+/* Ensure dropdown items remain readable on hover */
+.dropdown-item:hover {
+    background-color: #2b4280 !important;
 }
 
