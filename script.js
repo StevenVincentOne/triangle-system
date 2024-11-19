@@ -1751,6 +1751,26 @@ class TriangleSystem {
                 );
             });
 
+            // Update I-Channels (using existing calculateMedians)
+            const medianChannels = this.calculateMedians();
+            setElementValue('#subsystem-1-mc', medianChannels.n1.toFixed(2));
+            setElementValue('#subsystem-2-mc', medianChannels.n2.toFixed(2));
+            setElementValue('#subsystem-3-mc', medianChannels.n3.toFixed(2));
+
+            // Update Medians panel with full median values
+            const fullMedians = this.calculateFullMedians();
+            ['1', '2', '3'].forEach(i => {
+                const m = fullMedians[`m${i}`];
+                setElementValue(
+                    `#mid${i}-coords`,
+                    `${m.point.x.toFixed(1)}, ${m.point.y.toFixed(1)}`
+                );
+                setElementValue(
+                    `#median${i}-length`,
+                    m.length.toFixed(2)
+                );
+            });
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -5478,6 +5498,27 @@ class TriangleSystem {
         const y = m2 * (x - vertex.x) + vertex.y;
         
         return { x, y };
+    }
+
+    // Add this method to TriangleSystem class
+    calculateFullMedians() {
+        const { n1, n2, n3 } = this.system;
+        const midpoints = this.calculateMidpoints();
+        
+        return {
+            m1: {
+                point: midpoints.m3,  // Midpoint of N2-N3
+                length: this.calculateDistance(n1, midpoints.m3)  // Full length from N1 to M3
+            },
+            m2: {
+                point: midpoints.m1,  // Midpoint of N1-N3
+                length: this.calculateDistance(n2, midpoints.m1)  // Full length from N2 to M1
+            },
+            m3: {
+                point: midpoints.m2,  // Midpoint of N1-N2
+                length: this.calculateDistance(n3, midpoints.m2)  // Full length from N3 to M2
+            }
+        };
     }
 }
 
