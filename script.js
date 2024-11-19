@@ -253,6 +253,7 @@ class TriangleSystem {
         this.showSubcenter = false;  // Add this line with other show* properties
         this.isAnimating = false; // Add this to track animation state
         this.animationLoop = null; // Add this to store animation loop reference
+        this.showAltitudes = false;  // Add this property
 
         // Initialize with default triangle first
         this.initializeSystem('equilateral');
@@ -620,6 +621,7 @@ class TriangleSystem {
             { id: 'toggleIncircle', property: 'showIncircle' },
             { id: 'toggleCircumcircle', property: 'showCircumcircle' },
             { id: 'toggleSubcircle', property: 'showSubcircle' },  // New toggle
+            { id: 'toggleAltitudes', property: 'showAltitudes' },  // Add this line
         ];
 
         featureButtons.forEach(button => {
@@ -1771,6 +1773,40 @@ class TriangleSystem {
                 );
             });
 
+            // Draw altitudes if enabled
+            if (this.showAltitudes) {
+                const altitudes = this.calculateAltitudes();
+                
+                // Set up the dotted line style
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.strokeStyle = '#b600ff';  // Purple color
+                this.ctx.lineWidth = 2;
+
+                // Draw altitude lines
+                this.ctx.beginPath();
+                // Altitude from N1
+                this.ctx.moveTo(this.system.n1.x, this.system.n1.y);
+                this.ctx.lineTo(altitudes.α1.x, altitudes.α1.y);
+                // Altitude from N2
+                this.ctx.moveTo(this.system.n2.x, this.system.n2.y);
+                this.ctx.lineTo(altitudes.α2.x, altitudes.α2.y);
+                // Altitude from N3
+                this.ctx.moveTo(this.system.n3.x, this.system.n3.y);
+                this.ctx.lineTo(altitudes.α3.x, altitudes.α3.y);
+                this.ctx.stroke();
+
+                // Reset line dash and draw feet points
+                this.ctx.setLineDash([]);
+                this.ctx.fillStyle = '#b600ff';
+                
+                // Draw feet points
+                ['α1', 'α2', 'α3'].forEach(foot => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(altitudes[foot].x, altitudes[foot].y, 4, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                });
+            }
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -2221,6 +2257,40 @@ class TriangleSystem {
             // Draw IC lines if enabled (after drawing nodes but before special centers)
             if (this.showIC) {
                 this.drawICLines(this.ctx);
+            }
+
+            // Draw altitudes if enabled
+            if (this.showAltitudes) {
+                const altitudes = this.calculateAltitudes();
+                
+                // Set up the dotted line style
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.strokeStyle = '#b600ff';  // Purple color
+                this.ctx.lineWidth = 2;
+
+                // Draw altitude lines
+                this.ctx.beginPath();
+                // Altitude from N1
+                this.ctx.moveTo(this.system.n1.x, this.system.n1.y);
+                this.ctx.lineTo(altitudes.α1.x, altitudes.α1.y);
+                // Altitude from N2
+                this.ctx.moveTo(this.system.n2.x, this.system.n2.y);
+                this.ctx.lineTo(altitudes.α2.x, altitudes.α2.y);
+                // Altitude from N3
+                this.ctx.moveTo(this.system.n3.x, this.system.n3.y);
+                this.ctx.lineTo(altitudes.α3.x, altitudes.α3.y);
+                this.ctx.stroke();
+
+                // Reset line dash and draw feet points
+                this.ctx.setLineDash([]);
+                this.ctx.fillStyle = '#b600ff';
+                
+                // Draw feet points
+                ['α1', 'α2', 'α3'].forEach(foot => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(altitudes[foot].x, altitudes[foot].y, 4, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                });
             }
 
         } catch (error) {
@@ -5475,29 +5545,29 @@ class TriangleSystem {
 
     // Helper method to calculate the foot of an altitude
     calculateAltitudeFoot(vertex, lineStart, lineEnd) {
-        // Calculate the slope of the line
+        // Vector from lineStart to lineEnd
         const dx = lineEnd.x - lineStart.x;
         const dy = lineEnd.y - lineStart.y;
         
-        // Handle vertical lines
-        if (Math.abs(dx) < 1e-10) {
-            return { x: lineStart.x, y: vertex.y };
-        }
+        // Vector from lineStart to vertex
+        const px = vertex.x - lineStart.x;
+        const py = vertex.y - lineStart.y;
         
-        const m1 = dy / dx;
-        // Perpendicular slope
-        const m2 = (Math.abs(m1) < 1e-10) ? Infinity : -1 / m1;
+        // Calculate projection length
+        const lineLength = dx * dx + dy * dy;
+        if (lineLength === 0) return lineStart; // Degenerate case
         
-        // Handle horizontal lines
-        if (!isFinite(m2)) {
-            return { x: vertex.x, y: lineStart.y };
-        }
+        const t = (px * dx + py * dy) / lineLength;
         
-        // Calculate intersection point
-        const x = (m1 * lineStart.x - m2 * vertex.x + vertex.y - lineStart.y) / (m1 - m2);
-        const y = m2 * (x - vertex.x) + vertex.y;
+        // Calculate foot point
+        const footX = lineStart.x + t * dx;
+        const footY = lineStart.y + t * dy;
         
-        return { x, y };
+        // If foot point is outside segment, return nearest endpoint
+        if (t <= 0) return lineStart;
+        if (t >= 1) return lineEnd;
+        
+        return { x: footX, y: footY };
     }
 
     // Add this method to TriangleSystem class
@@ -5524,105 +5594,13 @@ class TriangleSystem {
 
 // Outside the class - DOM initialization
 document.addEventListener('DOMContentLoaded', () => {
-    // Check for animation elements
-    ['animation-nc1-end', 'animation-nc2-end', 'animation-nc3-end', 'animate-button'].forEach(id => {
-        const element = document.getElementById(id);
-        console.log(`Element ${id} exists:`, !!element);
-    });
-
     const canvas = document.querySelector('#canvas');
     if (canvas) {
         const triangleSystem = new TriangleSystem(canvas);
     } else {
         console.error("Canvas element not found");
     }
-
-    // Add circumcircle toggle
-    const toggleCircumcircleButton = document.getElementById('toggleCircumcircle');
-    if (toggleCircumcircleButton) {
-        toggleCircumcircleButton.addEventListener('click', () => {
-            triangleSystem.showCircumcircle = !triangleSystem.showCircumcircle;
-            triangleSystem.drawSystem();
-        });
-    }
-
-    // Update the HTML size attributes
-    document.querySelectorAll('.subsystems-table td:nth-child(5) input, .subsystems-table td:nth-child(6) input').forEach(input => {
-        input.setAttribute('size', '15');
-    });
-
-    // Add event listener for subcenter toggle button
-    const toggleSubcenterButton = document.getElementById('toggleSubcenter');
-    if (toggleSubcenterButton) {
-        toggleSubcenterButton.addEventListener('click', function() {
-            triangleSystem.toggleSubcenter();
-        });
-    }
-
-    // Update toggle button text if it exists
-    const specialCentersToggle = document.getElementById('toggleSpecialCenters');
-    if (specialCentersToggle) {
-        specialCentersToggle.textContent = 'Toggle Orthocenter (HO)';
-    }
-
-    // Update any tooltip or help text that might reference the orthocenter
-    const orthocenterElement = document.getElementById('orthocenter-coords');
-    if (orthocenterElement) {
-        orthocenterElement.title = 'HO: Orthocenter coordinates';
-    }
-
-    // Update any tooltip or help text that references the incenter
-    const incenterElement = document.getElementById('incenter-coords');
-    if (incenterElement) {
-        incenterElement.title = 'IN: Incenter coordinates';
-    }
-
-    // Add to your initialization code
-    document.getElementById('importButton').addEventListener('click', () => {
-        document.getElementById('importFile').click();
-    });
-
-    document.getElementById('importFile').addEventListener('change', (event) => {
-        if (event.target.files.length > 0) {
-            this.importFromCSV(event.target.files[0]);
-        }
-    });
-});
-
-canvas.addEventListener('contextmenu', function(event) {
-    event.preventDefault();
     
-    const rect = canvas.getBoundingClientRect();
-    // Transform coordinates for display
-    const x = ((event.clientX - rect.left) / rect.width * canvas.width - canvas.width / 2).toFixed(2);
-    const y = (canvas.height / 2 - (event.clientY - rect.top) / rect.height * canvas.height).toFixed(2);
-    
-    const contextMenu = document.createElement('div');
-    contextMenu.className = 'canvas-context-menu';
-    
-    // Create a selectable text field
-    const coordsText = document.createElement('input');
-    coordsText.type = 'text';
-    coordsText.value = `${x}, ${y}`;
-    coordsText.className = 'coords-input';
-    coordsText.readOnly = true;
-    
-    // Add the input field to the menu
-    contextMenu.appendChild(coordsText);
-    
-    // Position menu at cursor location, accounting for scroll
-    contextMenu.style.left = `${event.clientX}px`;
-    contextMenu.style.top = `${event.clientY}px`;
-    
-    document.body.appendChild(contextMenu);
-    
-    // Auto-select the text
-    coordsText.select();
-    
-    const removeMenu = () => {
-        document.body.removeChild(contextMenu);
-        document.removeEventListener('click', removeMenu);
-    };
-    document.addEventListener('click', removeMenu);
+    // Remove duplicate event listeners that are now in initializeEventListeners
 });
 
