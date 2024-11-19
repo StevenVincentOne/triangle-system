@@ -1735,6 +1735,22 @@ class TriangleSystem {
                 this.drawICLines(this.ctx);
             }
 
+            // Update altitude coordinates and lengths
+            const altitudes = this.calculateAltitudes();
+            ['1', '2', '3'].forEach(i => {
+                const foot = altitudes[`α${i}`];
+                const length = altitudes.lengths[`α${i}`];
+                
+                setElementValue(
+                    `#altitude${i}-coords`,
+                    `${foot.x.toFixed(1)}, ${foot.y.toFixed(1)}`
+                );
+                setElementValue(
+                    `#altitude${i}-length`,
+                    length.toFixed(2)
+                );
+            });
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -5416,6 +5432,52 @@ class TriangleSystem {
         };
         
         reader.readAsText(file);
+    }
+
+    // Add this method to TriangleSystem class
+    calculateAltitudes() {
+        const altitudes = {
+            // For each vertex, calculate its altitude to the opposite side
+            α1: this.calculateAltitudeFoot(this.system.n1, this.system.n2, this.system.n3),
+            α2: this.calculateAltitudeFoot(this.system.n2, this.system.n3, this.system.n1),
+            α3: this.calculateAltitudeFoot(this.system.n3, this.system.n1, this.system.n2)
+        };
+
+        // Calculate lengths while we're here
+        altitudes.lengths = {
+            α1: this.calculateDistance(this.system.n1, altitudes.α1),
+            α2: this.calculateDistance(this.system.n2, altitudes.α2),
+            α3: this.calculateDistance(this.system.n3, altitudes.α3)
+        };
+
+        return altitudes;
+    }
+
+    // Helper method to calculate the foot of an altitude
+    calculateAltitudeFoot(vertex, lineStart, lineEnd) {
+        // Calculate the slope of the line
+        const dx = lineEnd.x - lineStart.x;
+        const dy = lineEnd.y - lineStart.y;
+        
+        // Handle vertical lines
+        if (Math.abs(dx) < 1e-10) {
+            return { x: lineStart.x, y: vertex.y };
+        }
+        
+        const m1 = dy / dx;
+        // Perpendicular slope
+        const m2 = (Math.abs(m1) < 1e-10) ? Infinity : -1 / m1;
+        
+        // Handle horizontal lines
+        if (!isFinite(m2)) {
+            return { x: vertex.x, y: lineStart.y };
+        }
+        
+        // Calculate intersection point
+        const x = (m1 * lineStart.x - m2 * vertex.x + vertex.y - lineStart.y) / (m1 - m2);
+        const y = m2 * (x - vertex.x) + vertex.y;
+        
+        return { x, y };
     }
 }
 
