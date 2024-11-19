@@ -407,6 +407,17 @@ class TriangleSystem {
                 this.drawSystem();
             });
         }
+
+        // Add to your initialization code
+        document.getElementById('importButton').addEventListener('click', () => {
+            document.getElementById('importFile').click();
+        });
+
+        document.getElementById('importFile').addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                this.importFromCSV(event.target.files[0]);
+            }
+        });
     }
 
     initializePresets() {
@@ -811,6 +822,31 @@ class TriangleSystem {
             });
         } else {
             console.warn('Subcenter toggle button not found');
+        }
+
+        // Add Import button and file input listeners
+        const importButton = document.getElementById('importButton');
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.csv';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        if (importButton) {
+            console.log('Import button found');
+            importButton.addEventListener('click', () => {
+                console.log('Import button clicked');
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (event) => {
+                if (event.target.files.length > 0) {
+                    console.log('File selected:', event.target.files[0].name);
+                    this.importFromCSV(event.target.files[0]);
+                }
+            });
+        } else {
+            console.error('Import button not found');
         }
     }
 
@@ -5334,6 +5370,53 @@ class TriangleSystem {
         this.drawTextWithShadow(ctx, text, x + 10, -y, '12px');
         ctx.restore();
     }
+
+    importFromCSV(file) {
+        console.log('Starting import');
+        const reader = new FileReader();
+        
+        reader.onload = async (event) => {
+            try {
+                const text = event.target.result;
+                const rows = text.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '')));
+                
+                // Skip header row
+                const dataRows = rows.slice(1);
+                
+                // Process each row
+                dataRows.forEach(row => {
+                    if (row.length >= 3) {
+                        const [section, label, value] = row;
+                        console.log(`Importing - Section: ${section}, Label: ${label}, Value: ${value}`);
+                        
+                        // Find and update the corresponding input
+                        const labelElement = Array.from(document.querySelectorAll('label')).find(
+                            el => el.textContent.trim() === label.trim()
+                        );
+                        
+                        if (labelElement) {
+                            const input = labelElement.parentElement.querySelector('input');
+                            if (input && !input.readOnly) {
+                                input.value = value;
+                                // Trigger change event to ensure any listeners are notified
+                                input.dispatchEvent(new Event('change'));
+                            }
+                        }
+                    }
+                });
+                
+                console.log('Import complete');
+                // Optionally trigger a redraw or update
+                this.drawSystem();
+                
+            } catch (error) {
+                console.error('Error importing CSV:', error);
+                alert('Error importing CSV file. Please check the file format.');
+            }
+        };
+        
+        reader.readAsText(file);
+    }
 }
 
 // Outside the class - DOM initialization
@@ -5390,6 +5473,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (incenterElement) {
         incenterElement.title = 'IN: Incenter coordinates';
     }
+
+    // Add to your initialization code
+    document.getElementById('importButton').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+    });
+
+    document.getElementById('importFile').addEventListener('change', (event) => {
+        if (event.target.files.length > 0) {
+            this.importFromCSV(event.target.files[0]);
+        }
+    });
 });
 
 canvas.addEventListener('contextmenu', function(event) {
