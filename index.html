@@ -728,6 +728,48 @@
             
         }
 
+        /* Info Box Container */
+        .info-box-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            font-size: 0.8rem !important;
+        }
+
+        /* Search Field Container */
+        .info-search-container {
+            position: relative;
+            min-width: 10ch;
+        }
+
+        /* Search Input */
+        .info-search-container input {
+            width: 10ch;
+            padding: 0.15rem 0.25rem !important;
+            font-size: 0.8rem !important;
+            height: calc(1.4em + 0.4rem) !important;
+            text-align: center;
+        }
+
+        /* Display Field */
+        .info-display input {
+            padding: 0.15rem 0.25rem !important;
+            background-color: #2b4280;
+            border: 1px solid #444;
+            font-size: 0.8rem !important;
+            width: 16ch !important;
+            min-width: 16ch !important;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        /* Update Button */
+        #info-display-update {
+            padding: 0.15rem 0.35rem !important;
+            font-size: 0.8rem !important;
+            height: calc(1.4em + 0.4rem) !important;
+        }
+
     </style>
     
 </head>
@@ -826,20 +868,35 @@
             </div>
             <!-- Info Box Container -->
             <div class="info-box-container">
-                <!-- Search Field -->
+                <!-- First Metric -->
                 <div class="info-search-container">
-                    <input type="text" 
-                           id="info-search" 
-                           class="form-control" 
-                           placeholder="Search metrics...">
-                    <div id="search-results" class="search-results-dropdown"></div>
+                    <input type="text" id="info-search-1" class="form-control" placeholder="Search...">
+                    <div id="search-results-1" class="search-results-dropdown"></div>
                 </div>
-            
-                <!-- Display Field -->
                 <div class="info-display">
-                    <input id="info-display-value" type="text" readonly>
-                    <button id="info-display-update" class="btn btn-info btn-sm">Update</button>
+                    <input id="info-display-value-1" type="text" readonly>
                 </div>
+
+                <!-- Second Metric -->
+                <div class="info-search-container">
+                    <input type="text" id="info-search-2" class="form-control" placeholder="Search...">
+                    <div id="search-results-2" class="search-results-dropdown"></div>
+                </div>
+                <div class="info-display">
+                    <input id="info-display-value-2" type="text" readonly>
+                </div>
+
+                <!-- Third Metric -->
+                <div class="info-search-container">
+                    <input type="text" id="info-search-3" class="form-control" placeholder="Search...">
+                    <div id="search-results-3" class="search-results-dropdown"></div>
+                </div>
+                <div class="info-display">
+                    <input id="info-display-value-3" type="text" readonly>
+                </div>
+
+                <!-- Single Update Button -->
+                <button id="info-display-update" class="btn btn-info btn-sm">Update</button>
             </div>
 
             <!-- Canvas and Animation Controls -->

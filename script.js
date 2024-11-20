@@ -5625,20 +5625,13 @@ class TriangleSystem {
     }
 
     initializeInfoBoxSearch() {
-        const searchInput = document.getElementById('info-search');
-        const searchResults = document.getElementById('search-results');
-        const displayValue = document.getElementById('info-display-value');
-        const updateButton = document.getElementById('info-display-update');
-
-        if (!searchInput || !searchResults || !displayValue || !updateButton) {
-            console.error('Info box elements not found');
-            return;
-        }
-
-        // Collect all metrics dynamically
+        // Initialize arrays to store selected metrics
+        this.selectedMetrics = [null, null, null];
+        
+        // Initialize metric list first
         this.metricList = [];
         const labelValuePairs = document.querySelectorAll('.label-value-pair');
-
+        
         labelValuePairs.forEach(pair => {
             const labelElement = pair.querySelector('label');
             const inputElement = pair.querySelector('input[id], span[id], textarea[id]');
@@ -5654,61 +5647,76 @@ class TriangleSystem {
             }
         });
 
-        // Event listener for the search input
-        searchInput.addEventListener('input', () => {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            searchResults.innerHTML = '';
+        // Now initialize each search box
+        for (let i = 1; i <= 3; i++) {
+            const searchInput = document.getElementById(`info-search-${i}`);
+            const searchResults = document.getElementById(`search-results-${i}`);
+            const displayValue = document.getElementById(`info-display-value-${i}`);
 
-            if (searchTerm.length > 0) {
-                const matches = this.metricList.filter(metric =>
-                    metric.label.toLowerCase().includes(searchTerm)
-                );
+            if (!searchInput || !searchResults || !displayValue) {
+                console.error(`Info box ${i} elements not found`);
+                continue;
+            }
 
-                if (matches.length > 0) {
-                    matches.forEach(metric => {
-                        const div = document.createElement('div');
-                        div.className = 'search-result-item';
-                        div.textContent = metric.label;
+            // Event listener for search input
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                searchResults.innerHTML = '';
 
-                        div.addEventListener('click', () => {
-                            this.selectedMetric = metric;
-                            searchInput.value = metric.label;  // Show label in search box
-                            
-                            // Update the display value
-                            const inputElement = document.getElementById(metric.id);
-                            if (inputElement) {
-                                displayValue.value = inputElement.value || inputElement.textContent || '-';
-                            }
+                if (searchTerm.length > 0) {
+                    const matches = this.metricList.filter(metric =>
+                        metric.label.toLowerCase().includes(searchTerm)
+                    );
 
-                            searchResults.classList.remove('active');
+                    if (matches.length > 0) {
+                        matches.forEach(metric => {
+                            const div = document.createElement('div');
+                            div.className = 'search-result-item';
+                            div.textContent = metric.label;
+
+                            div.addEventListener('click', () => {
+                                this.selectedMetrics[i-1] = metric;
+                                searchInput.value = metric.label;
+                                
+                                // Update the display value
+                                const inputElement = document.getElementById(metric.id);
+                                if (inputElement) {
+                                    displayValue.value = inputElement.value || inputElement.textContent || '-';
+                                }
+
+                                searchResults.classList.remove('active');
+                            });
+                            searchResults.appendChild(div);
                         });
-                        searchResults.appendChild(div);
-                    });
-                    searchResults.classList.add('active');
-                } else {
+                        searchResults.classList.add('active');
+                    }
+                }
+                searchResults.classList.toggle('active', searchTerm.length > 0);
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                     searchResults.classList.remove('active');
                 }
-            } else {
-                searchResults.classList.remove('active');
-            }
-        });
+            });
+        }
 
-        // Update button click handler
-        updateButton.addEventListener('click', () => {
-            if (this.selectedMetric) {
-                const inputElement = document.getElementById(this.selectedMetric.id);
-                if (inputElement) {
-                    displayValue.value = inputElement.value || inputElement.textContent || '-';
-                }
-            }
-        });
-
-        // Close search results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                searchResults.classList.remove('active');
-            }
-        });
+        // Single update button for all three displays
+        const updateButton = document.getElementById('info-display-update');
+        if (updateButton) {
+            updateButton.addEventListener('click', () => {
+                this.selectedMetrics.forEach((metric, index) => {
+                    if (metric) {
+                        const displayValue = document.getElementById(`info-display-value-${index + 1}`);
+                        const inputElement = document.getElementById(metric.id);
+                        if (displayValue && inputElement) {
+                            displayValue.value = inputElement.value || inputElement.textContent || '-';
+                        }
+                    }
+                });
+            });
+        }
     }
 
     // Helper method to get the current value of the metric

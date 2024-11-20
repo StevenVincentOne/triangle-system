@@ -514,14 +514,14 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     flex-direction: column;
     align-items: center;
     width: fit-content;
-    gap: 0.15rem;  /* Minimal gap between manual controls and preset buttons */
+    gap: 0.1rem !important;  /* Reduced from 0.15rem */
 }
 
 /* Manual controls section */
 #manual-controls {
     width: 100%;
-    padding: 0.25rem;
-    margin: 0;  /* Remove all margins */
+    padding: 0.15rem !important;  /* Reduced from 0.25rem */
+    margin: 0;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
 }
@@ -530,9 +530,9 @@ input[id*="euler"] {  /* Added Euler Line inputs */
 .preset-buttons-container {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.35rem;  /* Reduced from 0.5rem */
     width: 100%;
-    padding: 0;
+    padding: 0.1rem 0 !important;  /* Added minimal padding */
     margin: 0;
 }
 
@@ -627,40 +627,51 @@ input[id*="euler"] {  /* Added Euler Line inputs */
 /* Info Box Container */
 .info-box-container {
     display: flex;
-    gap: 0.5rem;
-    align-items: start;
-    font-size: 0.8rem !important;  /* Match other label sizes */
+    gap: 0.25rem;  /* Reduced from 0.35rem */
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem !important;
+    padding: 0.1rem !important;  /* Reduced from 0.15rem */
 }
 
 /* Search Field Container */
 .info-search-container {
     position: relative;
-    flex: 1;
-    min-width: 150px;
+    min-width: 10ch;
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;  /* Reduced from 0.25rem */
 }
 
-#info-search {
-    width: 100%;
-    padding: 0.15rem 0.25rem !important;  /* Match other input padding */
-    font-size: 0.8rem !important;  /* Match other input sizes */
-    height: calc(1.4em + 0.4rem) !important;  /* Match other input heights */
+/* Search Input */
+.info-search-container input {
+    width: 10ch;
+    padding: 0.15rem 0.25rem !important;
+    font-size: 0.8rem !important;
+    height: calc(1.4em + 0.4rem) !important;
+    text-align: center;
+    color: #fff !important;  /* Force white text */
+    background-color: #2b4280 !important;
 }
 
 /* Display Field */
 .info-display {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
+    gap: 0.15rem;  /* Reduced from 0.25rem */
+    min-width: auto;  /* Remove the 200px min-width */
 }
 
-#info-display-value {
+.info-display input {
     padding: 0.15rem 0.25rem !important;
-    background-color: #2b4280;
+    background-color: #2b4280 !important;
     border: 1px solid #444;
     font-size: 0.8rem !important;
-    width: 8ch !important;
-    min-width: 8ch !important;
+    width: 16ch !important;
+    min-width: 16ch !important;
     text-align: center;
+    font-family: monospace;
+    color: #fff !important;  /* Force white text */
 }
 
 /* Update Button */
@@ -668,6 +679,7 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     padding: 0.15rem 0.35rem !important;
     font-size: 0.8rem !important;
     height: calc(1.4em + 0.4rem) !important;
+    margin-left: 0.25rem;  /* Reduced from 0.35rem */
 }
 
 /* Search Results Dropdown */
@@ -700,7 +712,7 @@ input[id*="euler"] {  /* Added Euler Line inputs */
 
 /* Display Field */
 .info-display {
-    min-width: 200px;
+    min-width: auto;  /* Override the previous 200px setting */
 }
 
 #info-display-label {
