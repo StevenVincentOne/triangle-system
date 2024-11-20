@@ -1725,33 +1725,30 @@ class TriangleSystem {
                 }
                 
                 // Update ssh value
-                document.getElementById(`subsystem-${i}-sc`).value = ssh.toFixed(4);
+                setElementValue(`#subsystem-${i}-sc`, ssh.toFixed(4));
                 
                 // Calculate capacity (ssc)
                 const capacity = this.calculateSubsystemCapacity(i);
-                document.getElementById(`subsystem-${i}-perimeter`).value = capacity.toFixed(4);
+                setElementValue(`#subsystem-${i}-perimeter`, capacity.toFixed(4));
                 
                 // Update ratios only if capacity is not zero
                 if (capacity !== 0) {
                     // Update ssh/ssc ratio
                     const sshSscRatio = ssh / capacity;
-                    document.getElementById(`subsystem-${i}-area`).value = sshSscRatio.toFixed(4);
+                    setElementValue(`#subsystem-${i}-area`, sshSscRatio.toFixed(4));
                     
                     // Update ssc/ssh ratio
                     const sscSshRatio = capacity / ssh;
-                    document.getElementById(`subsystem-${i}-ratio`).value = sscSshRatio.toFixed(4);
-                    
-                    // Remove the incorrect assignment to inverse-ratio
-                    // document.getElementById(`subsystem-${i}-inverse-ratio`).value = sscSshRatio.toFixed(4);
+                    setElementValue(`#subsystem-${i}-ratio`, sscSshRatio.toFixed(4));
                 }
                 
                 // Update entropy ratios separately
                 if (totalSystemEntropy !== 0 && ssh !== 0) {
                     // Update ssh/H ratio (inverse ratio)
-                    document.getElementById(`subsystem-${i}-inverse-ratio`).value = (ssh/totalSystemEntropy).toFixed(4);
+                    setElementValue(`#subsystem-${i}-inverse-ratio`, (ssh/totalSystemEntropy).toFixed(4));
                     
                     // Update H/ssh ratio (entropy ratio)
-                    document.getElementById(`subsystem-${i}-entropy-ratio`).value = (totalSystemEntropy/ssh).toFixed(4);
+                    setElementValue(`#subsystem-${i}-entropy-ratio`, (totalSystemEntropy/ssh).toFixed(4));
                 }
                 
                 
@@ -1835,8 +1832,41 @@ class TriangleSystem {
             // Update the display value
             this.updateDisplayValue();
 
+            // Debug logging
+            console.log('Updating medians and altitudes...');
+            
+            // Update Medians panel values
+            ['1', '2', '3'].forEach(i => {
+                const medianLengthId = `median${i}-length`;
+                const medianLengthElement = document.getElementById(medianLengthId);
+                
+                console.log(`Looking for median length element: ${medianLengthId}`, medianLengthElement);
+                
+                if (medianLengthElement) {
+                    medianLengthElement.value = this.medianLengths[i-1].toFixed(2);
+                } else {
+                    console.warn(`Element not found: ${medianLengthId}`);
+                }
+            });
+
+            // Update Altitudes panel values
+            ['1', '2', '3'].forEach(i => {
+                const altitudeCoordsId = `altitude${i}-coords`;
+                const altitudeCoordsElement = document.getElementById(altitudeCoordsId);
+                
+                console.log(`Looking for altitude coords element: ${altitudeCoordsId}`, altitudeCoordsElement);
+                
+                if (altitudeCoordsElement) {
+                    altitudeCoordsElement.value = `${this.altitudePoints[i-1].x.toFixed(1)}, ${this.altitudePoints[i-1].y.toFixed(1)}`;
+                } else {
+                    console.warn(`Element not found: ${altitudeCoordsId}`);
+                }
+            });
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
+            console.error('Stack trace:', error.stack);
+            // Continue execution despite error
         }
     }
     
@@ -5157,7 +5187,7 @@ class TriangleSystem {
         };
         
         const [n1, n2, c] = nodes[index];
-        return Math.abs((n1.x * (n2.y - c.y) + n2.x * (c.y - n1.y) + c.x * (n1.y - n2.y)) / 2);
+        return Math.abs((n1.x * (n2.y - c.y) + n2.x * (c.y - n1.y) + c.x * (n1.y - n2.y)) /2);
     }
 
     calculateTotalEntropy() {

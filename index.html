@@ -1253,55 +1253,94 @@
 </div>
             
                 <!-- Subsystems Panel -->
-                <div class="dashboard-panel">
-                    <h3 class="panel-header">Subsystems</h3>
-                    <table class="subsystems-table">
-                        <thead>
-                            <tr>
-                                <th>ss</th>
-                                <th>∠</th>
-                                <th>ssh</th>
-                                <th>ssc</th>
-                                <th>ssh/ssc</th>
-                                <th>ssc/ssh</th>
-                                <th>ssh/H</th>
-                                <th>H/ssh</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>ss1</td>
-                                <td><input id="subsystem-1-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                <td><input id="subsystem-1-sc" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-1-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-1-area" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-1-ratio" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-1-inverse-ratio" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-1-entropy-ratio" type="text" class="form-control" size="8" readonly></td>
-                            </tr>
-                            <tr>
-                                <td>ss2</td>
-                                <td><input id="subsystem-2-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                <td><input id="subsystem-2-sc" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-2-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-2-area" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-2-ratio" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-2-inverse-ratio" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-2-entropy-ratio" type="text" class="form-control" size="8" readonly></td>
-                            </tr>
-                            <tr>
-                                <td>ss3</td>
-                                <td><input id="subsystem-3-angle" type="text" class="form-control angle-input" size="8" readonly></td>
-                                <td><input id="subsystem-3-sc" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-3-perimeter" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-3-area" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-3-ratio" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-3-inverse-ratio" type="text" class="form-control" size="8" readonly></td>
-                                <td><input id="subsystem-3-entropy-ratio" type="text" class="form-control" size="8" readonly></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+<div class="dashboard-panel">
+    <h3 class="panel-header">Subsystems</h3>
+    <div class="panel-content subsystems-grid">
+        <!-- SS1 Row -->
+        <div class="subsystem-row">
+            <div class="label-value-pair">
+                <label>ss∠1</label>
+                <input id="subsystem-1-angle" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>sc1</label>
+                <input id="subsystem-1-sc" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh1</label>
+                <input id="subsystem-1-perimeter" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssc1</label>
+                <input id="subsystem-1-area" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh/ssc1</label>
+                <input id="subsystem-1-ratio" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh/h1</label>
+                <input id="subsystem-1-entropy-ratio" type="text" readonly>
+            </div>
+        </div>
+
+        <!-- SS2 Row -->
+        <div class="subsystem-row">
+            <div class="label-value-pair">
+                <label>ss∠2</label>
+                <input id="subsystem-2-angle" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>sc2</label>
+                <input id="subsystem-2-sc" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh2</label>
+                <input id="subsystem-2-perimeter" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssc2</label>
+                <input id="subsystem-2-area" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh/ssc2</label>
+                <input id="subsystem-2-ratio" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh/h2</label>
+                <input id="subsystem-2-entropy-ratio" type="text" readonly>
+            </div>
+        </div>
+
+        <!-- SS3 Row -->
+        <div class="subsystem-row">
+            <div class="label-value-pair">
+                <label>ss∠3</label>
+                <input id="subsystem-3-angle" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>sc3</label>
+                <input id="subsystem-3-sc" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh3</label>
+                <input id="subsystem-3-perimeter" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssc3</label>
+                <input id="subsystem-3-area" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh/ssc3</label>
+                <input id="subsystem-3-ratio" type="text" readonly>
+            </div>
+            <div class="label-value-pair">
+                <label>ssh/h3</label>
+                <input id="subsystem-3-entropy-ratio" type="text" readonly>
+            </div>
+        </div>
+    </div>
+</div>
         
             
             <!-- Subtriangle Panel -->
@@ -1312,7 +1351,7 @@
                     <!-- Headers Row -->
                     <div class="subtriangle-headers">
                         <h4 class="section-header">Nodes</h4>
-                        <h4 class="section-header">Subchannels</h4>
+                        <h4 class="section-header">Channels</h4>
                         <h4 class="section-header">Entropy and Capacity</h4>
                     </div>
 
@@ -1337,15 +1376,15 @@
                         <!-- Subchannels Section -->
                         <div class="subchannels-section">
                             <div class="label-value-pair">
-                                <label>sc1</label>
+                                <label>stc1</label>
                                 <input id="subchannel-1" type="text" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label>sc2</label>
+                                <label>stc2</label>
                                 <input id="subchannel-2" type="text" readonly>
                             </div>
                             <div class="label-value-pair">
-                                <label>sc3</label>
+                                <label>stc3</label>
                                 <input id="subchannel-3" type="text" readonly>
                             </div>
                         </div>
