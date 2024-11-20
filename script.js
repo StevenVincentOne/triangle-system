@@ -419,6 +419,31 @@ class TriangleSystem {
                 this.importFromCSV(event.target.files[0]);
             }
         });
+
+        // Import Button
+        const importButton = document.getElementById('importButton');
+        if (importButton) {
+            importButton.addEventListener('click', () => {
+                document.getElementById('importFile').click();
+            });
+        } else {
+            console.error("Import button not found");
+        }
+
+        // Similarly check other elements
+        const saveStateButton = document.getElementById('saveState');
+        if (saveStateButton) {
+            saveStateButton.addEventListener('click', () => {
+                // Your save state logic
+            });
+        } else {
+            console.error("Save state button not found");
+        }
+
+        // Initialize the search functionality
+        this.initializeInfoBoxSearch();
+        this.selectedMetric = null;
+        
     }
 
     initializePresets() {
@@ -1807,6 +1832,9 @@ class TriangleSystem {
                 });
             }
 
+            // Update the display value
+            this.updateDisplayValue();
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
         }
@@ -2002,6 +2030,9 @@ class TriangleSystem {
             const dIIN = this.calculateDistance(centroid, this.system.incenter);
             setElementValue('#d-i-in', dIIN.toFixed(2));
         }
+
+        // Update the display value
+        this.updateDisplayValue();
     }
 
     formatValue(value) {
@@ -2824,7 +2855,6 @@ class TriangleSystem {
         
         this.updateDerivedPoints();
         this.updateDashboard();
-        this.updateAnimationFields();  // Add this
         this.drawSystem();
     }
 
@@ -2968,6 +2998,9 @@ class TriangleSystem {
                 input.readOnly = false;
             }
         });
+
+        // Update the display value
+        this.updateDisplayValue();
     }
 
     handleManualUpdate() {
@@ -5589,6 +5622,118 @@ class TriangleSystem {
                 length: this.calculateDistance(n3, midpoints.m2)  // Full length from N3 to M2
             }
         };
+    }
+
+    initializeInfoBoxSearch() {
+        const searchInput = document.getElementById('info-search');
+        const searchResults = document.getElementById('search-results');
+        const displayValue = document.getElementById('info-display-value');
+        const updateButton = document.getElementById('info-display-update');
+
+        if (!searchInput || !searchResults || !displayValue || !updateButton) {
+            console.error('Info box elements not found');
+            return;
+        }
+
+        // Collect all metrics dynamically
+        this.metricList = [];
+        const labelValuePairs = document.querySelectorAll('.label-value-pair');
+
+        labelValuePairs.forEach(pair => {
+            const labelElement = pair.querySelector('label');
+            const inputElement = pair.querySelector('input[id], span[id], textarea[id]');
+
+            if (labelElement && inputElement) {
+                const labelText = labelElement.textContent.trim();
+                const inputId = inputElement.id.trim();
+
+                this.metricList.push({
+                    label: labelText,
+                    id: inputId
+                });
+            }
+        });
+
+        // Event listener for the search input
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            searchResults.innerHTML = '';
+
+            if (searchTerm.length > 0) {
+                const matches = this.metricList.filter(metric =>
+                    metric.label.toLowerCase().includes(searchTerm)
+                );
+
+                if (matches.length > 0) {
+                    matches.forEach(metric => {
+                        const div = document.createElement('div');
+                        div.className = 'search-result-item';
+                        div.textContent = metric.label;
+
+                        div.addEventListener('click', () => {
+                            this.selectedMetric = metric;
+                            searchInput.value = metric.label;  // Show label in search box
+                            
+                            // Update the display value
+                            const inputElement = document.getElementById(metric.id);
+                            if (inputElement) {
+                                displayValue.value = inputElement.value || inputElement.textContent || '-';
+                            }
+
+                            searchResults.classList.remove('active');
+                        });
+                        searchResults.appendChild(div);
+                    });
+                    searchResults.classList.add('active');
+                } else {
+                    searchResults.classList.remove('active');
+                }
+            } else {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Update button click handler
+        updateButton.addEventListener('click', () => {
+            if (this.selectedMetric) {
+                const inputElement = document.getElementById(this.selectedMetric.id);
+                if (inputElement) {
+                    displayValue.value = inputElement.value || inputElement.textContent || '-';
+                }
+            }
+        });
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('active');
+            }
+        });
+    }
+
+    // Helper method to get the current value of the metric
+    getMetricValue(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            if (element.tagName.toLowerCase() === 'input' || element.tagName.toLowerCase() === 'textarea') {
+                return element.value || '-';
+            } else {
+                return element.textContent || '-';
+            }
+        } else {
+            return '-';
+        }
+    }
+
+    // Add this method to update the display value
+    updateDisplayValue() {
+        if (this.selectedMetric) {
+            const displayValue = document.getElementById('info-display-value');
+            const inputElement = document.getElementById(this.selectedMetric);
+            if (displayValue && inputElement) {
+                displayValue.textContent = inputElement.value || inputElement.textContent || '-';
+            }
+        }
     }
 }
 

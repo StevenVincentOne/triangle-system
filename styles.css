@@ -624,3 +624,98 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     background-color: #2b4280 !important;
 }
 
+/* Info Box Container */
+.info-box-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: start;
+    font-size: 0.8rem !important;  /* Match other label sizes */
+}
+
+/* Search Field Container */
+.info-search-container {
+    position: relative;
+    flex: 1;
+    min-width: 150px;
+}
+
+#info-search {
+    width: 100%;
+    padding: 0.15rem 0.25rem !important;  /* Match other input padding */
+    font-size: 0.8rem !important;  /* Match other input sizes */
+    height: calc(1.4em + 0.4rem) !important;  /* Match other input heights */
+}
+
+/* Display Field */
+.info-display {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+#info-display-value {
+    padding: 0.15rem 0.25rem !important;
+    background-color: #2b4280;
+    border: 1px solid #444;
+    font-size: 0.8rem !important;
+    width: 8ch !important;
+    min-width: 8ch !important;
+    text-align: center;
+}
+
+/* Update Button */
+#info-display-update {
+    padding: 0.15rem 0.35rem !important;
+    font-size: 0.8rem !important;
+    height: calc(1.4em + 0.4rem) !important;
+}
+
+/* Search Results Dropdown */
+.search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #1a1a1a;  /* Adjust to match your theme */
+    border: 1px solid #444;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+}
+
+.search-results-dropdown.active {
+    display: block;
+}
+
+.search-result-item {
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #fff;
+}
+
+.search-result-item:hover {
+    background-color: #333;
+}
+
+/* Display Field */
+.info-display {
+    min-width: 200px;
+}
+
+#info-display-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+#info-display-value {
+    display: block;
+    padding: 0.5rem;
+    background-color: #2b4280;  /* Adjust to match your theme */
+    border: 1px solid #444;
+    font-size: 1rem;
+    color: #fff;
+}
+

@@ -737,6 +737,8 @@
 
         <!-- Visualization container -->
         <div class="visualization-container">
+            
+
             <!-- Manual Controls (at top) -->
             <div id="manual-controls">
                 <div class="manual-controls-container">
@@ -822,6 +824,23 @@
                     </ul>
                 </div>
             </div>
+            <!-- Info Box Container -->
+            <div class="info-box-container">
+                <!-- Search Field -->
+                <div class="info-search-container">
+                    <input type="text" 
+                           id="info-search" 
+                           class="form-control" 
+                           placeholder="Search metrics...">
+                    <div id="search-results" class="search-results-dropdown"></div>
+                </div>
+            
+                <!-- Display Field -->
+                <div class="info-display">
+                    <input id="info-display-value" type="text" readonly>
+                    <button id="info-display-update" class="btn btn-info btn-sm">Update</button>
+                </div>
+            </div>
 
             <!-- Canvas and Animation Controls -->
             <div class="d-flex align-items-start gap-2">
@@ -847,7 +866,8 @@
                             <button id="saveState" class="btn btn-primary">Save State</button>
                             <button id="exportImage" class="btn btn-info">Export Image</button>
                             <button id="exportData" class="btn btn-info">Export Data</button>
-                            <button id="importButton" class="btn btn-info">Import Data</button>
+                            <button id="importButton" class="btn btn-info">Import Data</button><!-- Hidden File Input -->
+                            <input type="file" id="importFile" style="display: none;" accept=".csv">
                         </div>
                     </div>
                 </div>
