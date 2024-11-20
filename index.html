@@ -1344,73 +1344,65 @@
         
             
             <!-- Subtriangle Panel -->
-            <div class="dashboard-panel">
-                <h3 class="panel-header">Subtriangle</h3>
-                
-                <div class="panel-content">
-                    <!-- Headers Row -->
-                    <div class="subtriangle-headers">
-                        <h4 class="section-header">Nodes</h4>
-                        <h4 class="section-header">Channels</h4>
-                        <h4 class="section-header">Entropy and Capacity</h4>
-                    </div>
-
-                    <!-- Main Row -->
-                    <div class="subtriangle-main-row">
-                        <!-- Nodes Section -->
-                        <div class="nodes-section">
-                            <div class="label-value-pair">
-                                <label>ssi1 (x,y)</label>
-                                <input id="subsystem-1-centroid" type="text" class="coordinate-input" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label>ssi2 (x,y)</label>
-                                <input id="subsystem-2-centroid" type="text" class="coordinate-input" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label>ssi3 (x,y)</label>
-                                <input id="subsystem-3-centroid" type="text" class="coordinate-input" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Subchannels Section -->
-                        <div class="subchannels-section">
-                            <div class="label-value-pair">
-                                <label>stc1</label>
-                                <input id="subchannel-1" type="text" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label>stc2</label>
-                                <input id="subchannel-2" type="text" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label>stc3</label>
-                                <input id="subchannel-3" type="text" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Entropy and Capacity Section -->
-                        <div class="entropy-section">
-                            <div class="label-value-pair">
-                                <label>hst</label>
-                                <input id="subtriangle-hst" type="text" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label>cst</label>
-                                <input id="subtriangle-cst" type="text" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label>hst/cst</label>
-                                <input id="hst-cst-ratio" type="text" readonly>
-                            </div>
-                            <div class="label-value-pair">
-                                <label>cst/hst</label>
-                                <input id="cst-hst-ratio" type="text" readonly>
-                            </div>
-                        </div>
-                    </div>
+<div class="dashboard-panel">
+    <h3 class="panel-header">Subtriangle</h3>
+    
+    <div class="panel-content">
+        <!-- Nodes and Channels Row -->
+        <div class="subtriangle-section">
+            <h4 class="section-header">Nodes and Channels</h4>
+            <div class="nodes-channels-row">
+                <div class="label-value-pair">
+                    <label>ssi1 (x,y)</label>
+                    <input id="subsystem-1-centroid" type="text" class="coordinate-input" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>ssi2 (x,y)</label>
+                    <input id="subsystem-2-centroid" type="text" class="coordinate-input" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>ssi3 (x,y)</label>
+                    <input id="subsystem-3-centroid" type="text" class="coordinate-input" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>stc1</label>
+                    <input id="subchannel-1" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>stc2</label>
+                    <input id="subchannel-2" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>stc3</label>
+                    <input id="subchannel-3" type="text" readonly>
                 </div>
             </div>
+        </div>
+
+        <!-- Entropy and Capacity Row -->
+        <div class="subtriangle-section">
+            <h4 class="section-header">Entropy and Capacity</h4>
+            <div class="entropy-capacity-row">
+                <div class="label-value-pair">
+                    <label>hst</label>
+                    <input id="subtriangle-hst" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>cst</label>
+                    <input id="subtriangle-cst" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>hst/cst</label>
+                    <input id="hst-cst-ratio" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>cst/hst</label>
+                    <input id="cst-hst-ratio" type="text" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Euler Line panel -->
             <div class="dashboard-panel">
