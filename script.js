@@ -113,7 +113,7 @@ class TriangleDatabase {
     getAllInputValues() {
         const values = {};
         
-        // Helper function to clean label text
+        // Helper function to clean label text while preserving Greek letters
         const cleanLabel = (text) => {
             return text
                 .replace(/[()]/g, '')         // remove parentheses
@@ -122,8 +122,8 @@ class TriangleDatabase {
                 .replace(/∠/g, 'Angle')       // replace angle symbol with 'Angle'
                 .replace(/°/g, 'deg')         // replace degree symbol with 'deg'
                 .replace(/\//g, '_to_')       // replace / with _to_
-                .replace(/[^\w\s-_]/g, '')    // remove special characters
-                .replace(/_xy$/, '');         // remove _xy suffix for coordinates
+                .replace(/_xy$/, '')          // remove _xy suffix for coordinates
+                .replace(/[^\w\s-_αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]/g, ''); // preserve Greek letters
         };
 
         // Get all input fields with labels
@@ -193,18 +193,27 @@ class TriangleDatabase {
                 Object.keys(record).forEach(key => columns.add(key));
             });
 
-            // Create CSV
+            // Create CSV with proper character encoding
             const headers = Array.from(columns);
             const rows = data.map(record => 
                 headers.map(header => {
-                    const value = record[header] ?? '';
-                    return typeof value === 'string' ? `"${value}"` : value;
+                    let value = record[header] ?? '';
+                    // Fix encoding for special characters
+                    if (value === 'âˆž') value = '∞';
+                    if (typeof value === 'string') {
+                        // Preserve Greek letters in the output
+                        return `"${value}"`;
+                    }
+                    return value;
                 }).join(',')
             );
-            const csv = [headers.join(','), ...rows].join('\n');
 
-            // Download file
-            const blob = new Blob([csv], { type: 'text/csv' });
+            // Add BOM and create CSV with UTF-8 encoding
+            const BOM = '\uFEFF';
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([BOM + csv], { 
+                type: 'text/csv;charset=utf-8-sig' 
+            });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
