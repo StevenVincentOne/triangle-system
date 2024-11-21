@@ -1528,9 +1528,9 @@ class TriangleSystem {
             setElementValue('#subsystem-3-sc', this.calculateDistance(centroids.ss2, centroids.ss3).toFixed(2)); // SS2 to SS3
 
             // Calculate HST (Entropy of Subtriangle) - sum of SC values
-            const sc1 = parseFloat(document.querySelector('#subsystem-1-sc').value) || 0;
-            const sc2 = parseFloat(document.querySelector('#subsystem-2-sc').value) || 0;
-            const sc3 = parseFloat(document.querySelector('#subsystem-3-sc').value) || 0;
+            const sc1 = parseFloat(document.querySelector('#subchannel-1').value) || 0;
+            const sc2 = parseFloat(document.querySelector('#subchannel-2').value) || 0;
+            const sc3 = parseFloat(document.querySelector('#subchannel-3').value) || 0;
             const subtrianglePerimeter = sc1 + sc2 + sc3;
 
             // Update HST values
@@ -1725,29 +1725,29 @@ class TriangleSystem {
                 }
                 
                 // Update ssh value
-                setElementValue(`#subsystem-${i}-sc`, ssh.toFixed(4));
+                setElementValue(`#subsystem-${i}-perimeter`, ssh.toFixed(4));
                 
                 // Calculate capacity (ssc)
                 const capacity = this.calculateSubsystemCapacity(i);
-                setElementValue(`#subsystem-${i}-perimeter`, capacity.toFixed(4));
+                setElementValue(`#subsystem-${i}-area`, capacity.toFixed(4));
                 
                 // Update ratios only if capacity is not zero
                 if (capacity !== 0) {
                     // Update ssh/ssc ratio
                     const sshSscRatio = ssh / capacity;
-                    setElementValue(`#subsystem-${i}-area`, sshSscRatio.toFixed(4));
+                    setElementValue(`#subsystem-${i}-ratio`, sshSscRatio.toFixed(4));
                     
                     // Update ssc/ssh ratio
                     const sscSshRatio = capacity / ssh;
-                    setElementValue(`#subsystem-${i}-ratio`, sscSshRatio.toFixed(4));
+                    setElementValue(`#subsystem-${i}-inverse-ratio`, sscSshRatio.toFixed(4));
                 }
                 
                 // Update entropy ratios separately
                 if (totalSystemEntropy !== 0 && ssh !== 0) {
-                    // Update ssh/H ratio (inverse ratio)
-                    setElementValue(`#subsystem-${i}-inverse-ratio`, (ssh/totalSystemEntropy).toFixed(4));
+                    // Update ssh/H ratio (System Entropy Ratio)
+                    setElementValue(`#subsystem-${i}-system-ratio`, (ssh/totalSystemEntropy).toFixed(4));
                     
-                    // Update H/ssh ratio (entropy ratio)
+                    // Update H/ssh ratio (Inverse System entropy ratio)
                     setElementValue(`#subsystem-${i}-entropy-ratio`, (totalSystemEntropy/ssh).toFixed(4));
                 }
                 
@@ -1863,10 +1863,18 @@ class TriangleSystem {
                 }
             });
 
+            // Update subsystem sc values - make these optional
+            for (let i = 1; i <= 3; i++) {
+                const scElement = document.getElementById(`subsystem-${i}-sc`);
+                if (scElement) {  // Only update if element exists
+                    const ic = this.calculateDistance(centroid, this.system[`n${i}`]);
+                    scElement.value = ic.toFixed(2);
+                }
+            }
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
-            console.error('Stack trace:', error.stack);
-            // Continue execution despite error
+            console.error('\n Stack trace:', error);
         }
     }
     
@@ -5628,7 +5636,7 @@ class TriangleSystem {
         
         // If foot point is outside segment, return nearest endpoint
         if (t <= 0) return lineStart;
-        if (t >= 1) return lineEnd;
+        if (t >=1) return lineEnd;
         
         return { x: footX, y: footY };
     }
