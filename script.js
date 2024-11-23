@@ -698,11 +698,11 @@ class TriangleSystem {
             }
         });
 
-        // Dragging Functionality
-        this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
-        this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
-        this.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
-        this.canvas.addEventListener('mouseleave', this.onMouseUp.bind(this));
+        // Dragging Functionality - Add these lines back
+        this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+        this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+        this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
+        this.canvas.addEventListener('mouseleave', (e) => this.onMouseUp(e));
 
         // Add Save button listener with debug logs
         console.log('Setting up Save button listener');
@@ -886,51 +886,98 @@ class TriangleSystem {
         }
     }
 
-    onMouseDown(event) {
-        const { offsetX, offsetY } = event;
-        const transformed = this.transformCoordinates(offsetX, offsetY);
-        const nodes = ['n1', 'n2', 'n3', 'incenter'];
-        for (let node of nodes) {
-            if (this.isPointNear(transformed, this.system[node])) {
-                this.isDragging = true;
+    // Add these methods if they're missing
+    onMouseDown(e) {
+        console.log('Mouse Down Event Triggered');
+        
+        const rect = this.canvas.getBoundingClientRect();
+        console.log('Canvas rect:', rect);
+        console.log('Mouse event:', { clientX: e.clientX, clientY: e.clientY });
+        console.log('Canvas dimensions:', { 
+            width: this.canvas.width, 
+            height: this.canvas.height,
+            scale: this.scale
+        });
+
+        // Calculate mouse position relative to canvas
+        const canvasX = e.clientX - rect.left;
+        const canvasY = e.clientY - rect.top;
+        console.log('Canvas relative coordinates:', { canvasX, canvasY });
+
+        // Transform to our coordinate system
+        const mouseX = (canvasX - this.canvas.width / 2) / (this.scale || 1);
+        const mouseY = -(canvasY - this.canvas.height / 2) / (this.scale || 1);
+        
+        console.log('Transformed coordinates:', { mouseX, mouseY });
+
+        // Check if click is near any node
+        for (const node of ['n1', 'n2', 'n3']) {
+            const nodePos = this.system[node];
+            console.log(`Node ${node} position:`, nodePos);
+            
+            const distance = Math.sqrt(
+                Math.pow(nodePos.x - mouseX, 2) + 
+                Math.pow(nodePos.y - mouseY, 2)
+            );
+            
+            console.log(`Distance to ${node}:`, distance);
+            
+            if (distance < 10 / (this.scale || 1)) {  // 10 pixel threshold for clicking
                 this.draggedNode = node;
+                console.log('Started dragging node:', node);
                 break;
             }
         }
     }
 
-    onMouseMove(event) {
-        if (this.isDragging && this.draggedNode) {
-            const { offsetX, offsetY } = event;
-            const transformed = this.transformCoordinates(offsetX, offsetY);
-            this.system[this.draggedNode].x = transformed.x;
-            this.system[this.draggedNode].y = transformed.y;
-            this.updateDerivedPoints();
-            this.updateDashboard();
-            this.drawSystem();
-        }
+    onMouseMove(e) {
+        if (!this.draggedNode) return;
+        
+        console.log('Mouse Move with dragged node:', this.draggedNode);
+
+        const rect = this.canvas.getBoundingClientRect();
+        const canvasX = e.clientX - rect.left;
+        const canvasY = e.clientY - rect.top;
+        
+        // Transform to our coordinate system
+        const mouseX = (canvasX - this.canvas.width / 2) / (this.scale || 1);
+        const mouseY = -(canvasY - this.canvas.height / 2) / (this.scale || 1);
+
+        console.log('Moving to:', { mouseX, mouseY });
+
+        // Update node position
+        this.system[this.draggedNode].x = mouseX;
+        this.system[this.draggedNode].y = mouseY;
+
+        // Update the system
+        this.updateDerivedPoints();
+        this.drawSystem();
+        this.updateDashboard();
     }
 
-    onMouseUp() {
-        this.isDragging = false;
+    onMouseUp(e) {
+        if (this.draggedNode) {
+            console.log('Stopped dragging node:', this.draggedNode);
+        }
         this.draggedNode = null;
     }
 
     transformCoordinates(x, y) {
         return {
-            x: x - this.canvas.width / 2,
-            y: this.canvas.height / 2 - y
+            x: this.roundToZero(x - this.canvas.width / 2),
+            y: this.roundToZero(this.canvas.height / 2 - y)
         };
     }
 
-    isPointNear(p1, p2, threshold = 10) {
-        const dx = p1.x - p2.x;
-        const dy = p1.y - p2.y;
-        return Math.sqrt(dx * dx + dy * dy) < threshold;
+    roundToZero(value, epsilon = 1e-10) {
+        return Math.abs(value) < epsilon ? 0 : parseFloat(value.toFixed(4));
     }
 
-    roundToZero(value, epsilon = 1e-10) {
-        return Math.abs(value) < epsilon ? 0 : value;
+    formatCoordinate(coord) {
+        if (coord === undefined || coord === null || isNaN(coord)) {
+            return '0.0000';
+        }
+        return this.roundToZero(coord).toFixed(4);
     }
 
     initializeSystem(preset) {
@@ -1234,6 +1281,36 @@ class TriangleSystem {
                 return;
             }
 
+            // Initialize altitudePoints if not already set
+            if (!this.altitudePoints) {
+                this.altitudePoints = Array(3).fill({ x: 0, y: 0 });
+            }
+
+            // Try to calculate new altitude points only if system is properly initialized
+            if (this.system && this.system.n1 && this.system.n2 && this.system.n3) {
+                const altitudes = this.calculateAltitudes();
+                if (altitudes) {
+                    this.altitudePoints = [
+                        altitudes.α1 || { x: 0, y: 0 },
+                        altitudes.α2 || { x: 0, y: 0 },
+                        altitudes.α3 || { x: 0, y: 0 }
+                    ];
+                }
+            }
+
+            // Update Altitudes panel values with defensive checks
+            ['1', '2', '3'].forEach(i => {
+                const altitudeCoordsId = `altitude${i}-coords`;
+                const altitudeCoordsElement = document.getElementById(altitudeCoordsId);
+                
+                if (altitudeCoordsElement) {
+                    const point = this.altitudePoints[i-1] || { x: 0, y: 0 };
+                    const x = isNaN(point.x) ? 0 : point.x;
+                    const y = isNaN(point.y) ? 0 : point.y;
+                    altitudeCoordsElement.value = `${x.toFixed(1)}, ${y.toFixed(1)}`;
+                }
+            });
+
             // Helper function to set element value and handle missing elements
             const setElementValue = (selector, value, precision = 2) => {
                 const element = document.querySelector(selector);
@@ -1527,14 +1604,14 @@ class TriangleSystem {
             };
 
             // Update subchannel values in the table
-            setElementValue('#subsystem-1-sc', subchannels.sc1.toFixed(2));
-            setElementValue('#subsystem-2-sc', subchannels.sc2.toFixed(2));
-            setElementValue('#subsystem-3-sc', subchannels.sc3.toFixed(2));
+            setElementValue('#subchannel-1', subchannels.sc1.toFixed(2));
+            setElementValue('#subchannel-2', subchannels.sc2.toFixed(2));
+            setElementValue('#subchannel-3', subchannels.sc3.toFixed(2));
 
             // Add subchannel calculations right after the existing centroid updates
-            setElementValue('#subsystem-1-sc', this.calculateDistance(centroids.ss1, centroids.ss3).toFixed(2)); // SS1 to SS3
-            setElementValue('#subsystem-2-sc', this.calculateDistance(centroids.ss1, centroids.ss2).toFixed(2)); // SS1 to SS2
-            setElementValue('#subsystem-3-sc', this.calculateDistance(centroids.ss2, centroids.ss3).toFixed(2)); // SS2 to SS3
+            setElementValue('#subchannel-1', this.calculateDistance(centroids.ss1, centroids.ss3).toFixed(2)); // SS1 to SS3
+            setElementValue('#subchannel-2', this.calculateDistance(centroids.ss1, centroids.ss2).toFixed(2)); // SS1 to SS2
+            setElementValue('#subchannel-3', this.calculateDistance(centroids.ss2, centroids.ss3).toFixed(2)); // SS2 to SS3
 
             // Calculate HST (Entropy of Subtriangle) - sum of SC values
             const sc1 = parseFloat(document.querySelector('#subchannel-1').value) || 0;
@@ -1852,7 +1929,13 @@ class TriangleSystem {
                 console.log(`Looking for median length element: ${medianLengthId}`, medianLengthElement);
                 
                 if (medianLengthElement) {
-                    medianLengthElement.value = this.medianLengths[i-1].toFixed(2);
+                    // Ensure this.medianLengths is properly defined
+                    if (Array.isArray(this.medianLengths) && this.medianLengths.length >= i) {
+                        medianLengthElement.value = this.medianLengths[i - 1].toFixed(2);
+                    } else {
+                        console.warn(`this.medianLengths is undefined or does not have index ${i - 1}`);
+                        medianLengthElement.value = '0.00'; // Default or error value
+                    }
                 } else {
                     console.warn(`Element not found: ${medianLengthId}`);
                 }
@@ -1863,12 +1946,17 @@ class TriangleSystem {
                 const altitudeCoordsId = `altitude${i}-coords`;
                 const altitudeCoordsElement = document.getElementById(altitudeCoordsId);
                 
-                console.log(`Looking for altitude coords element: ${altitudeCoordsId}`, altitudeCoordsElement);
-                
                 if (altitudeCoordsElement) {
-                    altitudeCoordsElement.value = `${this.altitudePoints[i-1].x.toFixed(1)}, ${this.altitudePoints[i-1].y.toFixed(1)}`;
-                } else {
-                    console.warn(`Element not found: ${altitudeCoordsId}`);
+                    // Check if altitudePoints exists and has the required index
+                    if (this.altitudePoints && this.altitudePoints[i-1]) {
+                        const point = this.altitudePoints[i-1];
+                        const x = isNaN(point.x) ? 0 : point.x;
+                        const y = isNaN(point.y) ? 0 : point.y;
+                        altitudeCoordsElement.value = `${x.toFixed(1)}, ${y.toFixed(1)}`;
+                    } else {
+                        // If no valid altitude point exists, display zeros
+                        altitudeCoordsElement.value = '0.0, 0.0';
+                    }
                 }
             });
 
@@ -1880,6 +1968,14 @@ class TriangleSystem {
                     scElement.value = ic.toFixed(2);
                 }
             }
+
+            // Locate around line 1886
+            console.log('Before accessing subsystemAreas:', this.subsystemAreas);
+            console.log('Before accessing altitudePoints:', this.altitudePoints);
+            // Add more logs as needed
+
+            // Example line that might cause the error
+            const firstArea = this.subsystemAreas[0];
 
         } catch (error) {
             console.error('Error updating dashboard:', error);
@@ -2057,8 +2153,11 @@ class TriangleSystem {
         ['n1', 'n2', 'n3'].forEach(node => {
             setElementValue(`#node-${node}-coords`, 
                 `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`);
+            
+            const angles = this.calculateAngles();
+            const angle = angles[node];
             setElementValue(`#node-${node}-angle`, 
-                `${this.calculateAngles()[node].toFixed(2)}°`);
+                `${isNaN(angle) || angle < 0 ? '0' : angle.toFixed(2)}°`);
         });
 
         // Update center coordinates
@@ -2718,23 +2817,46 @@ class TriangleSystem {
 
     // Additional methods to calculate angles, perimeter, area, lengths, etc.
     calculateAngles() {
-        const { n1, n2, n3 } = this.system;
-        const lengths = this.calculateLengths();
+        const angles = {};
+        ['n1', 'n2', 'n3'].forEach((node, i) => {
+            const prev = this.system[`n${i === 0 ? 3 : i}`];
+            const curr = this.system[node];
+            const next = this.system[`n${i === 2 ? 1 : i + 2}`];
+            
+            // Handle degenerate cases
+            if (!prev || !curr || !next || 
+                (prev.x === curr.x && prev.y === curr.y) || 
+                (next.x === curr.x && next.y === curr.y)) {
+                angles[node] = 0;
+                return;
+            }
+
+            const v1 = {
+                x: prev.x - curr.x,
+                y: prev.y - curr.y
+            };
+            const v2 = {
+                x: next.x - curr.x,
+                y: next.y - curr.y
+            };
+
+            // Handle zero-length vectors
+            if ((v1.x === 0 && v1.y === 0) || (v2.x === 0 && v2.y === 0)) {
+                angles[node] = 0;
+                return;
+            }
+
+            const dot = v1.x * v2.x + v1.y * v2.y;
+            const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+            const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+            
+            let angle = Math.acos(dot / (mag1 * mag2)) * (180 / Math.PI);
+            
+            // Handle NaN and negative cases
+            angles[node] = isNaN(angle) || angle < 0 ? 0 : angle;
+        });
         
-        // Calculate angles using law of cosines
-        const angleN1 = Math.acos(
-            (lengths.l1 * lengths.l1 + lengths.l2 * lengths.l2 - lengths.l3 * lengths.l3) / 
-            (2 * lengths.l1 * lengths.l2)
-        ) * (180 / Math.PI);
-        
-        const angleN2 = Math.acos(
-            (lengths.l2 * lengths.l2 + lengths.l3 * lengths.l3 - lengths.l1 * lengths.l1) / 
-            (2 * lengths.l2 * lengths.l3)
-        ) * (180 / Math.PI);
-        
-        const angleN3 = 180 - angleN1 - angleN2;
-        
-        return { n1: angleN1, n2: angleN2, n3: angleN3 };
+        return angles;
     }
 
     calculatePerimeter() {
@@ -2763,12 +2885,19 @@ class TriangleSystem {
     calculateMedians() {
         const { n1, n2, n3 } = this.system;
         const midpoints = this.calculateMidpoints();
-        const MEDIAN_CHANNEL_RATIO = 2/3;  // MC is always 2/3 of median length
-        
+        const MEDIAN_CHANNEL_RATIO = 2 / 3;  // MC is always 2/3 of median length
+
+        // Calculate medians and assign to this.medianLengths
+        this.medianLengths = [
+            this.calculateDistance(n1, midpoints.m3) * MEDIAN_CHANNEL_RATIO,  // N1 to centroid
+            this.calculateDistance(n2, midpoints.m1) * MEDIAN_CHANNEL_RATIO,  // N2 to centroid
+            this.calculateDistance(n3, midpoints.m2) * MEDIAN_CHANNEL_RATIO   // N3 to centroid
+        ];
+
         return {
-            n1: this.calculateDistance(n1, midpoints.m3) * MEDIAN_CHANNEL_RATIO,  // N1 to centroid
-            n2: this.calculateDistance(n2, midpoints.m1) * MEDIAN_CHANNEL_RATIO,  // N2 to centroid
-            n3: this.calculateDistance(n3, midpoints.m2) * MEDIAN_CHANNEL_RATIO   // N3 to centroid
+            n1: this.medianLengths[0],
+            n2: this.medianLengths[1],
+            n3: this.medianLengths[2]
         };
     }
 
@@ -5321,6 +5450,12 @@ class TriangleSystem {
 
     // Keep our working angle calculation method unchanged
     calculateSubsystemAngle(startNode, endNode, center) {
+        // If any of the points are at the same location, return 0
+        if (!startNode || !endNode || !center || 
+            (startNode.x === endNode.x && startNode.y === endNode.y)) {
+            return 0;
+        }
+
         const v1 = {
             x: startNode.x - center.x,
             y: startNode.y - center.y
@@ -5329,6 +5464,11 @@ class TriangleSystem {
             x: endNode.x - center.x,
             y: endNode.y - center.y
         };
+
+        // If vectors are zero length, return 0
+        if ((v1.x === 0 && v1.y === 0) || (v2.x === 0 && v2.y === 0)) {
+            return 0;
+        }
 
         const angle1 = Math.atan2(v1.y, v1.x);
         const angle2 = Math.atan2(v2.y, v2.x);
@@ -5351,7 +5491,8 @@ class TriangleSystem {
     }
 
     drawAngleLabel(ctx, angle, x, y) {
-        this.drawTextWithShadow(ctx, `${angle.toFixed(1)}°`, x, y, '14px');
+        const displayAngle = isNaN(angle) ? 0 : angle;
+        this.drawTextWithShadow(ctx, `${displayAngle.toFixed(1)}°`, x, y, '14px');
     }
 
     drawLengthLabel(ctx, length, x, y) {
@@ -5789,6 +5930,59 @@ class TriangleSystem {
                 displayValue.textContent = inputElement.value || inputElement.textContent || '-';
             }
         }
+    }
+
+    validateInput(input, value) {
+        // Convert value to number for comparison
+        const numValue = parseFloat(value);
+        
+        // Check if input is for an angle
+        const isAngle = input.id.toLowerCase().includes('angle');
+        
+        // Validate based on input type
+        if (isAngle) {
+            // Angles should be between 0 and 180 degrees
+            if (isNaN(numValue) || numValue < 0 || numValue > 180) {
+                alert('Angle values must be between 0 and 180 degrees');
+                return false;
+            }
+        } else {
+            // NC lengths should be zero or positive
+            if (isNaN(numValue) || numValue < 0) {
+                alert('Length values must be zero or positive');
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    calculateSystemValues() {
+        // When using NC values in calculations, use null checks and handle zeros
+        const nc1 = parseFloat(this.getInputValue('nc1')) || 0;
+        const nc2 = parseFloat(this.getInputValue('nc2')) || 0;
+        const nc3 = parseFloat(this.getInputValue('nc3')) || 0;
+        
+        // Example calculation
+        const someValue = nc1 + nc2 + nc3;
+        return someValue === 0 ? 0 : someValue; // Return 0 instead of NaN for zero sums
+    }
+
+    // Add this method to ensure altitudePoints are properly initialized
+    calculateAltitudePoints() {
+        if (!this.system || !this.system.n1 || !this.system.n2 || !this.system.n3) {
+            return Array(3).fill({ x: 0, y: 0 });
+        }
+
+        // Calculate altitude points here...
+        const altitudes = this.calculateAltitudes();
+        this.altitudePoints = [
+            altitudes.α1 || { x: 0, y: 0 },
+            altitudes.α2 || { x: 0, y: 0 },
+            altitudes.α3 || { x: 0, y: 0 }
+        ];
+
+        return this.altitudePoints;
     }
 }
 
