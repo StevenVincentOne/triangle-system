@@ -5984,6 +5984,35 @@ class TriangleSystem {
 
         return this.altitudePoints;
     }
+
+    exportToDatabase() {
+        // Helper function to sanitize values
+        const sanitizeValue = (value) => {
+            if (value === null || value === undefined || isNaN(value)) {
+                return 0;
+            }
+            return value;
+        };
+
+        // Helper function to sanitize object properties recursively
+        const sanitizeObject = (obj) => {
+            const newObj = {};
+            for (let key in obj) {
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    newObj[key] = sanitizeObject(obj[key]);
+                } else {
+                    newObj[key] = sanitizeValue(obj[key]);
+                }
+            }
+            return newObj;
+        };
+
+        // Sanitize the data before export
+        const sanitizedData = sanitizeObject(this.system);
+        
+        // Continue with database export using sanitizedData
+        // ... rest of export logic ...
+    }
 }
 
 // Outside the class - DOM initialization

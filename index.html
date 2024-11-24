@@ -1623,122 +1623,132 @@
     </div>
 
     <!-- Legend Panel -->
-    <div class="legends-panel bg-dark p-2 rounded">
-        
-        <div class="row">
-            <div class="col-md-3">
-                <p>∠: Angle</p>
-            </div>
-            <div class="col-md-3">
-                <p>θ: Angle</p>
-            </div>
-            <div class="col-md-3">
-                <p>∞: Undefined, null</p>
-            </div>
-            <div class="col-md-3">
-                <p>a: acute angle</p>
-            </div>
-            <div class="col-md-3">
-                <p>B: Bits (Resource)</p>
-            </div>
-            <div class="col-md-3">
-                <p>C: Capacity (Area), measured in B (Bits)</p>
-            </div>
-            <div class="col-md-3">
-                <p>CIN: Capacity of the Incircle</p>
-            </div>
-            <div class="col-md-3">
-                <p>cst: Capacity of the Subtriangle</p>
-            </div>
-            <div class="col-md-3">
-                <p>d: distance between two points</p>
-            </div>
-            <div class="col-md-3">
-                <p>EL: Euler Line length</p>
-            </div>
-            <div class="col-md-3">
-                <p>H: Entropy (Length, Perimeter or Circumference), Total System Entropy (HP + HIC), measured in pixels</p>
-            </div>
-            <div class="col-md-3">
-                <p>h: Subsystem Entropy</p>
-            </div>
-            <div class="col-md-3">
-                <p>HIC: Intelligence Channel Entropy</p>
-            </div>
-            <div class="col-md-3">
-                <p>HIN: Entropy (circumference) of the Incircle</p>
-            </div>
-            <div class="col-md-3">
-                <p>HO: Orthocenter</p>
-            </div>
-            <div class="col-md-3">
-                <p>HP: System Perimeter Entropy</p>
-            </div>
-            <div class="col-md-3">
-                <p>hst: Entropy of the Subtriangle</p>
-            </div>
-            <div class="col-md-3">
-                <p>I: Centroid, Intelligence of the system</p>
-            </div>
-            <div class="col-md-3">
-                <p>IC: I-Channel or Intelligence Channel (distance from the centroid I to theNode N)</p>
-            </div>
-            <div class="col-md-3">
-                <p>IN: Incenter Point of the Incircle</p>
-            </div>
-            <div class="col-md-3">
-                <p>M: Midpoint (between two Nodes)</p>
-            </div>
-            <div class="col-md-3">
-                <p>m: slope</p>
-            </div>
-            <div class="col-md-3">
-                <p>N: Node (vertex)</p>
-            </div>
-            <div class="col-md-3">
-                <p>NC: Node Channel (distance between two Nodes)</p>
-            </div>
-            <div class="col-md-3">
-                <p>NP: Nine-Point Center</p>
-            </div>
-            <div class="col-md-3">
-                <p>O: Circumcenter of the Circumcircle</p>
-            </div>
-            <div class="col-md-3">
-                <p>o: obtuse angle</p>
-            </div>
-            <div class="col-md-3">
-                <p>R: radius of a circle</p>
-            </div>
-            <div class="col-md-3">
-                <p>r: ratio</p>
-            </div>
-            <div class="col-md-3">
-                <p>sc: Subchannel of the Subtriangle</p>
-            </div>
-            <div class="col-md-3">
-                <p>SP: Subcenter Point of the Subcircle</p>
-            </div>
-            <div class="col-md-3">
-                <p>ss: Subsystem</p>
-            </div>
-            <div class="col-md-3">
-                <p>ssb: Subsystem Bits (Resource)</p>
-            </div>
-            <div class="col-md-3">
-                <p>ssc: Subsystem Capacity (Area)</p>
-            </div>
-            <div class="col-md-3">
-                <p>ssh: Subsystem Entropy (Perimeter)</p>
-            </div>
-            <div class="col-md-3">
-                <p>ssi: Subsystem Centroid, Subtriangle Node</p>
-            </div>
-            <div class="col-md-3">
-                <p>st: Subtriangle</p>
-            </div>
-            <div class="col-md-3">
-                <p>T: Tangent point of Incircle</p>
+    <div class="dashboard-panel">
+        <h3 class="panel-header">LEGEND</h3>
+        <div class="panel-content">
+            <div class="row">
+                <div class="col-md-3">
+                    <p>∠: Angle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>α: Altitude</p>
+                </div>
+                <div class="col-md-3">
+                    <p>θ: Intersection Angle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>∞: Undefined, null</p>
+                </div>
+                <div class="col-md-3">
+                    <p>(x,y): position, coordinates</p>
+                </div>
+                <div class="col-md-3">
+                    <p>a: acute angle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>B: Bits (Resource)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>C: Capacity (Area), measured in B (Bits)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>CIN: Capacity of the Incircle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>cst: Capacity of the Subtriangle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>d: distance between two points</p>
+                </div>
+                <div class="col-md-3">
+                    <p>EL: Euler Line length</p>
+                </div>
+                <div class="col-md-3">
+                    <p>H: Entropy (Length, Perimeter, Circumference), Total System Entropy (HP + HIC), measured in pixels</p>
+                </div>
+                <div class="col-md-3">
+                    <p>h: Subsystem Entropy</p>
+                </div>
+                <div class="col-md-3">
+                    <p>HIC: Intelligence Channel Entropy</p>
+                </div>
+                <div class="col-md-3">
+                    <p>HIN: Entropy (circumference) of the Incircle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>HO: Orthocenter</p>
+                </div>
+                <div class="col-md-3">
+                    <p>HP: System Perimeter Entropy</p>
+                </div>
+                <div class="col-md-3">
+                    <p>hst: Entropy of the Subtriangle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>I: Centroid, Intelligence of the system</p>
+                </div>
+                <div class="col-md-3">
+                    <p>IC: I-Channel or Intelligence Channel (distance from the centroid I to a Node N)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>IN: Incenter Point of the Incircle</p>
+                </div>
+                <div class="col-md-3"><div class="col-md-3">
+                    <p>l: Length</p>
+                </div>
+                    <p>M: Midpoint (between two Nodes)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>m: slope</p>
+                </div>
+                <div class="col-md-3">
+                    <p>N: Node (vertex)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>NC: Node Channel (distance between two Nodes)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>NP: Nine-Point Center</p>
+                </div>
+                <div class="col-md-3">
+                    <p>O: Circumcenter of the Circumcircle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>o: obtuse angle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>R: radius of a circle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>r: ratio</p>
+                </div>
+                <div class="col-md-3">
+                    <p>sc: Subchannel of the Subtriangle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>SP: Subcenter Point of the Subcircle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>ss: Subsystem</p>
+                </div>
+                <div class="col-md-3">
+                    <p>ssb: Subsystem Bits (Resource)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>ssc: Subsystem Capacity (Area)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>ssh: Subsystem Entropy (Perimeter)</p>
+                </div>
+                <div class="col-md-3">
+                    <p>ssi: Subsystem Centroid, Subtriangle Node</p>
+                </div>
+                <div class="col-md-3">
+                    <p>st: Subtriangle</p>
+                </div>
+                <div class="col-md-3">
+                    <p>T: Tangent point of Incircle</p>
+                </div>
             </div>
         </div>
     </div>
