@@ -1540,18 +1540,22 @@ class TriangleSystem {
             }  // Close the first if block
 
             // Calculate MCH (Median Channel Entropy) - Update selectors to match HTML
-            const mc1 = parseFloat(document.querySelector('#subsystem-1-mc')?.value) || 0;
-            const mc2 = parseFloat(document.querySelector('#subsystem-2-mc')?.value) || 0;
-            const mc3 = parseFloat(document.querySelector('#subsystem-3-mc')?.value) || 0;
-            const mcH = mc1 + mc2 + mc3;
-            setElementValue('#system-mch', mcH.toFixed(2));
-            console.log(`Updated system-mch with value: ${mcH.toFixed(2)}`);
+            const ic1 = parseFloat(document.getElementById('ic-1')?.value) || 0;
+            const ic2 = parseFloat(document.getElementById('ic-2')?.value) || 0;
+            const ic3 = parseFloat(document.getElementById('ic-3')?.value) || 0;
+            const hic = ic1 + ic2 + ic3;
+            setElementValue('#system-mch', hic.toFixed(2));
+            console.log('Updated HIC calculation:', {
+                ic1, ic2, ic3,
+                total: hic,
+                elementId: 'system-mch'
+            });
 
             // Get System Perimeter Entropy (HP) - Update selector to match HTML
             const hp = parseFloat(document.querySelector('#system-sph')?.value) || 0;
 
             // Calculate Total System Entropy (H = HP + MCH)
-            const totalSystemEntropy = hp + mcH;
+            const totalSystemEntropy = hp + hic;
             setElementValue('#system-h', totalSystemEntropy.toFixed(2));
 
             // Get system capacity (C) value - Update selector to match HTML
@@ -1572,9 +1576,9 @@ class TriangleSystem {
                 }
                 
                 // HMC/C and C/HMC ratios
-                if (mcH !== 0) {
-                    setElementValue('#mch-b-ratio', (mcH / systemCapacity).toFixed(4));
-                    setElementValue('#b-mch-ratio', (systemCapacity / mcH).toFixed(4));
+                if (hic !== 0) {
+                    setElementValue('#mch-b-ratio', (hic / systemCapacity).toFixed(4));
+                    setElementValue('#b-mch-ratio', (systemCapacity / hic).toFixed(4));
                 }
             }
 
@@ -1588,7 +1592,7 @@ class TriangleSystem {
             // Only try to update mc-h if it exists
             const mcHElement = document.querySelector('#mc-h');
             if (mcHElement) {
-                setElementValue('#mc-h', mcH.toFixed(2));
+                setElementValue('#mc-h', hic.toFixed(2));
             }
 
             // Calculate subchannels (distances between centroids)
@@ -1642,9 +1646,9 @@ class TriangleSystem {
                 }
                 
                 // HMC/C and C/HMC ratios
-                if (mcH !== 0) {
-                    setElementValue('#mch-b-ratio', (mcH / capacity).toFixed(4));
-                    setElementValue('#b-mch-ratio', (capacity / mcH).toFixed(4));
+                if (hic !== 0) {
+                    setElementValue('#mch-b-ratio', (hic / capacity).toFixed(4));
+                    setElementValue('#b-mch-ratio', (capacity / hic).toFixed(4));
                 }
             }
 
@@ -1720,10 +1724,10 @@ class TriangleSystem {
             }
 
             // Inside updateDashboard() method, where other ratios are calculated
-            if (hp !== 0 && mcH !== 0) {
+            if (hp !== 0 && hic !== 0) {
                 // HP/HIC and HIC/HP ratios
-                setElementValue('#hp-hic-ratio', (hp / mcH).toFixed(4));
-                setElementValue('#hic-hp-ratio', (mcH / hp).toFixed(4));
+                setElementValue('#hp-hic-ratio', (hp / hic).toFixed(4));
+                setElementValue('#hic-hp-ratio', (hic / hp).toFixed(4));
             }
 
             if (totalSystemEntropy !== 0) {
@@ -1732,8 +1736,8 @@ class TriangleSystem {
                 setElementValue('#h-hp-ratio', (totalSystemEntropy / hp).toFixed(4));
                 
                 // HIC/H and H/HIC ratios
-                setElementValue('#hic-h-ratio', (mcH / totalSystemEntropy).toFixed(4));
-                setElementValue('#h-hic-ratio', (totalSystemEntropy / mcH).toFixed(4));
+                setElementValue('#hic-h-ratio', (hic / totalSystemEntropy).toFixed(4));
+                setElementValue('#h-hic-ratio', (totalSystemEntropy / hic).toFixed(4));
             }
 
             // Calculate d(I,IN) - distance between centroid and incenter
@@ -6139,16 +6143,17 @@ class TriangleSystem {
     updateMedianChannelEntropy() {
         try {
             // Fetch MC values from Subsystems table
-            const mc1 = parseFloat(document.querySelector('#subsystem-1-mc')?.value) || 0;
-            const mc2 = parseFloat(document.querySelector('#subsystem-2-mc')?.value) || 0;
-            const mc3 = parseFloat(document.querySelector('#subsystem-3-mc')?.value) || 0;
-            
-            // Calculate MCH
-            const mcH = mc1 + mc2 + mc3;
-            
-            // Update MCH in the UI
-            setElementValue('#system-mch', mcH.toFixed(2));
-            console.log(`Updated system-mch with value: ${mcH.toFixed(2)}`);
+            const ic1 = parseFloat(document.getElementById('ic-1')?.value) || 0;
+            const ic2 = parseFloat(document.getElementById('ic-2')?.value) || 0;
+            const ic3 = parseFloat(document.getElementById('ic-3')?.value) || 0;
+
+            const hic = ic1 + ic2 + ic3;
+            setElementValue('#system-mch', hic.toFixed(2));
+            console.log('Updated HIC calculation:', {
+                ic1, ic2, ic3,
+                total: hic,
+                elementId: 'system-mch'
+            });
         } catch (error) {
             console.error('Error updating Median Channel Entropy (MCH):', error);
             console.error('\n Stack trace:', error.stack);
