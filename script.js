@@ -1153,6 +1153,7 @@ class TriangleSystem {
         this.system.intelligence = { x: 0, y: 0 };
     }
 
+    
     updateDerivedPoints() {
         const { n1, n2, n3 } = this.system;
         
@@ -1551,6 +1552,7 @@ class TriangleSystem {
             const mc3 = parseFloat(document.querySelector('#subsystem-3-mc')?.value) || 0;
             const mcH = mc1 + mc2 + mc3;
             setElementValue('#system-mch', mcH.toFixed(2));
+            console.log(`Updated system-mch with value: ${mcH.toFixed(2)}`);
 
             // Get System Perimeter Entropy (HP) - Update selector to match HTML
             const hp = parseFloat(document.querySelector('#system-sph')?.value) || 0;
@@ -1602,11 +1604,6 @@ class TriangleSystem {
                 sc2: this.calculateDistance(centroids.ss1, centroids.ss2), // SS1 to SS2
                 sc3: this.calculateDistance(centroids.ss2, centroids.ss3)  // SS2 to SS3
             };
-
-            // Update subchannel values in the table
-            setElementValue('#subchannel-1', subchannels.sc1.toFixed(2));
-            setElementValue('#subchannel-2', subchannels.sc2.toFixed(2));
-            setElementValue('#subchannel-3', subchannels.sc3.toFixed(2));
 
             // Add subchannel calculations right after the existing centroid updates
             setElementValue('#subchannel-1', this.calculateDistance(centroids.ss1, centroids.ss3).toFixed(2)); // SS1 to SS3
@@ -1749,7 +1746,7 @@ class TriangleSystem {
 
             // Calculate d(I,IN) - distance between centroid and incenter
             if (this.system.incenter) {
-                const centroid = this.calculateCentroid();
+            const centroid = this.calculateCentroid();
                 const dIIN = this.calculateDistance(centroid, this.system.incenter);
                 setElementValue('#d-i-in', dIIN.toFixed(2));
 
@@ -1867,18 +1864,28 @@ class TriangleSystem {
             setElementValue('#subsystem-2-mc', medianChannels.n2.toFixed(2));
             setElementValue('#subsystem-3-mc', medianChannels.n3.toFixed(2));
 
-            // Update Medians panel with full median values
+            // Update Medians panel - Display Full Medians
             const fullMedians = this.calculateFullMedians();
             ['1', '2', '3'].forEach(i => {
                 const m = fullMedians[`m${i}`];
-                setElementValue(
-                    `#mid${i}-coords`,
-                    `${m.point.x.toFixed(1)}, ${m.point.y.toFixed(1)}`
-                );
-                setElementValue(
-                    `#median${i}-length`,
-                    m.length.toFixed(2)
-                );
+                if (m) {
+                    // Update median coordinates
+                    setElementValue(
+                        `#mid${i}-coords`,
+                        `${m.point.x.toFixed(1)}, ${m.point.y.toFixed(1)}`
+                    );
+                    console.log(`Updated mid${i}-coords: ${m.point.x.toFixed(1)}, ${m.point.y.toFixed(1)}`);
+
+                    // Update full median length
+                    setElementValue(
+                        `#median${i}-length`,
+                        m.length.toFixed(2)
+                    );
+                    console.log(`Updated median${i}-length: ${m.length.toFixed(2)}`);
+                } else {
+                    console.warn(`Full median data not found for m${i}`);
+                    setElementValue(`#median${i}-length`, '0.00'); // Default or error value
+                }
             });
 
             // Draw altitudes if enabled
@@ -1921,25 +1928,7 @@ class TriangleSystem {
             // Debug logging
             console.log('Updating medians and altitudes...');
             
-            // Update Medians panel values
-            ['1', '2', '3'].forEach(i => {
-                const medianLengthId = `median${i}-length`;
-                const medianLengthElement = document.getElementById(medianLengthId);
-                
-                console.log(`Looking for median length element: ${medianLengthId}`, medianLengthElement);
-                
-                if (medianLengthElement) {
-                    // Ensure this.medianLengths is properly defined
-                    if (Array.isArray(this.medianLengths) && this.medianLengths.length >= i) {
-                        medianLengthElement.value = this.medianLengths[i - 1].toFixed(2);
-                    } else {
-                        console.warn(`this.medianLengths is undefined or does not have index ${i - 1}`);
-                        medianLengthElement.value = '0.00'; // Default or error value
-                    }
-                } else {
-                    console.warn(`Element not found: ${medianLengthId}`);
-                }
-            });
+            
 
             // Update Altitudes panel values
             ['1', '2', '3'].forEach(i => {
@@ -2780,12 +2769,18 @@ class TriangleSystem {
         const midpoints = this.calculateMidpoints();
         const MEDIAN_CHANNEL_RATIO = 2 / 3;  // MC is always 2/3 of median length
 
-        // Calculate medians and assign to this.medianLengths
+        // Calculate m1 (IC for N1), m2 (IC for N2), m3 (IC for N3)
         this.medianLengths = [
-            this.calculateDistance(n1, midpoints.m1) * MEDIAN_CHANNEL_RATIO,  // N1 to centroid (m1: NC1)
-            this.calculateDistance(n2, midpoints.m2) * MEDIAN_CHANNEL_RATIO,  // N2 to centroid (m2: NC2)
-            this.calculateDistance(n3, midpoints.m3) * MEDIAN_CHANNEL_RATIO   // N3 to centroid (m3: NC3)
+            this.calculateDistance(n1, midpoints.m1) * MEDIAN_CHANNEL_RATIO,  // I to N1
+            this.calculateDistance(n2, midpoints.m2) * MEDIAN_CHANNEL_RATIO,  // I to N2
+            this.calculateDistance(n3, midpoints.m3) * MEDIAN_CHANNEL_RATIO   // I to N3
         ];
+
+        console.log('Calculated I-Channels (MC):', {
+            n1: this.medianLengths[0],
+            n2: this.medianLengths[1],
+            n3: this.medianLengths[2]
+        });
 
         return {
             n1: this.medianLengths[0],
@@ -4638,26 +4633,55 @@ class TriangleSystem {
 
     // Add new method to update IC fields
     updateICFields() {
-        // Calculate IC values (distance from centroid to each vertex)
-        const centroid = {
-            x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
-            y: (this.system.n1.y + this.system.n2.y + this.system.n3.y) / 3
-        };
+        try {
+            // Calculate centroid (I)
+            const centroid = this.calculateCentroid();
 
-        const icValues = {
-            'manual-ic1': this.calculateDistance(centroid, this.system.n1),  // IC1 to Node 1
-            'manual-ic2': this.calculateDistance(centroid, this.system.n2),  // IC2 to Node 2
-            'manual-ic3': this.calculateDistance(centroid, this.system.n3)   // IC3 to Node 3
-        };
+            // Calculate I-Channel distances from centroid to each node
+            const icValues = {
+                'manual-ic1': this.calculateDistance(centroid, this.system.n1),  // I to Node 1
+                'manual-ic2': this.calculateDistance(centroid, this.system.n2),  // I to Node 2
+                'manual-ic3': this.calculateDistance(centroid, this.system.n3)   // I to Node 3
+            };
 
-        // Update each IC field while preserving editability
-        Object.entries(icValues).forEach(([id, value]) => {
-            const input = document.getElementById(id);
-            if (input && !input.matches(':focus')) {
-                input.value = value.toFixed(2);
-                input.readOnly = false;
-            }
-        });
+            // Debug log for Manual IC Values
+            console.log('Calculated Manual IC Values:', icValues);
+
+            // Update Manual IC Fields while preserving editability
+            Object.entries(icValues).forEach(([id, value]) => {
+                const input = document.getElementById(id);
+                if (input && !input.matches(':focus')) {
+                    input.value = value.toFixed(2);
+                    input.readOnly = false;
+                }
+            });
+
+            // Additionally, update Dashboard IC Fields
+            // Assuming dashboard IC fields are named as follows:
+            // - d-ic1: I-Channel to Node 1
+            // - d-ic2: I-Channel to Node 2
+            // - d-ic3: I-Channel to Node 3
+
+            const dashboardICValues = {
+                'd-ic1': icValues['manual-ic1'].toFixed(2),
+                'd-ic2': icValues['manual-ic2'].toFixed(2),
+                'd-ic3': icValues['manual-ic3'].toFixed(2)
+            };
+
+            // Debug log for Dashboard IC Values
+            console.log('Calculated Dashboard IC Values:', dashboardICValues);
+
+            Object.entries(dashboardICValues).forEach(([id, value]) => {
+                const input = document.getElementById(id);
+                if (input && !input.matches(':focus')) {
+                    input.value = value;
+                }
+            });
+
+        } catch (error) {
+            console.error('Error updating I-Channel (IC) fields:', error);
+            console.error('\n Stack trace:', error.stack);
+        }
     }
 
     /**
@@ -5283,7 +5307,7 @@ class TriangleSystem {
             console.log('=== Subsystem Table Update ===');
             console.log('Total System Entropy:', totalSystemEntropy);
             
-            for (let i = 1; i <= 3; i++) {
+            for (let i =1; i <= 3; i++) {
                 // Calculate ssh
                 let ssh;
                 if (i === 1) {
@@ -5706,22 +5730,59 @@ class TriangleSystem {
     // Add this method to TriangleSystem class
     calculateFullMedians() {
         const { n1, n2, n3 } = this.system;
-        const midpoints = this.calculateMidpoints();
         
-        return {
-            m1: {
-                point: midpoints.m1,  // Midpoint of N1-N3
-                length: this.calculateDistance(n1, midpoints.m1)  // Full length from N1 to M3
+        // Calculate midpoints of each side
+        const midpoints = {
+            m1: {  // Midpoint of opposite side for n1 (n2-n3)
+                x: (n2.x + n3.x) / 2,
+                y: (n2.y + n3.y) / 2
             },
-            m2: {
-                point: midpoints.m2,  // Midpoint of N1-N2
-                length: this.calculateDistance(n2, midpoints.m2)  // Full length from N2 to N1
+            m2: {  // Midpoint of opposite side for n2 (n1-n3)
+                x: (n1.x + n3.x) / 2,
+                y: (n1.y + n3.y) / 2
             },
-            m3: {
-                point: midpoints.m3,  // Midpoint of N3-N2
-                length: this.calculateDistance(n3, midpoints.m3)  // Full length from N3 to N2
+            m3: {  // Midpoint of opposite side for n3 (n1-n2)
+                x: (n1.x + n2.x) / 2,
+                y: (n1.y + n2.y) / 2
             }
         };
+
+        // Calculate full median lengths (distance from vertex to opposite side's midpoint)
+        const fullMedians = {
+            m1: {
+                point: midpoints.m1,
+                length: this.calculateDistance(n1, midpoints.m1)  // Remove the * 2
+            },
+            m2: {
+                point: midpoints.m2,
+                length: this.calculateDistance(n2, midpoints.m2)  // Remove the * 2
+            },
+            m3: {
+                point: midpoints.m3,
+                length: this.calculateDistance(n3, midpoints.m3)  // Remove the * 2
+            }
+        };
+
+        // Add debug logging
+        console.log('Node Coordinates:', {
+            n1: { x: n1.x, y: n1.y },
+            n2: { x: n2.x, y: n2.y },
+            n3: { x: n3.x, y: n3.y }
+        });
+        
+        console.log('Midpoints:', {
+            m1: midpoints.m1,
+            m2: midpoints.m2,
+            m3: midpoints.m3
+        });
+        
+        console.log('Median Lengths:', {
+            m1: fullMedians.m1.length,
+            m2: fullMedians.m2.length,
+            m3: fullMedians.m3.length
+        });
+
+        return fullMedians;
     }
 
     initializeInfoBoxSearch() {
@@ -5995,6 +6056,192 @@ class TriangleSystem {
 
         } catch (error) {
             console.error('Error updating information panel:', error);
+            console.error('\n Stack trace:', error.stack);
+        }
+    }
+
+    /**
+     * Updates the Median Lengths (ML) in the dashboard.
+     */
+    updateMedianLengths() {
+        try {
+            // Calculate full median lengths
+            const fullMedians = this.calculateFullMedians();
+
+            console.log('Calculated Full Medians:', fullMedians);
+
+            // Update ML inputs in the dashboard using correct selectors
+            ['1', '2', '3'].forEach(i => {
+                const mlValue = fullMedians[`m${i}`].length;
+                const mlId = `#median${i}-length`;  // This matches your HTML IDs
+                if (mlValue !== undefined) {
+                    setElementValue(mlId, mlValue.toFixed(2));
+                    console.log(`Updated ${mlId} with value: ${mlValue.toFixed(2)}`);
+                } else {
+                    console.warn(`Median Length value m${i} is undefined`);
+                    setElementValue(mlId, '0.00'); // Default or error value
+                }
+            });
+
+        } catch (error) {
+            console.error('Error updating Median Lengths (ML):', error);
+            console.error('\n Stack trace:', error.stack);
+        }
+    }
+
+    /**
+     * Calculates the full median lengths for each node.
+     * @returns {Object} Full medians with points and lengths for m1, m2, and m3.
+     */
+    calculateFullMedians() {
+        const { n1, n2, n3 } = this.system;
+        
+        // Calculate midpoints of each side
+        const midpoints = {
+            m1: {  // Midpoint of opposite side for n1 (n2-n3)
+                x: (n2.x + n3.x) / 2,
+                y: (n2.y + n3.y) / 2
+            },
+            m2: {  // Midpoint of opposite side for n2 (n1-n3)
+                x: (n1.x + n3.x) / 2,
+                y: (n1.y + n3.y) / 2
+            },
+            m3: {  // Midpoint of opposite side for n3 (n1-n2)
+                x: (n1.x + n2.x) / 2,
+                y: (n1.y + n2.y) / 2
+            }
+        };
+
+        // Calculate full median lengths (distance from vertex to opposite side's midpoint)
+        const fullMedians = {
+            m1: {
+                point: midpoints.m1,
+                length: this.calculateDistance(n1, midpoints.m1)  // Remove the * 2
+            },
+            m2: {
+                point: midpoints.m2,
+                length: this.calculateDistance(n2, midpoints.m2)  // Remove the * 2
+            },
+            m3: {
+                point: midpoints.m3,
+                length: this.calculateDistance(n3, midpoints.m3)  // Remove the * 2
+            }
+        };
+
+        // Add debug logging
+        console.log('Node Coordinates:', {
+            n1: { x: n1.x, y: n1.y },
+            n2: { x: n2.x, y: n2.y },
+            n3: { x: n3.x, y: n3.y }
+        });
+        
+        console.log('Midpoints:', {
+            m1: midpoints.m1,
+            m2: midpoints.m2,
+            m3: midpoints.m3
+        });
+        
+        console.log('Median Lengths:', {
+            m1: fullMedians.m1.length,
+            m2: fullMedians.m2.length,
+            m3: fullMedians.m3.length
+        });
+
+        return fullMedians;
+    }
+
+    /**
+     * Calculates and updates the Median Channel Entropy (MCH).
+     */
+    updateMedianChannelEntropy() {
+        try {
+            // Fetch MC values from Subsystems table
+            const mc1 = parseFloat(document.querySelector('#subsystem-1-mc')?.value) || 0;
+            const mc2 = parseFloat(document.querySelector('#subsystem-2-mc')?.value) || 0;
+            const mc3 = parseFloat(document.querySelector('#subsystem-3-mc')?.value) || 0;
+            
+            // Calculate MCH
+            const mcH = mc1 + mc2 + mc3;
+            
+            // Update MCH in the UI
+            setElementValue('#system-mch', mcH.toFixed(2));
+            console.log(`Updated system-mch with value: ${mcH.toFixed(2)}`);
+        } catch (error) {
+            console.error('Error updating Median Channel Entropy (MCH):', error);
+            console.error('\n Stack trace:', error.stack);
+        }
+    }
+
+    /**
+     * Calculates and updates the Subchannels (SC) between Subtriangle Centroids.
+     */
+    updateSubchannels(subtriangleCentroids) {
+        try {
+            // Calculate subchannels (distances between centroids)
+            const subchannelDistances = {
+                sc1: this.calculateDistance(subtriangleCentroids.ss2, subtriangleCentroids.ss3), // SS1 to SS3
+                sc2: this.calculateDistance(subtriangleCentroids.ss1, subtriangleCentroids.ss3), // SS1 to SS2
+                sc3: this.calculateDistance(subtriangleCentroids.ss2, subtriangleCentroids.ss3)  // SS2 to SS3
+            };
+
+            console.log('Calculated Subchannel Distances (SC):', subchannelDistances);
+
+            // Update subchannel values in the table
+            ['1', '2', '3'].forEach(i => {
+                const scValue = subchannelDistances[`sc${i}`];
+                const scId = `#subchannel-${i}`;
+                if (scValue !== undefined) {
+                    setElementValue(scId, scValue.toFixed(2));
+                    console.log(`Updated ${scId} with value: ${scValue.toFixed(2)}`);
+                } else {
+                    console.warn(`Subchannel value sc${i} is undefined`);
+                    setElementValue(scId, '0.00'); // Default or error value
+                }
+            });
+
+            // Calculate HST (Entropy of Subtriangle) - sum of SC values
+            const subtriangle_hst = subchannelDistances.sc1 + 
+                                     subchannelDistances.sc2 + 
+                                     subchannelDistances.sc3;
+            setElementValue('#subtriangle-hst', subtriangle_hst.toFixed(2));
+            console.log(`Updated #subtriangle-hst with value: ${subtriangle_hst.toFixed(2)}`);
+
+            // Calculate CST (Subtriangle Area)
+            const subtriangle_cst = this.calculateSubtriangleArea(subtriangleCentroids);
+            setElementValue('#subtriangle-cst', subtriangle_cst.toFixed(2));
+            console.log(`Updated #subtriangle-cst with value: ${subtriangle_cst.toFixed(2)}`);
+
+        } catch (error) {
+            console.error('Error updating Subchannels (SC):', error);
+            console.error('\n Stack trace:', error.stack);
+        }
+    }
+
+    /**
+     * Updates the I-Channels (IC) in the dashboard.
+     */
+    updateIChannels() {
+        try {
+            // Calculate I-Channels (MC) as 2/3 of full medians
+            const iChannels = this.calculateMedians(); // Assuming calculateMedians refers to IC now
+
+            console.log('Calculated I-Channels (IC):', iChannels);
+
+            // Update IC inputs in the dashboard
+            ['1', '2', '3'].forEach(i => {
+                const icValue = iChannels[`n${i}`];
+                const icId = `#ic-${i}`;
+                if (icValue !== undefined) {
+                    setElementValue(icId, icValue.toFixed(2));
+                    console.log(`Updated ${icId} with value: ${icValue.toFixed(2)}`);
+                } else {
+                    console.warn(`I-Channel value n${i} is undefined`);
+                    setElementValue(icId, '0.00'); // Default or error value
+                }
+            });
+
+        } catch (error) {
+            console.error('Error updating I-Channels (IC):', error);
             console.error('\n Stack trace:', error.stack);
         }
     }
