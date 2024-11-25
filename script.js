@@ -1367,11 +1367,7 @@ class TriangleSystem {
             setElementValue('#channel-2', lengths.l2); // NC2 (Blue): N1 to N2
             setElementValue('#channel-3', lengths.l3); // NC3 (Green): N2 to N3
 
-            // Medians Panel
-            const medians = this.calculateMedians();
-            setElementValue('#subsystem-1-mc', medians.n1.toFixed(2));
-            setElementValue('#subsystem-2-mc', medians.n2.toFixed(2));
-            setElementValue('#subsystem-3-mc', medians.n3.toFixed(2));
+            
 
             // Position Panel
             const centroid = {
@@ -1524,10 +1520,7 @@ class TriangleSystem {
             // Get the median values
             const medianValues = this.calculateMedians();
             
-            // Update MC column in Subsystems table only
-            setElementValue('#subsystem-1-mc', medianValues.n1.toFixed(2));
-            setElementValue('#subsystem-2-mc', medianValues.n2.toFixed(2));
-            setElementValue('#subsystem-3-mc', medianValues.n3.toFixed(2));
+            
 
             // Get the elements first with null checks
             const sphAreaRatioElement = document.getElementById('sph-area-ratio');
@@ -1701,8 +1694,7 @@ class TriangleSystem {
                 }
             }
 
-            // Update IC fields
-            this.updateICFields();
+            
 
             // Add Euler Line measurements with proper element selection
             const eulerMetrics = this.calculateEulerLineMetrics();
@@ -1858,11 +1850,7 @@ class TriangleSystem {
                 );
             });
 
-            // Update I-Channels (using existing calculateMedians)
-            const medianChannels = this.calculateMedians();
-            setElementValue('#subsystem-1-mc', medianChannels.n1.toFixed(2));
-            setElementValue('#subsystem-2-mc', medianChannels.n2.toFixed(2));
-            setElementValue('#subsystem-3-mc', medianChannels.n3.toFixed(2));
+            
 
             // Update Medians panel - Display Full Medians
             const fullMedians = this.calculateFullMedians();
@@ -4656,16 +4644,11 @@ class TriangleSystem {
                 }
             });
 
-            // Additionally, update Dashboard IC Fields
-            // Assuming dashboard IC fields are named as follows:
-            // - d-ic1: I-Channel to Node 1
-            // - d-ic2: I-Channel to Node 2
-            // - d-ic3: I-Channel to Node 3
-
+            // Update Dashboard IC Fields with correct IDs
             const dashboardICValues = {
-                'd-ic1': icValues['manual-ic1'].toFixed(2),
-                'd-ic2': icValues['manual-ic2'].toFixed(2),
-                'd-ic3': icValues['manual-ic3'].toFixed(2)
+                'ic-1': icValues['manual-ic1'].toFixed(2),  // Changed from d-ic1
+                'ic-2': icValues['manual-ic2'].toFixed(2),  // Changed from d-ic2
+                'ic-3': icValues['manual-ic3'].toFixed(2)   // Changed from d-ic3
             };
 
             // Debug log for Dashboard IC Values
@@ -6222,21 +6205,49 @@ class TriangleSystem {
      */
     updateIChannels() {
         try {
-            // Calculate I-Channels (MC) as 2/3 of full medians
-            const iChannels = this.calculateMedians(); // Assuming calculateMedians refers to IC now
+            // Calculate centroid (I)
+            const centroid = this.calculateCentroid();
+            console.log('Calculated Centroid:', centroid);
 
+            // Get full median lengths for comparison
+            const fullMedians = this.calculateFullMedians();
+            console.log('Full Medians:', fullMedians);
+            
+            // Calculate I-Channels using centroid to node distances
+            const iChannels = {
+                n1: this.calculateDistance(centroid, this.system.n1),
+                n2: this.calculateDistance(centroid, this.system.n2),
+                n3: this.calculateDistance(centroid, this.system.n3)
+            };
+
+            console.log('Node Positions:', {
+                n1: this.system.n1,
+                n2: this.system.n2,
+                n3: this.system.n3
+            });
+            
             console.log('Calculated I-Channels (IC):', iChannels);
 
             // Update IC inputs in the dashboard
             ['1', '2', '3'].forEach(i => {
                 const icValue = iChannels[`n${i}`];
-                const icId = `#ic-${i}`;
-                if (icValue !== undefined) {
-                    setElementValue(icId, icValue.toFixed(2));
-                    console.log(`Updated ${icId} with value: ${icValue.toFixed(2)}`);
+                const icId = `ic-${i}`;  // Remove the # since we're using getElementById
+                const element = document.getElementById(icId);
+                
+                console.log(`Updating IC${i}:`, {
+                    value: icValue,
+                    elementId: icId,
+                    elementExists: !!element
+                });
+
+                if (element && icValue !== undefined) {
+                    element.value = icValue.toFixed(2);
+                    console.log(`Successfully updated ${icId} with value: ${icValue.toFixed(2)}`);
                 } else {
-                    console.warn(`I-Channel value n${i} is undefined`);
-                    setElementValue(icId, '0.00'); // Default or error value
+                    console.warn(`Issue updating IC${i}:`, {
+                        elementMissing: !element,
+                        valueUndefined: icValue === undefined
+                    });
                 }
             });
 
