@@ -2687,9 +2687,9 @@ class TriangleSystem {
         };
 
         return [
-            calculateTangencyPoint(n2, n3),  // Tangent point on NC3 (Green)
-            calculateTangencyPoint(n1, n3),  // Tangent point on NC1 (Red)
-            calculateTangencyPoint(n1, n2)   // Tangent point on NC2 (Blue)
+            calculateTangencyPoint(n1, n3),  // T1: Tangent point on NC1 (Red)
+            calculateTangencyPoint(n1, n2),  // T2: Tangent point on NC2 (Blue)
+            calculateTangencyPoint(n2, n3)   // T3: Tangent point on NC3 (Green)
         ];
     }
 
