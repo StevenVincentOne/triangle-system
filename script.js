@@ -5032,7 +5032,7 @@ class TriangleSystem {
                 metrics.intersectionAngles = {
                     nc1_acute: "∞",
                     nc1_obtuse: "∞",
-                    nc2_acute: "��",
+                    nc2_acute: "∞",
                     nc2_obtuse: "∞",
                     nc3_acute: "∞",
                     nc3_obtuse: "∞"
@@ -5084,55 +5084,137 @@ class TriangleSystem {
         try {
             const epsilon = 1e-6;
             
-            // Get Euler Line slope
-            const elSlope = this.calculateSlope(
-                this.system.circumcenter,
-                this.system.orthocenter
-            );
+            // Get Euler Line points
+            const { orthocenter, circumcenter } = this.system;
+            if (!orthocenter || !circumcenter) return null;
+
+            // Calculate Euler Line angle
+            let elAngle = Math.atan2(
+                circumcenter.y - orthocenter.y,
+                circumcenter.x - orthocenter.x
+            ) * (180 / Math.PI);
             
-            // Get NC slopes
-            const ncSlopes = this.calculateNCSlopes();
+            // Normalize Euler line angle to positive value
+            if (elAngle < 0) elAngle += 360;
             
-            // Calculate angles for each NC
-            const angles = {};
-            
-            // Helper function to calculate acute angle between two slopes
-            const calculateAngleBetweenSlopes = (slope1, slope2) => {
-                if (slope1 === Infinity || slope2 === Infinity) {
-                    if (slope1 === slope2) return 0;
-                    return 90;
-                }
-                
-                const tanTheta = Math.abs((slope2 - slope1) / (1 + slope1 * slope2));
-                return Math.atan(tanTheta) * (180 / Math.PI);
-            };
-            
-            // Calculate angles for each NC
-            ['nc1', 'nc2', 'nc3'].forEach(nc => {
-                const acuteAngle = calculateAngleBetweenSlopes(elSlope, ncSlopes[nc]);
-                angles[`${nc}_acute`] = acuteAngle.toFixed(2);
-                angles[`${nc}_obtuse`] = (180 - acuteAngle).toFixed(2);
+            console.log('Euler Line:', {
+                orthocenter: `(${orthocenter.x}, ${orthocenter.y})`,
+                circumcenter: `(${circumcenter.x}, ${circumcenter.y})`,
+                angle: elAngle
             });
             
-            // Determine which NC the Euler Line doesn't intersect
-            // This would require checking if the Euler Line actually intersects each NC
-            // For now, we'll use NC2 as mentioned in the guidance
-            angles.nc2_acute = epsilon.toFixed(2);
-            angles.nc2_obtuse = epsilon.toFixed(2);
-            
+            const ncs = [
+                { id: 'nc1', points: [this.system.n1, this.system.n3] },
+                { id: 'nc2', points: [this.system.n1, this.system.n2] },
+                { id: 'nc3', points: [this.system.n2, this.system.n3] }
+            ];
+
+            const angles = {};
+
+            ncs.forEach(nc => {
+                console.log(`\nChecking ${nc.id}:`, {
+                    start: `(${nc.points[0].x}, ${nc.points[0].y})`,
+                    end: `(${nc.points[1].x}, ${nc.points[1].y})`
+                });
+
+                const intersects = this.lineSegmentsIntersect(
+                    orthocenter, circumcenter,
+                    nc.points[0], nc.points[1]
+                );
+
+                if (!intersects) {
+                    angles[`${nc.id}_acute`] = "∞";
+                    angles[`${nc.id}_obtuse`] = "∞";
+                } else {
+                    let ncAngle = Math.atan2(
+                        nc.points[1].y - nc.points[0].y,
+                        nc.points[1].x - nc.points[0].x
+                    ) * (180 / Math.PI);
+                    
+                    if (ncAngle < 0) ncAngle += 360;
+                    
+                    let angleDiff = Math.abs(ncAngle - elAngle);
+                    if (angleDiff > 180) angleDiff = 360 - angleDiff;
+                    if (angleDiff > 90) angleDiff = 180 - angleDiff;
+                    
+                    console.log(`${nc.id} calculation:`, {
+                        ncAngle,
+                        elAngle,
+                        rawDiff: Math.abs(ncAngle - elAngle),
+                        normalizedDiff: angleDiff
+                    });
+                    
+                    angles[`${nc.id}_acute`] = angleDiff.toFixed(2);
+                    angles[`${nc.id}_obtuse`] = (180 - angleDiff).toFixed(2);
+                }
+            });
+
             return angles;
-            
         } catch (error) {
-            console.error('Error calculating Euler Line intersection angles:', error);
+            console.error('Error calculating angles:', error);
             return {
-                nc1_acute: "0.00",
-                nc1_obtuse: "180.00",
-                nc2_acute: "0.00",
-                nc2_obtuse: "180.00",
-                nc3_acute: "0.00",
-                nc3_obtuse: "180.00"
+                nc1_acute: "∞",
+                nc1_obtuse: "∞",
+                nc2_acute: "∞",
+                nc2_obtuse: "∞",
+                nc3_acute: "∞",
+                nc3_obtuse: "∞"
             };
         }
+    }
+
+    lineSegmentsIntersect(p1, p2, p3, p4) {
+        const epsilon = 1e-6;
+        
+        // First try normal intersection
+        const denominator = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
+        if (Math.abs(denominator) < epsilon) {
+            console.log('Lines are parallel or coincident');
+            return false;
+        }
+
+        const ua = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) / denominator;
+        const ub = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / denominator;
+
+        // Get intersection point
+        const x = p1.x + ua * (p2.x - p1.x);
+        const y = p1.y + ua * (p2.y - p1.y);
+
+        // If we find a regular intersection, check if it's at a node
+        if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) {
+            // Check if intersection is at a node
+            const nodes = [this.system.n1, this.system.n2, this.system.n3];
+            const isNode = nodes.some(node => 
+                Math.abs(x - node.x) < epsilon && Math.abs(y - node.y) < epsilon
+            );
+            
+            if (isNode) {
+                console.log('Intersection is at a node - ignoring');
+                return false;
+            }
+            return true;
+        }
+
+        // For acute triangles, check if NC intersects extended Euler line
+        const angles = this.calculateAngles();
+        if (angles.n1 < 90 && angles.n2 < 90 && angles.n3 < 90) {
+            // Only check if intersection is within NC segment
+            if (ub >= 0 && ub <= 1) {
+                // Check if intersection is at a node
+                const nodes = [this.system.n1, this.system.n2, this.system.n3];
+                const isNode = nodes.some(node => 
+                    Math.abs(x - node.x) < epsilon && Math.abs(y - node.y) < epsilon
+                );
+                
+                if (isNode) {
+                    console.log('Intersection is at a node - ignoring');
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     isRightAngled() {
