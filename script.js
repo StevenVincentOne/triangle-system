@@ -1380,10 +1380,7 @@ class TriangleSystem {
             setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
             setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
             
-            // Update midpoint coordinates
-            setElementValue('#mid1-coords', `${this.system.midpoints.m1.x.toFixed(1)}, ${this.system.midpoints.m1.y.toFixed(1)}`);
-            setElementValue('#mid2-coords', `${this.system.midpoints.m2.x.toFixed(1)}, ${this.system.midpoints.m2.y.toFixed(1)}`);
-            setElementValue('#mid3-coords', `${this.system.midpoints.m3.x.toFixed(1)}, ${this.system.midpoints.m3.y.toFixed(1)}`);
+            
             
             // Update tangent point coordinates
             if (this.system.TangencyPoints && this.system.TangencyPoints.length === 3) {
@@ -1517,8 +1514,6 @@ class TriangleSystem {
             };
         
 
-            // Get the median values
-            const medianValues = this.calculateMedians();
             
             
 
@@ -1867,16 +1862,25 @@ class TriangleSystem {
                         `${m.point.x.toFixed(1)}, ${m.point.y.toFixed(1)}`
                     );
                     console.log(`Updated mid${i}-coords: ${m.point.x.toFixed(1)}, ${m.point.y.toFixed(1)}`);
-
-                    // Update full median length
-                    setElementValue(
-                        `#median${i}-length`,
-                        m.length.toFixed(2)
-                    );
-                    console.log(`Updated median${i}-length: ${m.length.toFixed(2)}`);
+                    
+                    // Update median lengths with correct mapping
+                    let medianLengthId;
+                    switch(i) {
+                        case '1':
+                            medianLengthId = '#median2-length'; // N2 to M1
+                            break;
+                        case '2':
+                            medianLengthId = '#median3-length'; // N3 to M2
+                            break;
+                        case '3':
+                            medianLengthId = '#median1-length'; // N1 to M3
+                            break;
+                    }
+                    
+                    setElementValue(medianLengthId, m.length.toFixed(2));
+                    console.log(`Updated ${medianLengthId}: ${m.length.toFixed(2)}`);
                 } else {
                     console.warn(`Full median data not found for m${i}`);
-                    setElementValue(`#median${i}-length`, '0.00'); // Default or error value
                 }
             });
 
@@ -2768,34 +2772,24 @@ class TriangleSystem {
             this.calculateDistance(n3, midpoints.m3) * MEDIAN_CHANNEL_RATIO   // I to N3
         ];
 
-        console.log('Calculated I-Channels (MC):', {
-            n1: this.medianLengths[0],
-            n2: this.medianLengths[1],
-            n3: this.medianLengths[2]
-        });
-
-        return {
-            n1: this.medianLengths[0],
-            n2: this.medianLengths[1],
-            n3: this.medianLengths[2]
-        };
+        
     }
 
     calculateMidpoints() {
         // Ensure consistent mapping:
-        // m1 = midpoint of NC1 (between N1 and N3)
-        // m2 = midpoint of NC2 (between N1 and N2)
-        // m3 = midpoint of NC3 (between N2 and N3)
+        // m1 = midpoint of side opposite to N1 (between N2 and N3)
+        // m2 = midpoint of side opposite to N2 (between N1 and N3)
+        // m3 = midpoint of side opposite to N3 (between N1 and N2)
         const midpoints = {
-            m1: this.calculateMidpoint(this.system.n1, this.system.n3),  // For NC1
-            m2: this.calculateMidpoint(this.system.n1, this.system.n2),  // For NC2
-            m3: this.calculateMidpoint(this.system.n2, this.system.n3)   // For NC3
+            m1: this.calculateMidpoint(this.system.n1, this.system.n3),  // Opposite to N2
+            m2: this.calculateMidpoint(this.system.n1, this.system.n2),  // Opposite to N3
+            m3: this.calculateMidpoint(this.system.n2, this.system.n3)   // Opposite to N1
         };
         
         console.log('Calculated midpoints:', {
-            'm1 (NC1 - N2,N3)': midpoints.m1,
-            'm2 (NC2 - N1,N3)': midpoints.m2,
-            'm3 (NC3 - N1,N2)': midpoints.m3
+            'm1 (N1-N3)': midpoints.m1,
+            'm2 (N1-N2)': midpoints.m2,
+            'm3 (N3-N2)': midpoints.m3
         });
         
         // Store midpoints in the system for global access
@@ -5670,19 +5664,27 @@ class TriangleSystem {
 
     // Add this method to TriangleSystem class
     calculateAltitudes() {
+        const { n1, n2, n3 } = this.system;
+        
+        // Calculate altitude feet with correct order
         const altitudes = {
-            // For each vertex, calculate its altitude to the opposite side
-            α1: this.calculateAltitudeFoot(this.system.n1, this.system.n2, this.system.n3),
-            α2: this.calculateAltitudeFoot(this.system.n2, this.system.n3, this.system.n1),
-            α3: this.calculateAltitudeFoot(this.system.n3, this.system.n1, this.system.n2)
+            α1: this.calculateAltitudeFoot(n1, n2, n3),  // From n1 to n2-n3
+            α2: this.calculateAltitudeFoot(n2, n3, n1),  // From n2 to n3-n1
+            α3: this.calculateAltitudeFoot(n3, n1, n2)   // From n3 to n1-n2
         };
 
-        // Calculate lengths while we're here
+        // Calculate lengths
         altitudes.lengths = {
-            α1: this.calculateDistance(this.system.n1, altitudes.α1),
-            α2: this.calculateDistance(this.system.n2, altitudes.α2),
-            α3: this.calculateDistance(this.system.n3, altitudes.α3)
+            α1: this.calculateDistance(n1, altitudes.α1),
+            α2: this.calculateDistance(n2, altitudes.α2),
+            α3: this.calculateDistance(n3, altitudes.α3)
         };
+
+        console.log('Altitude Calculations:', {
+            vertices: { n1, n2, n3 },
+            feet: altitudes,
+            lengths: altitudes.lengths
+        });
 
         return altitudes;
     }
@@ -5716,60 +5718,21 @@ class TriangleSystem {
 
     // Add this method to TriangleSystem class
     calculateFullMedians() {
-        const { n1, n2, n3 } = this.system;
-        
-        // Calculate midpoints of each side
-        const midpoints = {
-            m1: {  // Midpoint of opposite side for n1 (n2-n3)
-                x: (n2.x + n3.x) / 2,
-                y: (n2.y + n3.y) / 2
+        const midpoints = this.calculateMidpoints();
+        return {
+            m1: { 
+                point: midpoints.m1,  // Midpoint of NC1 (N1 to N3)
+                length: this.calculateDistance(this.system.n2, midpoints.m1)
             },
-            m2: {  // Midpoint of opposite side for n2 (n1-n3)
-                x: (n1.x + n3.x) / 2,
-                y: (n1.y + n3.y) / 2
+            m2: { 
+                point: midpoints.m2,  // Midpoint of NC2 (N2 to N1)
+                length: this.calculateDistance(this.system.n3, midpoints.m2)
             },
-            m3: {  // Midpoint of opposite side for n3 (n1-n2)
-                x: (n1.x + n2.x) / 2,
-                y: (n1.y + n2.y) / 2
+            m3: { 
+                point: midpoints.m3,  // Midpoint of NC3 (N3 to N2)
+                length: this.calculateDistance(this.system.n1, midpoints.m3)
             }
         };
-
-        // Calculate full median lengths (distance from vertex to opposite side's midpoint)
-        const fullMedians = {
-            m1: {
-                point: midpoints.m1,
-                length: this.calculateDistance(n1, midpoints.m1)  // Remove the * 2
-            },
-            m2: {
-                point: midpoints.m2,
-                length: this.calculateDistance(n2, midpoints.m2)  // Remove the * 2
-            },
-            m3: {
-                point: midpoints.m3,
-                length: this.calculateDistance(n3, midpoints.m3)  // Remove the * 2
-            }
-        };
-
-        // Add debug logging
-        console.log('Node Coordinates:', {
-            n1: { x: n1.x, y: n1.y },
-            n2: { x: n2.x, y: n2.y },
-            n3: { x: n3.x, y: n3.y }
-        });
-        
-        console.log('Midpoints:', {
-            m1: midpoints.m1,
-            m2: midpoints.m2,
-            m3: midpoints.m3
-        });
-        
-        console.log('Median Lengths:', {
-            m1: fullMedians.m1.length,
-            m2: fullMedians.m2.length,
-            m3: fullMedians.m3.length
-        });
-
-        return fullMedians;
     }
 
     initializeInfoBoxSearch() {
@@ -5980,8 +5943,7 @@ class TriangleSystem {
     updateInformationPanel() {
         try {
             // Use the stored midpoints
-            const midpoints = this.system.midpoints;
-            const tangentPoints = this.calculateTangents();
+            
             const perimeter = this.calculatePerimeter();
 
             if (!midpoints || !tangentPoints) {
@@ -6047,94 +6009,28 @@ class TriangleSystem {
         }
     }
 
-    /**
-     * Updates the Median Lengths (ML) in the dashboard.
-     */
-    updateMedianLengths() {
-        try {
-            // Calculate full median lengths
-            const fullMedians = this.calculateFullMedians();
-
-            console.log('Calculated Full Medians:', fullMedians);
-
-            // Update ML inputs in the dashboard using correct selectors
-            ['1', '2', '3'].forEach(i => {
-                const mlValue = fullMedians[`m${i}`].length;
-                const mlId = `#median${i}-length`;  // This matches your HTML IDs
-                if (mlValue !== undefined) {
-                    setElementValue(mlId, mlValue.toFixed(2));
-                    console.log(`Updated ${mlId} with value: ${mlValue.toFixed(2)}`);
-                } else {
-                    console.warn(`Median Length value m${i} is undefined`);
-                    setElementValue(mlId, '0.00'); // Default or error value
-                }
-            });
-
-        } catch (error) {
-            console.error('Error updating Median Lengths (ML):', error);
-            console.error('\n Stack trace:', error.stack);
-        }
-    }
+    
 
     /**
      * Calculates the full median lengths for each node.
      * @returns {Object} Full medians with points and lengths for m1, m2, and m3.
      */
     calculateFullMedians() {
-        const { n1, n2, n3 } = this.system;
-        
-        // Calculate midpoints of each side
-        const midpoints = {
-            m1: {  // Midpoint of opposite side for n1 (n2-n3)
-                x: (n2.x + n3.x) / 2,
-                y: (n2.y + n3.y) / 2
+        const midpoints = this.calculateMidpoints();
+        return {
+            m1: { 
+                point: midpoints.m1,  // Midpoint of NC1 (N1 to N3)
+                length: this.calculateDistance(this.system.n2, midpoints.m1)
             },
-            m2: {  // Midpoint of opposite side for n2 (n1-n3)
-                x: (n1.x + n3.x) / 2,
-                y: (n1.y + n3.y) / 2
+            m2: { 
+                point: midpoints.m2,  // Midpoint of NC2 (N2 to N1)
+                length: this.calculateDistance(this.system.n3, midpoints.m2)
             },
-            m3: {  // Midpoint of opposite side for n3 (n1-n2)
-                x: (n1.x + n2.x) / 2,
-                y: (n1.y + n2.y) / 2
+            m3: { 
+                point: midpoints.m3,  // Midpoint of NC3 (N3 to N2)
+                length: this.calculateDistance(this.system.n1, midpoints.m3)
             }
         };
-
-        // Calculate full median lengths (distance from vertex to opposite side's midpoint)
-        const fullMedians = {
-            m1: {
-                point: midpoints.m1,
-                length: this.calculateDistance(n1, midpoints.m1)  // Remove the * 2
-            },
-            m2: {
-                point: midpoints.m2,
-                length: this.calculateDistance(n2, midpoints.m2)  // Remove the * 2
-            },
-            m3: {
-                point: midpoints.m3,
-                length: this.calculateDistance(n3, midpoints.m3)  // Remove the * 2
-            }
-        };
-
-        // Add debug logging
-        console.log('Node Coordinates:', {
-            n1: { x: n1.x, y: n1.y },
-            n2: { x: n2.x, y: n2.y },
-            n3: { x: n3.x, y: n3.y }
-        });
-        
-        console.log('Midpoints:', {
-            m1: midpoints.m1,
-            m2: midpoints.m2,
-            m3: midpoints.m3
-        });
-        
-        console.log('Median Lengths:', {
-            m1: fullMedians.m1.length,
-            m2: fullMedians.m2.length,
-            m3: fullMedians.m3.length
-        });
-
-        return fullMedians;
     }
 
     /**
