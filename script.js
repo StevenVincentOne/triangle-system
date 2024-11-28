@@ -73,9 +73,31 @@ class TriangleDatabase {
             
             const description = prompt('Enter a description (optional):');
             
-            // Get all input values
+            // Get all input values from the dashboard
             const inputValues = this.getAllInputValues();
             
+            // Add Euler Line metrics
+            const eulerMetrics = {
+                eulerLineLength: parseFloat(document.getElementById('euler-line-length')?.value) || 0,
+                eulerLineSlope: parseFloat(document.getElementById('euler-line-slope')?.value) || 0,
+                eulerLineAngle: parseFloat(document.getElementById('euler-line-angle')?.value) || 0,
+                oToIRatio: parseFloat(document.getElementById('o-i-ratio')?.value) || 0,
+                iToSPRatio: parseFloat(document.getElementById('i-sp-ratio')?.value) || 0,
+                spToNPRatio: parseFloat(document.getElementById('sp-np-ratio')?.value) || 0,
+                npToHORatio: parseFloat(document.getElementById('np-ho-ratio')?.value) || 0
+            };
+
+            // Add Incircle metrics
+            const incircleMetrics = {
+                inradius: parseFloat(document.getElementById('inradius')?.value) || 0,
+                incircleCapacity: parseFloat(document.getElementById('incircle-capacity')?.value) || 0,
+                incircleEntropy: parseFloat(document.getElementById('incircle-entropy')?.value) || 0,
+                cinHinRatio: parseFloat(document.getElementById('cin-hin-ratio')?.value) || 0,
+                hinCinRatio: parseFloat(document.getElementById('hin-cin-ratio')?.value) || 0,
+                cinCRatio: parseFloat(document.getElementById('cin-c-ratio')?.value) || 0,
+                hinHRatio: parseFloat(document.getElementById('hin-h-ratio')?.value) || 0
+            };
+
             // Create record
             const record = {
                 name,
@@ -88,7 +110,9 @@ class TriangleDatabase {
                     minute: '2-digit',
                     hour12: true
                 }),
-                ...inputValues
+                ...inputValues,
+                ...eulerMetrics,
+                ...incircleMetrics
             };
 
             const db = await this.init();
@@ -123,15 +147,61 @@ class TriangleDatabase {
                 .replace(/°/g, 'deg')         // replace degree symbol with 'deg'
                 .replace(/\//g, '_to_')       // replace / with _to_
                 .replace(/_xy$/, '')          // remove _xy suffix for coordinates
+                .toLowerCase()                // convert to lowercase for consistency
                 .replace(/[^\w\s-_αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]/g, ''); // preserve Greek letters
         };
 
-        // Get all input fields with labels
-        document.querySelectorAll('.label-value-pair').forEach(pair => {
-            const label = pair.querySelector('label');
-            const input = pair.querySelector('input');
+        // Get all input fields from the dashboard
+        const getAllInputs = () => {
+            // Find all panels (they typically have class names ending in '-panel')
+            const panels = document.querySelectorAll('[class*="-panel"], [class*="_panel"]');
+            const inputs = [];
             
-            if (label && input && input.value) {
+            panels.forEach(panel => {
+                // Get all input elements within each panel
+                const panelInputs = panel.querySelectorAll('input[type="text"], input[type="number"]');
+                inputs.push(...panelInputs);
+                
+                // Also check for any inputs that might be in nested elements
+                const nestedInputs = panel.querySelectorAll('.label-value-pair input');
+                inputs.push(...nestedInputs);
+            });
+
+            // Also search for any standalone inputs with label-value-pair class
+            const standaloneInputs = document.querySelectorAll('.label-value-pair input');
+            inputs.push(...standaloneInputs);
+
+            return [...new Set(inputs)]; // Remove duplicates
+        };
+
+        // Process all inputs
+        getAllInputs().forEach(input => {
+            // Find associated label
+            let label;
+            
+            // Try different methods to find the label
+            if (input.id) {
+                // First try finding label by for attribute
+                label = document.querySelector(`label[for="${input.id}"]`);
+            }
+            
+            if (!label) {
+                // Try finding label in parent label-value-pair
+                const pair = input.closest('.label-value-pair');
+                if (pair) {
+                    label = pair.querySelector('label');
+                }
+            }
+            
+            if (!label) {
+                // Try finding preceding label element
+                label = input.previousElementSibling;
+                if (label?.tagName !== 'LABEL') {
+                    label = null;
+                }
+            }
+
+            if (label) {
                 // Get original label text and clean it
                 let columnName = cleanLabel(label.textContent.trim());
                 
@@ -143,24 +213,31 @@ class TriangleDatabase {
                     values[`${columnName}_X`] = x || 0;
                     values[`${columnName}_Y`] = y || 0;
                 } else {
-                    values[columnName] = parseFloat(input.value) || input.value;
+                    // Try parsing as number first
+                    const numValue = parseFloat(input.value);
+                    values[columnName] = isNaN(numValue) ? input.value : numValue;
                 }
+            } else {
+                // Fallback to using input ID or name if no label found
+                const columnName = cleanLabel(input.id || input.name || 'unnamed_input');
+                values[columnName] = input.value;
             }
         });
 
-        // Get subsystems table values with preserved ratio formatting
+        // Get subsystems table values
         document.querySelectorAll('.subsystems-table tr').forEach((row, index) => {
             if (index === 0) return; // Skip header row
             
             const inputs = row.querySelectorAll('input');
-            const ssNum = row.cells[0].textContent; // SS1, SS2, or SS3
+            const ssNum = row.cells[0].textContent.trim(); // SS1, SS2, or SS3
             
             inputs.forEach((input, colIndex) => {
                 if (input.value) {
                     const headerCell = document.querySelector(`.subsystems-table th:nth-child(${colIndex + 2})`);
                     if (headerCell) {
                         const columnName = `${ssNum}_${cleanLabel(headerCell.textContent)}`;
-                        values[columnName] = parseFloat(input.value) || input.value;
+                        const numValue = parseFloat(input.value);
+                        values[columnName] = isNaN(numValue) ? input.value : numValue;
                     }
                 }
             });
@@ -589,26 +666,60 @@ class TriangleSystem {
 
     loadPreset(name, values) {
         try {
-            // Set manual input values
-            document.getElementById('manual-nc1').value = values.nc1;
-            document.getElementById('manual-nc2').value = values.nc2;
-            document.getElementById('manual-nc3').value = values.nc3;
-            
-            // Update triangle geometry
-            this.system.n1 = { x: values.n1.x, y: values.n1.y };
-            this.system.n2 = { x: values.n2.x, y: values.n2.y };
-            this.system.n3 = { x: values.n3.x, y: values.n3.y };
-            
-            // Update display without affecting animation fields
+            console.log('Starting preset load:', name);
+            console.log('Input values:', values);
+
+            // 1. Validate input values
+            if (!values || typeof values !== 'object') {
+                throw new Error('Invalid preset values');
+            }
+
+            // 2. Update vertex positions with validation
+            const vertices = {
+                n1: { 
+                    x: parseFloat(values.n1?.x) || 0, 
+                    y: parseFloat(values.n1?.y) || 0 
+                },
+                n2: { 
+                    x: parseFloat(values.n2?.x) || 0, 
+                    y: parseFloat(values.n2?.y) || 0 
+                },
+                n3: { 
+                    x: parseFloat(values.n3?.x) || 0, 
+                    y: parseFloat(values.n3?.y) || 0 
+                }
+            };
+
+            console.log('Processed vertices:', vertices);
+
+            // 3. Update system vertices
+            this.system = {
+                ...this.system,
+                n1: vertices.n1,
+                n2: vertices.n2,
+                n3: vertices.n3,
+                intelligence: { x: 0, y: 0 }  // Reset intelligence point
+            };
+
+            console.log('Updated system:', this.system);
+
+            // 4. Recalculate all derived properties
+            this.updateDerivedPoints();
+
+            // 5. Force redraw and dashboard update
             this.drawSystem();
             this.updateDashboard();
-            
-            // Do NOT update animation fields automatically
-            
-            console.log(`Loaded preset: ${name}`, values);
+
+            return true;
         } catch (error) {
-            console.error('Error loading preset:', error);
-            alert('Error loading preset. Please try again.');
+            console.error('Detailed error in loadPreset:', {
+                error,
+                name,
+                values,
+                systemState: this.system
+            });
+            alert(`Error loading preset "${name}": ${error.message}`);
+            return false;
         }
     }
 
@@ -981,141 +1092,165 @@ class TriangleSystem {
     }
 
     initializeSystem(preset) {
-        let rawTriangle;
-        const side = 300;  // Base size
+        try {
+            console.log('Initializing system with preset:', preset);
+            
+            let rawTriangle;
+            const side = 300;  // Base size
 
-        if (preset === 'equilateral') {
-            const height = side * Math.sin(60 * Math.PI/180);
-            rawTriangle = {
-                n1: { x: 0, y: height },
-                n2: { x: side/2, y: 0 },
-                n3: { x: -side/2, y: 0 }
-            };
-        }
-        else if (preset === 'isosceles') {
-            // For 70-70-40 triangle
-            const baseAngle = 70 * Math.PI/180;  // Base angles (70 degrees)
-            const topAngle = 40 * Math.PI/180;   // Top angle (40 degrees)
-            const baseLength = side * 0.9;        // Base reduced by 10%
-            
-            // Calculate height using trigonometry
-            const height = (baseLength/2) * Math.tan(baseAngle);
-            
-            // Scale all coordinates by 0.9 to reduce size while maintaining angles
-            rawTriangle = {
-                n1: { x: 0, y: height * 0.9 },           // Top vertex (40° angle)
-                n2: { x: baseLength/2 * 0.9, y: 0 },     // Right vertex (70° angle)
-                n3: { x: -baseLength/2 * 0.9, y: 0 }     // Left vertex (70° angle)
-            };
-        }
-        else if (preset === 'scalene') {
-            // Base length for scaling
-            const baseLength = side * 0.9;  // Slightly smaller than equilateral
-            
-            // First, place N2 and N3 on the base
-            const n2x = baseLength/2;
-            const n2y = 0;
-            const n3x = -baseLength/2;
-            const n3y = 0;
-            
-            // Calculate N1 position to create 44° angle at N2 and 76° angle at N3
-            const angleN2 = 44 * Math.PI/180;  // Convert 44° to radians
-            const height = baseLength * Math.sin(angleN2);
-            const offset = -baseLength * 0.2;  // Shift left to make angles asymmetric
-            
-            rawTriangle = {
-                n1: { x: offset, y: height },    // Top vertex (should give us 60°)
-                n2: { x: n2x, y: n2y },          // Right vertex (44°)
-                n3: { x: n3x, y: n3y }           // Left vertex (76°)
-            };
-        }
-        else if (preset === 'right') {
-            rawTriangle = {
-                n1: { x: 0, y: side },
-                n2: { x: side, y: 0 },
-                n3: { x: 0, y: 0 }
-            };
-        }
-        else if (preset === 'acute') {
-            // Base length for scaling
-            const baseLength = side * 0.9;  // Slightly smaller than equilateral
-            
-            // First, place N2 and N3 on the base
-            const n2x = baseLength/2;
-            const n2y = 0;
-            const n3x = -baseLength/2;
-            const n3y = 0;
-            
-            // Calculate N1 position to create 35 angle at N2 and 85° angle at N3
-            const angleN2 = 35 * Math.PI/180;  // Convert 35° to radians
-            const height = baseLength * Math.sin(angleN2);
-            const offset = -baseLength * 0.2;  // Shift left to make angles asymmetric
-            
-            rawTriangle = {
-                n1: { x: offset, y: height },    // Top vertex (should give us 60°)
-                n2: { x: n2x, y: n2y },          // Right vertex (35)
-                n3: { x: n3x, y: n3y }           // Left vertex (85°)
-            };
-        }
-        else if (preset === 'obtuse') {
-            // Define exact edge lengths
-            const nc1 = 270;  // Red line (N1-N3)
-            const nc2 = 215;  // Blue line (N1-N2)
-            const nc3 = 400;  // Green line (N2-N3)
-            
-            // Place N3 at origin
-            const n3x = 0;
-            const n3y = 0;
-            
-            // Place N2 relative to N3 along x-axis
-            const n2x = nc3;  // Length of N2-N3
-            const n2y = 0;
-            
-            // Calculate N1 position using triangulation
-            // We can use the law of cosines to find the angle at N3
-            const cosN3 = (nc1*nc1 + nc3*nc3 - nc2*nc2) / (2*nc1*nc3);
-            const angleN3 = Math.acos(cosN3);
-            
-            // Now we can find N1's position
-            const n1x = nc1 * Math.cos(angleN3);
-            const n1y = nc1 * Math.sin(angleN3);
-            
-            // Create the triangle with these coordinates
-            rawTriangle = {
-                n1: { x: n1x, y: n1y },
-                n2: { x: n2x, y: n2y },
-                n3: { x: n3x, y: n3y }
-            };
-            
-            // Center the triangle by calculating centroid and offsetting
-            const centroidX = (n1x + n2x + n3x) / 3;
-            const centroidY = (n1y + n2y + n3y) / 3;
-            
-            rawTriangle.n1.x -= centroidX;
-            rawTriangle.n1.y -= centroidY;
-            rawTriangle.n2.x -= centroidX;
-            rawTriangle.n2.y -= centroidY;
-            rawTriangle.n3.x -= centroidX;
-            rawTriangle.n3.y -= centroidY;
-        }
+            if (preset === 'equilateral') {
+                const height = side * Math.sin(60 * Math.PI/180);
+                rawTriangle = {
+                    n1: { x: 0, y: height },
+                    n2: { x: side/2, y: 0 },
+                    n3: { x: -side/2, y: 0 }
+                };
+            }
+            else if (preset === 'isosceles') {
+                // For 70-70-40 triangle
+                const baseAngle = 70 * Math.PI/180;  // Base angles (70 degrees)
+                const topAngle = 40 * Math.PI/180;   // Top angle (40 degrees)
+                const baseLength = side * 0.9;        // Base reduced by 10%
+                
+                // Calculate height using trigonometry
+                const height = (baseLength/2) * Math.tan(baseAngle);
+                
+                // Scale all coordinates by 0.9 to reduce size while maintaining angles
+                rawTriangle = {
+                    n1: { x: 0, y: height * 0.9 },           // Top vertex (40° angle)
+                    n2: { x: baseLength/2 * 0.9, y: 0 },     // Right vertex (70° angle)
+                    n3: { x: -baseLength/2 * 0.9, y: 0 }     // Left vertex (70° angle)
+                };
+            }
+            else if (preset === 'scalene') {
+                // Base length for scaling
+                const baseLength = side * 0.9;  // Slightly smaller than equilateral
+                
+                // First, place N2 and N3 on the base
+                const n2x = baseLength/2;
+                const n2y = 0;
+                const n3x = -baseLength/2;
+                const n3y = 0;
+                
+                // Calculate N1 position to create 44° angle at N2 and 76° angle at N3
+                const angleN2 = 44 * Math.PI/180;  // Convert 44° to radians
+                const height = baseLength * Math.sin(angleN2);
+                const offset = -baseLength * 0.2;  // Shift left to make angles asymmetric
+                
+                rawTriangle = {
+                    n1: { x: offset, y: height },    // Top vertex (should give us 60°)
+                    n2: { x: n2x, y: n2y },          // Right vertex (44°)
+                    n3: { x: n3x, y: n3y }           // Left vertex (76°)
+                };
+            }
+            else if (preset === 'right') {
+                rawTriangle = {
+                    n1: { x: 0, y: side },
+                    n2: { x: side, y: 0 },
+                    n3: { x: 0, y: 0 }
+                };
+            }
+            else if (preset === 'acute') {
+                // Base length for scaling
+                const baseLength = side * 0.9;  // Slightly smaller than equilateral
+                
+                // First, place N2 and N3 on the base
+                const n2x = baseLength/2;
+                const n2y = 0;
+                const n3x = -baseLength/2;
+                const n3y = 0;
+                
+                // Calculate N1 position to create 35 angle at N2 and 85° angle at N3
+                const angleN2 = 35 * Math.PI/180;  // Convert 35° to radians
+                const height = baseLength * Math.sin(angleN2);
+                const offset = -baseLength * 0.2;  // Shift left to make angles asymmetric
+                
+                rawTriangle = {
+                    n1: { x: offset, y: height },    // Top vertex (should give us 60°)
+                    n2: { x: n2x, y: n2y },          // Right vertex (35)
+                    n3: { x: n3x, y: n3y }           // Left vertex (85°)
+                };
+            }
+            else if (preset === 'obtuse') {
+                // Define exact edge lengths
+                const nc1 = 270;  // Red line (N1-N3)
+                const nc2 = 215;  // Blue line (N1-N2)
+                const nc3 = 400;  // Green line (N2-N3)
+                
+                // Place N3 at origin
+                const n3x = 0;
+                const n3y = 0;
+                
+                // Place N2 relative to N3 along x-axis
+                const n2x = nc3;  // Length of N2-N3
+                const n2y = 0;
+                
+                // Calculate N1 position using triangulation
+                // We can use the law of cosines to find the angle at N3
+                const cosN3 = (nc1*nc1 + nc3*nc3 - nc2*nc2) / (2*nc1*nc3);
+                const angleN3 = Math.acos(cosN3);
+                
+                // Now we can find N1's position
+                const n1x = nc1 * Math.cos(angleN3);
+                const n1y = nc1 * Math.sin(angleN3);
+                
+                // Create the triangle with these coordinates
+                rawTriangle = {
+                    n1: { x: n1x, y: n1y },
+                    n2: { x: n2x, y: n2y },
+                    n3: { x: n3x, y: n3y }
+                };
+                
+                // Center the triangle by calculating centroid and offsetting
+                const centroidX = (n1x + n2x + n3x) / 3;
+                const centroidY = (n1y + n2y + n3y) / 3;
+                
+                rawTriangle.n1.x -= centroidX;
+                rawTriangle.n1.y -= centroidY;
+                rawTriangle.n2.x -= centroidX;
+                rawTriangle.n2.y -= centroidY;
+                rawTriangle.n3.x -= centroidX;
+                rawTriangle.n3.y -= centroidY;
+            }
 
-        // Calculate centroid of raw triangle
-        const centroid = {
-            x: (rawTriangle.n1.x + rawTriangle.n2.x + rawTriangle.n3.x) / 3,
-            y: (rawTriangle.n1.y + rawTriangle.n2.y + rawTriangle.n3.y) / 3
-        };
+            if (!rawTriangle) {
+                throw new Error(`Unknown preset type: ${preset}`);
+            }
 
-        // Center the triangle around (0,0)
-        this.system = {
-            n1: { x: rawTriangle.n1.x - centroid.x, y: rawTriangle.n1.y - centroid.y },
-            n2: { x: rawTriangle.n2.x - centroid.x, y: rawTriangle.n2.y - centroid.y },
-            n3: { x: rawTriangle.n3.x - centroid.x, y: rawTriangle.n3.y - centroid.y },
-            intelligence: { x: 0, y: 0 }
-        };
+            console.log('Raw triangle calculated:', rawTriangle);
 
-        this.updateDerivedPoints();
-        this.updateDashboard();
-        this.drawSystem();
+            // Calculate centroid
+            const centroid = {
+                x: (rawTriangle.n1.x + rawTriangle.n2.x + rawTriangle.n3.x) / 3,
+                y: (rawTriangle.n1.y + rawTriangle.n2.y + rawTriangle.n3.y) / 3
+            };
+
+            // Center the triangle
+            const centeredTriangle = {
+                n1: { 
+                    x: rawTriangle.n1.x - centroid.x, 
+                    y: rawTriangle.n1.y - centroid.y 
+                },
+                n2: { 
+                    x: rawTriangle.n2.x - centroid.x, 
+                    y: rawTriangle.n2.y - centroid.y 
+                },
+                n3: { 
+                    x: rawTriangle.n3.x - centroid.x, 
+                    y: rawTriangle.n3.y - centroid.y 
+                }
+            };
+
+            console.log('Centered triangle:', centeredTriangle);
+
+            // Load the preset with the centered triangle
+            return this.loadPreset(preset, centeredTriangle);
+
+        } catch (error) {
+            console.error('Error in initializeSystem:', error);
+            alert(`Failed to initialize system: ${error.message}`);
+            return false;
+        }
     }
 
     setAcuteTriangle() {
@@ -4235,30 +4370,43 @@ class TriangleSystem {
             // Animation parameters
             const duration = 4000; // Changed from 1000 to 4000 for 4 seconds
             const startTime = performance.now();
+            let forward = true;
 
             // Animation function
             const animate = (currentTime) => {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
+                if (!this.isAnimating) return;
 
-                // Calculate current values using linear interpolation
+                const elapsed = currentTime - startTime;
+                let progress = (elapsed % duration) / duration;
+
+                if (forward && elapsed >= duration) {
+                    forward = false;
+                    startTime = currentTime;
+                    progress = 1;
+                } else if (!forward && elapsed >= duration) {
+                    forward = true;
+                    startTime = currentTime;
+                    progress = 0;
+                }
+
+                const effectiveProgress = forward ? progress : 1 - progress;
+
+                // Calculate current values
                 const current = {
-                    nc1: startState.nc1 + (endState.nc1 - startState.nc1) * progress,
-                    nc2: startState.nc2 + (endState.nc2 - startState.nc2) * progress,
-                    nc3: startState.nc3 + (endState.nc3 - startState.nc3) * progress
+                    nc1: startState.nc1 + (endState.nc1 - startState.nc1) * effectiveProgress,
+                    nc2: startState.nc2 + (endState.nc2 - startState.nc2) * effectiveProgress,
+                    nc3: startState.nc3 + (endState.nc3 - startState.nc3) * effectiveProgress
                 };
 
-                // Update triangle with current values
+                // Update triangle
                 this.updateTriangleFromEdges(current.nc1, current.nc2, current.nc3);
 
-                // Continue animation if not complete
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                }
+                // Continue loop
+                this.animationLoop = requestAnimationFrame(animate);
             };
 
             // Start animation
-            requestAnimationFrame(animate);
+            this.animationLoop = requestAnimationFrame(animate);
         } catch (error) {
             console.error('Error in startAnimation:', error);
             alert('Error starting animation. Please check the console for details.');
