@@ -93,30 +93,6 @@ class TriangleDatabase {
         });
     }
 
-    async saveState(stateData) {
-        try {
-            if (!this.initialized) {
-                await this.init();
-            }
-
-            // Ensure we have an access token
-            await this.getAccessToken();
-
-            // Use the stateData passed in, and add timestamp if not present
-            const values = {
-                ...stateData,
-                timestamp: stateData.timestamp || new Date().toISOString()
-            };
-
-            await this.saveToGoogleSheets(values);
-            console.log('Saved to Google Sheets');
-            return values.id;
-        } catch (error) {
-            console.error('Error saving state:', error);
-            return null;
-        }
-    }
-
     /**
      * Saves the provided values to Google Sheets.
      * @param {Object} values - The data to append to the spreadsheet.
@@ -124,73 +100,78 @@ class TriangleDatabase {
     async saveToGoogleSheets(values) {
         try {
             console.log('Starting saveToGoogleSheets with values:', values);
-            
+
             // Get current headers
-            const headers = await this.getSheetHeaders();
-            console.log('Current headers:', headers);
+            const response = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: this.SPREADSHEET_ID,
+                range: 'Sheet1!A1:ZZ1'
+            });
 
-            // Find new columns
-            const newColumns = Object.keys(values).filter(col => !headers.includes(col));
-            console.log('New columns to add:', newColumns);
+            let currentHeaders = response.result.values?.[0] || [];
+            console.log('Current headers:', currentHeaders);
 
-            // Add new columns if needed
-            if (newColumns.length > 0) {
-                await this.addNewColumns(headers, newColumns);
-                headers.push(...newColumns);
-                console.log('Updated headers after adding new columns:', headers);
+            // Get all keys from the values object
+            const allKeys = Object.keys(values);
+            
+            // Ensure State and Notes are first, ID is last
+            const orderedKeys = ['State', 'Notes'];
+            allKeys.forEach(key => {
+                if (key !== 'State' && key !== 'Notes' && key !== 'ID') {
+                    orderedKeys.push(key);
+                }
+            });
+            orderedKeys.push('ID');
+
+            // Update headers if needed
+            if (JSON.stringify(currentHeaders) !== JSON.stringify(orderedKeys)) {
+                console.log('Updating headers...');
+                await gapi.client.sheets.spreadsheets.values.update({
+                    spreadsheetId: this.SPREADSHEET_ID,
+                    range: `Sheet1!A1:${this.numberToColumn(orderedKeys.length)}1`,
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: [orderedKeys]
+                    }
+                });
+                currentHeaders = orderedKeys;
             }
 
-            // Create row data in correct order
-            const rowData = headers.map(header => values[header] ?? '');
-            console.log('Row data to append:', rowData);
+            // Create row data using ordered headers
+            const rowData = orderedKeys.map(header => {
+                const value = values[header];
+                return value === Infinity ? '∞' : (value ?? '');
+            });
 
-            // Log the exact request being made
-            const request = {
+            // Append the row
+            const appendResponse = await gapi.client.sheets.spreadsheets.values.append({
                 spreadsheetId: this.SPREADSHEET_ID,
-                range: 'Sheet1', // Ensure this matches your sheet name
+                range: `Sheet1!A1:${this.numberToColumn(orderedKeys.length)}`,
                 valueInputOption: 'USER_ENTERED',
                 resource: {
                     values: [rowData]
                 }
-            };
-            console.log('Request to Google Sheets:', request);
+            });
 
-            const response = await gapi.client.sheets.spreadsheets.values.append(request);
-            console.log('Google Sheets Response:', response);
-
+            console.log('Save successful:', appendResponse);
             return true;
+
         } catch (error) {
-            console.error('Error saving to Google Sheets:', {
+            console.error('Error in saveToGoogleSheets:', {
                 message: error.message,
-                stack: error.stack,
-                error: error
+                response: error.result,
+                status: error.status,
+                error
             });
             throw error;
         }
     }
 
-    async getSheetHeaders() {
-        try {
-            const response = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: this.SPREADSHEET_ID,
-                range: 'Sheet1!1:1',
-            });
-
-            return response.result.values?.[0] || [];
-        } catch (error) {
-            console.error('Error getting sheet headers:', error);
-            return [];
-        }
-    }
-
     async addNewColumns(existingHeaders, newColumns) {
         try {
-            // Calculate start column
             const startCol = this.numberToColumn(existingHeaders.length + 1);
             const endCol = this.numberToColumn(existingHeaders.length + newColumns.length);
 
-            // Add headers
-            await gapi.client.sheets.spreadsheets.values.update({
+            const response = await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: this.SPREADSHEET_ID,
                 range: `Sheet1!${startCol}1:${endCol}1`,
                 valueInputOption: 'RAW',
@@ -198,8 +179,18 @@ class TriangleDatabase {
                     values: [newColumns]
                 }
             });
+
+            if (response.status !== 200) {
+                throw new Error(`Failed to update columns: ${response.statusText}`);
+            }
+
         } catch (error) {
-            console.error('Error adding new columns:', error);
+            console.error('Error adding new columns:', {
+                message: error.message,
+                response: error.result,
+                status: error.status,
+                error
+            });
             throw error;
         }
     }
@@ -214,14 +205,281 @@ class TriangleDatabase {
         return column;
     }
 
-    getAllInputValues() {
-        // Your implementation or placeholder
-        return {
-            id: 'example-id',
-            timestamp: new Date().toISOString(),
-            // ... other values
-        };
+    async saveState() {
+        try {
+            // Prompt user for State name and Notes
+            const { stateName, notes, cancelled } = await this.promptStateDetails();
+            if (cancelled) {
+                return false;
+            }
+
+            // Get next available ID
+            const nextId = await this.getNextStateId();
+            
+            console.log('Starting data collection...');
+            const collectedData = {
+                // Add State and Notes first
+                'State': stateName,
+                'Notes': notes || '',
+                
+                // System - Nodes
+                'N1 Angle': document.getElementById('node-n1-angle')?.value || '',
+                'N2 Angle': document.getElementById('node-n2-angle')?.value || '',
+                'N3 Angle': document.getElementById('node-n3-angle')?.value || '',
+                'N1 (xy)': document.getElementById('node1-coords')?.value || '',
+                'N2 (xy)': document.getElementById('node2-coords')?.value || '',
+                'N3 (xy)': document.getElementById('node3-coords')?.value || '',
+
+                // Node Channels
+                'NC1': document.getElementById('channel-1')?.value || '',
+                'NC2': document.getElementById('channel-2')?.value || '',
+                'NC3': document.getElementById('channel-3')?.value || '',
+
+                // I-Channels
+                'IC1': document.getElementById('ic-1')?.value || '',
+                'IC2': document.getElementById('ic-2')?.value || '',
+                'IC3': document.getElementById('ic-3')?.value || '',
+
+                // Medians
+                'M1 (xy)': document.getElementById('mid1-coords')?.value || '',
+                'M2 (xy)': document.getElementById('mid2-coords')?.value || '',
+                'M3 (xy)': document.getElementById('mid3-coords')?.value || '',
+                'ml1': document.getElementById('median1-length')?.value || '',
+                'ml2': document.getElementById('median2-length')?.value || '',
+                'ml3': document.getElementById('median3-length')?.value || '',
+
+                // Altitudes
+                'Af1 (xy)': document.getElementById('altitude1-coords')?.value || '',
+                'Af2 (xy)': document.getElementById('altitude2-coords')?.value || '',
+                'Af3 (xy)': document.getElementById('altitude3-coords')?.value || '',
+                'Al1': document.getElementById('altitude1-length')?.value || '',
+                'Al2': document.getElementById('altitude2-length')?.value || '',
+                'Al3': document.getElementById('altitude3-length')?.value || '',
+
+                // System Entropy and Capacity
+                'H': document.getElementById('system-entropy')?.value || '',
+                'C': document.getElementById('system-capacity')?.value || '',
+                'HP': document.getElementById('perimeter-entropy')?.value || '',
+                'HIC': document.getElementById('ic-entropy')?.value || '',
+                'HP/HIC': document.getElementById('hp-hic-ratio')?.value || '',
+                'HIC/HP': document.getElementById('hic-hp-ratio')?.value || '',
+                'HP/H': document.getElementById('hp-h-ratio')?.value || '',
+                'H/HP': document.getElementById('h-hp-ratio')?.value || '',
+                'HIC/H': document.getElementById('hic-h-ratio')?.value || '',
+                'H/HIC': document.getElementById('h-hic-ratio')?.value || '',
+
+                // Subsystems
+                'ss∠1': document.getElementById('subsystem-1-angle')?.value || '',
+                'ssh1': document.getElementById('subsystem-1-perimeter')?.value || '',
+                'ssc1': document.getElementById('subsystem-1-area')?.value || '',
+                'ssh/ssc1': document.getElementById('subsystem-1-ratio')?.value || '',
+                'ssc/ssh1': document.getElementById('subsystem-1-inverse-ratio')?.value || '',
+                'ssh/H1': document.getElementById('subsystem-1-system-ratio')?.value || '',
+                'H/ssh1': document.getElementById('subsystem-1-entropy-ratio')?.value || '',
+
+                'ss∠2': document.getElementById('subsystem-2-angle')?.value || '',
+                'ssh2': document.getElementById('subsystem-2-perimeter')?.value || '',
+                'ssc2': document.getElementById('subsystem-2-area')?.value || '',
+                'ssh/ssc2': document.getElementById('subsystem-2-ratio')?.value || '',
+                'ssc/ssh2': document.getElementById('subsystem-2-inverse-ratio')?.value || '',
+                'ssh/H2': document.getElementById('subsystem-2-system-ratio')?.value || '',
+                'H/ssh2': document.getElementById('subsystem-2-entropy-ratio')?.value || '',
+
+                'ss∠3': document.getElementById('subsystem-3-angle')?.value || '',
+                'ssh3': document.getElementById('subsystem-3-perimeter')?.value || '',
+                'ssc3': document.getElementById('subsystem-3-area')?.value || '',
+                'ssh/ssc3': document.getElementById('subsystem-3-ratio')?.value || '',
+                'ssc/ssh3': document.getElementById('subsystem-3-inverse-ratio')?.value || '',
+                'ssh/H3': document.getElementById('subsystem-3-system-ratio')?.value || '',
+                'H/ssh3': document.getElementById('subsystem-3-entropy-ratio')?.value || '',
+
+                // Euler Line
+                'O (xy)': document.getElementById('circumcenter-coords')?.value || '',
+                'I (xy)': document.getElementById('centroid-coords')?.value || '',
+                'SP (xy)': document.getElementById('subcenter-coords')?.value || '',
+                'NP (xy)': document.getElementById('nine-point-coords')?.value || '',
+                'HO (xy)': document.getElementById('orthocenter-coords')?.value || '',
+                'EL': document.getElementById('euler-line-length')?.value || '',
+                'mEL': document.getElementById('euler-line-slope')?.value || '',
+                'θEL': document.getElementById('euler-line-angle')?.value || '',
+                'O-I/EL': document.getElementById('o-i-ratio')?.value || '',
+                'I-SP/EL': document.getElementById('i-sp-ratio')?.value || '',
+                'SP-NP/EL': document.getElementById('sp-np-ratio')?.value || '',
+                'NP-HO/EL': document.getElementById('np-ho-ratio')?.value || '',
+                'NC1 θa': document.getElementById('nc1-acute')?.value || '',
+                'NC1 θo': document.getElementById('nc1-obtuse')?.value || '',
+                'NC2 θa': document.getElementById('nc2-acute')?.value || '',
+                'NC2 θo': document.getElementById('nc2-obtuse')?.value || '',
+                'NC3 θa': document.getElementById('nc3-acute')?.value || '',
+                'NC3 θo': document.getElementById('nc3-obtuse')?.value || '',
+
+                // ID must be last
+                'ID': nextId
+            };
+
+            console.log('Final collected data:', collectedData);
+            
+            // Save to Google Sheets
+            await this.saveToGoogleSheets(collectedData);
+            return true;
+
+        } catch (error) {
+            console.error('Error in saveState:', {
+                message: error.message,
+                stack: error.stack,
+                error
+            });
+            throw error;
+        }
     }
+
+    async promptStateDetails() {
+        return new Promise((resolve) => {
+            // Create modal div
+            const modalDiv = document.createElement('div');
+            modalDiv.className = 'modal-overlay';
+            modalDiv.innerHTML = `
+                <div class="modal-content">
+                    <h3>Save State Details</h3>
+                    <div class="form-group">
+                        <label for="stateName">State Name *</label>
+                        <input type="text" id="stateName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stateNotes">Notes (optional)</label>
+                        <textarea id="stateNotes" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-cancel">Cancel</button>
+                        <button type="button" class="btn btn-save">Save</button>
+                    </div>
+                </div>
+            `;
+
+            // Add styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                }
+                .modal-content {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 5px;
+                    width: 90%;
+                    max-width: 500px;
+                }
+                .form-group {
+                    margin-bottom: 15px;
+                }
+                .form-group label {
+                    display: block;
+                    margin-bottom: 5px;
+                }
+                .form-control {
+                    width: 100%;
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                }
+                .modal-buttons {
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 20px;
+                }
+                .btn {
+                    padding: 8px 16px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+                .btn-cancel {
+                    background: #6c757d;
+                    color: white;
+                }
+                .btn-save {
+                    background: #007bff;
+                    color: white;
+                }
+            `;
+
+            document.head.appendChild(style);
+            document.body.appendChild(modalDiv);
+
+            // Handle save button click
+            const handleSave = () => {
+                const stateName = document.getElementById('stateName').value.trim();
+                const notes = document.getElementById('stateNotes').value.trim();
+
+                if (!stateName) {
+                    alert('Please enter a state name');
+                    return;
+                }
+
+                modalDiv.remove();
+                resolve({ stateName, notes, cancelled: false });
+            };
+
+            // Handle cancel
+            const handleCancel = () => {
+                modalDiv.remove();
+                resolve({ stateName: null, notes: null, cancelled: true });
+            };
+
+            // Add event listeners
+            modalDiv.querySelector('.btn-save').addEventListener('click', handleSave);
+            modalDiv.querySelector('.btn-cancel').addEventListener('click', handleCancel);
+        });
+    }
+
+    async getNextStateId() {
+        try {
+            // Get all values from the sheet
+            const response = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: this.SPREADSHEET_ID,
+                range: 'Sheet1'  // Get all data
+            });
+
+            const values = response.result.values || [];
+            if (values.length === 0) return 1;  // Empty sheet
+
+            // Find the ID column index (should be last column)
+            const headers = values[0];
+            const idColumnIndex = headers.indexOf('ID');
+            
+            if (idColumnIndex === -1) return 1;  // No ID column yet
+
+            // Get all IDs, skipping header row
+            const ids = values.slice(1)
+                .map(row => row[idColumnIndex])
+                .filter(id => id && !isNaN(id))
+                .map(Number);
+
+            // Return max + 1, or 1 if no valid IDs
+            return ids.length > 0 ? Math.max(...ids) + 1 : 1;
+
+        } catch (error) {
+            console.error('Error getting next state ID:', {
+                message: error.message,
+                response: error.result,
+                status: error.status,
+                error
+            });
+            // Return 1 if there's an error
+            return 1;
+        }
+    }
+
 }
 
 class TriangleSystem {
@@ -380,7 +638,6 @@ class TriangleSystem {
         // Add Save State button listener
         const saveStateButton = document.getElementById('saveState');
         if (saveStateButton) {
-            // Use an arrow function to maintain 'this' context
             const handleSaveClick = async () => {
                 console.log('Save State button clicked');
                 try {
@@ -397,31 +654,8 @@ class TriangleSystem {
                     await this.db.getAccessToken();
                     console.log('Access token obtained successfully');
 
-                    // Collect data after database is ready
-                    console.log('Collecting input data...');
-                    const data = await new Promise((resolve) => {
-                        const inputs = document.querySelectorAll('.dashboard-container input');
-                        const collectedData = {
-                            timestamp: new Date().toISOString()
-                        };
-                        
-                        inputs.forEach(input => {
-                            if (input.id) {
-                                collectedData[input.id] = input.value;
-                            }
-                        });
-                        
-                        console.log('Data collection complete:', collectedData);
-                        resolve(collectedData);
-                    });
-
-                    if (Object.keys(data).length <= 1) { // Only has timestamp
-                        throw new Error('No input data collected');
-                    }
-
-                    console.log('Attempting to save to Google Sheets...');
-                    // Call saveState with the collected data
-                    const result = await this.db.saveState(data);
+                    // Call saveState with our new explicit mapping approach
+                    const result = await this.db.saveState();
 
                     if (result !== null) {
                         alert('State saved successfully!');
@@ -443,49 +677,6 @@ class TriangleSystem {
         } else {
             console.error("Save State button not found");
         }
-        
-        // Add save button listener
-        document.getElementById('saveState').addEventListener('click', async () => {
-            console.log('Save State button clicked');
-            
-            try {
-                console.log('Checking database initialization...');
-                if (!this.db.initialized) {
-                    console.log('Database not initialized, initializing now...');
-                    await this.db.init();
-                    console.log('Database initialization complete');
-                } else {
-                    console.log('Database already initialized');
-                }
-
-                console.log('Getting access token...');
-                try {
-                    await this.db.getAccessToken();
-                    console.log('Access token obtained successfully');
-                } catch (tokenError) {
-                    console.error('Error getting access token:', tokenError);
-                    throw new Error('Failed to get access token: ' + tokenError.message);
-                }
-
-                // Collect current state data
-                console.log('Collecting current triangle state...');
-                
-                
-                
-
-                console.log('Attempting to save to Google Sheets...');
-                
-                
-
-            } catch (error) {
-                console.error('Detailed save state error:', {
-                    message: error.message,
-                    stack: error.stack,
-                    error
-                });
-                alert('Error saving state: ' + error.message);
-            }
-        });
 
         // Add export button listener
         document.getElementById('exportData').addEventListener('click', () => {
@@ -532,117 +723,7 @@ class TriangleSystem {
         // Initialize the search functionality
         this.initializeInfoBoxSearch();
         this.selectedMetric = null;
-        
-       
-
-        
-
-    }
-
-    /**
- * Handles the Save State action.
- */
-async handleSaveState() {
-    console.log('Checking database initialization...');
-    try {
-        if (!this.db.initialized) {
-            console.log('Database not initialized, initializing now...');
-            await this.db.init();
-        }
-        console.log('Database initialization complete');
-
-        
-    } catch (error) {
-        console.error('Detailed save state error:', {
-            message: error.message,
-            stack: error.stack,
-            error: error
-        });
-
-        // Extract detailed error message if available
-        let errorMessage = 'Unknown error occurred';
-        if (error.result && error.result.error && error.result.error.message) {
-            errorMessage = error.result.error.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        alert('Error saving state: ' + errorMessage);
-    }
-}
-
-    /**
-     * Gathers all input values from the dashboard.
-     * Uses labels as keys for the data object, ensuring they are sanitized.
-     * Assumes that each input has an associated label with a `for` attribute matching the input's `id`.
-     */
-    getAllInputValues() {
-        const data = {};
-        
-        // Select all label-value-pair containers within the dashboard
-        const labelValuePairs = document.querySelectorAll('.dashboard-container .label-value-pair');
-        console.log(`Found ${labelValuePairs.length} label-value-pair elements.`);
-
-        if (labelValuePairs.length === 0) {
-            console.warn('No label-value pairs found. Check your HTML structure.');
-            return {
-                timestamp: new Date().toISOString(),
-                error: 'No data found'
-            };
-        }
-
-        let isValid = true;
-        let missingFields = [];
-
-        labelValuePairs.forEach(pair => {
-            const label = pair.querySelector('label');
-            const input = pair.querySelector('input, textarea, select');
-
-            console.log('Processing pair:', {
-                label: label?.textContent,
-                input: input?.value,
-                pairHTML: pair.innerHTML
-            });
-
-            if (label && input) {
-                let key = label.innerText.trim()
-                    .toLowerCase()
-                    .replace(/[^a-z0-9\s]/g, '') // Remove special characters
-                    .replace(/\s+/g, '_');        // Replace spaces with underscores
-
-                let value = input.value.trim();
-
-                // Validate input
-                if (value === '') {
-                    isValid = false;
-                    missingFields.push(label.innerText.trim());
-                    return;
-                }
-
-                if (!isNaN(value) && value !== '') {
-                    value = parseFloat(value);
-                }
-
-                data[key] = value;
-                console.log(`Captured input - Key: ${key}, Value: ${value}`);
-            } else {
-                console.warn('Label or input element not found in pair:', pair);
-            }
-        });
-
-        if (!isValid) {
-            alert('Please fill out all required fields before saving.\nMissing Fields:\n' + missingFields.join('\n'));
-            throw new Error('Validation failed: Some fields are empty.');
-        }
-
-        // Add timestamp
-        data.timestamp = new Date().toISOString();
-        
-        console.log('Final collected data:', data);
-        return data;
-    }
-
-    
+    }  // End of constructor
 
     initializePresets() {
         // Initialize storage if it doesn't exist
@@ -1627,13 +1708,6 @@ async handleSaveState() {
             setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
             
             
-            // Update tangent point coordinates
-            if (this.system.TangencyPoints && this.system.TangencyPoints.length === 3) {
-                setElementValue('#tan1-coords', `${this.system.TangencyPoints[0].x.toFixed(1)}, ${this.system.TangencyPoints[0].y.toFixed(1)}`);
-                setElementValue('#tan2-coords', `${this.system.TangencyPoints[1].x.toFixed(1)}, ${this.system.TangencyPoints[1].y.toFixed(1)}`);
-                setElementValue('#tan3-coords', `${this.system.TangencyPoints[2].x.toFixed(1)}, ${this.system.TangencyPoints[2].y.toFixed(1)}`);
-            }
-            
             setElementValue('#centroid-coords', `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
             
             if (this.system.incenter) {
@@ -1759,7 +1833,6 @@ async handleSaveState() {
             };
         
 
-            
             
 
             // Get the elements first with null checks
@@ -6212,34 +6285,7 @@ async handleSaveState() {
         return this.altitudePoints;
     }
 
-    exportToDatabase() {
-        // Helper function to sanitize values
-        const sanitizeValue = (value) => {
-            if (value === null || value === undefined || isNaN(value)) {
-                return 0;
-            }
-            return value;
-        };
-
-        // Helper function to sanitize object properties recursively
-        const sanitizeObject = (obj) => {
-            const newObj = {};
-            for (let key in obj) {
-                if (typeof obj[key] === 'object' && obj[key] !== null) {
-                    newObj[key] = sanitizeObject(obj[key]);
-                } else {
-                    newObj[key] = sanitizeValue(obj[key]);
-                }
-            }
-            return newObj;
-        };
-
-        // Sanitize the data before export
-        const sanitizedData = sanitizeObject(this.system);
-        
-        // Continue with database export using sanitizedData
-        // ... rest of export logic ...
-    }
+    
 
     /**
      * Updates the information panel with the latest calculations.
@@ -6462,26 +6508,7 @@ async handleSaveState() {
         }
     }
 
-    /**
-     * Saves the current state to Google Sheets.
-     * Utilizes getAllInputValues to gather data.
-     */
-    async saveStateToDatabase() {
-        try {
-            
-
-            
-
-            
-        } catch (error) {
-            console.error('Detailed save state error:', {
-                message: error.message || 'No message',
-                stack: error.stack || 'No stack',
-                error: error
-            });
-            alert('Error saving state: ' + (error.message || JSON.stringify(error)));
-        }
-    }
+    
 
     // ... [Other existing methods] ...
 }
@@ -6497,5 +6524,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Remove duplicate event listeners that are now in initializeEventListeners
 });
+
+// Helper function to convert number to column letter (including multi-letter columns)
+function getColumnLetter(columnNumber) {
+    let dividend = columnNumber;
+    let columnName = '';
+    let modulo;
+
+    while (dividend > 0) {
+        modulo = (dividend - 1) % 26;
+        columnName = String.fromCharCode(65 + modulo) + columnName;
+        dividend = Math.floor((dividend - modulo) / 26);
+    }
+
+    return columnName;
+}
 
 
