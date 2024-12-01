@@ -683,6 +683,11 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     margin-left: 0.25rem;  /* Reduced from 0.35rem */
 }
 
+/* New style */
+@media (forced-colors: active) {
+    /* styles */
+}
+
 /* Search Results Dropdown */
 .search-results-dropdown {
     position: absolute;

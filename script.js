@@ -28,280 +28,199 @@ class Complex {
 // Add this before the TriangleSystem class definition
 class TriangleDatabase {
     constructor() {
-        this.dbName = 'TriangleResearchDB';
-        this.version = 1;
-        this.init();
+        this.API_KEY = 'AIzaSyCQh02aAcYmvvGJVVJFwRFOQ5Ptvug8dOQ';
+        this.CLIENT_ID = '66954381705-rib6tkc4qse6rdue4id2e1svmb6otm24.apps.googleusercontent.com';
+        this.SPREADSHEET_ID = '1LN0wA4gUY0XFdY_v8SlHvwMeu1A4_X8t56FF2mP1l40';
+        this.SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+        this.tokenClient = null;
+        this.accessToken = null;
+        this.initialized = false;
     }
 
     async init() {
+        try {
+            await new Promise((resolve, reject) => {
+                gapi.load('client', async () => {
+                    try {
+                        await gapi.client.init({
+                            apiKey: this.API_KEY,
+                            discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                        });
+
+                        // Initialize the tokenClient
+                        this.tokenClient = google.accounts.oauth2.initTokenClient({
+                            client_id: this.CLIENT_ID,
+                            scope: this.SCOPES,
+                            callback: '', // Will be set later
+                        });
+
+                        this.initialized = true;
+                        resolve();
+                    } catch (error) {
+                        console.error('Error initializing Google Sheets API:', error);
+                        reject(error);
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Failed to initialize Google Sheets:', error);
+            throw error;
+        }
+    }
+
+    async getAccessToken() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, this.version);
-            
-            request.onerror = () => {
-                console.error('Database error:', request.error);
-                reject(request.error);
-            };
-            
-            request.onupgradeneeded = (event) => {
-                console.log('Initializing database...');
-                const db = event.target.result;
+            try {
+                this.tokenClient.callback = (response) => {
+                    if (response.error !== undefined) {
+                        reject(response);
+                    }
+                    this.accessToken = response.access_token;
+                    resolve(response.access_token);
+                };
                 
-                // Create store for triangle states
-                if (!db.objectStoreNames.contains('triangleStates')) {
-                    const stateStore = db.createObjectStore('triangleStates', { 
-                        keyPath: 'id', 
-                        autoIncrement: true 
-                    });
-                    
-                    // Add indexes
-                    stateStore.createIndex('timestamp', 'timestamp');
-                    stateStore.createIndex('name', 'name');
+                if (this.accessToken === null) {
+                    // Request a new token
+                    this.tokenClient.requestAccessToken({ prompt: 'consent' });
+                } else {
+                    // Use existing token
+                    resolve(this.accessToken);
                 }
-            };
-            
-            request.onsuccess = () => {
-                console.log('Database initialized successfully');
-                resolve(request.result);
-            };
+            } catch (error) {
+                console.error('Error getting access token:', error);
+                reject(error);
+            }
         });
     }
 
     async saveState(stateData) {
         try {
-            const name = prompt('Enter a name for this triangle state:');
-            if (!name) return null;
-            
-            const description = prompt('Enter a description (optional):');
-            
-            // Get all input values from the dashboard
-            const inputValues = this.getAllInputValues();
-            
-            // Add Euler Line metrics
-            const eulerMetrics = {
-                eulerLineLength: parseFloat(document.getElementById('euler-line-length')?.value) || 0,
-                eulerLineSlope: parseFloat(document.getElementById('euler-line-slope')?.value) || 0,
-                eulerLineAngle: parseFloat(document.getElementById('euler-line-angle')?.value) || 0,
-                oToIRatio: parseFloat(document.getElementById('o-i-ratio')?.value) || 0,
-                iToSPRatio: parseFloat(document.getElementById('i-sp-ratio')?.value) || 0,
-                spToNPRatio: parseFloat(document.getElementById('sp-np-ratio')?.value) || 0,
-                npToHORatio: parseFloat(document.getElementById('np-ho-ratio')?.value) || 0
+            if (!this.initialized) {
+                await this.init();
+            }
+
+            // Ensure we have an access token
+            await this.getAccessToken();
+
+            // Use the stateData passed in, and add timestamp if not present
+            const values = {
+                ...stateData,
+                timestamp: stateData.timestamp || new Date().toISOString()
             };
 
-            // Add Incircle metrics
-            const incircleMetrics = {
-                inradius: parseFloat(document.getElementById('inradius')?.value) || 0,
-                incircleCapacity: parseFloat(document.getElementById('incircle-capacity')?.value) || 0,
-                incircleEntropy: parseFloat(document.getElementById('incircle-entropy')?.value) || 0,
-                cinHinRatio: parseFloat(document.getElementById('cin-hin-ratio')?.value) || 0,
-                hinCinRatio: parseFloat(document.getElementById('hin-cin-ratio')?.value) || 0,
-                cinCRatio: parseFloat(document.getElementById('cin-c-ratio')?.value) || 0,
-                hinHRatio: parseFloat(document.getElementById('hin-h-ratio')?.value) || 0
-            };
-
-            // Create record
-            const record = {
-                name,
-                description,
-                timestamp: new Date().toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                }),
-                ...inputValues,
-                ...eulerMetrics,
-                ...incircleMetrics
-            };
-
-            const db = await this.init();
-            const transaction = db.transaction(['triangleStates'], 'readwrite');
-            const store = transaction.objectStore('triangleStates');
-            
-            const id = await new Promise((resolve, reject) => {
-                const request = store.add(record);
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-
-            console.log(`Saved triangle state "${name}" with ID: ${id}`, record);
-            return id;
+            await this.saveToGoogleSheets(values);
+            console.log('Saved to Google Sheets');
+            return values.id;
         } catch (error) {
-            console.error('Error saving triangle state:', error);
-            alert('Error saving triangle state. Please try again.');
+            console.error('Error saving state:', error);
             return null;
         }
     }
 
-    getAllInputValues() {
-        const values = {};
-        
-        // Helper function to clean label text while preserving Greek letters
-        const cleanLabel = (text) => {
-            return text
-                .replace(/[()]/g, '')         // remove parentheses
-                .replace(/[,]/g, '')          // remove commas
-                .replace(/\s+/g, '_')         // replace spaces with underscores
-                .replace(/∠/g, 'Angle')       // replace angle symbol with 'Angle'
-                .replace(/°/g, 'deg')         // replace degree symbol with 'deg'
-                .replace(/\//g, '_to_')       // replace / with _to_
-                .replace(/_xy$/, '')          // remove _xy suffix for coordinates
-                .toLowerCase()                // convert to lowercase for consistency
-                .replace(/[^\w\s-_αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]/g, ''); // preserve Greek letters
-        };
-
-        // Get all input fields from the dashboard
-        const getAllInputs = () => {
-            // Find all panels (they typically have class names ending in '-panel')
-            const panels = document.querySelectorAll('[class*="-panel"], [class*="_panel"]');
-            const inputs = [];
+    /**
+     * Saves the provided values to Google Sheets.
+     * @param {Object} values - The data to append to the spreadsheet.
+     */
+    async saveToGoogleSheets(values) {
+        try {
+            console.log('Starting saveToGoogleSheets with values:', values);
             
-            panels.forEach(panel => {
-                // Get all input elements within each panel
-                const panelInputs = panel.querySelectorAll('input[type="text"], input[type="number"]');
-                inputs.push(...panelInputs);
-                
-                // Also check for any inputs that might be in nested elements
-                const nestedInputs = panel.querySelectorAll('.label-value-pair input');
-                inputs.push(...nestedInputs);
+            // Get current headers
+            const headers = await this.getSheetHeaders();
+            console.log('Current headers:', headers);
+
+            // Find new columns
+            const newColumns = Object.keys(values).filter(col => !headers.includes(col));
+            console.log('New columns to add:', newColumns);
+
+            // Add new columns if needed
+            if (newColumns.length > 0) {
+                await this.addNewColumns(headers, newColumns);
+                headers.push(...newColumns);
+                console.log('Updated headers after adding new columns:', headers);
+            }
+
+            // Create row data in correct order
+            const rowData = headers.map(header => values[header] ?? '');
+            console.log('Row data to append:', rowData);
+
+            // Log the exact request being made
+            const request = {
+                spreadsheetId: this.SPREADSHEET_ID,
+                range: 'Sheet1', // Ensure this matches your sheet name
+                valueInputOption: 'USER_ENTERED',
+                resource: {
+                    values: [rowData]
+                }
+            };
+            console.log('Request to Google Sheets:', request);
+
+            const response = await gapi.client.sheets.spreadsheets.values.append(request);
+            console.log('Google Sheets Response:', response);
+
+            return true;
+        } catch (error) {
+            console.error('Error saving to Google Sheets:', {
+                message: error.message,
+                stack: error.stack,
+                error: error
             });
-
-            // Also search for any standalone inputs with label-value-pair class
-            const standaloneInputs = document.querySelectorAll('.label-value-pair input');
-            inputs.push(...standaloneInputs);
-
-            return [...new Set(inputs)]; // Remove duplicates
-        };
-
-        // Process all inputs
-        getAllInputs().forEach(input => {
-            // Find associated label
-            let label;
-            
-            // Try different methods to find the label
-            if (input.id) {
-                // First try finding label by for attribute
-                label = document.querySelector(`label[for="${input.id}"]`);
-            }
-            
-            if (!label) {
-                // Try finding label in parent label-value-pair
-                const pair = input.closest('.label-value-pair');
-                if (pair) {
-                    label = pair.querySelector('label');
-                }
-            }
-            
-            if (!label) {
-                // Try finding preceding label element
-                label = input.previousElementSibling;
-                if (label?.tagName !== 'LABEL') {
-                    label = null;
-                }
-            }
-
-            if (label) {
-                // Get original label text and clean it
-                let columnName = cleanLabel(label.textContent.trim());
-                
-                // Handle coordinate pairs (x,y)
-                if (input.value.includes(',')) {
-                    const [x, y] = input.value.split(',').map(v => parseFloat(v.trim()));
-                    // Remove any _xy suffix and add _X and _Y
-                    columnName = columnName.replace(/_xy$/, '');
-                    values[`${columnName}_X`] = x || 0;
-                    values[`${columnName}_Y`] = y || 0;
-                } else {
-                    // Try parsing as number first
-                    const numValue = parseFloat(input.value);
-                    values[columnName] = isNaN(numValue) ? input.value : numValue;
-                }
-            } else {
-                // Fallback to using input ID or name if no label found
-                const columnName = cleanLabel(input.id || input.name || 'unnamed_input');
-                values[columnName] = input.value;
-            }
-        });
-
-        // Get subsystems table values
-        document.querySelectorAll('.subsystems-table tr').forEach((row, index) => {
-            if (index === 0) return; // Skip header row
-            
-            const inputs = row.querySelectorAll('input');
-            const ssNum = row.cells[0].textContent.trim(); // SS1, SS2, or SS3
-            
-            inputs.forEach((input, colIndex) => {
-                if (input.value) {
-                    const headerCell = document.querySelector(`.subsystems-table th:nth-child(${colIndex + 2})`);
-                    if (headerCell) {
-                        const columnName = `${ssNum}_${cleanLabel(headerCell.textContent)}`;
-                        const numValue = parseFloat(input.value);
-                        values[columnName] = isNaN(numValue) ? input.value : numValue;
-                    }
-                }
-            });
-        });
-
-        console.log('Collected input values:', values);
-        return values;
+            throw error;
+        }
     }
 
-    async exportToCSV() {
+    async getSheetHeaders() {
         try {
-            const db = await this.init();
-            const transaction = db.transaction(['triangleStates'], 'readonly');
-            const store = transaction.objectStore('triangleStates');
-            
-            const data = await new Promise((resolve, reject) => {
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
+            const response = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: this.SPREADSHEET_ID,
+                range: 'Sheet1!1:1',
             });
 
-            if (data.length === 0) {
-                alert('No data to export');
-                return;
-            }
-
-            // Get all unique columns
-            const columns = new Set();
-            data.forEach(record => {
-                Object.keys(record).forEach(key => columns.add(key));
-            });
-
-            // Create CSV with proper character encoding
-            const headers = Array.from(columns);
-            const rows = data.map(record => 
-                headers.map(header => {
-                    let value = record[header] ?? '';
-                    // Fix encoding for special characters
-                    if (value === 'âˆž') value = '∞';
-                    if (typeof value === 'string') {
-                        // Preserve Greek letters in the output
-                        return `"${value}"`;
-                    }
-                    return value;
-                }).join(',')
-            );
-
-            // Add BOM and create CSV with UTF-8 encoding
-            const BOM = '\uFEFF';
-            const csv = [headers.join(','), ...rows].join('\n');
-            const blob = new Blob([BOM + csv], { 
-                type: 'text/csv;charset=utf-8-sig' 
-            });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `triangle_research_${new Date().toISOString()}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-
+            return response.result.values?.[0] || [];
         } catch (error) {
-            console.error('Error exporting data:', error);
-            alert('Error exporting data. Please check the console for details.');
+            console.error('Error getting sheet headers:', error);
+            return [];
         }
+    }
+
+    async addNewColumns(existingHeaders, newColumns) {
+        try {
+            // Calculate start column
+            const startCol = this.numberToColumn(existingHeaders.length + 1);
+            const endCol = this.numberToColumn(existingHeaders.length + newColumns.length);
+
+            // Add headers
+            await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: this.SPREADSHEET_ID,
+                range: `Sheet1!${startCol}1:${endCol}1`,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [newColumns]
+                }
+            });
+        } catch (error) {
+            console.error('Error adding new columns:', error);
+            throw error;
+        }
+    }
+
+    numberToColumn(num) {
+        let column = '';
+        while (num > 0) {
+            const modulo = (num - 1) % 26;
+            column = String.fromCharCode(65 + modulo) + column;
+            num = Math.floor((num - modulo) / 26);
+        }
+        return column;
+    }
+
+    getAllInputValues() {
+        // Your implementation or placeholder
+        return {
+            id: 'example-id',
+            timestamp: new Date().toISOString(),
+            // ... other values
+        };
     }
 }
 
@@ -458,22 +377,114 @@ class TriangleSystem {
         // Initialize database
         this.db = new TriangleDatabase();
         
-        // Add save button listener
-        document.getElementById('saveState').addEventListener('click', () => {
-            // Collect current triangle state data
-            const stateData = {
-                vertices: {
-                    n1: { x: this.system.n1.x, y: this.system.n1.y },
-                    n2: { x: this.system.n2.x, y: this.system.n2.y },
-                    n3: { x: this.system.n3.x, y: this.system.n3.y }
-                },
-                // Add any other specific triangle data you want to save
-                showConnections: this.showConnections,
-                showAreas: this.showAreas,
-                // ... other visualization states ...
+        // Add Save State button listener
+        const saveStateButton = document.getElementById('saveState');
+        if (saveStateButton) {
+            // Use an arrow function to maintain 'this' context
+            const handleSaveClick = async () => {
+                console.log('Save State button clicked');
+                try {
+                    // Initialize database first
+                    console.log('Checking database initialization...');
+                    if (!this.db.initialized) {
+                        console.log('Database not initialized, initializing now...');
+                        await this.db.init();
+                    }
+                    console.log('Database initialization complete');
+
+                    // Get access token
+                    console.log('Getting access token...');
+                    await this.db.getAccessToken();
+                    console.log('Access token obtained successfully');
+
+                    // Collect data after database is ready
+                    console.log('Collecting input data...');
+                    const data = await new Promise((resolve) => {
+                        const inputs = document.querySelectorAll('.dashboard-container input');
+                        const collectedData = {
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        inputs.forEach(input => {
+                            if (input.id) {
+                                collectedData[input.id] = input.value;
+                            }
+                        });
+                        
+                        console.log('Data collection complete:', collectedData);
+                        resolve(collectedData);
+                    });
+
+                    if (Object.keys(data).length <= 1) { // Only has timestamp
+                        throw new Error('No input data collected');
+                    }
+
+                    console.log('Attempting to save to Google Sheets...');
+                    // Call saveState with the collected data
+                    const result = await this.db.saveState(data);
+
+                    if (result !== null) {
+                        alert('State saved successfully!');
+                    } else {
+                        alert('Failed to save the state. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Detailed save state error:', {
+                        message: error.message,
+                        stack: error.stack,
+                        error
+                    });
+                    alert('Error saving state: ' + error.message);
+                }
             };
+
+            // Attach the event listener
+            saveStateButton.addEventListener('click', handleSaveClick);
+        } else {
+            console.error("Save State button not found");
+        }
+        
+        // Add save button listener
+        document.getElementById('saveState').addEventListener('click', async () => {
+            console.log('Save State button clicked');
             
-            this.db.saveState(stateData);
+            try {
+                console.log('Checking database initialization...');
+                if (!this.db.initialized) {
+                    console.log('Database not initialized, initializing now...');
+                    await this.db.init();
+                    console.log('Database initialization complete');
+                } else {
+                    console.log('Database already initialized');
+                }
+
+                console.log('Getting access token...');
+                try {
+                    await this.db.getAccessToken();
+                    console.log('Access token obtained successfully');
+                } catch (tokenError) {
+                    console.error('Error getting access token:', tokenError);
+                    throw new Error('Failed to get access token: ' + tokenError.message);
+                }
+
+                // Collect current state data
+                console.log('Collecting current triangle state...');
+                
+                
+                
+
+                console.log('Attempting to save to Google Sheets...');
+                
+                
+
+            } catch (error) {
+                console.error('Detailed save state error:', {
+                    message: error.message,
+                    stack: error.stack,
+                    error
+                });
+                alert('Error saving state: ' + error.message);
+            }
         });
 
         // Add export button listener
@@ -516,21 +527,122 @@ class TriangleSystem {
             console.error("Import button not found");
         }
 
-        // Similarly check other elements
-        const saveStateButton = document.getElementById('saveState');
-        if (saveStateButton) {
-            saveStateButton.addEventListener('click', () => {
-                // Your save state logic
-            });
-        } else {
-            console.error("Save state button not found");
-        }
+        
 
         // Initialize the search functionality
         this.initializeInfoBoxSearch();
         this.selectedMetric = null;
         
+       
+
+        
+
     }
+
+    /**
+ * Handles the Save State action.
+ */
+async handleSaveState() {
+    console.log('Checking database initialization...');
+    try {
+        if (!this.db.initialized) {
+            console.log('Database not initialized, initializing now...');
+            await this.db.init();
+        }
+        console.log('Database initialization complete');
+
+        
+    } catch (error) {
+        console.error('Detailed save state error:', {
+            message: error.message,
+            stack: error.stack,
+            error: error
+        });
+
+        // Extract detailed error message if available
+        let errorMessage = 'Unknown error occurred';
+        if (error.result && error.result.error && error.result.error.message) {
+            errorMessage = error.result.error.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        alert('Error saving state: ' + errorMessage);
+    }
+}
+
+    /**
+     * Gathers all input values from the dashboard.
+     * Uses labels as keys for the data object, ensuring they are sanitized.
+     * Assumes that each input has an associated label with a `for` attribute matching the input's `id`.
+     */
+    getAllInputValues() {
+        const data = {};
+        
+        // Select all label-value-pair containers within the dashboard
+        const labelValuePairs = document.querySelectorAll('.dashboard-container .label-value-pair');
+        console.log(`Found ${labelValuePairs.length} label-value-pair elements.`);
+
+        if (labelValuePairs.length === 0) {
+            console.warn('No label-value pairs found. Check your HTML structure.');
+            return {
+                timestamp: new Date().toISOString(),
+                error: 'No data found'
+            };
+        }
+
+        let isValid = true;
+        let missingFields = [];
+
+        labelValuePairs.forEach(pair => {
+            const label = pair.querySelector('label');
+            const input = pair.querySelector('input, textarea, select');
+
+            console.log('Processing pair:', {
+                label: label?.textContent,
+                input: input?.value,
+                pairHTML: pair.innerHTML
+            });
+
+            if (label && input) {
+                let key = label.innerText.trim()
+                    .toLowerCase()
+                    .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+                    .replace(/\s+/g, '_');        // Replace spaces with underscores
+
+                let value = input.value.trim();
+
+                // Validate input
+                if (value === '') {
+                    isValid = false;
+                    missingFields.push(label.innerText.trim());
+                    return;
+                }
+
+                if (!isNaN(value) && value !== '') {
+                    value = parseFloat(value);
+                }
+
+                data[key] = value;
+                console.log(`Captured input - Key: ${key}, Value: ${value}`);
+            } else {
+                console.warn('Label or input element not found in pair:', pair);
+            }
+        });
+
+        if (!isValid) {
+            alert('Please fill out all required fields before saving.\nMissing Fields:\n' + missingFields.join('\n'));
+            throw new Error('Validation failed: Some fields are empty.');
+        }
+
+        // Add timestamp
+        data.timestamp = new Date().toISOString();
+        
+        console.log('Final collected data:', data);
+        return data;
+    }
+
+    
 
     initializePresets() {
         // Initialize storage if it doesn't exist
@@ -760,7 +872,6 @@ class TriangleSystem {
             { id: 'toggleSubtriangle', property: 'showSubtriangle' },  // New button
             { id: 'toggleEuler', property: 'showEuler' },
             { id: 'toggleCircumcenter', property: 'showCircumcenter' },
-            { id: 'toggleOrthocircle', property: 'showOrtho' },
             { id: 'toggleNinePointCenter', property: 'showNinePointCenter' },
             { id: 'toggleNinePointCircle', property: 'showNinePointCircle' },
             { id: 'toggleIncircle', property: 'showIncircle' },
@@ -1514,7 +1625,6 @@ class TriangleSystem {
             setElementValue('#node1-coords', `${this.system.n1.x.toFixed(1)}, ${this.system.n1.y.toFixed(1)}`);
             setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
             setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
-            
             
             
             // Update tangent point coordinates
@@ -2345,10 +2455,7 @@ class TriangleSystem {
                 }
             }
 
-            // Draw Orthocircle if enabled (after special centers)
-            if (this.showOrtho) {
-                this.drawOrthocircle(this.ctx);
-            }
+            
 
             // Separate drawing of nine-point center and circle
             if (this.showNinePointCenter) {
@@ -4064,40 +4171,7 @@ class TriangleSystem {
             return null;
         }
     }
-
-    /**
-     * Draws the Orthocircle on the canvas if it exists.
-     * 
-     * @param {CanvasRenderingContext2D} ctx - The canvas rendering context
-     */
-    drawOrthocircle(ctx) {
-        const orthocircle = this.calculateOrthocircle();
-        
-        if (!orthocircle || !orthocircle.center || !orthocircle.radius) {
-            console.warn("Cannot draw orthocircle: invalid calculation");
-            return;
-        }
-        
-        ctx.save();
-        ctx.beginPath();
-        ctx.strokeStyle = '#FF0000';  // Pink color to match orthocenter
-        ctx.setLineDash([5, 5]);     // Dashed line
-        ctx.lineWidth = 1;
-        
-        ctx.arc(
-            orthocircle.center.x,
-            orthocircle.center.y,
-            orthocircle.radius,
-            0,
-            2 * Math.PI
-        );
-        
-        ctx.stroke();
-        ctx.setLineDash([]);  // Reset dash pattern
-        ctx.restore();
-        
-        console.log("Orthocircle drawn");
-    }
+    
 
     calculateCentroid() {
         return {
@@ -5088,7 +5162,7 @@ class TriangleSystem {
                 spToNPRatio: "∞",
                 npToHORatio: "∞",
                 intersectionAngles: {
-                    nc1_acute: "∞",
+                    nc1_acute: "",
                     nc1_obtuse: "∞",
                     nc2_acute: "∞",
                     nc2_obtuse: "∞",
@@ -6387,6 +6461,29 @@ class TriangleSystem {
             console.error('\n Stack trace:', error.stack);
         }
     }
+
+    /**
+     * Saves the current state to Google Sheets.
+     * Utilizes getAllInputValues to gather data.
+     */
+    async saveStateToDatabase() {
+        try {
+            
+
+            
+
+            
+        } catch (error) {
+            console.error('Detailed save state error:', {
+                message: error.message || 'No message',
+                stack: error.stack || 'No stack',
+                error: error
+            });
+            alert('Error saving state: ' + (error.message || JSON.stringify(error)));
+        }
+    }
+
+    // ... [Other existing methods] ...
 }
 
 // Outside the class - DOM initialization
@@ -6400,4 +6497,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Remove duplicate event listeners that are now in initializeEventListeners
 });
+
 
