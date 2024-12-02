@@ -4438,79 +4438,116 @@ class TriangleSystem {
             
             // Sort animations alphabetically by name (case-insensitive)
             const sortedAnimations = Object.entries(animations)
-                .sort(([nameA], [nameB]) => nameA.toLowerCase().localeCompare(nameB.toLowerCase()));
+                .sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
             
-            // Add animations to dropdown
-            sortedAnimations.forEach(([name, values]) => {
+            if (sortedAnimations.length > 0) {
+                sortedAnimations.forEach(([name, config]) => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.className = 'dropdown-item';
+                    a.href = '#';
+                    
+                    // Create container for name and buttons
+                    const container = document.createElement('div');
+                    container.className = 'preset-item-container';
+                    
+                    // Add animation name
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'preset-name';
+                    nameSpan.textContent = name;
+                    container.appendChild(nameSpan);
+                    
+                    // Add edit button
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'edit-btn';
+                    editBtn.innerHTML = '✎';
+                    editBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.editAnimation(name, config);
+                    };
+                    container.appendChild(editBtn);
+                    
+                    // Add delete button
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerHTML = '×';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.deleteAnimation(name);
+                    };
+                    container.appendChild(deleteBtn);
+                    
+                    a.appendChild(container);
+                    li.appendChild(a);
+                    this.animationsList.appendChild(li);
+                    
+                    // Add click handler for loading animation
+                    a.onclick = (e) => {
+                        e.preventDefault();
+                        this.playAnimation(name, config);
+                    };
+                });
+            } else {
                 const li = document.createElement('li');
                 const a = document.createElement('a');
-                a.className = 'dropdown-item';
+                a.className = 'dropdown-item disabled';
                 a.href = '#';
-                
-                // Create span for the text content
-                const textSpan = document.createElement('span');
-                textSpan.textContent = name;
-                
-                // Create button container for edit and delete
-                const buttonContainer = document.createElement('div');
-                buttonContainer.className = 'preset-buttons';
-                
-                // Create edit button
-                const editBtn = document.createElement('button');
-                editBtn.className = 'edit-button small-button';  // instead of 'btn btn-secondary btn-sm'
-                editBtn.textContent = '✎';
-                editBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const newName = prompt('Enter new name for animation:', name);
-                    if (newName && newName !== name) {
-                        this.renameAnimation(name, newName, values);
-                    }
-                });
-                
-                // Create delete button
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-button small-button';  // instead of 'btn btn-danger btn-sm'
-                deleteBtn.textContent = '×';
-                deleteBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.deleteAnimation(name);
-                });
-                
-                // Append buttons to container
-                buttonContainer.appendChild(editBtn);
-                buttonContainer.appendChild(deleteBtn);
-                
-                // Append in correct order
-                a.appendChild(textSpan);
-                a.appendChild(buttonContainer);
+                a.textContent = 'No saved animations';
                 li.appendChild(a);
-                animationsList.appendChild(li);
-                
-                // Add click handler for loading animation
-                a.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.loadAnimation(name, values);
-                });
-            });
+                this.animationsList.appendChild(li);
+            }
             
         } catch (error) {
             console.error('Error updating animations dropdown:', error);
         }
     }
 
-    renameAnimation(oldName, newName, values) {
-        try {
-            const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
-            delete animations[oldName];
-            animations[newName] = values;
-            localStorage.setItem('userAnimations', JSON.stringify(animations));
-            this.updateAnimationsDropdown();
-            console.log(`Renamed animation from "${oldName}" to "${newName}"`);
-        } catch (error) {
-            console.error('Error renaming animation:', error);
-            alert('Error renaming animation. Please try again.');
+    // Add these new methods to handle editing and deleting animations
+    editAnimation(name, config) {
+        const newName = prompt('Enter new name for animation:', name);
+        if (newName && newName !== name) {
+            try {
+                // Get current animations
+                const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+                
+                // Delete old name and add with new name
+                delete animations[name];
+                animations[newName] = config;
+                
+                // Save back to storage
+                localStorage.setItem('userAnimations', JSON.stringify(animations));
+                
+                // Refresh dropdown
+                this.initializeAnimationsDropdown();
+                
+                console.log('Animation renamed:', name, 'to', newName);
+            } catch (error) {
+                console.error('Error editing animation:', error);
+                alert('Error editing animation. Please try again.');
+            }
+        }
+    }
+
+    deleteAnimation(name) {
+        if (confirm(`Are you sure you want to delete the animation "${name}"?`)) {
+            try {
+                // Get current animations
+                const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+                
+                // Delete the animation
+                delete animations[name];
+                
+                // Save back to storage
+                localStorage.setItem('userAnimations', JSON.stringify(animations));
+                
+                // Refresh dropdown
+                this.initializeAnimationsDropdown();
+                
+                console.log('Animation deleted:', name);
+            } catch (error) {
+                console.error('Error deleting animation:', error);
+                alert('Error deleting animation. Please try again.');
+            }
         }
     }
 
@@ -6705,31 +6742,57 @@ class PresetManager {
         // Clear existing items
         this.animationsList.innerHTML = '';
 
-        // Get saved animations from localStorage using the correct key
+        // Get saved animations and sort alphabetically
         const savedAnimations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
-        console.log('Loaded animations from storage:', savedAnimations);
+        const sortedAnimations = Object.entries(savedAnimations)
+            .sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
         
-        // Check if animations exist
-        const hasAnimations = Object.keys(savedAnimations).length > 0;
-        console.log('Has saved animations:', hasAnimations);
-
-        // Add each saved animation to the dropdown
-        if (hasAnimations) {
-            Object.entries(savedAnimations).forEach(([name, config]) => {
-                console.log('Adding animation to dropdown:', name, config);
+        if (sortedAnimations.length > 0) {
+            sortedAnimations.forEach(([name, config]) => {
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.className = 'dropdown-item';
                 a.href = '#';
-                a.textContent = name;
                 
+                // Create container for name and buttons
+                const container = document.createElement('div');
+                container.className = 'preset-item-container';
+                
+                // Add animation name
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'preset-name';
+                nameSpan.textContent = name;
+                container.appendChild(nameSpan);
+                
+                // Add edit button
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-btn';
+                editBtn.innerHTML = '✎';
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    this.editAnimation(name, config);
+                };
+                container.appendChild(editBtn);
+                
+                // Add delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    this.deleteAnimation(name);
+                };
+                container.appendChild(deleteBtn);
+                
+                a.appendChild(container);
+                li.appendChild(a);
+                this.animationsList.appendChild(li);
+                
+                // Add click handler for loading animation
                 a.onclick = (e) => {
                     e.preventDefault();
                     this.playAnimation(name, config);
                 };
-                
-                li.appendChild(a);
-                this.animationsList.appendChild(li);
             });
         } else {
             const li = document.createElement('li');
@@ -6740,8 +6803,55 @@ class PresetManager {
             li.appendChild(a);
             this.animationsList.appendChild(li);
         }
+    }
 
-        console.log('Animations dropdown initialized with content:', this.animationsList.innerHTML);
+    // Add these new methods to handle editing and deleting animations
+    editAnimation(name, config) {
+        const newName = prompt('Enter new name for animation:', name);
+        if (newName && newName !== name) {
+            try {
+                // Get current animations
+                const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+                
+                // Delete old name and add with new name
+                delete animations[name];
+                animations[newName] = config;
+                
+                // Save back to storage
+                localStorage.setItem('userAnimations', JSON.stringify(animations));
+                
+                // Refresh dropdown
+                this.initializeAnimationsDropdown();
+                
+                console.log('Animation renamed:', name, 'to', newName);
+            } catch (error) {
+                console.error('Error editing animation:', error);
+                alert('Error editing animation. Please try again.');
+            }
+        }
+    }
+
+    deleteAnimation(name) {
+        if (confirm(`Are you sure you want to delete the animation "${name}"?`)) {
+            try {
+                // Get current animations
+                const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+                
+                // Delete the animation
+                delete animations[name];
+                
+                // Save back to storage
+                localStorage.setItem('userAnimations', JSON.stringify(animations));
+                
+                // Refresh dropdown
+                this.initializeAnimationsDropdown();
+                
+                console.log('Animation deleted:', name);
+            } catch (error) {
+                console.error('Error deleting animation:', error);
+                alert('Error deleting animation. Please try again.');
+            }
+        }
     }
 
     setupEventListeners() {
