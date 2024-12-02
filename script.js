@@ -536,20 +536,7 @@ class TriangleSystem {
             // Preserve the original text content
             const titleText = manualTitle.textContent;
             
-            // Replace the title's content with a flex container
-            manualTitle.innerHTML = `
-                <div class="d-flex align-items-center gap-3">
-                    <span>${titleText}</span>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="userPresetsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            User Presets
-                        </button>
-                        <ul class="dropdown-menu" id="userPresetsList">
-                            <!-- Presets will be added here dynamically -->
-                        </ul>
-                    </div>
-                </div>
-            `;
+            
         }
 
         // Initialize storage for user animations
@@ -596,19 +583,12 @@ class TriangleSystem {
         // Initialize subsystem metrics
         this.subsystemAreas = [0, 0, 0];  // Initialize array for three subsystems
         
-        // Initialize presets storage
-        this.initializePresets();
+       
         
         // Bind save preset handler
         document.getElementById('save-preset').addEventListener('click', () => this.saveCurrentConfig());
 
-        // Initialize both dropdowns
-        this.initializePresets();
-        this.initializeAnimations();
         
-        // Update both dropdowns
-        this.updatePresetsDropdown();
-        this.updateAnimationsDropdown();
 
         // Add to your initialization code
         const animateButtonEnd = document.getElementById('animate-button-end');
@@ -723,6 +703,9 @@ class TriangleSystem {
         // Initialize the search functionality
         this.initializeInfoBoxSearch();
         this.selectedMetric = null;
+
+        // Initialize the preset manager with this triangle system
+        this.presetManager = new PresetManager(this);
     }  // End of constructor
 
     initializePresets() {
@@ -733,6 +716,16 @@ class TriangleSystem {
         
         // Update presets dropdown
         this.updatePresetsDropdown();
+    }
+    
+    // Separate method for initializing both dropdowns
+    initializeDropdowns() {
+        // Initialize both dropdowns
+        this.initializePresets();
+        this.initializeAnimations();
+        
+        // Update animations dropdown
+        this.updateAnimationsDropdown();
     }
 
     savePreset() {
@@ -788,15 +781,22 @@ class TriangleSystem {
             // Clear existing items
             presetsList.innerHTML = '';
             
-            // Get presets from storage
-            const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+            // Get presets from storage and log them
+            const presetsString = localStorage.getItem('userPresets');
+            console.log('Raw presets from storage:', presetsString);
+            
+            const presets = JSON.parse(presetsString || '{}');
+            console.log('Parsed presets:', presets);
             
             // Sort presets alphabetically by name (case-insensitive)
             const sortedPresets = Object.entries(presets)
                 .sort(([nameA], [nameB]) => nameA.toLowerCase().localeCompare(nameB.toLowerCase()));
+            console.log('Sorted presets:', sortedPresets);
             
             // Add presets to dropdown
             sortedPresets.forEach(([name, values]) => {
+                console.log(`Creating dropdown item for preset: ${name}`, values);
+                
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.className = 'dropdown-item';
@@ -813,7 +813,7 @@ class TriangleSystem {
                 
                 // Create edit button
                 const editBtn = document.createElement('button');
-                editBtn.className = 'edit-button small-button';  // instead of 'btn btn-secondary btn-sm'
+                editBtn.className = 'edit-button small-button';
                 editBtn.textContent = '✎';
                 editBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -826,7 +826,7 @@ class TriangleSystem {
                 
                 // Create delete button
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-button small-button';  // instead of 'btn btn-danger btn-sm'
+                deleteBtn.className = 'delete-button small-button';
                 deleteBtn.textContent = '×';
                 deleteBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -852,8 +852,13 @@ class TriangleSystem {
             });
             
             console.log('Updated presets dropdown with', Object.keys(presets).length, 'items');
+            console.log('Final dropdown HTML:', presetsList.innerHTML);
         } catch (error) {
-            console.error('Error updating presets dropdown:', error);
+            console.error('Detailed error in updatePresetsDropdown:', {
+                error,
+                message: error.message,
+                stack: error.stack
+            });
         }
     }
 
@@ -1053,23 +1058,7 @@ class TriangleSystem {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                const presetName = link.getAttribute('data-preset-name');
-                console.log('Preset clicked:', presetName);
                 
-                const config = savedPresets[presetName];
-                if (config && config.n1 && config.n2 && config.n3) {
-                    console.log('Loading preset configuration...');
-                    this.system.n1 = { ...config.n1 };
-                    this.system.n2 = { ...config.n2 };
-                    this.system.n3 = { ...config.n3 };
-                    
-                    this.updateDerivedPoints();
-                    this.updateDashboard();
-                    this.drawSystem();
-                    console.log('Preset loaded successfully');
-                } else {
-                    console.error('Invalid preset configuration:', config);
-                }
             });
 
             // Initialize Bootstrap dropdown
@@ -6511,7 +6500,246 @@ class TriangleSystem {
     
 
     // ... [Other existing methods] ...
+
+    // Add this method to your TriangleSystem class
+    // Update this method in your TriangleSystem class
+    updateFromManualInputs() {
+        try {
+            // Get the manual input values
+            const nc1 = parseFloat(document.getElementById('manual-nc1').value);
+            const nc2 = parseFloat(document.getElementById('manual-nc2').value);
+            const nc3 = parseFloat(document.getElementById('manual-nc3').value);
+
+            console.log('Updating system with values:', { nc1, nc2, nc3 });
+
+            // Validate the values
+            if (isNaN(nc1) || isNaN(nc2) || isNaN(nc3)) {
+                console.error('Invalid NC values');
+                return;
+            }
+
+            // Update the system's values directly
+            this.system = {
+                ...this.system, // Keep existing properties
+                nc1: nc1,
+                nc2: nc2,
+                nc3: nc3
+            };
+
+            // Force a redraw
+            this.drawSystem();
+            
+            // Also update any other necessary UI elements
+            this.updateInformationPanel();
+
+            console.log('System updated successfully');
+        } catch (error) {
+            console.error('Error updating from manual inputs:', error);
+        }
+    }
 }
+
+class PresetManager {
+    constructor(triangleSystem) {
+        this.triangleSystem = triangleSystem;
+        
+        // Remove any existing click handlers
+        const existingPresetItems = document.querySelectorAll('.dropdown-item[data-preset-name]');
+        existingPresetItems.forEach(item => {
+            item.removeEventListener('click', null);
+        });
+        
+        // Initialize dropdowns
+        this.userPresetsDropdown = document.getElementById('userPresetsDropdown');
+        this.presetsList = document.getElementById('userPresetsList');
+        this.animationsDropdown = document.getElementById('animationsDropdown');
+        this.animationsList = document.getElementById('animationsList');
+        
+        this.initializePresetsDropdown();
+        this.initializeAnimationsDropdown();
+        this.setupEventListeners();
+    }
+
+    initializePresetsDropdown() {
+        if (!this.userPresetsDropdown || !this.presetsList) {
+            console.error('Presets dropdown elements not found');
+            return;
+        }
+
+        // Remove old event listeners
+        const oldItems = this.presetsList.querySelectorAll('.dropdown-item');
+        oldItems.forEach(item => {
+            item.replaceWith(item.cloneNode(true));
+        });
+
+        // Get presets from storage
+        const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+        
+        // Clear and populate dropdown
+        this.presetsList.innerHTML = '';
+        Object.entries(presets).forEach(([name, values]) => {
+            console.log('Adding preset to dropdown:', name, values);
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.className = 'dropdown-item';
+            a.href = '#';
+            
+            // Create main content without data-preset-name attribute
+            const textSpan = document.createElement('span');
+            const ncValues = `(${values.nc1}, ${values.nc2}, ${values.nc3})`;
+            textSpan.textContent = `${name} ${ncValues}`;
+            
+            // Create buttons container
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'preset-buttons';
+            
+            // Add edit button
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-button small-button';
+            editBtn.textContent = '✎';
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.editPreset(name, values);
+            };
+            
+            // Add delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-button small-button';
+            deleteBtn.textContent = '×';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.deletePreset(name);
+            };
+            
+            // Assemble the dropdown item
+            buttonContainer.appendChild(editBtn);
+            buttonContainer.appendChild(deleteBtn);
+            a.appendChild(textSpan);
+            a.appendChild(buttonContainer);
+            li.appendChild(a);
+            this.presetsList.appendChild(li);
+            
+            // Add click handler for loading preset
+            a.onclick = (e) => {
+                e.preventDefault();
+                this.loadPreset(name, values);
+            };
+        });
+    }
+
+    initializeAnimationsDropdown() {
+        if (!this.animationsDropdown || !this.animationsList) {
+            console.error('Animations dropdown elements not found');
+            return;
+        }
+
+        // Clear existing items
+        this.animationsList.innerHTML = '';
+
+        // Add animation options
+        const animations = [
+            { name: 'Rotate System', value: 'rotate' },
+            { name: 'Scale System', value: 'scale' }
+        ];
+
+        animations.forEach(animation => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.className = 'dropdown-item';
+            a.href = '#';
+            a.textContent = animation.name;
+            
+            a.onclick = (e) => {
+                e.preventDefault();
+                this.startAnimation(animation.value);
+            };
+            
+            li.appendChild(a);
+            this.animationsList.appendChild(li);
+        });
+    }
+
+    setupEventListeners() {
+        // Presets dropdown toggle
+        this.userPresetsDropdown.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Toggle presets dropdown');
+            this.presetsList.classList.toggle('show');
+        });
+
+        // Animations dropdown toggle
+        this.animationsDropdown.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Toggle animations dropdown');
+            this.animationsList.classList.toggle('show');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!this.userPresetsDropdown.contains(e.target) && 
+                !this.presetsList.contains(e.target)) {
+                this.presetsList.classList.remove('show');
+            }
+            if (!this.animationsDropdown.contains(e.target) && 
+                !this.animationsList.contains(e.target)) {
+                this.animationsList.classList.remove('show');
+            }
+        });
+    }
+
+    loadPreset(name, values) {
+        try {
+            console.log('Loading preset:', name, values);
+            
+            // Update vertex positions directly
+            if (this.triangleSystem) {
+                // Update the system's vertices
+                this.triangleSystem.system = {
+                    ...this.triangleSystem.system,
+                    n1: { 
+                        x: parseFloat(values.n1?.x) || 0, 
+                        y: parseFloat(values.n1?.y) || 0 
+                    },
+                    n2: { 
+                        x: parseFloat(values.n2?.x) || 0, 
+                        y: parseFloat(values.n2?.y) || 0 
+                    },
+                    n3: { 
+                        x: parseFloat(values.n3?.x) || 0, 
+                        y: parseFloat(values.n3?.y) || 0 
+                    },
+                    intelligence: { x: 0, y: 0 }  // Reset intelligence point
+                };
+                
+                // Recalculate derived points
+                this.triangleSystem.updateDerivedPoints();
+                
+                // Update display
+                this.triangleSystem.drawSystem();
+                this.triangleSystem.updateDashboard();
+                
+                console.log('Triangle system updated directly');
+            } else {
+                console.error('Triangle system reference not found');
+            }
+
+            // Close the dropdown
+            this.presetsList.classList.remove('show');
+
+            console.log('Preset loaded and applied successfully');
+        } catch (error) {
+            console.error('Error loading preset:', error);
+        }
+    }
+
+    startAnimation(animationType) {
+        console.log('Starting animation:', animationType);
+        // Add animation logic here
+    }
+}
+
 
 // Outside the class - DOM initialization
 document.addEventListener('DOMContentLoaded', () => {
