@@ -210,7 +210,7 @@ class TriangleDatabase {
             // Prompt user for State name and Notes
             const { stateName, notes, cancelled } = await this.promptStateDetails();
             if (cancelled) {
-                return false;
+                return false;  // Exit early without showing success message
             }
 
             // Get next available ID
@@ -313,6 +313,32 @@ class TriangleDatabase {
                 'NC3 θa': document.getElementById('nc3-acute')?.value || '',
                 'NC3 θo': document.getElementById('nc3-obtuse')?.value || '',
 
+                // Incircle Panel
+                'IN (xy)': document.getElementById('incenter-coords')?.value || '',
+                'T1 (xy)': document.getElementById('tan1-coords')?.value || '',
+                'T2 (xy)': document.getElementById('tan2-coords')?.value || '',
+                'T3 (xy)': document.getElementById('tan3-coords')?.value || '',
+                'd(I,IN)': document.getElementById('d-i-in')?.value || '',
+                'd(IN,ssi1)': document.getElementById('d-in-ssi1')?.value || '',
+                'd(IN,ssi2)': document.getElementById('d-in-ssi2')?.value || '',
+                'd(IN,ssi3)': document.getElementById('d-in-ssi3')?.value || '',
+                'rIN': document.getElementById('inradius')?.value || '',
+                'CIN': document.getElementById('incircle-capacity')?.value || '',
+                'HIN': document.getElementById('incircle-entropy')?.value || '',
+                'CIN/HIN': document.getElementById('cin-hin-ratio')?.value || '',
+                'HIN/CIN': document.getElementById('hin-cin-ratio')?.value || '',
+                'CIN/C': document.getElementById('cin-c-ratio')?.value || '',
+                'HIN/H': document.getElementById('hin-h-ratio')?.value || '',
+                'd(M,T)1': document.getElementById('d-m-t-n1')?.value || '',
+                'd(M,T)2': document.getElementById('d-m-t-n2')?.value || '',
+                'd(M,T)3': document.getElementById('d-m-t-n3')?.value || '',
+                'r(M,T)1': document.getElementById('r-m-t-n1')?.value || '',
+                'r(M,T)2': document.getElementById('r-m-t-n2')?.value || '',
+                'r(M,T)3': document.getElementById('r-m-t-n3')?.value || '',
+                'rNC(M,T)1': document.getElementById('r-m-t-nc1')?.value || '',
+                'rNC(M,T)2': document.getElementById('r-m-t-nc2')?.value || '',
+                'rNC(M,T)3': document.getElementById('r-m-t-nc3')?.value || '',
+
                 // ID must be last
                 'ID': nextId
             };
@@ -321,7 +347,7 @@ class TriangleDatabase {
             
             // Save to Google Sheets
             await this.saveToGoogleSheets(collectedData);
-            return true;
+            return true;  // Only return true if save was successful
 
         } catch (error) {
             console.error('Error in saveState:', {
@@ -337,83 +363,25 @@ class TriangleDatabase {
         return new Promise((resolve) => {
             // Create modal div
             const modalDiv = document.createElement('div');
-            modalDiv.className = 'modal-overlay';
+            modalDiv.className = 'modal-overlay save-state-dialog';
             modalDiv.innerHTML = `
                 <div class="modal-content">
-                    <h3>Save State Details</h3>
+                    <h2>Save State Details</h2>
                     <div class="form-group">
                         <label for="stateName">State Name *</label>
-                        <input type="text" id="stateName" class="form-control" required>
+                        <input type="text" id="stateName" required>
                     </div>
                     <div class="form-group">
                         <label for="stateNotes">Notes (optional)</label>
-                        <textarea id="stateNotes" class="form-control" rows="3"></textarea>
+                        <textarea id="stateNotes" rows="3"></textarea>
                     </div>
-                    <div class="modal-buttons">
-                        <button type="button" class="btn btn-cancel">Cancel</button>
-                        <button type="button" class="btn btn-save">Save</button>
+                    <div class="button-container">
+                        <button type="button" class="cancel">Cancel</button>
+                        <button type="button" class="save">Save</button>
                     </div>
                 </div>
             `;
 
-            // Add styles
-            const style = document.createElement('style');
-            style.textContent = `
-                .modal-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0, 0, 0, 0.5);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 1000;
-                }
-                .modal-content {
-                    background: white;
-                    padding: 20px;
-                    border-radius: 5px;
-                    width: 90%;
-                    max-width: 500px;
-                }
-                .form-group {
-                    margin-bottom: 15px;
-                }
-                .form-group label {
-                    display: block;
-                    margin-bottom: 5px;
-                }
-                .form-control {
-                    width: 100%;
-                    padding: 8px;
-                    border: 1px solid #ddd;
-                    border-radius: 4px;
-                }
-                .modal-buttons {
-                    display: flex;
-                    justify-content: flex-end;
-                    gap: 10px;
-                    margin-top: 20px;
-                }
-                .btn {
-                    padding: 8px 16px;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                }
-                .btn-cancel {
-                    background: #6c757d;
-                    color: white;
-                }
-                .btn-save {
-                    background: #007bff;
-                    color: white;
-                }
-            `;
-
-            document.head.appendChild(style);
             document.body.appendChild(modalDiv);
 
             // Handle save button click
@@ -437,8 +405,8 @@ class TriangleDatabase {
             };
 
             // Add event listeners
-            modalDiv.querySelector('.btn-save').addEventListener('click', handleSave);
-            modalDiv.querySelector('.btn-cancel').addEventListener('click', handleCancel);
+            modalDiv.querySelector('.save').addEventListener('click', handleSave);
+            modalDiv.querySelector('.cancel').addEventListener('click', handleCancel);
         });
     }
 
@@ -637,8 +605,10 @@ class TriangleSystem {
                     // Call saveState with our new explicit mapping approach
                     const result = await this.db.saveState();
 
-                    if (result !== null) {
+                    if (result === true) {  // Changed condition to check specifically for true
                         alert('State saved successfully!');
+                    } else if (result === false) {
+                        // Do nothing - user cancelled
                     } else {
                         alert('Failed to save the state. Please try again.');
                     }
