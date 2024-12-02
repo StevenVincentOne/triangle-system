@@ -257,10 +257,10 @@ class TriangleDatabase {
                 'Al3': document.getElementById('altitude3-length')?.value || '',
 
                 // System Entropy and Capacity
-                'H': document.getElementById('system-entropy')?.value || '',
-                'C': document.getElementById('system-capacity')?.value || '',
-                'HP': document.getElementById('perimeter-entropy')?.value || '',
-                'HIC': document.getElementById('ic-entropy')?.value || '',
+                'H': document.getElementById('system-h')?.value || '',
+                'C': document.getElementById('system-b-copy')?.value || '',
+                'HP': document.getElementById('system-sph')?.value || '',
+                'HIC': document.getElementById('system-mch')?.value || '',
                 'HP/HIC': document.getElementById('hp-hic-ratio')?.value || '',
                 'HIC/HP': document.getElementById('hic-hp-ratio')?.value || '',
                 'HP/H': document.getElementById('hp-h-ratio')?.value || '',
