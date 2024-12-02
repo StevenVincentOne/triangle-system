@@ -6596,7 +6596,6 @@ class PresetManager {
             // Add edit button
             const editBtn = document.createElement('button');
             editBtn.className = 'edit-button small-button';
-            editBtn.textContent = '✎';
             editBtn.onclick = (e) => {
                 e.stopPropagation();
                 this.editPreset(name, values);
@@ -6605,7 +6604,6 @@ class PresetManager {
             // Add delete button
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-button small-button';
-            deleteBtn.textContent = '×';
             deleteBtn.onclick = (e) => {
                 e.stopPropagation();
                 this.deletePreset(name);
@@ -6636,27 +6634,43 @@ class PresetManager {
         // Clear existing items
         this.animationsList.innerHTML = '';
 
-        // Add animation options
-        const animations = [
-            { name: 'Rotate System', value: 'rotate' },
-            { name: 'Scale System', value: 'scale' }
-        ];
+        // Get saved animations from localStorage using the correct key
+        const savedAnimations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
+        console.log('Loaded animations from storage:', savedAnimations);
+        
+        // Check if animations exist
+        const hasAnimations = Object.keys(savedAnimations).length > 0;
+        console.log('Has saved animations:', hasAnimations);
 
-        animations.forEach(animation => {
+        // Add each saved animation to the dropdown
+        if (hasAnimations) {
+            Object.entries(savedAnimations).forEach(([name, config]) => {
+                console.log('Adding animation to dropdown:', name, config);
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.className = 'dropdown-item';
+                a.href = '#';
+                a.textContent = name;
+                
+                a.onclick = (e) => {
+                    e.preventDefault();
+                    this.playAnimation(name, config);
+                };
+                
+                li.appendChild(a);
+                this.animationsList.appendChild(li);
+            });
+        } else {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.className = 'dropdown-item';
+            a.className = 'dropdown-item disabled';
             a.href = '#';
-            a.textContent = animation.name;
-            
-            a.onclick = (e) => {
-                e.preventDefault();
-                this.startAnimation(animation.value);
-            };
-            
+            a.textContent = 'No saved animations';
             li.appendChild(a);
             this.animationsList.appendChild(li);
-        });
+        }
+
+        console.log('Animations dropdown initialized with content:', this.animationsList.innerHTML);
     }
 
     setupEventListeners() {
@@ -6737,6 +6751,49 @@ class PresetManager {
     startAnimation(animationType) {
         console.log('Starting animation:', animationType);
         // Add animation logic here
+    }
+
+    // Add this method to handle animation playback
+    playAnimation(name, config) {
+        console.log('Playing animation:', name, config);
+        if (this.triangleSystem) {
+            // Populate start values
+            const startNc1Input = document.getElementById('animation-nc1-start');
+            const startNc2Input = document.getElementById('animation-nc2-start');
+            const startNc3Input = document.getElementById('animation-nc3-start');
+
+            if (startNc1Input && startNc2Input && startNc3Input) {
+                startNc1Input.value = config.start.nc1;
+                startNc2Input.value = config.start.nc2;
+                startNc3Input.value = config.start.nc3;
+                console.log('Updated start fields:', config.start);
+            } else {
+                console.error('Some animation start input fields not found');
+            }
+
+            // Populate end values
+            const endNc1Input = document.getElementById('animation-nc1-end');
+            const endNc2Input = document.getElementById('animation-nc2-end');
+            const endNc3Input = document.getElementById('animation-nc3-end');
+
+            if (endNc1Input && endNc2Input && endNc3Input) {
+                endNc1Input.value = config.end.nc1;
+                endNc2Input.value = config.end.nc2;
+                endNc3Input.value = config.end.nc3;
+                console.log('Updated end fields:', config.end);
+            } else {
+                console.error('Some animation end input fields not found');
+            }
+
+            // Optional: Update the current triangle to match start position
+            this.triangleSystem.system = {
+                ...this.triangleSystem.system,
+                nc1: config.start.nc1,
+                nc2: config.start.nc2,
+                nc3: config.start.nc3
+            };
+            this.triangleSystem.drawSystem();
+        }
     }
 }
 
