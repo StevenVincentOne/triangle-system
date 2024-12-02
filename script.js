@@ -647,35 +647,15 @@ class TriangleSystem {
             });
         }
 
-        // Add to your initialization code
-        document.getElementById('importButton').addEventListener('click', () => {
-            document.getElementById('importFile').click();
-        });
-
-        document.getElementById('importFile').addEventListener('change', (event) => {
-            if (event.target.files.length > 0) {
-                this.importFromCSV(event.target.files[0]);
-            }
-        });
-
-        // Import Button
-        const importButton = document.getElementById('importButton');
-        if (importButton) {
-            importButton.addEventListener('click', () => {
-                document.getElementById('importFile').click();
-            });
-        } else {
-            console.error("Import button not found");
-        }
-
-        
-
         // Initialize the search functionality
         this.initializeInfoBoxSearch();
         this.selectedMetric = null;
 
         // Initialize the preset manager with this triangle system
         this.presetManager = new PresetManager(this);
+        
+        // Initialize managers
+        this.importManager = new ImportManager(this);
     }  // End of constructor
 
     initializePresets() {
@@ -1121,31 +1101,7 @@ class TriangleSystem {
         } else {
             console.warn('Subcenter toggle button not found');
         }
-
-        // Add Import button and file input listeners
-        const importButton = document.getElementById('importButton');
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.csv';
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-
-        if (importButton) {
-            console.log('Import button found');
-            importButton.addEventListener('click', () => {
-                console.log('Import button clicked');
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', (event) => {
-                if (event.target.files.length > 0) {
-                    console.log('File selected:', event.target.files[0].name);
-                    this.importFromCSV(event.target.files[0]);
-                }
-            });
-        } else {
-            console.error('Import button not found');
-        }
+        
     }
 
     // Add these methods if they're missing
@@ -6027,53 +5983,6 @@ class TriangleSystem {
         ctx.restore();
     }
 
-    importFromCSV(file) {
-        console.log('Starting import');
-        const reader = new FileReader();
-        
-        reader.onload = async (event) => {
-            try {
-                const text = event.target.result;
-                const rows = text.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '')));
-                
-                // Skip header row
-                const dataRows = rows.slice(1);
-                
-                // Process each row
-                dataRows.forEach(row => {
-                    if (row.length >= 3) {
-                        const [section, label, value] = row;
-                        console.log(`Importing - Section: ${section}, Label: ${label}, Value: ${value}`);
-                        
-                        // Find and update the corresponding input
-                        const labelElement = Array.from(document.querySelectorAll('label')).find(
-                            el => el.textContent.trim() === label.trim()
-                        );
-                        
-                        if (labelElement) {
-                            const input = labelElement.parentElement.querySelector('input');
-                            if (input && !input.readOnly) {
-                                input.value = value;
-                                // Trigger change event to ensure any listeners are notified
-                                input.dispatchEvent(new Event('change'));
-                            }
-                        }
-                    }
-                });
-                
-                console.log('Import complete');
-                // Optionally trigger a redraw or update
-                this.drawSystem();
-                
-            } catch (error) {
-                console.error('Error importing CSV:', error);
-                alert('Error importing CSV file. Please check the file format.');
-            }
-        };
-        
-        reader.readAsText(file);
-    }
-
     // Add this method to TriangleSystem class
     calculateAltitudes() {
         const { n1, n2, n3 } = this.system;
@@ -6996,6 +6905,191 @@ class PresetManager {
     }
 }
 
+class ImportManager {
+    constructor(triangleSystem) {
+        this.triangleSystem = triangleSystem;
+        this.initializeImportButton();
+    }
+
+    initializeImportButton() {
+        const importButton = document.getElementById('importButton');
+        const fileInput = document.getElementById('importFile');
+
+        if (!importButton || !fileInput) {
+            console.error('Import button or file input not found');
+            return;
+        }
+
+        // Handle import button click
+        importButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.importPresets(file);
+                fileInput.value = ''; // Reset file input
+            }
+        });
+    }
+
+    importPresets(file) {
+        console.log('Starting import process for file:', file.name);
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            try {
+                const text = e.target.result;
+                console.log('File contents loaded, first 100 chars:', text.substring(0, 100));
+
+                // Get existing presets first
+                const existingPresets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+                console.log('Existing presets:', Object.keys(existingPresets).length);
+
+                // Parse and process the CSV data
+                const newPresets = this.parseCSVToPresets(text);
+                const newPresetCount = Object.keys(newPresets).length;
+                console.log('New presets created:', newPresetCount);
+
+                if (newPresetCount === 0) {
+                    throw new Error('No valid presets found in file');
+                }
+
+                // Merge presets
+                const mergedPresets = { ...existingPresets, ...newPresets };
+                
+                // Save to localStorage
+                localStorage.setItem('userPresets', JSON.stringify(mergedPresets));
+                console.log('Saved merged presets:', Object.keys(mergedPresets).length);
+
+                // Notify user
+                alert(`Successfully imported ${newPresetCount} presets`);
+
+                // Only update the presets dropdown, not animations
+                if (this.triangleSystem.initializePresets) {
+                    this.triangleSystem.initializePresets();
+                }
+
+            } catch (error) {
+                console.error('Error during import:', error);
+                alert(`Import failed: ${error.message}`);
+            }
+        };
+
+        reader.onerror = (error) => {
+            console.error('Error reading file:', error);
+            alert('Error reading file. Please try again.');
+        };
+
+        reader.readAsText(file);
+    }
+
+    parseCSVToPresets(csvText) {
+        const presets = {};
+        
+        // Split into rows and filter out empty ones
+        const rows = csvText.split('\n')
+            .map(row => row.trim())
+            .filter(row => row.length > 0);
+
+        console.log('First few rows:', rows.slice(0, 3));
+
+        // Skip header row
+        for (let i = 1; i < rows.length; i++) {
+            try {
+                const row = rows[i];
+                console.log(`Processing row ${i}:`, row);
+
+                // Split by comma but preserve commas within quotes
+                const columns = this.parseCSVRow(row);
+                console.log('Parsed columns:', columns);
+
+                if (columns.length >= 4) {
+                    const name = columns[0];
+                    // Handle the coordinate pairs which might be in "x,y" format
+                    const n1Coords = this.parseCoordinates(columns[1]);
+                    const n2Coords = this.parseCoordinates(columns[2]);
+                    const n3Coords = this.parseCoordinates(columns[3]);
+
+                    console.log('Parsed coordinates:', {
+                        name,
+                        n1: n1Coords,
+                        n2: n2Coords,
+                        n3: n3Coords
+                    });
+
+                    if (n1Coords && n2Coords && n3Coords) {
+                        presets[name] = {
+                            n1: { x: n1Coords[0], y: n1Coords[1] },
+                            n2: { x: n2Coords[0], y: n2Coords[1] },
+                            n3: { x: n3Coords[0], y: n3Coords[1] },
+                            timestamp: Date.now()
+                        };
+                        console.log('Successfully added preset:', name);
+                    } else {
+                        console.warn(`Invalid coordinates for row ${i}`);
+                    }
+                } else {
+                    console.warn(`Not enough columns in row ${i}:`, columns);
+                }
+            } catch (rowError) {
+                console.error(`Error processing row ${i}:`, rowError);
+            }
+        }
+
+        return presets;
+    }
+
+    parseCSVRow(row) {
+        const result = [];
+        let inQuotes = false;
+        let currentValue = '';
+        
+        for (let i = 0; i < row.length; i++) {
+            const char = row[i];
+            
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(currentValue.trim());
+                currentValue = '';
+            } else {
+                currentValue += char;
+            }
+        }
+        
+        // Push the last value
+        result.push(currentValue.trim());
+        
+        // Clean up quotes
+        return result.map(val => val.replace(/^"|"$/g, '').trim());
+    }
+
+    parseCoordinates(coordString) {
+        try {
+            // Remove any quotes and extra whitespace
+            coordString = coordString.replace(/"/g, '').trim();
+            
+            // Split on comma and parse as floats
+            const [x, y] = coordString.split(',').map(v => {
+                const parsed = parseFloat(v.trim());
+                if (isNaN(parsed)) {
+                    throw new Error(`Invalid coordinate value: ${v}`);
+                }
+                return parsed;
+            });
+
+            return [x, y];
+        } catch (error) {
+            console.warn('Error parsing coordinates:', coordString, error);
+            return null;
+        }
+    }
+}
 
 // Outside the class - DOM initialization
 document.addEventListener('DOMContentLoaded', () => {
