@@ -2269,6 +2269,35 @@ class TriangleSystem {
             // Example line that might cause the error
             const firstArea = this.subsystemAreas[0];
 
+            // Update tangent point coordinates
+            if (this.tangentPoints || this.system.tangentPoints) {
+                const points = this.tangentPoints || this.system.tangentPoints;
+                ['1', '2', '3'].forEach(i => {
+                    const inputElement = document.getElementById(`tan${i}-coords`);
+                    
+                    if (inputElement && points[i-1]) {
+                        const point = points[i-1];
+                        // Remove parentheses, just use comma-separated values
+                        const coordString = `${this.formatValue(point.x)}, ${this.formatValue(point.y)}`;
+                        inputElement.value = coordString;
+                        console.log(`Set T${i} to:`, coordString);
+                    } else {
+                        if (inputElement) {
+                            inputElement.value = '-, -';
+                        }
+                        console.warn(`Issue with T${i}`);
+                    }
+                });
+            } else {
+                console.warn('No tangent points available');
+                ['1', '2', '3'].forEach(i => {
+                    const inputElement = document.getElementById(`tan${i}-coords`);
+                    if (inputElement) {
+                        inputElement.value = '-, -';
+                    }
+                });
+            }
+
         } catch (error) {
             console.error('Error updating dashboard:', error);
             console.error('\n Stack trace:', error);
@@ -2990,11 +3019,21 @@ class TriangleSystem {
             };
         };
 
-        return [
-            calculateTangencyPoint(n1, n3),  // T1: Tangent point on NC1 (Red)
-            calculateTangencyPoint(n1, n2),  // T2: Tangent point on NC2 (Blue)
-            calculateTangencyPoint(n2, n3)   // T3: Tangent point on NC3 (Green)
+        const tangent1 = calculateTangencyPoint(n1, n3);
+        const tangent2 = calculateTangencyPoint(n1, n2);
+        const tangent3 = calculateTangencyPoint(n2, n3);
+
+        const tangentPoints = [
+            tangent1,
+            tangent2,
+            tangent3
         ];
+
+        // Store in both places to ensure availability
+        this.tangentPoints = tangentPoints;
+        this.system.tangentPoints = tangentPoints;
+
+        return tangentPoints;
     }
 
     // Additional methods to calculate angles, perimeter, area, lengths, etc.
@@ -6341,6 +6380,35 @@ class TriangleSystem {
                 setElementValue(`#node-${node}-angle`, 
                     `${isNaN(angle) || angle < 0 ? '0' : angle.toFixed(2)}°`);
             });
+
+            // Update tangent point coordinates
+            if (this.tangentPoints || this.system.tangentPoints) {
+                const points = this.tangentPoints || this.system.tangentPoints;
+                ['1', '2', '3'].forEach(i => {
+                    const inputElement = document.getElementById(`tan${i}-coords`);
+                    
+                    if (inputElement && points[i-1]) {
+                        const point = points[i-1];
+                        // Remove parentheses, just use comma-separated values
+                        const coordString = `${this.formatValue(point.x)}, ${this.formatValue(point.y)}`;
+                        inputElement.value = coordString;
+                        console.log(`Set T${i} to:`, coordString);
+                    } else {
+                        if (inputElement) {
+                            inputElement.value = '-, -';
+                        }
+                        console.warn(`Issue with T${i}`);
+                    }
+                });
+            } else {
+                console.warn('No tangent points available');
+                ['1', '2', '3'].forEach(i => {
+                    const inputElement = document.getElementById(`tan${i}-coords`);
+                    if (inputElement) {
+                        inputElement.value = '-, -';
+                    }
+                });
+            }
 
         } catch (error) {
             console.error('Error updating information panel:', error);
