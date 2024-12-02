@@ -6572,48 +6572,51 @@ class PresetManager {
             item.replaceWith(item.cloneNode(true));
         });
 
-        // Get presets from storage
+        // Get presets from storage and convert to sorted array
         const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+        const sortedPresets = Object.entries(presets)
+            .sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
         
         // Clear and populate dropdown
         this.presetsList.innerHTML = '';
-        Object.entries(presets).forEach(([name, values]) => {
-            console.log('Adding preset to dropdown:', name, values);
+        
+        sortedPresets.forEach(([name, values]) => {
             const li = document.createElement('li');
             const a = document.createElement('a');
             a.className = 'dropdown-item';
             a.href = '#';
             
-            // Create main content without data-preset-name attribute
-            const textSpan = document.createElement('span');
-            const ncValues = `(${values.nc1}, ${values.nc2}, ${values.nc3})`;
-            textSpan.textContent = `${name} ${ncValues}`;
+            // Create container for name and buttons
+            const container = document.createElement('div');
+            container.className = 'preset-item-container';
             
-            // Create buttons container
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'preset-buttons';
+            // Add preset name
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'preset-name';
+            nameSpan.textContent = name;
+            container.appendChild(nameSpan);
             
             // Add edit button
             const editBtn = document.createElement('button');
-            editBtn.className = 'edit-button small-button';
+            editBtn.className = 'edit-btn';
+            editBtn.innerHTML = '✎';
             editBtn.onclick = (e) => {
                 e.stopPropagation();
                 this.editPreset(name, values);
             };
+            container.appendChild(editBtn);
             
             // Add delete button
             const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-button small-button';
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '×';
             deleteBtn.onclick = (e) => {
                 e.stopPropagation();
                 this.deletePreset(name);
             };
+            container.appendChild(deleteBtn);
             
-            // Assemble the dropdown item
-            buttonContainer.appendChild(editBtn);
-            buttonContainer.appendChild(deleteBtn);
-            a.appendChild(textSpan);
-            a.appendChild(buttonContainer);
+            a.appendChild(container);
             li.appendChild(a);
             this.presetsList.appendChild(li);
             
@@ -6793,6 +6796,54 @@ class PresetManager {
                 nc3: config.start.nc3
             };
             this.triangleSystem.drawSystem();
+        }
+    }
+
+    editPreset(name, values) {
+        const newName = prompt('Enter new name for preset:', name);
+        if (newName && newName !== name) {
+            try {
+                // Get current presets
+                const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+                
+                // Delete old name and add with new name
+                delete presets[name];
+                presets[newName] = values;
+                
+                // Save back to storage
+                localStorage.setItem('userPresets', JSON.stringify(presets));
+                
+                // Refresh dropdown
+                this.initializePresetsDropdown();
+                
+                console.log('Preset renamed:', name, 'to', newName);
+            } catch (error) {
+                console.error('Error editing preset:', error);
+                alert('Error editing preset. Please try again.');
+            }
+        }
+    }
+
+    deletePreset(name) {
+        if (confirm(`Are you sure you want to delete the preset "${name}"?`)) {
+            try {
+                // Get current presets
+                const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+                
+                // Delete the preset
+                delete presets[name];
+                
+                // Save back to storage
+                localStorage.setItem('userPresets', JSON.stringify(presets));
+                
+                // Refresh dropdown
+                this.initializePresetsDropdown();
+                
+                console.log('Preset deleted:', name);
+            } catch (error) {
+                console.error('Error deleting preset:', error);
+                alert('Error deleting preset. Please try again.');
+            }
         }
     }
 }
