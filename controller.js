@@ -3,7 +3,7 @@ class TriangleSystemController {
         console.log('Initializing TriangleSystemController');
         this.rulesModule = new RulesModule(canvas);
         this.environmentModule = new EnvironmentModule();
-        this.intelligenceModule = null;
+        this.intelligenceModule = new IntelligenceModule(this.rulesModule);
         this.advancedFeaturesEnabled = false;
     }
 
