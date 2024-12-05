@@ -4480,12 +4480,6 @@ class TriangleSystem {
     // Add or update the startAnimation method
     startAnimation() {
         try {
-            const loopCheckbox = document.getElementById('animation-loop');
-            if (loopCheckbox && loopCheckbox.checked) {
-                this.startLoopAnimation();
-                return;
-            }
-
             // Get start values from input fields
             const startState = {
                 nc1: parseFloat(document.getElementById('animation-nc1-start').value),
@@ -4500,15 +4494,20 @@ class TriangleSystem {
                 nc3: parseFloat(document.getElementById('animation-nc3-end').value)
             };
 
-            
+            // Check if animation is already running
+            if (this.isAnimating) {
+                this.isAnimating = false;
+                return;
+            }
 
             // First reset to start position
             this.updateTriangleFromEdges(startState.nc1, startState.nc2, startState.nc3);
             
             // Animation parameters
-            const duration = 4000; // Changed from 1000 to 4000 for 4 seconds
-            const startTime = performance.now();
+            const duration = 4000; // 4 seconds
+            let startTime = performance.now(); // Changed to let
             let forward = true;
+            this.isAnimating = true;
 
             // Animation function
             const animate = (currentTime) => {
@@ -4516,15 +4515,20 @@ class TriangleSystem {
 
                 const elapsed = currentTime - startTime;
                 let progress = (elapsed % duration) / duration;
+                const loopCheckbox = document.getElementById('animation-loop');
+                const isLooping = loopCheckbox?.checked;
 
-                if (forward && elapsed >= duration) {
-                    forward = false;
-                    startTime = currentTime;
-                    progress = 1;
-                } else if (!forward && elapsed >= duration) {
-                    forward = true;
-                    startTime = currentTime;
-                    progress = 0;
+                // Handle single play vs loop
+                if (!isLooping && elapsed >= duration) {
+                    // For single play, stop at end state
+                    this.updateTriangleFromEdges(endState.nc1, endState.nc2, endState.nc3);
+                    this.isAnimating = false;
+                    return;
+                } else if (isLooping && elapsed >= duration) {
+                    // For loop, reverse direction and reset start time
+                    forward = !forward; // Simplified direction toggle
+                    startTime = currentTime; // Reset start time for next loop
+                    progress = 0; // Reset progress
                 }
 
                 const effectiveProgress = forward ? progress : 1 - progress;
@@ -4536,18 +4540,21 @@ class TriangleSystem {
                     nc3: startState.nc3 + (endState.nc3 - startState.nc3) * effectiveProgress
                 };
 
-                // Update triangle
+                // Update triangle with current values
                 this.updateTriangleFromEdges(current.nc1, current.nc2, current.nc3);
-
-                // Continue loop
-                this.animationLoop = requestAnimationFrame(animate);
+                
+                // Continue animation
+                if (this.isAnimating) {
+                    requestAnimationFrame(animate);
+                }
             };
 
             // Start animation
-            this.animationLoop = requestAnimationFrame(animate);
+            requestAnimationFrame(animate);
+
         } catch (error) {
             console.error('Error in startAnimation:', error);
-            alert('Error starting animation. Please check the console for details.');
+            this.isAnimating = false;
         }
     }
 
@@ -6976,7 +6983,7 @@ class ImportManager {
 
             } catch (error) {
                 console.error('Error during import:', error);
-                alert(`Import failed: ${error.message}`);
+                alert('Error importing presets. Please check the console for details.');
             }
         };
 
