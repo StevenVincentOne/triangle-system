@@ -1,30 +1,3 @@
-/**
- * Helper class to handle complex numbers
- */
-class Complex {
-    constructor(re, im) {
-        this.re = re;
-        this.im = im;
-    }
-    
-    add(other) {
-        return new Complex(this.re + other.re, this.im + other.im);
-    }
-    
-    subtract(other) {
-        return new Complex(this.re - other.re, this.im - other.im);
-    }
-    
-    multiply(scalar) {
-        return new Complex(this.re * scalar, this.im * scalar);
-    }
-    
-    exp() {
-        const expRe = Math.exp(this.re);
-        return new Complex(expRe * Math.cos(this.im), expRe * Math.sin(this.im));
-    }
-}
-
 // Add this before the TriangleSystem class definition
 class TriangleDatabase {
     constructor() {
@@ -502,8 +475,7 @@ class TriangleSystem {
         const manualTitle = document.querySelector('.manual-title');
         if (manualTitle) {
             // Preserve the original text content
-            const titleText = manualTitle.textContent;
-            
+            const titleText = manualTitle.textContent;   
             
         }
 
@@ -551,34 +523,8 @@ class TriangleSystem {
         // Initialize subsystem metrics
         this.subsystemAreas = [0, 0, 0];  // Initialize array for three subsystems
         
-       
-        
         // Bind save preset handler
         document.getElementById('save-preset').addEventListener('click', () => this.saveCurrentConfig());
-
-        
-
-        // Add to your initialization code
-        const animateButtonEnd = document.getElementById('animate-button-end');
-        const saveAnimationButtonEnd = document.getElementById('save-animation-end');
-
-        if (animateButtonEnd) {
-            animateButtonEnd.addEventListener('click', () => {
-                const mainAnimateButton = document.getElementById('animate-button');
-                if (mainAnimateButton) {
-                    mainAnimateButton.click();
-                }
-            });
-        }
-
-        if (saveAnimationButtonEnd) {
-            saveAnimationButtonEnd.addEventListener('click', () => {
-                const mainSaveButton = document.getElementById('save-animation');
-                if (mainSaveButton) {
-                    mainSaveButton.click();
-                }
-            });
-        }
 
         // Initialize database
         this.db = new TriangleDatabase();
@@ -868,29 +814,6 @@ class TriangleSystem {
             });
             alert(`Error loading preset "${name}": ${error.message}`);
             return false;
-        }
-    }
-
-    deletePreset(name) {
-        if (!confirm(`Are you sure you want to delete the preset "${name}"?`)) return;
-
-        try {
-            // Get existing presets
-            const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
-            
-            // Delete preset
-            delete presets[name];
-            
-            // Save back to localStorage
-            localStorage.setItem('userPresets', JSON.stringify(presets));
-            
-            // Update dropdown
-            this.updatePresetsDropdown();
-            
-            console.log(`Deleted preset: ${name}`); // Debug log
-        } catch (error) {
-            console.error('Error deleting preset:', error);
-            alert('Error deleting preset. Please try again.');
         }
     }
 
@@ -1595,8 +1518,6 @@ class TriangleSystem {
                 setElementValue('#b-sph-ratio', (1 / sphAreaRatio).toFixed(4));
             }
 
-
-
             // Nodes Panel
             const angles = this.calculateAngles();
             setElementValue('#node-n1-angle', angles.n1);
@@ -1609,8 +1530,6 @@ class TriangleSystem {
             setElementValue('#channel-2', lengths.l2); // NC2 (Blue): N1 to N2
             setElementValue('#channel-3', lengths.l3); // NC3 (Green): N2 to N3
 
-            
-
             // Position Panel
             const centroid = {
                 x: (this.system.n1.x + this.system.n2.x + this.system.n3.x) / 3,
@@ -1621,7 +1540,6 @@ class TriangleSystem {
             setElementValue('#node1-coords', `${this.system.n1.x.toFixed(1)}, ${this.system.n1.y.toFixed(1)}`);
             setElementValue('#node2-coords', `${this.system.n2.x.toFixed(1)}, ${this.system.n2.y.toFixed(1)}`);
             setElementValue('#node3-coords', `${this.system.n3.x.toFixed(1)}, ${this.system.n3.y.toFixed(1)}`);
-            
             
             setElementValue('#centroid-coords', `${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}`);
             
@@ -1746,9 +1664,6 @@ class TriangleSystem {
                 const yStr = y.toFixed(1);  // Remove padStart
                 return `${xStr},${yStr}`;   // No spaces, just comma
             };
-        
-
-            
 
             // Get the elements first with null checks
             const sphAreaRatioElement = document.getElementById('sph-area-ratio');
@@ -1767,7 +1682,7 @@ class TriangleSystem {
                 }
             }  // Close the first if block
 
-            // Calculate MCH (Median Channel Entropy) - Update selectors to match HTML
+            // Calculate I-Channel Entropy) - Update selectors to match HTML
             const ic1 = parseFloat(document.getElementById('ic-1')?.value) || 0;
             const ic2 = parseFloat(document.getElementById('ic-2')?.value) || 0;
             const ic3 = parseFloat(document.getElementById('ic-3')?.value) || 0;
@@ -1926,8 +1841,6 @@ class TriangleSystem {
                 }
             }
 
-            
-
             // Add Euler Line measurements with proper element selection
             const eulerMetrics = this.calculateEulerLineMetrics();
             if (eulerMetrics) {
@@ -2057,8 +1970,6 @@ class TriangleSystem {
                     // Update H/ssh ratio (Inverse System entropy ratio)
                     setElementValue(`#subsystem-${i}-entropy-ratio`, (totalSystemEntropy/ssh).toFixed(4));
                 }
-                
-                
             }
 
             // Draw IC lines if enabled (after drawing nodes but before special centers)
@@ -2081,8 +1992,6 @@ class TriangleSystem {
                     length.toFixed(2)
                 );
             });
-
-            
 
             // Update Medians panel - Display Full Medians
             const fullMedians = this.calculateFullMedians();
@@ -2154,11 +2063,6 @@ class TriangleSystem {
             // Update the display value
             this.updateDisplayValue();
 
-            // Debug logging
-            console.log('Updating medians and altitudes...');
-            
-            
-
             // Update Altitudes panel values
             ['1', '2', '3'].forEach(i => {
                 const altitudeCoordsId = `altitude${i}-coords`;
@@ -2187,11 +2091,6 @@ class TriangleSystem {
                 }
             }
 
-            // Locate around line 1886
-            console.log('Before accessing subsystemAreas:', this.subsystemAreas);
-            console.log('Before accessing altitudePoints:', this.altitudePoints);
-            // Add more logs as needed
-
             // Example line that might cause the error
             const firstArea = this.subsystemAreas[0];
 
@@ -2214,6 +2113,7 @@ class TriangleSystem {
                         console.warn(`Issue with T${i}`);
                     }
                 });
+                
             } else {
                 console.warn('No tangent points available');
                 ['1', '2', '3'].forEach(i => {
@@ -2226,7 +2126,6 @@ class TriangleSystem {
 
         } catch (error) {
             console.error('Error updating dashboard:', error);
-            console.error('\n Stack trace:', error);
         }
     }
     
@@ -2318,8 +2217,6 @@ class TriangleSystem {
              p3.x * (p1.y - p2.y)) / 2
         );  // Fixed parentheses here
     }
-
-    
 
     formatValue(value) {
         if (typeof value === 'number') {
@@ -2471,8 +2368,6 @@ class TriangleSystem {
                     this.ctx.restore();
                 }
             }
-
-            
 
             // Separate drawing of nine-point center and circle
             if (this.showNinePointCenter) {
@@ -3040,8 +2935,6 @@ class TriangleSystem {
             this.calculateDistance(n2, midpoints.m2) * MEDIAN_CHANNEL_RATIO,  // I to N2
             this.calculateDistance(n3, midpoints.m3) * MEDIAN_CHANNEL_RATIO   // I to N3
         ];
-
-        
     }
 
     calculateMidpoints() {
@@ -3118,8 +3011,6 @@ class TriangleSystem {
 
         ctx.save();
         ctx.scale(1, -1);
-        
-        
         
         ctx.restore();
     }
@@ -3474,8 +3365,6 @@ class TriangleSystem {
                 li.appendChild(a);
                 animationsList.appendChild(li);
             });
-
-            console.log('Initialized animations dropdown with', sortedNames.length, 'items');
         } catch (error) {
             console.error('Error initializing animations dropdown:', error);
         }
@@ -3529,7 +3418,6 @@ class TriangleSystem {
 
         if (animateButton) {
             animateButton.addEventListener('click', () => {
-                console.log('Animate button clicked');
                 this.startAnimation();
             });
         }
@@ -3556,7 +3444,6 @@ class TriangleSystem {
         
         // Add each saved preset
         Object.entries(this.userPresets).forEach(([name, config]) => {
-            console.log('Adding preset:', name);
             const item = document.createElement('li');
             const link = document.createElement('a');
             link.className = 'dropdown-item';
@@ -3569,12 +3456,9 @@ class TriangleSystem {
             item.appendChild(link);
             userPresetsList.appendChild(item);
         });
-
-        console.log('User presets initialized');
     }
 
     loadUserPreset(name) {
-        console.log('Loading preset:', name);
         const config = this.userPresets[name];
         if (config) {
             // Load the configuration
@@ -3588,12 +3472,10 @@ class TriangleSystem {
             // Update display
             this.drawSystem();
             this.updateDashboard();
-            console.log('Preset loaded:', name);
         }
     }
 
     saveCurrentConfig() {
-        console.log('Starting save configuration process');
         
         // Get current NC values
         const nc1 = document.getElementById('manual-nc1')?.value;
@@ -3631,18 +3513,16 @@ class TriangleSystem {
                 // Save to localStorage
                 localStorage.setItem('userPresets', JSON.stringify(existingPresets));
                 
-                console.log('Preset saved successfully:', name, config);
-                
                 // Update dropdown immediately
                 this.updatePresetsDropdown();
                 
                 alert('Preset saved successfully!');
+
             } catch (error) {
                 console.error('Error saving preset:', error);
                 alert('Error saving preset. Please try again.');
             }
-        } else {
-            console.log('Save cancelled by user');
+        
         }
     }
 
@@ -3672,19 +3552,11 @@ class TriangleSystem {
                 nc3: parseFloat(document.getElementById('animation-nc3-end').value)
             };
 
-            
-
             // Create animation data
             const animationData = {
                 start: startState,
                 end: endState
             };
-
-            console.log('Saving animation with values:', {
-                name,
-                start: startState,
-                end: endState
-            });
 
             // Save to localStorage
             const animations = JSON.parse(localStorage.getItem('userAnimations') || '{}');
@@ -3701,7 +3573,6 @@ class TriangleSystem {
 
     // Add new method to initialize animations dropdown
     initializeUserAnimations() {
-        console.log('Initializing animations dropdown');
         const animationsList = document.getElementById('animationsList');
         const animationsDropdown = document.getElementById('animationsDropdown');
         
@@ -3746,7 +3617,6 @@ class TriangleSystem {
     updateAnimationFields() {
         // Get current lengths
         const currentLengths = this.calculateLengths();
-        console.log('Updating animation fields with lengths:', currentLengths);
 
         // Update Animation Start fields
         const startNc1Input = document.getElementById('animation-nc1-start');
@@ -3757,7 +3627,7 @@ class TriangleSystem {
             startNc1Input.value = currentLengths.l1.toFixed(2);
             startNc2Input.value = currentLengths.l2.toFixed(2);
             startNc3Input.value = currentLengths.l3.toFixed(2);
-            console.log('Updated start fields');
+            
         } else {
             console.error('Some animation start input fields not found');
         }
@@ -3814,12 +3684,6 @@ class TriangleSystem {
                 });
             }
         };
-
-        // Process Information Panel
-        const infoPanel = document.getElementById('information-panel');
-        if (infoPanel) {
-            processPanel(infoPanel, 'Information Panel');
-        }
 
         // Process Dashboard sections
         const dashboard = document.getElementById('dashboard');
@@ -4144,61 +4008,6 @@ class TriangleSystem {
         const area = (n2.x - n1.x) * (n3.y - n1.y) - (n3.x - n1.x) * (n2.y - n1.y);
         return Math.abs(area) < epsilon;
     }
-
-    /**
-     * Calculates the Orthocircle of the triangle.
-     * 
-     * Definition:
-     * The Orthocircle is defined as a circle centered at the orthocenter of the triangle,
-     * with a radius equal to the distance from the orthocenter to one of the triangle's vertices.
-     * 
-     * @returns {Object|null} An object containing the center (orthocenter) and radius of the Orthocircle,
-     *                        or null if calculation is not possible.
-     */
-    calculateOrthocircle() {
-        const { n1, n2, n3 } = this.system;
-        
-        console.log("Calculating orthocircle for points:", { n1, n2, n3 });
-
-        try {
-            // Check if the triangle is degenerate
-            if (this.areCollinear(n1, n2, n3)) {
-                console.warn("Cannot calculate orthocircle: points are collinear");
-                return null;
-            }
-
-            // Calculate the orthocenter
-            const orthocenter = this.calculateOrthocenter();
-            if (!orthocenter) {
-                console.warn("Cannot calculate orthocircle: orthocenter calculation failed");
-                return null;
-            }
-
-            // Calculate distances from orthocenter to each vertex
-            const d1 = this.calculateDistance(orthocenter, n1);
-            const d2 = this.calculateDistance(orthocenter, n2);
-            const d3 = this.calculateDistance(orthocenter, n3);
-            
-            // The radius should be the same to all vertices
-            // Use average in case of small numerical differences
-            const radius = (d1 + d2 + d3) / 3;
-            
-            console.log("Orthocircle calculated:", { 
-                center: orthocenter, 
-                radius,
-                distances: { d1, d2, d3 }
-            });
-            
-            return {
-                center: orthocenter,
-                radius: radius
-            };
-        } catch (error) {
-            console.error("Error calculating orthocircle:", error);
-            return null;
-        }
-    }
-    
 
     calculateCentroid() {
         return {
@@ -4662,8 +4471,6 @@ class TriangleSystem {
                 nc3: parseFloat(document.getElementById('animation-nc3-end').value)
             };
 
-          
-
             // Log the values being saved
             console.log('Saving animation with values:', {
                 name,
@@ -4711,8 +4518,7 @@ class TriangleSystem {
         ctx.lineTo(subtriangleCentroids.ss3.x, subtriangleCentroids.ss3.y);
         ctx.closePath();
         ctx.stroke();
-        
-        
+    
     }
 
     /**
@@ -5538,8 +5344,6 @@ class TriangleSystem {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // ... existing code ...
-
         // Update Incenter label from ICP to IN
         if (this.system.incenter) {
             ctx.fillText('IN', 
@@ -5547,8 +5351,6 @@ class TriangleSystem {
                 this.system.incenter.y + 15
             );
         }
-
-        // ... rest of existing code ...
     }
 
     // Add new method to update rNC(M,T) fields
@@ -5772,8 +5574,6 @@ class TriangleSystem {
         
         return angle;
     }
-
-    
 
     // Update the label drawing methods to use the new shadow effect
     drawNodeLabel(ctx, node, label) {
@@ -6235,109 +6035,8 @@ class TriangleSystem {
 
         return this.altitudePoints;
     }
-
     
-
-    /**
-     * Updates the information panel with the latest calculations.
-     */
-    updateInformationPanel() {
-        try {
-            // Use the stored midpoints
-            
-            const perimeter = this.calculatePerimeter();
-
-            if (!midpoints || !tangentPoints) {
-                console.warn('Midpoints or Tangent Points are undefined');
-                return;
-            }
-
-            ['n1', 'n2', 'n3'].forEach((node, index) => {
-                // Debug existing values
-                console.log('Current node:', node, 'index:', index);
-                console.log('Midpoints:', midpoints);
-                console.log('Tangency Points:', tangentPoints);
-
-                const midpoint = midpoints[`m${index + 1}`];
-                const tangentPoint = tangentPoints[index];
-                const dMT = this.calculateDistance(midpoint, tangentPoint);
-                
-                // Calculate ratio to perimeter (existing)
-                const rMTHP = perimeter !== 0 ? dMT / perimeter : 0;
-                
-                // Calculate ratio to NC length (new)
-                const nodePoints = [
-                    [this.system.n1, this.system.n3],  // NC1: N1-N3
-                    [this.system.n1, this.system.n2],  // NC2: N1-N2
-                    [this.system.n2, this.system.n3]   // NC3: N2-N3
-                ];
-                
-                const ncLength = this.calculateDistance(...nodePoints[index]);
-                const rMTNC = ncLength !== 0 ? dMT / ncLength : 0;
-                
-                console.log(`Channel ${index + 1} calculations:`, {
-                    dMT,
-                    ncLength,
-                    rMTHP,
-                    rMTNC,
-                    elementIds: {
-                        dmt: `#d-m-t-${node}`,
-                        rmt: `#r-m-t-${node}`,
-                        rmtnc: `#r-m-t-nc${index + 1}`
-                    }
-                });
-                
-                // Set all values
-                setElementValue(`#d-m-t-${node}`, dMT.toFixed(2));
-                setElementValue(`#r-m-t-${node}`, rMTHP.toFixed(4));
-                setElementValue(`#r-m-t-nc${index + 1}`, rMTNC.toFixed(4));
-            });
-
-            // Update coordinates
-            ['n1', 'n2', 'n3'].forEach(node => {
-                setElementValue(`#node-${node}-coords`, 
-                    `(${this.formatValue(this.system[node].x)}, ${this.formatValue(this.system[node].y)})`);
-                
-                const angles = this.calculateAngles();
-                const angle = angles[node];
-                setElementValue(`#node-${node}-angle`, 
-                    `${isNaN(angle) || angle < 0 ? '0' : angle.toFixed(2)}°`);
-            });
-
-            // Update tangent point coordinates
-            if (this.tangentPoints || this.system.tangentPoints) {
-                const points = this.tangentPoints || this.system.tangentPoints;
-                ['1', '2', '3'].forEach(i => {
-                    const inputElement = document.getElementById(`tan${i}-coords`);
-                    
-                    if (inputElement && points[i-1]) {
-                        const point = points[i-1];
-                        // Remove parentheses, just use comma-separated values
-                        const coordString = `${this.formatValue(point.x)}, ${this.formatValue(point.y)}`;
-                        inputElement.value = coordString;
-                        console.log(`Set T${i} to:`, coordString);
-                    } else {
-                        if (inputElement) {
-                            inputElement.value = '-, -';
-                        }
-                        console.warn(`Issue with T${i}`);
-                    }
-                });
-            } else {
-                console.warn('No tangent points available');
-                ['1', '2', '3'].forEach(i => {
-                    const inputElement = document.getElementById(`tan${i}-coords`);
-                    if (inputElement) {
-                        inputElement.value = '-, -';
-                    }
-                });
-            }
-
-        } catch (error) {
-            console.error('Error updating information panel:', error);
-            console.error('\n Stack trace:', error.stack);
-        }
-    }
+    
 
     
 
@@ -6487,12 +6186,7 @@ class TriangleSystem {
             console.error('\n Stack trace:', error.stack);
         }
     }
-
     
-
-    // ... [Other existing methods] ...
-
-    // Add this method to your TriangleSystem class
     // Update this method in your TriangleSystem class
     updateFromManualInputs() {
         try {
@@ -6526,6 +6220,28 @@ class TriangleSystem {
             console.log('System updated successfully');
         } catch (error) {
             console.error('Error updating from manual inputs:', error);
+        }
+    }
+
+    deletePreset(name) {
+        if (!confirm(`Are you sure you want to delete the preset "${name}"?`)) return;
+
+        try {
+            // Get existing presets
+            const presets = JSON.parse(localStorage.getItem('userPresets') || '{}');
+            
+            // Delete preset
+            delete presets[name];
+            
+            // Save back to localStorage
+            localStorage.setItem('userPresets', JSON.stringify(presets));
+            
+            // Update dropdown
+            this.updatePresetsDropdown();
+            
+        } catch (error) {
+            console.error('Error deleting preset:', error);
+            alert('Error deleting preset. Please try again.');
         }
     }
 }
