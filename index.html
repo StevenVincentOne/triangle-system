@@ -1762,11 +1762,18 @@
 </div>
 
 <script src="script.js"></script>
+<script src="rules-module.js"></script>
+<script src="environment-module.js"></script>
 <script src="controller.js"></script>
 <script>
-    // Initialize the controller instead of TriangleSystem directly
-    const canvas = document.getElementById('triangleCanvas');
-    const systemController = new TriangleSystemController(canvas);
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('canvas');
+        if (canvas) {
+            const systemController = new TriangleSystemController(canvas);
+        } else {
+            console.error("Canvas element not found");
+        }
+    });
 </script>
 </body>
 </html>
