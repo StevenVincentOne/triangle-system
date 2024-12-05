@@ -842,7 +842,7 @@ class TriangleSystem {
         featureButtons.forEach(button => {
             const element = document.getElementById(button.id);
             if (element) {
-                console.log(`Initializing ${button.id} button`);  // Add debug log
+                
                 element.addEventListener('click', () => {
                     console.log(`Toggle ${button.id}: ${!this[button.property]}`); // Add this line
                     this[button.property] = !this[button.property];
@@ -948,9 +948,7 @@ class TriangleSystem {
                 }
             });
             
-            console.log('Dropdown initialized with items:', presetDropdown.innerHTML);
-        } else {
-            console.error('Preset dropdown elements not found');
+            
         }
 
         // Add Export button listener with correct ID
