@@ -6854,8 +6854,32 @@ class RulesModule {
     }
 
     updateState(newState) {
-        console.log('Updating system state through RulesModule');
-        this.triangleSystem.updateTriangleState(newState);
+        console.log('Updating system state through RulesModule', newState);
+        if (newState.angles) {
+            // Convert angles to NC values
+            const nc1 = this.angleToNC(newState.angles[0]);
+            const nc2 = this.angleToNC(newState.angles[1]);
+            const nc3 = this.angleToNC(newState.angles[2]);
+            
+            // Update triangle through NC values
+            this.triangleSystem.updateNodeChannels(nc1, nc2, nc3);
+        }
+        
+        if (newState.systemStatus) {
+            console.log('System Status:', newState.systemStatus);
+            // Handle system status changes if needed
+        }
+    }
+
+    // Helper method to convert angle to NC value
+    angleToNC(angle) {
+        // Scale angle to NC range (0-600)
+        return Math.round((angle / 180) * 600);
+    }
+
+    calculateArea() {
+        // Get the current triangle area
+        return this.triangleSystem.getArea();
     }
 }
 

@@ -1023,3 +1023,21 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     color: rgba(255, 255, 255, 0.5);
 }
 
+.data-info-panel {
+    background-color: #1b4d3e !important; /* Dark forest green */
+}
+
+.data-info-panel .panel-header {
+    color: #ffffff; /* White text for better contrast */
+}
+
+.data-info-panel .label-value-pair label {
+    color: #ffffff; /* White text for labels */
+}
+
+.data-info-panel input {
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter input backgrounds */
+    color: #ffffff; /* White text for values */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+

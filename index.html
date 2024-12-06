@@ -762,6 +762,54 @@
             height: calc(1.4em + 0.4rem) !important;
         }
 
+        .data-info-panel {
+            background-color: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .data-info-panel .panel-header {
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .data-info-panel .panel-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .data-info-panel .value-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .data-info-panel .panel-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .data-info-panel .label-value-pair {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .data-info-panel .label-value-pair label {
+            margin-bottom: 0.25rem;
+        }
+
+        .data-info-panel .label-value-pair input {
+            width: 100%;
+            text-align: center;
+        }
+
     </style>
 
     
@@ -1210,7 +1258,7 @@
                             <div class="label-value-pair">
                                 <label for="b-mch-ratio">C/HIC</label>
                                 <input id="b-mch-ratio" type="text" readonly>
-                            </div>
+                            <div>
                         </div>
                     </div>
 
@@ -1246,6 +1294,29 @@
                 </div>
             </div>
         </div>
+        
+        <!-- After the System Entropy and Capacity Panel -->
+    <div class="dashboard-panel data-info-panel">
+    <h3 class="panel-header">System Data and Information</h3>
+    <div class="panel-content">
+        <div class="value-section">
+            <div class="panel-row">
+                <div class="label-value-pair">
+                    <label>Data (D)</label>
+                    <input id="system-d" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>Bits (B)</label>
+                    <input id="system-b" type="text" readonly>
+                </div>
+                <div class="label-value-pair">
+                    <label>B/D</label>
+                    <input id="system-bd-ratio" type="text" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Subsystems Panel -->
         <div class="dashboard-panel">
