@@ -6,11 +6,11 @@ class IntelligenceModule {
         this.words = [];          
         this.letterBuffer = [];   
         
-        // Initialize data storage
+        // Initialize data storage with system capacity from existing calculation
         this.dataStorage = {
             letters: [],           
             processedLetters: 0,   
-            maxCapacity: 38971,    
+            maxCapacity: parseFloat(document.querySelector('#system-b-copy')?.value) || 38971, // Get current system capacity
             bufferSize: 1000,      
         };
 
@@ -78,9 +78,17 @@ class IntelligenceModule {
     processLetter(letter) {
         console.log('Processing letter:', letter);
 
-        // Check capacity before adding
-        if (this.dataStorage.letters.length >= this.dataStorage.maxCapacity) {
-            console.log('System at capacity - cannot accept more letters');
+        // Update maxCapacity before checking (in case triangle has been modified)
+        this.dataStorage.maxCapacity = parseFloat(document.querySelector('#system-b-copy')?.value) || this.dataStorage.maxCapacity;
+
+        // Check capacity before adding new letter
+        if (this.entropyState.totalLetters >= this.dataStorage.maxCapacity) {
+            console.log('System at maximum capacity:', {
+                capacity: this.dataStorage.maxCapacity,
+                currentData: this.entropyState.totalLetters
+            });
+            
+            // Signal environment to stop data flow
             return {
                 success: false,
                 reason: 'capacity_reached',
@@ -210,10 +218,14 @@ class IntelligenceModule {
     }
 
     getStorageStatus() {
+        // Get current capacity value
+        const currentCapacity = parseFloat(document.querySelector('#system-b-copy')?.value) || this.dataStorage.maxCapacity;
+        
         return {
             totalLetters: this.entropyState.totalLetters,
             processedLetters: this.dataStorage.processedLetters,
-            capacityUsed: (this.dataStorage.letters.length / this.dataStorage.maxCapacity) * 100,
+            capacityUsed: (this.entropyState.totalLetters / currentCapacity) * 100,
+            capacityRemaining: currentCapacity - this.entropyState.totalLetters,
             unprocessedCount: this.dataStorage.letters.filter(l => !l.processed).length,
             totalWords: this.entropyState.totalWords,
             currentRatio: this.entropyState.currentRatio,

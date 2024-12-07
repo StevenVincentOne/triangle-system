@@ -1,7 +1,6 @@
 class EnvironmentModule {
     constructor(intelligenceModule) {
         this.intelligenceModule = intelligenceModule;
-        this.dataSources = [];
         this.isGenerating = false;
         this.generationInterval = null;
         this.flowRate = 100;
@@ -74,9 +73,22 @@ class EnvironmentModule {
                 const letter = this.randomGenerator.generateLetter();
                 console.log('Generated letter:', letter);
                 
-                // Send letter to IntelligenceModule
+                // Send letter to IntelligenceModule and check response
                 if (this.intelligenceModule) {
-                    this.intelligenceModule.processLetter(letter);
+                    const result = this.intelligenceModule.processLetter(letter);
+                    
+                    // Stop generation if capacity reached
+                    if (!result.success && result.reason === 'capacity_reached') {
+                        console.log('System capacity reached - stopping letter generation');
+                        this.stopLetterGeneration();
+                        
+                        // Update UI to show capacity reached
+                        const toggleBtn = document.getElementById('letterFlowToggle');
+                        if (toggleBtn) {
+                            toggleBtn.textContent = 'Capacity Full';
+                            toggleBtn.disabled = true;
+                        }
+                    }
                 }
             }, interval);
         }
@@ -87,6 +99,13 @@ class EnvironmentModule {
             console.log('Stopping letter generation');
             clearInterval(this.generationInterval);
             this.isGenerating = false;
+            
+            // Update button state
+            const toggleBtn = document.getElementById('letterFlowToggle');
+            if (toggleBtn && !toggleBtn.disabled) {
+                toggleBtn.textContent = 'Start Flow';
+                toggleBtn.classList.remove('active');
+            }
         }
     }
 
