@@ -1041,3 +1041,39 @@ input[id*="euler"] {  /* Added Euler Line inputs */
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.flow-control-btn {
+    background-color: #2a5a4a;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+.flow-control-btn:hover {
+    background-color: #3a6a5a;
+}
+
+.flow-control-btn.active {
+    background-color: #4a7a6a;
+}
+
+.flow-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.flow-control input[type="range"] {
+    width: 150px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.flow-control input[type="number"] {
+    width: 70px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2px 5px;
+}
+

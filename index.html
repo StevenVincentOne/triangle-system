@@ -998,6 +998,10 @@
                             <button id="animate-button-end" class="btn btn-info btn-sm">Animate</button>
                             <input type="checkbox" id="animation-loop" name="animation-loop">
                                 <label for="animation-loop">Loop</label>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="intelligenceToggle">
+                                <label for="intelligenceToggle">Intelligence</label>
+                            </div>
                             <button id="save-animation-end" class="btn btn-info btn-sm">Save</button>
                         </div>
                     </div>
@@ -1313,6 +1317,18 @@
                 <div class="label-value-pair">
                     <label>B/D</label>
                     <input id="system-bd-ratio" type="text" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="value-section">
+            <div class="panel-row">
+                <div class="control-group">
+                    <button id="letterFlowToggle" class="flow-control-btn">Start Flow</button>
+                    <div class="flow-control">
+                        <label>Flow Rate (letters/sec)</label>
+                        <input type="range" id="flowRateSlider" min="0" max="1000" value="100">
+                        <input type="number" id="flowRateValue" min="0" max="1000" value="100">
+                    </div>
                 </div>
             </div>
         </div>

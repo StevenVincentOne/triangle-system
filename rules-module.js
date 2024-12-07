@@ -6881,6 +6881,18 @@ class RulesModule {
         // Get the current triangle area
         return this.triangleSystem.getArea();
     }
+
+    validateUpdates(updates) {
+        if (updates.angles) {
+            // Check triangle inequality
+            const sum = updates.angles.reduce((a, b) => a + b, 0);
+            if (Math.abs(sum - 180) > 0.001) return false;
+            
+            // Check angle bounds
+            if (updates.angles.some(angle => angle <= 0 || angle >= 180)) return false;
+        }
+        return true;
+    }
 }
 
 

@@ -1,13 +1,13 @@
 class EnvironmentModule {
-    constructor() {
+    constructor(intelligenceModule) {
+        this.intelligenceModule = intelligenceModule;
         this.dataSources = [];
         this.isGenerating = false;
         this.generationInterval = null;
+        this.flowRate = 100;
         
-        // Define our character set
         this.alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ .';
         
-        // Initialize random generator
         this.randomGenerator = {
             generateLetter: () => {
                 const index = Math.floor(Math.random() * this.alphabet.length);
@@ -15,18 +15,69 @@ class EnvironmentModule {
             }
         };
 
-        console.log('EnvironmentModule initialized with random letter generator');
+        this.initializeControls();
+        console.log('EnvironmentModule initialized with flow controls');
     }
 
-    startLetterGeneration(callback, interval = 1000) {
-        if (!this.isGenerating) {
-            console.log('Starting letter generation...');
+    initializeControls() {
+        const toggleBtn = document.getElementById('letterFlowToggle');
+        const rateSlider = document.getElementById('flowRateSlider');
+        const rateValue = document.getElementById('flowRateValue');
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                if (this.isGenerating) {
+                    this.stopLetterGeneration();
+                    toggleBtn.textContent = 'Start Flow';
+                    toggleBtn.classList.remove('active');
+                } else {
+                    this.startLetterGeneration();
+                    toggleBtn.textContent = 'Stop Flow';
+                    toggleBtn.classList.add('active');
+                }
+            });
+        }
+
+        if (rateSlider && rateValue) {
+            // Sync slider and number input
+            rateSlider.addEventListener('input', (e) => {
+                const newRate = parseInt(e.target.value);
+                rateValue.value = newRate;
+                this.updateFlowRate(newRate);
+            });
+
+            rateValue.addEventListener('change', (e) => {
+                const newRate = Math.min(1000, Math.max(0, parseInt(e.target.value)));
+                rateValue.value = newRate;
+                rateSlider.value = newRate;
+                this.updateFlowRate(newRate);
+            });
+        }
+    }
+
+    updateFlowRate(newRate) {
+        this.flowRate = newRate;
+        if (this.isGenerating) {
+            // Restart generation with new rate
+            this.stopLetterGeneration();
+            this.startLetterGeneration();
+        }
+    }
+
+    startLetterGeneration() {
+        if (!this.isGenerating && this.flowRate > 0) {
+            console.log(`Starting letter generation at ${this.flowRate} letters/sec`);
             this.isGenerating = true;
             
+            const interval = 1000 / this.flowRate;
             this.generationInterval = setInterval(() => {
                 const letter = this.randomGenerator.generateLetter();
                 console.log('Generated letter:', letter);
-                if (callback) callback(letter);
+                
+                // Send letter to IntelligenceModule
+                if (this.intelligenceModule) {
+                    this.intelligenceModule.processLetter(letter);
+                }
             }, interval);
         }
     }
@@ -36,14 +87,6 @@ class EnvironmentModule {
             console.log('Stopping letter generation');
             clearInterval(this.generationInterval);
             this.isGenerating = false;
-        }
-    }
-
-    toggleLetterGeneration(callback, interval) {
-        if (this.isGenerating) {
-            this.stopLetterGeneration();
-        } else {
-            this.startLetterGeneration(callback, interval);
         }
     }
 
