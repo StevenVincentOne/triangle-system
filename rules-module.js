@@ -231,7 +231,7 @@ class TriangleDatabase {
 
                 // System Entropy and Capacity
                 'H': document.getElementById('system-h')?.value || '',
-                'C': document.getElementById('system-b-copy')?.value || '',
+                'C': document.getElementById('system-c')?.value || '',
                 'HP': document.getElementById('system-sph')?.value || '',
                 'HIC': document.getElementById('system-mch')?.value || '',
                 'HP/HIC': document.getElementById('hp-hic-ratio')?.value || '',
@@ -1506,7 +1506,7 @@ class TriangleSystem {
 
             // Update both dashboard and Information Panel
             
-            setElementValue('#system-b-copy', area.toFixed(2));  // Keep original ID
+            setElementValue('#system-c', area.toFixed(2));  // Keep original ID
             setElementValue('#system-sph', perimeter);  // Perimeter is now shown as 'SPH'
 
             // Calculate and set SPH/A ratio
@@ -1700,7 +1700,7 @@ class TriangleSystem {
             setElementValue('#system-h', totalSystemEntropy.toFixed(2));
 
             // Get system capacity (C) value - Update selector to match HTML
-            const systemCapacity = parseFloat(document.querySelector('#system-b-copy')?.value) || 0;
+            const systemCapacity = parseFloat(document.querySelector('#system-c')?.value) || 0;
 
             
 
@@ -1751,7 +1751,7 @@ class TriangleSystem {
             const capacity = this.calculateArea();
             
             // Update capacity value in System Entropy and Capacity panel
-            setElementValue('#system-b-copy', capacity.toFixed(2));  // Keep original ID
+            setElementValue('#system-c', capacity.toFixed(2));  // Keep original ID
 
             // Calculate and update ratios using the new capacity value
             if (capacity !== 0) {

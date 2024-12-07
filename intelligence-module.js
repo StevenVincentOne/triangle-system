@@ -6,11 +6,11 @@ class IntelligenceModule {
         this.words = [];          
         this.letterBuffer = [];   
         
-        // Initialize data storage with system capacity from existing calculation
+        // Initialize data storage with system capacity
         this.dataStorage = {
             letters: [],           
             processedLetters: 0,   
-            maxCapacity: parseFloat(document.querySelector('#system-b-copy')?.value) || 38971, // Get current system capacity
+            maxCapacity: parseFloat(document.querySelector('#system-c')?.value) || 38971,
             bufferSize: 1000,      
         };
 
@@ -78,8 +78,8 @@ class IntelligenceModule {
     processLetter(letter) {
         console.log('Processing letter:', letter);
 
-        // Update maxCapacity before checking (in case triangle has been modified)
-        this.dataStorage.maxCapacity = parseFloat(document.querySelector('#system-b-copy')?.value) || this.dataStorage.maxCapacity;
+        // Update maxCapacity before checking
+        this.dataStorage.maxCapacity = parseFloat(document.querySelector('#system-c')?.value) || this.dataStorage.maxCapacity;
 
         // Check capacity before adding new letter
         if (this.entropyState.totalLetters >= this.dataStorage.maxCapacity) {
@@ -218,8 +218,7 @@ class IntelligenceModule {
     }
 
     getStorageStatus() {
-        // Get current capacity value
-        const currentCapacity = parseFloat(document.querySelector('#system-b-copy')?.value) || this.dataStorage.maxCapacity;
+        const currentCapacity = parseFloat(document.querySelector('#system-c')?.value) || this.dataStorage.maxCapacity;
         
         return {
             totalLetters: this.entropyState.totalLetters,
