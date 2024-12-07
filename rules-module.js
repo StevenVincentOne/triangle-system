@@ -1702,26 +1702,7 @@ class TriangleSystem {
             // Get system capacity (C) value - Update selector to match HTML
             const systemCapacity = parseFloat(document.querySelector('#system-b-copy')?.value) || 0;
 
-            // Calculate ratios only if elements exist
-            if (systemCapacity !== 0) {
-                // H/C and C/H ratios
-                if (totalSystemEntropy !== 0) {
-                    setElementValue('#sh-b-ratio', (totalSystemEntropy / systemCapacity).toFixed(4));
-                    setElementValue('#b-sh-ratio', (systemCapacity / totalSystemEntropy).toFixed(4));
-                }
-                
-                // HP/C and C/HP ratios
-                if (hp !== 0 && systemCapacity !== 0) {
-                    setElementValue('#sph-area-ratio', (hp / systemCapacity).toFixed(4));
-                    setElementValue('#b-sph-ratio', (systemCapacity / hp).toFixed(4));
-                }
-                
-                // HMC/C and C/HMC ratios
-                if (hic !== 0) {
-                    setElementValue('#mch-b-ratio', (hic / systemCapacity).toFixed(4));
-                    setElementValue('#b-mch-ratio', (systemCapacity / hic).toFixed(4));
-                }
-            }
+            
 
             // Calculate and update ssh/H ratios for each subsystem
             for (let i = 1; i <= 3; i++) {
