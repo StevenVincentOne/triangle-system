@@ -88,6 +88,7 @@ class IntelligenceModule {
             };
         }
 
+        // Add letter to storage
         this.dataStorage.letters.push({
             value: letter,
             timestamp: Date.now(),
@@ -98,23 +99,10 @@ class IntelligenceModule {
         this.entropyState.totalLetters++;
         this.letterBuffer.push(letter);
         
-        // Process for words
-        if (this.letterBuffer.length >= 3) {
-            const lastThree = this.letterBuffer.slice(-3);
-            if (this.isRepeatingSequence(lastThree)) {
-                const word = lastThree.join('');
-                this.words.push(word);
-                this.entropyState.totalWords++;
-                console.log('Word formed:', word);
-                this.letterBuffer = [];
-            }
-            
-            if (this.letterBuffer.length > 10) {
-                this.letterBuffer.shift();
-            }
-        }
+        // Process buffer for words
+        this.processLetterBuffer();
         
-        // Explicitly update ratio and dashboard
+        // Update system state
         this.entropyState.currentRatio = this.entropyState.totalWords / this.entropyState.totalLetters;
         this.updateDashboard();
         
@@ -122,13 +110,55 @@ class IntelligenceModule {
             totalLetters: this.entropyState.totalLetters,
             totalWords: this.entropyState.totalWords,
             currentRatio: this.entropyState.currentRatio,
-            letterBuffer: this.letterBuffer.join('')
+            letterBuffer: this.letterBuffer.join(''),
+            recentWords: this.words.slice(-3)
         });
         
         return {
             success: true,
             status: this.getStorageStatus()
         };
+    }
+
+    processLetterBuffer() {
+        // Need at least 3 letters to form a word
+        if (this.letterBuffer.length < 3) return;
+
+        // Get the last three letters
+        const lastThree = this.letterBuffer.slice(-3);
+        
+        // Check if they're all the same letter
+        if (this.isRepeatingSequence(lastThree)) {
+            // Form a new word
+            const word = lastThree.join('');
+            this.words.push(word);
+            this.entropyState.totalWords++;
+            
+            // Mark these letters as processed in storage
+            const lastThreeIndices = this.dataStorage.letters.length - 3;
+            for (let i = 0; i < 3; i++) {
+                if (this.dataStorage.letters[lastThreeIndices + i]) {
+                    this.dataStorage.letters[lastThreeIndices + i].processed = true;
+                }
+            }
+            
+            // Update processed letters count
+            this.dataStorage.processedLetters += 3;
+            
+            console.log('Word formed:', {
+                word: word,
+                totalWords: this.entropyState.totalWords,
+                newRatio: this.entropyState.totalWords / this.entropyState.totalLetters
+            });
+            
+            // Clear the buffer after word formation
+            this.letterBuffer = [];
+        }
+        
+        // Keep buffer from growing too large
+        if (this.letterBuffer.length > 10) {
+            this.letterBuffer = this.letterBuffer.slice(-10);
+        }
     }
 
     updateDashboard() {
