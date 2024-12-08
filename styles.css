@@ -1,0 +1,1115 @@
+/* =================
+   Layout & Grid 
+   ================= */
+   .container {
+    padding: 20px !important;  /* Using !important to override any Bootstrap defaults */
+    max-width: 100% !important;  /* Ensure it spans full width */
+    box-sizing: border-box;  /* Include padding in width calculation */
+}
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: fit-content !important;
+    margin: 0 auto;
+    font-size: 0.725rem;
+    position: relative !important;
+    z-index: 2 !important;
+    margin-bottom: 2rem !important;
+}
+
+.dashboard-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100% !important;
+    flex-wrap: wrap;
+}
+
+/* =================
+   Panels 
+   ================= */
+.dashboard-panel {
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 0.75rem;
+    width: fit-content !important;
+    margin: 0 auto !important;
+}
+
+.panel-header {
+    color: #ddd;
+    font-size: 1rem;
+    margin: 0 0 0.75rem 0;
+    text-align: center;
+}
+
+.panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: fit-content !important;
+    flex-wrap: wrap;
+    margin: 0 !important;
+}
+
+/* =================
+   Panel Rows
+   ================= */
+.position-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    width: fit-content !important;
+}
+
+.panel-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+/* =================
+   Label-Value Pairs
+   ================= */
+.label-value-pair {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.label-value-pair label {
+    color: #ddd;
+    font-size: 0.725rem;
+    min-width: 4ch;
+    text-align: right;
+    margin: 0;
+}
+
+.label-value-pair input {
+    background-color: #2b4280 !important;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.725rem;
+    text-align: center;
+    font-family: monospace;
+    width: 8ch;
+}
+
+/* Coordinate inputs need more width */
+.coordinate-input {
+    width: 12ch !important;
+}
+
+/* Nested panels (like in System panel) */
+.dashboard-panel .dashboard-panel {
+    margin: 0;
+    padding: 0.5rem;
+}
+
+.dashboard-panel .dashboard-panel .panel-header {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+/* =================
+   Form Controls
+   ================= */
+input[type="text"].form-control,
+.manual-input,
+.animation-input,
+.subsystems-table input[type="text"] {
+    background-color: #2b4280 !important;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 3px;
+    text-align: center !important;
+    font-size: 0.725rem !important;
+}
+
+/* Coordinate inputs (wider for x,y pairs) */
+.coordinate-input,
+input[id*="-coords"],
+input[id*="-centroid"],
+input[id^="tan"],
+input[id*="-point"],
+input[id*="-vertex"] {
+    text-align: center;
+    width: 16ch !important;    /* 16 chars */
+    min-width: 16ch !important;
+    font-family: monospace;    /* For consistent character width */
+    letter-spacing: 0.5px;     /* Slight spacing for readability */
+}
+
+
+
+/* Single value measurements (narrower) */
+input[id$="-radius"],
+input[id$="-capacity"],
+input[id$="-entropy"],
+input[id^="nc"],
+input[id^="ic"],
+input[id^="d-"],     /* Distance measurements */
+input[id^="r-"],     /* Ratio measurements */
+input[id*="-ratio"],
+input[id*="euler"] {  /* Added Euler Line inputs */
+    width: 10ch !important;     /* Increased from 10ch to 11ch */
+    min-width: 10ch !important;  /* Increased from 9ch to 10ch */
+}
+
+/* =================
+   Controls & Buttons
+   ================= */
+.btn-secondary {
+    padding: 0.375rem 0.75rem;
+    width: auto;
+    min-width: fit-content;
+    height: auto;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-secondary.active {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: #000;
+}
+
+/* =================
+   Manual & Animation Controls
+   ================= */
+.manual-controls-container,
+.animation-controls-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.manual-input-group,
+.animation-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.manual-input,
+.animation-input {
+    width: 8ch;
+    min-width: 8ch;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.8rem;
+}
+
+/* Value columns within panels */
+.value-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;  /* 8px vertical gap between rows */
+    width: fit-content !important;
+}
+
+/* =================
+   Subsystems Table
+   ================= */
+.subsystems-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subsystems-table th,
+.subsystems-table td {
+    padding: 0.25rem;
+    text-align: center;
+    color: #ddd;
+    font-size: 0.875rem;  /* Match other panel text size */
+}
+
+.subsystems-table th {
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.subsystems-table td {
+    vertical-align: middle;
+}
+
+.subsystems-table input {
+    width: 8ch;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.875rem;
+    text-align: center;
+    font-family: monospace;
+    background-color: #2b4280 !important;
+}
+
+/* Specific column widths if needed */
+.subsystems-table td:first-child {
+    min-width: 3ch;
+}
+
+.subsystems-table td:nth-child(2) {  /* angle column */
+    min-width: 4ch;
+}
+
+/* Section headers within panels */
+.section-header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #ddd;
+    padding-bottom: 0.25rem;
+}
+
+.value-section {
+    margin-bottom: 0.25rem;
+}
+
+.value-section:last-child {
+    margin-bottom: 0;
+}
+
+/* =================
+   Subtriangle Panel
+   ================= */
+.subtriangle-headers {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.subtriangle-main-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+.nodes-section,
+.subchannels-section,
+.entropy-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.entropy-section .label-value-pair {
+    margin-bottom: 0.25rem;
+}
+
+/* =================
+   Dropdown Buttons
+   ================= */
+.small-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.725rem;
+    border-radius: 3px;
+    border: 1px solid #444;
+    background-color: #2b4280;
+    color: #fff;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: #2b4280;
+}
+
+.delete-button {
+    background-color: #802b2b;
+}
+
+.dropdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    color: #ddd;
+    text-decoration: none;
+}
+
+.dropdown-item:hover {
+    background-color: #2b4280;
+}
+
+/* =================
+   Legends Panel 
+   ================= */
+.legends-panel {
+    margin-top: 4rem !important;  /* Doubled the space above legend from 2rem to 4rem */
+    background-color: #2c2c2c;
+    padding: 2.5rem !important;
+    border-radius: 8px;
+    color: #ddd;
+    margin: 0.5rem auto !important;
+    width: fit-content;
+    max-width: calc(100% - 40px);
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Center the legend items */
+.legends-panel .row {
+    justify-content: center;
+    text-align: center;
+}
+
+.legends-panel .col-md-3 {
+    display: flex;
+    justify-content: center;
+    padding: 0.25rem 1rem;  /* Add padding around each legend item */
+}
+
+.legends-panel p {
+    margin: 0.5rem 0 !important;
+    text-align: center;
+    width: 100%;
+}
+
+.legends-panel .panel-header {
+    margin-bottom: 1rem !important;
+    text-align: center;
+}
+
+/* Subsystems table styling */
+.subsystems-table input[type="text"] {
+    min-width: 100px !important;
+    width: auto !important;
+    text-align: right;
+    padding: 2px 4px;
+    margin: 1px;
+}
+
+.subsystems-table th {
+    text-align: center;
+    padding: 4px;
+}
+
+.subsystems-table td {
+    padding: 2px;
+}
+
+/* Manual Controls Styling */
+.manual-controls-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;  /* Larger gap between main groups */
+}
+
+.nc-group, .ic-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 1rem;  /* Add some spacing around the control group */
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.manual-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;  /* Tighter spacing between label and input */
+}
+
+.manual-input-group label {
+    color: #bbb;
+    white-space: nowrap;
+    margin: 0;  /* Remove any margin */
+}
+
+.manual-input-group input.manual-input {
+    width: 9ch;  /* Increased from 8ch to 9ch */
+    min-width: 9ch;
+    text-align: center;
+    background-color: #2c2c2c;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 0.15rem 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Checkbox group styling */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    min-width: 5ch;
+}
+
+.form-check-input {
+    margin: 0;
+    cursor: pointer;
+}
+
+.form-check-label {
+    margin: 0;
+    color: #bbb;
+    white-space: nowrap;  /* Prevent label from wrapping */
+    cursor: pointer;
+}
+
+/* Apply button styling */
+#apply-manual, #apply-manual-ic {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.9rem;
+    margin-left: 0.25rem;
+}
+
+/* Add specific spacing after NC3 */
+.manual-input-group:has(#manual-nc3) {
+    margin-right: 2rem;  /* Add space after NC3 input group */
+}
+
+/* Add space after Apply NC button */
+#apply-manual {
+    margin-right: 3rem;  /* Add significant space before IC section */
+}
+
+/* IC label spacing */
+.manual-controls-container label:contains("IC:") {
+    margin-left: 1rem;  /* Add space after the Apply NC button */
+}
+
+/* Container for everything */
+.visualization-container {
+    background: var(--bs-dark);
+    border-radius: 0.25rem;
+    padding: 0.15rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    gap: 0.1rem !important;  /* Reduced from 0.15rem */
+}
+
+/* Manual controls section */
+#manual-controls {
+    width: 100%;
+    padding: 0.15rem !important;  /* Reduced from 0.25rem */
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+/* Preset buttons container */
+.preset-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.35rem;  /* Reduced from 0.5rem */
+    width: 100%;
+    padding: 0.1rem 0 !important;  /* Added minimal padding */
+    margin: 0;
+}
+
+/* Remove any Bootstrap spacing utilities that might interfere */
+.p-2, .mb-2, .mt-2, .my-2 {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Update export container styling for new location */
+.export-container {
+    width: 100% !important;
+    margin-top: 1rem !important;
+}
+
+.export-container .btn {
+    width: 100% !important;
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.8rem !important;
+}
+
+/* Remove the old export container styles */
+.container > .export-container {
+    display: none !important;  /* Hide the old container */
+}
+
+.canvas-context-menu {
+    position: fixed;
+    background: #1a1e2c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.875rem;
+    z-index: 1000;
+    pointer-events: none;  /* Allows clicking through the menu */
+}
+
+.animation-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#animation-loop {
+    margin: 0;
+    cursor: pointer;
+}
+
+#animation-loop + label {
+    color: #ddd;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+/* Update just the canvas background */
+#canvas-container {
+    width: 800px !important;
+    height: 600px !important;
+    overflow: hidden !important;
+    margin: 0 auto !important;
+    background-color: #000000 !important;  /* Change canvas background to pure black */
+}
+
+#canvas {
+    width: 100% !important;
+    height: 100% !important;
+    background-color: #000000 !important;  /* Ensure canvas itself is also black */
+}
+
+/* Add dropdown menu styling */
+.dropdown-menu {
+    padding: 0.25rem !important;  /* Reduce padding around the entire menu */
+}
+
+.dropdown-item {
+    padding: 0.15rem 0.5rem !important;  /* Reduce padding around each item */
+    font-size: 0.8rem !important;  /* Make text smaller */
+    line-height: 1.2 !important;  /* Reduce line height */
+}
+
+/* Optional: make the dropdown button text match */
+.dropdown-toggle {
+    font-size: 0.8rem !important;
+}
+
+/* Ensure dropdown items remain readable on hover */
+.dropdown-item:hover {
+    background-color: #2b4280 !important;
+}
+
+/* Info Box Container */
+.info-box-container {
+    display: flex;
+    gap: 0.25rem;  /* Reduced from 0.35rem */
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem !important;
+    padding: 0.1rem !important;  /* Reduced from 0.15rem */
+}
+
+/* Search Field Container */
+.info-search-container {
+    position: relative;
+    min-width: 10ch;
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;  /* Reduced from 0.25rem */
+}
+
+/* Search Input */
+.info-search-container input {
+    width: 10ch;
+    padding: 0.15rem 0.25rem !important;
+    font-size: 0.8rem !important;
+    height: calc(1.4em + 0.4rem) !important;
+    text-align: center;
+    color: #fff !important;  /* Force white text */
+    background-color: #2b4280 !important;
+}
+
+/* Display Field */
+.info-display {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;  /* Reduced from 0.25rem */
+    min-width: auto;  /* Remove the 200px min-width */
+}
+
+.info-display input {
+    padding: 0.15rem 0.25rem !important;
+    background-color: #2b4280 !important;
+    border: 1px solid #444;
+    font-size: 0.8rem !important;
+    width: 16ch !important;
+    min-width: 16ch !important;
+    text-align: center;
+    font-family: monospace;
+    color: #fff !important;  /* Force white text */
+}
+
+/* Update Button */
+#info-display-update {
+    padding: 0.15rem 0.35rem !important;
+    font-size: 0.8rem !important;
+    height: calc(1.4em + 0.4rem) !important;
+    margin-left: 0.25rem;  /* Reduced from 0.35rem */
+}
+
+/* Search Results Dropdown */
+.search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #1a1a1a;  /* Adjust to match your theme */
+    border: 1px solid #444;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+}
+
+.search-results-dropdown.active {
+    display: block;
+}
+
+.search-result-item {
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #fff;
+}
+
+.search-result-item:hover {
+    background-color: #333;
+}
+
+/* Display Field */
+.info-display {
+    min-width: auto;  /* Override the previous 200px setting */
+}
+
+#info-display-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+#info-display-value {
+    display: block;
+    padding: 0.5rem;
+    background-color: #2b4280;  /* Adjust to match your theme */
+    border: 1px solid #444;
+    font-size: 1rem;
+    color: #fff;
+}
+
+/* Subsystems Panel Specific Styles */
+.subsystems-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.subsystem-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.25rem;
+    background-color: rgba(43, 66, 128, 0.2);
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+.subsystem-row .label-value-pair {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.subsystem-row label {
+    color: #ddd;
+    font-size: 0.8rem;
+    min-width: 4.5ch;
+}
+
+.subsystem-row input {
+    width: 8ch;
+    text-align: right;
+    padding: 0.15rem 0.25rem;
+    background-color: #2b4280;
+    border: 1px solid #444;
+    color: #fff;
+    font-size: 0.8rem;
+    font-family: monospace;
+}
+
+/* Subtriangle Panel Specific Styles */
+.subtriangle-section {
+    margin-bottom: 0.5rem;
+    text-align: center;  /* Center the entire section */
+}
+
+.subtriangle-section:last-child {
+    margin-bottom: 0;
+}
+
+.subtriangle-section .section-header {
+    margin-bottom: 0.25rem;
+    color: #ddd;
+    font-size: 0.875rem;
+    text-align: center;  /* Center the section headers */
+    width: 100%;  /* Ensure header spans full width */
+}
+
+.nodes-channels-row,
+.entropy-capacity-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;  /* Center the items horizontally */
+    padding: 0.5rem;  /* Increased padding slightly */
+    background-color: rgba(43, 66, 128, 0.2);
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+.label-value-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;  /* Center label-value pairs */
+    gap: 0.25rem;
+}
+
+.label-value-pair label {
+    text-align: right;  /* Right-align labels */
+    min-width: 5ch;  /* Ensure consistent label width */
+}
+
+.label-value-pair input {
+    text-align: center;  /* Center the input values */
+}
+
+/* Panel header centering */
+.dashboard-panel .panel-header {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 1rem;  /* Slightly increased margin */
+}
+
+/* Adjust spacing for coordinate inputs */
+.nodes-channels-row .coordinate-input {
+    width: 12ch !important;
+}
+
+/* Ensure consistent spacing between sections */
+.subtriangle-section + .subtriangle-section {
+    margin-top: 0.5rem;
+}
+
+/* Dropdown styling */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    display: block !important;
+}
+
+.dropdown-item {
+    color: #ddd;
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-item:hover {
+    background-color: #3c3c3c;
+}
+
+.dropdown-menu {
+    min-width: 200px;
+    max-width: 300px;
+    padding: 0.25rem 0;
+    background-color: #1a1e2c; /* Dark background to match theme */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item {
+    padding: 0.25rem 0.5rem;
+    color: #ffffff; /* White text */
+}
+
+.dropdown-item:hover {
+    background-color: #2c3344; /* Slightly lighter on hover */
+}
+
+.preset-item-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preset-name {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #ffffff; /* White text */
+}
+
+.edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #00b4d8; /* Light blue for better visibility */
+    opacity: 0.8;
+}
+
+.edit-btn:hover, .delete-btn:hover {
+    opacity: 1;
+    color: #48cae4; /* Slightly lighter blue on hover */
+}
+
+.delete-btn {
+    font-size: 1.2rem;
+    line-height: 1;
+    color: #ff6b6b; /* Red for delete button */
+}
+
+.delete-btn:hover {
+    color: #ff8585; /* Lighter red on hover */
+}
+
+.edit-btn {
+    font-size: 1rem;
+}
+
+/* Save State Dialog */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.save-state-dialog .modal-content {
+    background: #1a1e2c;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.save-state-dialog h2 {
+    color: #ffffff;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.save-state-dialog .form-group {
+    margin-bottom: 15px;
+}
+
+.save-state-dialog label {
+    display: block;
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.save-state-dialog input[type="text"],
+.save-state-dialog textarea {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: #2c3344;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.save-state-dialog input[type="text"]:focus,
+.save-state-dialog textarea:focus {
+    outline: none;
+    border-color: #00b4d8;
+    box-shadow: 0 0 0 2px rgba(0, 180, 216, 0.2);
+}
+
+.save-state-dialog .button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-state-dialog button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.save-state-dialog button.cancel {
+    background-color: #4a5568;
+    color: #ffffff;
+}
+
+.save-state-dialog button.save {
+    background-color: #00b4d8;
+    color: #ffffff;
+}
+
+.save-state-dialog button:hover {
+    opacity: 0.9;
+}
+
+.save-state-dialog button:active {
+    transform: translateY(1px);
+}
+
+.save-state-dialog input::placeholder,
+.save-state-dialog textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.data-info-panel {
+    background-color: #1b4d3e !important; /* Dark forest green */
+}
+
+.data-info-panel .panel-header {
+    color: #ffffff; /* White text for better contrast */
+}
+
+.data-info-panel .label-value-pair label {
+    color: #ffffff; /* White text for labels */
+}
+
+.data-info-panel input {
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter input backgrounds */
+    color: #ffffff; /* White text for values */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.flow-control-btn {
+    background-color: #2a5a4a;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+.flow-control-btn:hover {
+    background-color: #3a6a5a;
+}
+
+.flow-control-btn.active {
+    background-color: #4a7a6a;
+}
+
+.flow-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.flow-control input[type="range"] {
+    width: 150px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.flow-control input[type="number"] {
+    width: 70px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2px 5px;
+}
+
+
+.data-info-panel .panel-row {
+        display: flex;
+        justify-content: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+.data-info-panel .flow-control {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+.data-info-panel .flow-rate-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+.data-info-panel .flow-rate-controls input[type="number"] {
+        width: 80px;
+    }
+
+.data-info-panel .flow-rate-controls input[type="range"] {
+        width: 200px;
+    }
+
+.data-info-panel .control-group {
+        display: flex;
+        gap: 1rem;
+    }
+
+.data-info-panel .flow-control-btn {
+        padding: 0.5rem 1rem;
+    }
