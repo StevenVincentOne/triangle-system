@@ -131,6 +131,18 @@ class IntelligenceModule {
         const lossInputField = document.getElementById('loss-input-factor');
         if (lossInputField) {
             lossInputField.value = (this.lossFunction.getLossFactor() * 100).toFixed(4);
+            
+            // Add event listener for changes
+            lossInputField.addEventListener('change', (e) => {
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value) && value >= 0 && value <= 100) {
+                    this.lossFunction.setLossFactor(value / 100);
+                    console.log('Loss factor updated to:', value, '%');
+                } else {
+                    // Reset to current value if invalid input
+                    e.target.value = (this.lossFunction.getLossFactor() * 100).toFixed(4);
+                }
+            });
         }
 
         // Generate initial dataset
@@ -214,49 +226,26 @@ class IntelligenceModule {
                 timestamp: Date.now()
             });
             this.entropyState.totalEntropy++;
-        }
-        
-        if (lossResult.remainingData > 0) {
+        } else if (lossResult.remainingData > 0) {
             this.updateLetterPool(letter);
             this.dataStorage.letters.push({
                 value: letter,
                 timestamp: Date.now(),
                 processed: false,
-                position: this.dataStorage.letters.length
+                position: this.dataStorage.letters.length,
+                isEntropy: false
             });
         }
         
-        this.entropyState.totalLetters++;
-        this.entropyState.currentRatio = this.entropyState.totalWords / this.entropyState.totalLetters;
+        this.entropyState.totalLetters = this.dataStorage.letters.filter(
+            l => !l.processed && !l.isEntropy
+        ).length;
         
         this.loggingState.lettersSinceLastLog++;
         
         this.processLetterBuffer();
         this.updateDashboard();
         
-        // Consolidated reporting at 300-letter intervals
-        if (this.loggingState.lettersSinceLastLog >= this.loggingState.logInterval) {
-            const unprocessedLetters = this.dataStorage.letters.filter(l => !l.processed);
-            const ratioChange = this.entropyState.currentRatio - this.loggingState.lastRatio;
-            
-            console.log('System Status Report:', {
-                lettersSinceLastReport: this.loggingState.lettersSinceLastLog,
-                currentPoolSize: unprocessedLetters.length,
-                currentPool: unprocessedLetters.map(l => l.value).join(''),
-                wordsFormedSinceLastReport: this.loggingState.wordsFormedSinceLastLog,
-                currentBDRatio: this.entropyState.currentRatio.toFixed(4),
-                bdRatioChange: ratioChange.toFixed(4),
-                totalLettersInSystem: this.entropyState.totalLetters,
-                totalWordsFormed: this.entropyState.totalWords,
-                entropyStatus: {
-                    totalGreekLetters: this.entropyTracking.greekLetters.length,
-                    currentEntropyPool: this.entropyTracking.greekLetters.map(l => l.value).join('')
-                }
-            });
-            
-            this.resetLoggingCounters();
-        }
-
         return {
             success: true,
             status: this.getStorageStatus()
@@ -297,11 +286,61 @@ class IntelligenceModule {
         const systemB = document.getElementById('system-b');
         const systemE = document.getElementById('system-e');
         const bdRatio = document.getElementById('system-bd-ratio');
+        const edRatio = document.getElementById('system-ed-ratio');
+        const beRatio = document.getElementById('system-be-ratio');
+        const edbRatio = document.getElementById('system-edb-ratio');
         
+        // Update base values
         if (systemD) systemD.value = this.entropyState.totalLetters.toString();
         if (systemB) systemB.value = this.entropyState.totalWords.toString();
         if (systemE) systemE.value = this.entropyState.totalEntropy.toString();
-        if (bdRatio) bdRatio.value = this.entropyState.currentRatio.toFixed(4);
+        
+        // Calculate and update ratios
+        if (bdRatio) {
+            bdRatio.value = (this.entropyState.totalWords / this.entropyState.totalLetters).toFixed(4);
+        }
+        
+        if (edRatio) {
+            edRatio.value = (this.entropyState.totalEntropy / this.entropyState.totalLetters).toFixed(4);
+        }
+        
+        if (beRatio) {
+            const beValue = this.entropyState.totalEntropy > 0 
+                ? (this.entropyState.totalWords / this.entropyState.totalEntropy).toFixed(4)
+                : '0.0000';
+            beRatio.value = beValue;
+        }
+
+        if (edbRatio) {
+            // Calculate (E+D)/B ratio
+            const combinedED = this.entropyState.totalEntropy + this.entropyState.totalLetters;
+            const edbValue = this.entropyState.totalWords > 0 
+                ? (combinedED / this.entropyState.totalWords).toFixed(4)
+                : '0.0000';
+            edbRatio.value = edbValue;
+        }
+
+        // Update system status log
+        if (this.loggingState.lettersSinceLastLog >= this.loggingState.logInterval) {
+            const unprocessedLetters = this.dataStorage.letters.filter(
+                l => !l.processed && !l.isEntropy
+            );
+            
+            console.log('System Status Report:', {
+                lettersSinceLastReport: this.loggingState.lettersSinceLastLog,
+                currentPoolSize: unprocessedLetters.length,
+                currentPool: unprocessedLetters.map(l => l.value).join(''),
+                wordsFormedSinceLastReport: this.loggingState.wordsFormedSinceLastLog,
+                currentBDRatio: this.entropyState.currentRatio.toFixed(4),
+                bdRatioChange: ratioChange.toFixed(4),
+                totalLettersInSystem: this.entropyState.totalLetters,
+                totalWordsFormed: this.entropyState.totalWords,
+                entropyStatus: {
+                    totalGreekLetters: this.entropyTracking.greekLetters.length,
+                    currentEntropyPool: this.entropyTracking.greekLetters.map(l => l.value).join('')
+                }
+            });
+        }
     }
 
     getEntropyState() {
@@ -345,13 +384,16 @@ class IntelligenceModule {
 
     getStorageStatus() {
         const currentCapacity = parseFloat(document.querySelector('#system-c')?.value) || this.dataStorage.maxCapacity;
+        const unprocessedCount = this.dataStorage.letters.filter(
+            l => !l.processed && !l.isEntropy
+        ).length;
         
         return {
-            totalLetters: this.entropyState.totalLetters,
+            totalLetters: unprocessedCount,  // D is unprocessed, non-entropy letters
             processedLetters: this.dataStorage.processedLetters,
-            capacityUsed: (this.entropyState.totalLetters / currentCapacity) * 100,
-            capacityRemaining: currentCapacity - this.entropyState.totalLetters,
-            unprocessedCount: this.dataStorage.letters.filter(l => !l.processed).length,
+            capacityUsed: ((unprocessedCount + this.entropyState.totalEntropy) / currentCapacity) * 100,
+            capacityRemaining: currentCapacity - (unprocessedCount + this.entropyState.totalEntropy),
+            unprocessedCount: unprocessedCount,
             totalWords: this.entropyState.totalWords,
             currentRatio: this.entropyState.currentRatio,
             bufferContents: this.letterBuffer.join('')
@@ -404,5 +446,12 @@ class IntelligenceModule {
         this.updateDashboard();
         
         console.log('System reset to zero');
+        
+        // Make sure to reset all ratios
+        const ratios = ['system-bd-ratio', 'system-ed-ratio', 'system-be-ratio', 'system-edb-ratio'];
+        ratios.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.value = '0.0000';
+        });
     }
 } 
