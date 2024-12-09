@@ -1,57 +1,20 @@
 class LossFunction {
-    constructor() {
+    constructor(symbolMapping) {
         this.lossFactors = {
-            inputLoss: 0.05  // Default 5%
+            inputLoss: 0.05
         };
-
-        // English to Greek mapping
-        this.greekConversion = {
-            'A': 'α',  // alpha
-            'B': 'β',  // beta
-            'C': 'χ',  // chi
-            'D': 'δ',  // delta
-            'E': 'ε',  // epsilon
-            'F': 'φ',  // phi
-            'G': 'γ',  // gamma
-            'H': 'η',  // eta
-            'I': 'ι',  // iota
-            'J': 'ξ',  // xi
-            'K': 'κ',  // kappa
-            'L': 'λ',  // lambda
-            'M': 'μ',  // mu
-            'N': 'ν',  // nu
-            'O': 'ο',  // omicron
-            'P': 'π',  // pi
-            'Q': 'ψ',  // psi
-            'R': 'ρ',  // rho
-            'S': 'σ',  // sigma
-            'T': 'τ',  // tau
-            'U': 'υ',  // upsilon
-            'V': 'ϑ',  // theta variant
-            'W': 'ω',  // omega
-            'X': 'χ',  // chi
-            'Y': 'ψ',  // psi
-            'Z': 'ζ',  // zeta
-            '/': 'ς',  // final sigma
-            '+': 'Σ',  // capital sigma
-            '&': 'Ω',  // capital omega
-            '∅': 'θ'   // theta
-        };
-    }
-
-    // Convert letter to its Greek equivalent
-    convertToGreek(letter) {
-        return this.greekConversion[letter] || letter;
+        this.symbolMapping = symbolMapping;
     }
 
     processDataLoss(letter) {
-        // Determine if this letter should become entropy
         const isEntropy = Math.random() < this.lossFactors.inputLoss;
         
         if (isEntropy) {
+            const mapping = this.symbolMapping.getGreekMapping(letter);
             return {
                 entropy: true,
-                value: this.convertToGreek(letter),
+                value: mapping.greek,
+                nodeChannel: mapping.nodeChannel,
                 remainingData: 0
             };
         }
@@ -59,20 +22,9 @@ class LossFunction {
         return {
             entropy: false,
             value: letter,
+            nodeChannel: this.symbolMapping.getNodeChannel(letter),
             remainingData: 1
         };
-    }
-
-    // Get current loss factor
-    getLossFactor() {
-        return this.lossFactors.inputLoss;
-    }
-
-    // Set loss factor (value should be between 0 and 1)
-    setLossFactor(value) {
-        if (value >= 0 && value <= 1) {
-            this.lossFactors.inputLoss = value;
-        }
     }
 }
 
