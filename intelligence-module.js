@@ -1,20 +1,57 @@
 class LossFunction {
-    constructor(symbolMapping) {
+    constructor() {
         this.lossFactors = {
-            inputLoss: 0.05
+            inputLoss: 0.05  // Default 5%
         };
-        this.symbolMapping = symbolMapping;
+
+        // English to Greek mapping
+        this.greekConversion = {
+            'A': 'α',  // alpha
+            'B': 'β',  // beta
+            'C': 'χ',  // chi
+            'D': 'δ',  // delta
+            'E': 'ε',  // epsilon
+            'F': 'φ',  // phi
+            'G': 'γ',  // gamma
+            'H': 'η',  // eta
+            'I': 'ι',  // iota
+            'J': 'ξ',  // xi
+            'K': 'κ',  // kappa
+            'L': 'λ',  // lambda
+            'M': 'μ',  // mu
+            'N': 'ν',  // nu
+            'O': 'ο',  // omicron
+            'P': 'π',  // pi
+            'Q': 'ψ',  // psi
+            'R': 'ρ',  // rho
+            'S': 'σ',  // sigma
+            'T': 'τ',  // tau
+            'U': 'υ',  // upsilon
+            'V': 'ϑ',  // theta variant
+            'W': 'ω',  // omega
+            'X': 'χ',  // chi
+            'Y': 'ψ',  // psi
+            'Z': 'ζ',  // zeta
+            '/': 'ς',  // final sigma
+            '+': 'Σ',  // capital sigma
+            '&': 'Ω',  // capital omega
+            '∅': 'θ'   // theta
+        };
+    }
+
+    // Convert letter to its Greek equivalent
+    convertToGreek(letter) {
+        return this.greekConversion[letter] || letter;
     }
 
     processDataLoss(letter) {
+        // Determine if this letter should become entropy
         const isEntropy = Math.random() < this.lossFactors.inputLoss;
         
         if (isEntropy) {
-            const mapping = this.symbolMapping.getGreekMapping(letter);
             return {
                 entropy: true,
-                value: mapping.greek,
-                nodeChannel: mapping.nodeChannel,
+                value: this.convertToGreek(letter),
                 remainingData: 0
             };
         }
@@ -22,8 +59,118 @@ class LossFunction {
         return {
             entropy: false,
             value: letter,
-            nodeChannel: this.symbolMapping.getNodeChannel(letter),
             remainingData: 1
+        };
+    }
+
+    // Get current loss factor
+    getLossFactor() {
+        return this.lossFactors.inputLoss;
+    }
+
+    // Set loss factor (value should be between 0 and 1)
+    setLossFactor(value) {
+        if (value >= 0 && value <= 1) {
+            this.lossFactors.inputLoss = value;
+        }
+    }
+}
+
+class NodeChannelEntropy {
+    constructor() {
+        // Initialize base channel lengths
+        this.channelLengths = {
+            NC1: 100,  // Initial length units
+            NC2: 100,
+            NC3: 100
+        };
+
+        // Bit (English) to Entropy (Greek) mapping with channel assignments
+        this.bitToEntropyMapping = {
+            // NC1 Channel Letters (9 letters)
+            'A': { bit: 'A', entropy: 'α', channel: 'NC1' },  // -1 length as bit, +1 as entropy
+            'D': { bit: 'D', entropy: 'δ', channel: 'NC1' },
+            'G': { bit: 'G', entropy: 'γ', channel: 'NC1' },
+            'J': { bit: 'J', entropy: 'ξ', channel: 'NC1' },
+            'M': { bit: 'M', entropy: 'μ', channel: 'NC1' },
+            'P': { bit: 'P', entropy: 'π', channel: 'NC1' },
+            'S': { bit: 'S', entropy: 'σ', channel: 'NC1' },
+            'V': { bit: 'V', entropy: 'ϑ', channel: 'NC1' },
+            'Y': { bit: 'Y', entropy: 'ψ', channel: 'NC1' },
+
+            // NC2 Channel Letters (9 letters)
+            'B': { bit: 'B', entropy: 'β', channel: 'NC2' },
+            'E': { bit: 'E', entropy: 'ε', channel: 'NC2' },
+            'H': { bit: 'H', entropy: 'η', channel: 'NC2' },
+            'K': { bit: 'K', entropy: 'κ', channel: 'NC2' },
+            'N': { bit: 'N', entropy: 'ν', channel: 'NC2' },
+            'Q': { bit: 'Q', entropy: 'ψ', channel: 'NC2' },
+            'T': { bit: 'T', entropy: 'τ', channel: 'NC2' },
+            'W': { bit: 'W', entropy: 'ω', channel: 'NC2' },
+            'Z': { bit: 'Z', entropy: 'ζ', channel: 'NC2' },
+
+            // NC3 Channel Letters (9 letters)
+            'C': { bit: 'C', entropy: 'χ', channel: 'NC3' },
+            'F': { bit: 'F', entropy: 'φ', channel: 'NC3' },
+            'I': { bit: 'I', entropy: 'ι', channel: 'NC3' },
+            'L': { bit: 'L', entropy: 'λ', channel: 'NC3' },
+            'O': { bit: 'O', entropy: 'ο', channel: 'NC3' },
+            'R': { bit: 'R', entropy: 'ρ', channel: 'NC3' },
+            'U': { bit: 'U', entropy: 'υ', channel: 'NC3' },
+            'X': { bit: 'X', entropy: 'χ', channel: 'NC3' },
+            '∅': { bit: '∅', entropy: 'θ', channel: 'NC3' }
+        };
+
+        // Track channel states
+        this.channelStates = {
+            NC1: { bits: 0, entropy: 0 },
+            NC2: { bits: 0, entropy: 0 },
+            NC3: { bits: 0, entropy: 0 }
+        };
+    }
+
+    processLetter(letter, lossFunction) {
+        const mapping = this.bitToEntropyMapping[letter];
+        if (!mapping) return null;
+
+        const result = lossFunction.processDataLoss(letter);
+        const channel = mapping.channel;
+
+        if (result.entropy) {
+            // Letter becomes Entropy (E) - Increase channel length by 1
+            this.channelStates[channel].entropy++;
+            this.channelLengths[channel] += 1;
+            return {
+                type: 'entropy',
+                value: mapping.entropy,
+                channel: channel,
+                newLength: this.channelLengths[channel]
+            };
+        } else {
+            // Letter remains as Bit (B) - Decrease channel length by 1
+            this.channelStates[channel].bits++;
+            this.channelLengths[channel] = Math.max(this.channelLengths[channel] - 1, 1); // Minimum length of 1
+            return {
+                type: 'bit',
+                value: mapping.bit,
+                channel: channel,
+                newLength: this.channelLengths[channel]
+            };
+        }
+    }
+
+    getChannelLength(channel) {
+        return this.channelLengths[channel];
+    }
+
+    getAllChannelLengths() {
+        return this.channelLengths;
+    }
+
+    getChannelState(channel) {
+        return {
+            ...this.channelStates[channel],
+            currentLength: this.channelLengths[channel]
         };
     }
 }
@@ -76,8 +223,9 @@ class IntelligenceModule {
             logInterval: 300
         };
 
-        // Initialize loss function
+        // Initialize loss function and node channel entropy
         this.lossFunction = new LossFunction();
+        this.nodeChannelEntropy = new NodeChannelEntropy();
         
         // Set initial loss input value in UI
         const lossInputField = document.getElementById('loss-input-factor');
@@ -104,12 +252,6 @@ class IntelligenceModule {
         this.updateDashboard();
         
         console.log('IntelligenceModule initialized with in-memory storage');
-
-        // Add zero data button handler
-        const zeroDataButton = document.getElementById('zeroDataButton');
-        if (zeroDataButton) {
-            zeroDataButton.addEventListener('click', () => this.resetSystem());
-        }
     }
 
     generateInitialDataset() {
@@ -170,23 +312,26 @@ class IntelligenceModule {
             };
         }
 
-        const lossResult = this.lossFunction.processDataLoss(letter);
+        // Process through NodeChannelEntropy first
+        const channelResult = this.nodeChannelEntropy.processLetter(letter, this.lossFunction);
         
-        if (lossResult.entropy) {
-            this.entropyTracking.greekLetters.push({
-                value: lossResult.value,
-                timestamp: Date.now()
-            });
-            this.entropyState.totalEntropy++;
-        } else if (lossResult.remainingData > 0) {
-            this.updateLetterPool(letter);
-            this.dataStorage.letters.push({
-                value: letter,
-                timestamp: Date.now(),
-                processed: false,
-                position: this.dataStorage.letters.length,
-                isEntropy: false
-            });
+        if (channelResult) {
+            if (channelResult.type === 'entropy') {
+                this.entropyTracking.greekLetters.push({
+                    value: channelResult.value,
+                    timestamp: Date.now()
+                });
+                this.entropyState.totalEntropy++;
+            } else {
+                this.updateLetterPool(letter);
+                this.dataStorage.letters.push({
+                    value: letter,
+                    timestamp: Date.now(),
+                    processed: false,
+                    position: this.dataStorage.letters.length,
+                    isEntropy: false
+                });
+            }
         }
         
         this.entropyState.totalLetters = this.dataStorage.letters.filter(
@@ -284,7 +429,6 @@ class IntelligenceModule {
                 currentPool: unprocessedLetters.map(l => l.value).join(''),
                 wordsFormedSinceLastReport: this.loggingState.wordsFormedSinceLastLog,
                 currentBDRatio: this.entropyState.currentRatio.toFixed(4),
-                bdRatioChange: ratioChange.toFixed(4),
                 totalLettersInSystem: this.entropyState.totalLetters,
                 totalWordsFormed: this.entropyState.totalWords,
                 entropyStatus: {
@@ -292,6 +436,9 @@ class IntelligenceModule {
                     currentEntropyPool: this.entropyTracking.greekLetters.map(l => l.value).join('')
                 }
             });
+
+            // Reset logging counters
+            this.resetLoggingCounters();
         }
     }
 
